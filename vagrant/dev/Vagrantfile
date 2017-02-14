@@ -1,0 +1,40 @@
+# configuration for ESKAPADE development machine
+Vagrant.configure("2") do |config|
+  # base box: Ubuntu 16.04
+  config.vm.box = "bento/ubuntu-16.04"
+
+  # set host name
+  config.vm.hostname = 'esdevbox'
+
+  # forward port for Jupyter notebooks
+  config.vm.network "forwarded_port", guest: 8888, host: 8889
+
+  # mounts
+  config.vm.synced_folder "../..", "/opt/eskapade", id: "esrepo"
+
+  # VirtualBox settings
+  config.vm.provider "virtualbox" do |vb|
+    # basic settings
+    vb.name = "eskapade-dev"
+    vb.memory = "8192"
+    vb.cpus = 4
+
+    # graphics memory
+    vb.customize ["modifyvm", :id, "--vram", "256"]
+
+    # display the VirtualBox GUI when booting the machine
+    #vb.gui = true
+  end
+
+  # provision machine
+  config.vm.provision "shell", path: "provision.sh"
+
+  # mount ESKAPADE repository
+  config.vm.provision "shell", path: "mount.sh", run: "always"
+
+  # reboot machine
+  config.vm.provision "shell", inline: <<-SHELL
+    echo "$(date +'%F %T %Z'): system reboot in one minute"
+    shutdown -r +1
+  SHELL
+end
