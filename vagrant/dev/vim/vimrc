@@ -1,0 +1,13 @@
+set splitbelow   " place new windows below current one
+set hlsearch     " highlight all search pattern matches
+set incsearch    " immediately jump to search pattern match
+
+" Only do this part when compiled with support for autocommands
+if has("autocmd")
+  autocmd VimEnter * set vb t_vb=    " Set no beep
+  "autocmd VimEnter * set bg=dark   " Set background colour
+  autocmd BufRead * set nowrap       " Set no wrap
+  autocmd BufRead * set tw=0         " Switch off text width
+  autocmd BufRead * set wm=1         " Set the right wrap margin to one character
+  autocmd BufNewFile,BufRead *.hive set filetype=sql expandtab
+endif

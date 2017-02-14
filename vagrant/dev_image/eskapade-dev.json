@@ -1,0 +1,17 @@
+{
+  "name": "kave/eskapade-dev",
+  "description": "ESKAPADE development box",
+  "versions": [
+    {
+      "version": "0",
+      "providers": [
+        {
+          "name": "virtualbox",
+          "url": "https://s3-eu-west-1.amazonaws.com/kpmg-eskapade-share/eskapade-dev-0.box",
+          "checksum_type": "sha1",
+          "checksum": "b77d75a9ef9c9e3fb932af52af37905d1ebfec7c"
+        }
+      ]
+    }
+  ]
+}
