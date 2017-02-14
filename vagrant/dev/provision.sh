@@ -47,7 +47,7 @@ echo "${ESUSER}:${ESUSER}" | chpasswd
 # enable login as ESKAPADE user with key
 log "authorizing key \"esdev_id_rsa\" for ${ESUSER}"
 mkdir -p "/home/${ESUSER}/.ssh"
-cat /vagrant/esdev_id_rsa.pub >> "/home/${ESUSER}/.ssh/authorized_keys"
+cat /vagrant/ssh/esdev_id_rsa.pub >> "/home/${ESUSER}/.ssh/authorized_keys"
 chown -R "${ESUSER}":"${ESUSER}" "/home/${ESUSER}/.ssh/"
 chmod -R go-rwx "/home/${ESUSER}/.ssh"
 
