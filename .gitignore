@@ -1,0 +1,17 @@
+# editors and IDEs
+*.swp
+*.*~
+.idea
+
+# (I)Python
+*.pyc
+/**/.ipynb_checkpoints
+
+# archives
+*.tar
+*.gz
+*.bz2
+*.zip
+
+# Vagrant
+/**/.vagrant
