@@ -64,7 +64,7 @@ log "upgrading system"
 apt-get -y dist-upgrade &> "${LOGDIR}/dist-upgrade.log"
 log "installing additional packages"
 apt-get -y install openjdk-8-jdk gfortran cmake libgsl-dev libfftw3-dev dpkg-dev libxpm-dev libxft-dev libxext-dev\
-                   locales locales-all &> "${LOGDIR}/install.log"
+                   locales locales-all texlive &> "${LOGDIR}/install.log"
 
 # install KAVE Toolbox
 log "installing KAVE Toolbox"
