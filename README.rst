@@ -1,7 +1,7 @@
 ESKAPADE
 ========
 
-Version: 0
+Version: 0.4
 
 Eskapade is a light-weight, python-based data analysis framework, meant for all sorts of data analysis problems.
 
@@ -9,7 +9,7 @@ Eskapade is a light-weight, python-based data analysis framework, meant for all 
 Release notes
 =============
 
-This is Version 0 of Eskapade, released in Feb 2017.
+This is Version 0.4 of Eskapade, released in Feb 2017.
 In this release we are releasing the core code to run the Eskapade framework.
 The code is written in python 3. Please see the Documentation for more details.
 

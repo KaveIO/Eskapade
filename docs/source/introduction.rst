@@ -34,6 +34,4 @@ Naming convention
 
 Before settling on the name `Eskapade`, this project had internal naming conventions
 including `Decision Engine` and `Analytics Engine`. We are working on removing all old names and
-streamlining this all into Eskapade version 1.0, but one might still find these
-in certain parts of the repository. 
-
+streamlining this all into future versions, but one might still find these in certain parts of the repository.
