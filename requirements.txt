@@ -1,2 +1,6 @@
+ipython
+matplotlib
 mock
+numpy
+pandas
 tabulate
