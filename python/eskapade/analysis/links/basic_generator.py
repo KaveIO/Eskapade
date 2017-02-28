@@ -1,0 +1,76 @@
+# **********************************************************************************
+# * Project: Eskapade - A python-based package for data analysis                   *
+# * Class  : BasicGenerator                                                        *
+# * Created: 2017/02/26                                                            *
+# *                                                                                *
+# * Description:                                                                   *
+# *      Link to generate random data with basic distributions                     *
+# *                                                                                *
+# * Authors:                                                                       *
+# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
+# *                                                                                *
+# * Redistribution and use in source and binary forms, with or without             *
+# * modification, are permitted according to the terms listed in the file          *
+# * LICENSE.                                                                       *
+# **********************************************************************************
+
+import numpy as np
+import pandas as pd
+
+from eskapade import Link, StatusCode, ProcessManager, DataStore
+
+
+class BasicGenerator(Link):
+    """Generate data with basic distributions"""
+
+    def __init__(self, **kwargs):
+        """Initialize link instance
+
+        :param str key: key of output data in data store
+        :param list columns: output column names
+        :param int size: number of variable values
+        :param dict gen_config: generator configuration for each variable
+        :param int gen_seed: generator random seed
+        """
+
+        # initialize Link
+        Link.__init__(self, kwargs.pop('name', 'basic_generator'))
+
+        # process keyword arguments
+        self._process_kwargs(kwargs, key='', columns=None, size=1, gen_config=None, gen_seed=1)
+        self.check_extra_kwargs(kwargs)
+
+    def initialize(self):
+        """Inititialize BasicGenerator"""
+
+        # check input arguments
+        self.check_arg_vals('key', 'size', 'columns')
+        self.check_arg_types(key=str, size=int, gen_seed=int)
+        self.check_arg_types(recurse=True, allow_none=True, columns=str, gen_config=str)
+
+        # set generator seed
+        np.random.seed(self.gen_seed)
+
+        return StatusCode.Success
+
+    def execute(self):
+        """Execute BasicGenerator"""
+
+        # generate data
+        self.log().debug('Generating %d rows for columns [%s]', self.size,
+                         ', '.join('"{}"'.format(c) for c in self.columns))
+        data = {}
+        for col in self.columns:
+            # get generator configuration for this variable
+            conf = self.gen_config.get(col, {}) if self.gen_config else {}
+            mu = conf.get('mean', 0.)
+            sigma = conf.get('std', 1.)
+            dtype = conf.get('dtype', float)
+
+            # generate
+            data[col] = np.random.normal(loc=mu, scale=sigma, size=self.size).astype(dtype)
+
+        # create data frame
+        ProcessManager().service(DataStore)[self.key] = pd.DataFrame(data=data, columns=self.columns)
+
+        return StatusCode.Success
