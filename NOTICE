@@ -1,0 +1,17 @@
+################################################################################################
+#
+# NOTICE: pass-through licensing of bundled components
+#
+# Eskapade gathers together a toolkit of pre-existing third-party open-source software components.
+# These software components are governed by their own licenses which Eskapade does not
+# modify or supersede, please consult the originating authors. These components altogether
+# have a mixture of the following licenses: Apache 2.0, GPL 2.0, AGPL and LGPL, ZPL, MIT, PSF,
+# BSD and some BSD-like simple licenses.
+# For scipy and ipython see: http://docs.continuum.io/anaconda/licenses.html .
+# For ROOT see: https://root.cern.ch/license 
+# For HistFitter see: http://cern.ch/histfitter
+#
+# Although we have examined the licenses to verify acceptance of commercial and non-commercial
+# use, please see and consult the original licenses or authors.
+#
+################################################################################################
