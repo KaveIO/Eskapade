@@ -7,6 +7,11 @@
 *.pyc
 /**/.ipynb_checkpoints
 
+# log and data files
+*.log
+*.bak
+*.dat
+
 # archives
 *.tar
 *.gz
@@ -15,3 +20,21 @@
 
 # Vagrant
 /**/.vagrant
+
+# data and results directories
+data/*
+results/*
+
+# documentation
+*.rst
+!docs/README.rst
+!docs/source/code.rst
+!docs/source/introduction.rst
+!docs/source/tutorial_jupyter.rst
+!docs/source/installation.rst
+!docs/source/index.rst
+!docs/source/tutorial.rst
+!README.rst
+!python/eskapade/README.rst
+!vagrant/README.rst
+docs/build/*
