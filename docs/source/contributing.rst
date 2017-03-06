@@ -14,7 +14,7 @@ source Eskapade in the root of the repository. Then you can run the tests:
 .. code-block:: bash
 
   $ source setup.sh
-  $ python ${ESKAPADE}/scripts/run_unit_tests.py
-  $ python ${ESKAPADE}/scripts/run_integration_tests.py
+  $ python3 ${ESKAPADE}/scripts/run_unit_tests.py
+  $ python3 ${ESKAPADE}/scripts/run_integration_tests.py
 
 Contact the owners of this repository when you need help with adding tests.

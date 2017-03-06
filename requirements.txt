@@ -3,4 +3,6 @@ matplotlib
 mock
 numpy
 pandas
+sphinx
+sphinx_rtd_theme
 tabulate

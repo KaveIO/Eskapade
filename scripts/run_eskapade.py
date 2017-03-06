@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # **************************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                       *
