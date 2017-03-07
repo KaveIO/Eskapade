@@ -210,7 +210,7 @@ The script creates the skeleton file:
 
   $ python/eskapade/analysis/links/yourlink.py
 
-This skeleton file can be modified with your custom editor and then be imported and called inside a macro with ``analysis.YourLink()``.
+This skeleton file can be modified with your custom editor and then be imported and called inside a macro with ``analysis.YourLink()``. Notice that the name of the class is CamelCase and that the name of the file is lowercase to conform to coding guidelines.
 
 Now open up the link in your editor.
 In the ``execute`` function of the Link, we see that a DataStore is called. This is the central in-memory object in
@@ -218,7 +218,7 @@ which all data is saved. DataStore inherits from a dict, so by calling the right
 
 .. code-block:: python
 
-  ds = ds['data']
+  df = ds['data']
 
 to get the DataFrame that includes the latest transformations.
 
