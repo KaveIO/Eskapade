@@ -525,7 +525,7 @@ To write out the intermediate results from each chain add the command line argum
 
   $ run_eskapade.py -w tutorials/tutorial_1.py
 
-To write out the state after one particular chain, use option ``-W``:
+To write out the state after one particular chain, use option ``-W`` (capital):
   
 .. code-block:: bash
 
