@@ -201,7 +201,7 @@ Where ``$MACRO`` is the macro name you specified in the settings, ``$VERSION`` i
 ``latest`` refers to the last chain you wrote to disk. By default, the version is ``0`` and the name is ``v0`` and the chain is
 the last chain of your macro.
 
-You can write a specific chain with the `command line arguments <tutorial.html#command-line-arguments>`_,
+You can write a specific chain with the `command line arguments <command_line_arguments.html>`_,
 otherwise use the default, the last chain of the macro.
 
 Now we are going to load the pickle from tutorial_1.
