@@ -13,7 +13,7 @@ KTBDIR="/opt/KaveToolbox"
 ANADIR="/opt/anaconda"
 SPARKRELEASE="2.1.0"
 SPARKDIR="/opt/spark"
-ROOTRELEASE="6.06.08"
+ROOTRELEASE="6.08.06"
 ROOTDIR="/opt/root"
 PYCHARMRELEASE="2016.3.2"
 PYCHARMDIR="/opt/pycharm"
@@ -64,7 +64,8 @@ log "upgrading system"
 apt-get -y dist-upgrade &> "${LOGDIR}/dist-upgrade.log"
 log "installing additional packages"
 apt-get -y install openjdk-8-jdk gfortran cmake libgsl-dev libfftw3-dev dpkg-dev libxpm-dev libxft-dev libxext-dev\
-                   locales locales-all texlive &> "${LOGDIR}/install.log"
+  freeglut3-dev libxml2-dev graphviz-dev\
+  locales locales-all texlive &> "${LOGDIR}/install.log"
 
 # install KAVE Toolbox
 log "installing KAVE Toolbox"
@@ -96,18 +97,33 @@ sed -e "s|ROOTSYS_VAR|${ROOTDIR}/pro|g" /vagrant/root/root_env.sh >> "${KTBDIR}/
 mkdir -p "${ROOTDIR}"
 ln -sfT "root-${ROOTRELEASE}" "${ROOTDIR}/pro"
 
-# install ROOT
-log "installing ROOT in ${ROOTDIR}/root-${ROOTRELEASE}"
+# fetch ROOT
 cd "${TMPDIR}"
 wget -q "https://root.cern.ch/download/root_v${ROOTRELEASE}.source.tar.gz"
 tar -xzf "root_v${ROOTRELEASE}.source.tar.gz" --no-same-owner
+
+# apply ROOT patches
+log "applying ROOT patches"
+cd "root-${ROOTRELEASE}"
+for patchfile in $(ls /vagrant/root/patches/*.patch); do
+  patch -p1 -i "${patchfile}"
+done
+
+# install ROOT
+log "installing ROOT in ${ROOTDIR}/root-${ROOTRELEASE}"
+cd "${TMPDIR}"
 mkdir -p root_build
 cd root_build
-cmake -DCMAKE_INSTALL_PREFIX="${ROOTDIR}/root-${ROOTRELEASE}"\
-      -DPYTHON_EXECUTABLE="${ANADIR}/pro/bin/python"\
-      -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" -Dcxx11=ON -Dcxx14=ON -Dpython=ON -Dx11=ON\
-      -Dmathmore=ON -Dminuit2=ON -Droofit=ON -Dtmva=ON -Dssl=OFF -Dxml=OFF\
-      "../root-${ROOTRELEASE}" &> "${LOGDIR}/install-root.log"
+cmake -DCMAKE_INSTALL_PREFIX="${ROOTDIR}/root-${ROOTRELEASE}" \
+  -Dfail-on-missing=ON \
+  -Dcxx14=ON -Droot7=ON -Dshared=ON -Dsoversion=ON -Dthread=ON -Dfortran=ON -Dpython=ON -Dcling=ON -Dx11=ON -Dssl=ON \
+  -Dxml=ON -Dfftw3=ON -Dbuiltin_fftw3=OFF -Dmathmore=ON -Dminuit2=ON -Droofit=ON -Dtmva=ON -Dopengl=ON -Dgviz=ON \
+  -Dalien=OFF -Dbonjour=OFF -Dcastor=OFF -Dchirp=OFF -Ddavix=OFF -Ddcache=OFF -Dfitsio=OFF -Dgfal=OFF -Dhdfs=OFF \
+  -Dkrb5=OFF -Dldap=OFF -Dmonalisa=OFF -Dmysql=OFF -Dodbc=OFF -Doracle=OFF -Dpgsql=OFF -Dpythia6=OFF -Dpythia8=OFF \
+  -Dsqlite=OFF -Drfio=OFF -Dxrootd=OFF \
+  -DPYTHON_EXECUTABLE="${ANADIR}/pro/bin/python" \
+  -DNUMPY_INCLUDE_DIR="${ANADIR}/pro/lib/python3.5/site-packages/numpy/core/include" \
+  "../root-${ROOTRELEASE}" &> "${LOGDIR}/install-root.log"
 cmake --build . --target install -- -j4 &>> "${LOGDIR}/install-root.log"
 
 # install Python packages for ROOT

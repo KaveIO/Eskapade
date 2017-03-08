@@ -1,0 +1,47 @@
+From 32a27716197d355e2b87d5c24f0593732acb8481 Mon Sep 17 00:00:00 2001
+From: Enric Tejedor Saavedra <enric.tejedor.saavedra@cern.ch>
+Date: Wed, 14 Dec 2016 16:24:37 +0100
+Subject: [PATCH 5/7] Use absolute path for imports
+
+---
+ bindings/pyroot/JupyROOT/cppcompleter.py | 2 +-
+ bindings/pyroot/JupyROOT/utils.py        | 3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/bindings/pyroot/JupyROOT/cppcompleter.py b/bindings/pyroot/JupyROOT/cppcompleter.py
+index c3e81a5..d451409 100644
+--- a/bindings/pyroot/JupyROOT/cppcompleter.py
++++ b/bindings/pyroot/JupyROOT/cppcompleter.py
+@@ -5,7 +5,7 @@
+ #  Author: Enric Tejedor <enric.tejedor.saavedra@cern.ch> CERN
+ #-----------------------------------------------------------------------------
+ 
+-import utils
++from JupyROOT import utils
+ import ROOT
+ 
+ # Jit a wrapper for the ttabcom
+diff --git a/bindings/pyroot/JupyROOT/utils.py b/bindings/pyroot/JupyROOT/utils.py
+index 6c41980..390b596 100644
+--- a/bindings/pyroot/JupyROOT/utils.py
++++ b/bindings/pyroot/JupyROOT/utils.py
+@@ -14,7 +14,6 @@ import pty
+ import itertools
+ import re
+ import fnmatch
+-import handlers
+ import time
+ from hashlib import sha1
+ from contextlib import contextmanager
+@@ -24,7 +23,7 @@ from IPython.display import HTML
+ from IPython.core.extensions import ExtensionManager
+ import IPython.display
+ import ROOT
+-import cppcompleter
++from JupyROOT import cppcompleter, handlers
+ 
+ # We want iPython to take over the graphics
+ ROOT.gROOT.SetBatch()
+-- 
+2.9.3
+
