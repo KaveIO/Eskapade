@@ -81,7 +81,7 @@ sed -i -e "s|/etc/profile\.d/kave\.sh|${KTBDIR}/pro/scripts/kave.sh|g" /etc/bash
 # setup Spark environment
 sed -e "s|SPARK_HOME_VAR|${SPARKDIR}/pro|g" /vagrant/spark/spark_env.sh >> "${KTBDIR}/pro/scripts/KaveEnv.sh"
 mkdir -p "${SPARKDIR}"
-ln -sf "spark-${SPARKRELEASE}" "${SPARKDIR}/pro"
+ln -sfT "spark-${SPARKRELEASE}" "${SPARKDIR}/pro"
 
 # install Spark
 log "installing Spark in ${SPARKDIR}/spark-${SPARKRELEASE}"
@@ -94,7 +94,7 @@ build/mvn -DskipTests clean package &> "${LOGDIR}/install-spark.log"
 # setup ROOT environment
 sed -e "s|ROOTSYS_VAR|${ROOTDIR}/pro|g" /vagrant/root/root_env.sh >> "${KTBDIR}/pro/scripts/KaveEnv.sh"
 mkdir -p "${ROOTDIR}"
-ln -sf "root-${ROOTRELEASE}" "${ROOTDIR}/pro"
+ln -sfT "root-${ROOTRELEASE}" "${ROOTDIR}/pro"
 
 # install ROOT
 log "installing ROOT in ${ROOTDIR}/root-${ROOTRELEASE}"
@@ -118,7 +118,7 @@ bash -c "source ${KTBDIR}/pro/scripts/KaveEnv.sh && ${ANADIR}/pro/bin/pip instal
 # setup PyCharm environment
 sed -e "s|PYCHARM_HOME_VAR|${PYCHARMDIR}/pro|g" /vagrant/pycharm/pycharm_env.sh >> "${KTBDIR}/pro/scripts/KaveEnv.sh"
 mkdir -p "${PYCHARMDIR}"
-ln -sf "pycharm-community-${PYCHARMRELEASE}" "${PYCHARMDIR}/pro"
+ln -sfT "pycharm-community-${PYCHARMRELEASE}" "${PYCHARMDIR}/pro"
 
 # install PyCharm
 log "installing PyCharm in ${PYCHARMDIR}/pycharm-community-${PYCHARMRELEASE}"
