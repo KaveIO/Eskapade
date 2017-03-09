@@ -18,9 +18,9 @@
 
 import os
 import re
-import argparse
 import logging
 from eskapade import core, ProcessManager, ConfigObject, DataStore
+from eskapade.core.project_utils import create_parser
 
 if __name__ == "__main__":
     """
@@ -36,51 +36,17 @@ if __name__ == "__main__":
     """
 
     # set some default options
-    display = core.project_utils.get_env_var('display')
-    runBatch = display is None or not re.search(':\d', display)
-    runInterpreter = False
     settings = ConfigObject()
     settings['doCodeProfiling'] = False
     settings['storeResultsEachChain'] = False
     settings['doNotStoreResults'] = False
 
-    # Definition of all options and defaults given as command line arguments
-    parser = argparse.ArgumentParser()
+    # set default value for batch-mode switch, based on display settings
+    display = core.project_utils.get_env_var('display')
+    settings['batchMode'] = display is None or not re.search(':\d', display)
 
-    parser.add_argument("configFile", nargs="+", help="configuration file to execute")
-    parser.add_argument("-L", "--log-level", help="set log level",
-                        choices=["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "FATAL", "OFF"])
-    parser.add_argument("-F", "--log-format", help="format of log messages",
-                        default="%(asctime)s %(levelname)s [%(module)s/%(funcName)s]: %(message)s")
-    parser.add_argument("-S", "--seed", type=int, help="set the random seed for toy generation",
-                        default=settings['seed'])
-    parser.add_argument("-B", "--batch-mode", help="run in batch mode, not using X Windows",
-                        action="store_true", default=runBatch)
-    parser.add_argument("-i", "--interactive", help="remain in interactive mode after running",
-                        action="store_true", default=runInterpreter)
-    parser.add_argument("-b", "--begin-with-chain", help="begin running from particular chain in chain-list", default="")
-    parser.add_argument("-e", "--end-with-chain", help="last chain to run in chain-list", default="")
-    parser.add_argument("-s", "--single-chain",   help="select which single chain to run", default="")
-    parser.add_argument("-w", "--store-intermediate-result", help="store intermediate result after each chain, not only at end",
-                        action="store_true", default=settings['storeResultsEachChain'])
-    parser.add_argument("-W", "--store-intermediate-result-one-chain", help="store intermediate result of one chain",
-                        default="")
-    parser.add_argument("-c", "--cmd", help="python commands to process (semi-colon-seperated)")
-    parser.add_argument("-U", "--userArg", help="arbitrary user argument(s)", default="")
-    parser.add_argument("-P", "--run-profiling",
-                        help="Run a python profiler during main Eskapade execution",
-                        action="store_true")
-    parser.add_argument("-v", "--data-version", help="use the samples for training containing this version number",
-                        type=int, default=0)
-    parser.add_argument("-a", "--analysis-name", help="The name of the analysis", default="")
-    parser.add_argument("-u", "--unpickle-config", help="Unpickle configuration object from configuration file.",
-                        action="store_true", default=False)
-    parser.add_argument("-r", "--results-dir", help="Set path of the storage results directory", default="")
-    parser.add_argument("-d", "--data-dir", help="Set path of the data directory", default="")
-    parser.add_argument("-m", "--macros-dir", help="Set path of the macros directory", default="")
-    parser.add_argument("-n", "--do-not-store-results", help="Do not store results in pickle files",
-                        action="store_true", default=settings['doNotStoreResults'])
-
+    # Create the argument parser that reads command line arguments.
+    parser = create_parser(settings)
     user_args = parser.parse_args()
 
     # Process all cmd line arguments/options
@@ -117,8 +83,7 @@ if __name__ == "__main__":
         settings['version'] = user_args.data_version
     if user_args.run_profiling:
         settings['doCodeProfiling'] = True
-    if user_args.interactive:
-        runInterpreter = True
+    settings['interactive'] = bool(user_args.interactive)
     if user_args.cmd:
         settings['cmd'] = user_args.cmd
         settings.parse_cmd_options()
@@ -142,7 +107,7 @@ if __name__ == "__main__":
     core.execution.run_eskapade(settings)
 
     # if requested (-i), end execution in interpreter.
-    if runInterpreter:
+    if settings.get('interactive'):
         # create process manager, config object, and data store
         proc_mgr = ProcessManager()
         settings = proc_mgr.service(ConfigObject)
