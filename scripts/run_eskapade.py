@@ -81,60 +81,60 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--do-not-store-results", help="Do not store results in pickle files",
                         action="store_true", default=settings['doNotStoreResults'])
 
-    DecisionEngineArgs = parser.parse_args()
+    user_args = parser.parse_args()
 
     # Process all cmd line arguments/options
 
     # First mandatory user-defined configuration file
     # (settings set in the configuration file supersede cmd line arguments.) 
-    settings['macro'] = os.path.abspath(DecisionEngineArgs.configFile[0])
+    settings['macro'] = os.path.abspath(user_args.configFile[0])
 
     # Then all optional cmd line settings (these may overwrite the macro)
-    if DecisionEngineArgs.log_level:     # this fixes the logging level globally
-        if DecisionEngineArgs.log_level not in core.definitions.LOG_LEVELS:
-            raise ValueError("Unknown logging level: %r" % DecisionEngineArgs.log_level)
-        settings['logLevel'] = core.definitions.LOG_LEVELS[DecisionEngineArgs.log_level]
+    if user_args.log_level:     # this fixes the logging level globally
+        if user_args.log_level not in core.definitions.LOG_LEVELS:
+            raise ValueError("Unknown logging level: %r" % user_args.log_level)
+        settings['logLevel'] = core.definitions.LOG_LEVELS[user_args.log_level]
     else:
         settings['logLevel'] = logging.INFO
-    settings['logFormat'] = DecisionEngineArgs.log_format
-    if DecisionEngineArgs.seed != 0:  # 0 is default because type is int
-        settings['seed'] = DecisionEngineArgs.seed
-    settings['batchMode'] = bool(DecisionEngineArgs.batch_mode)
-    if DecisionEngineArgs.begin_with_chain and len(DecisionEngineArgs.begin_with_chain) > 0:
-        settings['beginWithChain'] = DecisionEngineArgs.begin_with_chain
-    if DecisionEngineArgs.end_with_chain and len(DecisionEngineArgs.end_with_chain) > 0:
-        settings['endWithChain'] = DecisionEngineArgs.end_with_chain
-    if DecisionEngineArgs.single_chain and len(DecisionEngineArgs.single_chain) > 0:
-        settings['beginWithChain'] = DecisionEngineArgs.single_chain
-        settings['endWithChain'] = DecisionEngineArgs.single_chain
-    if DecisionEngineArgs.store_intermediate_result:
-        settings['storeResultsEachChain'] = DecisionEngineArgs.store_intermediate_result
-    if DecisionEngineArgs.store_intermediate_result_one_chain:
-        settings['storeResultsOneChain'] = DecisionEngineArgs.store_intermediate_result_one_chain
-    if DecisionEngineArgs.do_not_store_results:
-        settings['doNotStoreResults'] = DecisionEngineArgs.do_not_store_results
-    if DecisionEngineArgs.data_version != 0:
-        settings['version'] = DecisionEngineArgs.data_version
-    if DecisionEngineArgs.run_profiling:
+    settings['logFormat'] = user_args.log_format
+    if user_args.seed != 0:  # 0 is default because type is int
+        settings['seed'] = user_args.seed
+    settings['batchMode'] = bool(user_args.batch_mode)
+    if user_args.begin_with_chain and len(user_args.begin_with_chain) > 0:
+        settings['beginWithChain'] = user_args.begin_with_chain
+    if user_args.end_with_chain and len(user_args.end_with_chain) > 0:
+        settings['endWithChain'] = user_args.end_with_chain
+    if user_args.single_chain and len(user_args.single_chain) > 0:
+        settings['beginWithChain'] = user_args.single_chain
+        settings['endWithChain'] = user_args.single_chain
+    if user_args.store_intermediate_result:
+        settings['storeResultsEachChain'] = user_args.store_intermediate_result
+    if user_args.store_intermediate_result_one_chain:
+        settings['storeResultsOneChain'] = user_args.store_intermediate_result_one_chain
+    if user_args.do_not_store_results:
+        settings['doNotStoreResults'] = user_args.do_not_store_results
+    if user_args.data_version != 0:
+        settings['version'] = user_args.data_version
+    if user_args.run_profiling:
         settings['doCodeProfiling'] = True
-    if DecisionEngineArgs.interactive:
+    if user_args.interactive:
         runInterpreter = True
-    if DecisionEngineArgs.cmd:
-        settings['cmd'] = DecisionEngineArgs.cmd
+    if user_args.cmd:
+        settings['cmd'] = user_args.cmd
         settings.parse_cmd_options()
-    if DecisionEngineArgs.userArg:
-        settings['userArg'] = DecisionEngineArgs.userArg
-    if DecisionEngineArgs.analysis_name and len(DecisionEngineArgs.analysis_name) > 0:
-        settings['analysisName'] = DecisionEngineArgs.analysis_name
-    if len(DecisionEngineArgs.results_dir) > 0:
-        settings['resultsDir'] = DecisionEngineArgs.results_dir
-    if len(DecisionEngineArgs.data_dir) > 0:
-        settings['dataDir'] = DecisionEngineArgs.data_dir
-    if len(DecisionEngineArgs.macros_dir) > 0:
-        settings['macrosDir'] = DecisionEngineArgs.macros_dir
-    if DecisionEngineArgs.unpickle_config:
+    if user_args.userArg:
+        settings['userArg'] = user_args.userArg
+    if user_args.analysis_name and len(user_args.analysis_name) > 0:
+        settings['analysisName'] = user_args.analysis_name
+    if len(user_args.results_dir) > 0:
+        settings['resultsDir'] = user_args.results_dir
+    if len(user_args.data_dir) > 0:
+        settings['dataDir'] = user_args.data_dir
+    if len(user_args.macros_dir) > 0:
+        settings['macrosDir'] = user_args.macros_dir
+    if user_args.unpickle_config:
         # load configuration settings from Pickle file
-        settings = ConfigObject.import_from_file(DecisionEngineArgs.configFile[0])
+        settings = ConfigObject.import_from_file(user_args.configFile[0])
         
     # Run Eskapade code here
 
