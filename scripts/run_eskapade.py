@@ -121,6 +121,7 @@ if __name__ == "__main__":
         runInterpreter = True
     if DecisionEngineArgs.cmd:
         settings['cmd'] = DecisionEngineArgs.cmd
+        settings.parse_cmd_options()
     if DecisionEngineArgs.userArg:
         settings['userArg'] = DecisionEngineArgs.userArg
     if DecisionEngineArgs.analysis_name and len(DecisionEngineArgs.analysis_name) > 0:

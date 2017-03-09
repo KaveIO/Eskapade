@@ -137,7 +137,7 @@ class TutorialMacrosTest(unittest.TestCase):
         settings['macro'] = settings['esRoot'] + '/tutorials/esk106_cmdline_options.py'
 
         # fake a setting from the cmd-line. picked up in the macro
-        settings['cmd'] = 'do_chain0=False'
+        settings['do_chain0'] = False
         
         status = execution.run_eskapade(settings)
 
@@ -149,8 +149,8 @@ class TutorialMacrosTest(unittest.TestCase):
         self.assertTrue(status.isSuccess())
         self.assertEqual(1, len(pm.chains))
         self.assertEqual('Chain1', pm.chains[0].name)
-        self.assertEqual(False, settings['do_chain0'])
-        self.assertEqual(True, settings['do_chain1'])
+        self.assertEqual(False, settings.get('do_chain0', True))
+        self.assertEqual(True, settings.get('do_chain1', True))
         self.assertEqual('Universe', pm.chains[0].links[0].hello)
 
     def test_esk107(self):
