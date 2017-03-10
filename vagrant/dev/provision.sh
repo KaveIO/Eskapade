@@ -128,7 +128,9 @@ cmake --build . --target install -- -j4 &>> "${LOGDIR}/install-root.log"
 
 # install Python packages for ROOT
 log "installing Python packages for ROOT"
-bash -c "source ${KTBDIR}/pro/scripts/KaveEnv.sh && ${ANADIR}/pro/bin/pip install rootpy root-numpy root_pandas"\
+cd "${TMPDIR}"
+git clone git://github.com/rootpy/root_numpy.git
+bash -c "source ${KTBDIR}/pro/scripts/KaveEnv.sh && python ${TMPDIR}/root_numpy/setup.py install"\
     &> "${LOGDIR}/install-root-python.log"
 
 # setup PyCharm environment
