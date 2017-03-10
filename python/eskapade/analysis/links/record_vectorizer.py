@@ -32,7 +32,7 @@ class RecordVectorizer(Link):
         """
         Store and do basic check on the attributes of link RecordVectorizer
 
-        :param str readDey: key to read dataframe from the data store. Dataframe of records that is to be transformed.
+        :param str readKey: key to read dataframe from the data store. Dataframe of records that is to be transformed.
         :param str column: column that is to be vectorized
         :param str storeKey: store key of output dataFrame. Default is readKey + '_vectorized'. (optional.)
         :param list column_compare_set: list of unique items with which column values are compared. If not given, this is derived automatically from the column. (optional.)
