@@ -188,9 +188,13 @@ class ConfigObject(ProcessService, dict):
         # file path of the configuration macro
         self['macro'] = ''
         # display mode
+        self['interactive'] = False
         self['batchMode'] = True
         # logging level used throughout Eskapade run
+        self['doCodeProfiling'] = False
         self['logLevel'] = logging.INFO
+        self['storeResultsEachChain'] = False
+        self['doNotStoreResults'] = False
         # seed for random generator
         self['seed'] = 0
         # base directories for results, macros, data
