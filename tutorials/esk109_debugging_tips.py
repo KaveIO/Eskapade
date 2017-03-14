@@ -39,6 +39,9 @@ from the cmd line use the this flag: -i
 """
 log.info(msg)
 
+# testing false used for running integration tests. do not remove.
+settings['TESTING'] = False if not 'TESTING' in settings else settings['TESTING'] 
+
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
@@ -68,8 +71,9 @@ ch.add_link(link)
 # >>> settings
 # Try to add something to the datastore in this session!
 # >>> ds['foo'] = 'bar'
-link = core_ops.IPythonEmbed()
-ch.add_link(link)
+if not settings['TESTING']:
+    link = core_ops.IPythonEmbed()
+    ch.add_link(link)
 
 # 3. let's see what has been added to the datastore ...
 link = core_ops.PrintDs(name = 'printer2')
