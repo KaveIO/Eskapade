@@ -12,8 +12,8 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import cProfile
 import logging
+import cProfile, pstats, io
 
 from .process_manager import ProcessManager
 from .process_services import ConfigObject
@@ -90,7 +90,19 @@ def run_eskapade(settings=None):
 
     # executes chains according to specifications
     if settings.get('doCodeProfiling'):
-        cProfile.run('proc_mgr = ProcessManager(); status = proc_mgr.execute_all()')
+        pr = cProfile.Profile()
+        # turn on profiling
+        pr.enable()
+        # execute the code here
+        status = proc_mgr.execute_all()
+        # turn off profiling
+        pr.disable()
+        s = io.StringIO()
+        # sort output by cumulative time
+        sortby = 'cumulative'
+        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+        ps.print_stats()
+        print (s.getvalue())
     else:
         status = proc_mgr.execute_all()
         pass
