@@ -67,9 +67,9 @@ if __name__ == "__main__":
                         default="")
     parser.add_argument("-c", "--cmd", help="python commands to process (semi-colon-seperated)")
     parser.add_argument("-U", "--userArg", help="arbitrary user argument(s)", default="")
-    parser.add_argument("-P", "--run-profiling",
-                        help="Run a python profiler during main Eskapade execution",
-                        action="store_true")
+    parser.add_argument("-P", "--run-profiling", help="Set sortby of profiler output",
+                        choices=["stdname", "nfl", "pcalls", "file", "calls", "time", "line", "cumulative", \
+                                 "module", "name"])
     parser.add_argument("-v", "--data-version", help="use the samples for training containing this version number",
                         type=int, default=0)
     parser.add_argument("-a", "--analysis-name", help="The name of the analysis", default="")
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     if DecisionEngineArgs.data_version != 0:
         settings['version'] = DecisionEngineArgs.data_version
     if DecisionEngineArgs.run_profiling:
-        settings['doCodeProfiling'] = True
+        settings['doCodeProfiling'] = DecisionEngineArgs.run_profiling
     if DecisionEngineArgs.interactive:
         runInterpreter = True
     if DecisionEngineArgs.cmd:

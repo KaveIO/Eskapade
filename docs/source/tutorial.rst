@@ -623,10 +623,18 @@ Your can profile the speed of your analysis functions by running the option ``-P
 
 .. code-block:: bash
 
-  $ run_eskapade.py -P tutorials/tutorial_1.py
+  $ run_eskapade.py -P cumulative tutorials/tutorial_1.py
 
-After running this prints out a long list of all functions called, including the time it took to run each of of them.
+After running this prints out a long list of all functions called, including the time it took to run each of of them,
+where the functions are sorted based on cumulative time.
 
+Run:
+
+.. code-block:: bash
+
+  $ run_eskapade.py
+
+To the the list of sorting options for the profiling.
 
 Combining arguments
 ~~~~~~~~~~~~~~~~~~~

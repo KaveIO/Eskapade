@@ -34,13 +34,15 @@ settings['version'] = 0
 msg = r"""
 
 Your can profile the speed of your analysis functions by running with the cmd line option: -P
+You will need to select the order in which the profile output is shown on screen. 
+For example: -P cumulative
 After running, this prints out a long list of all functions called, including the time it 
 took to run each of of them.
 """
 log.info(msg)
 
 # turn on code profiling in the ConfigObject
-settings['doCodeProfiling'] = True
+settings['doCodeProfiling'] = 'cumulative'
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags

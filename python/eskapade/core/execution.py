@@ -89,7 +89,7 @@ def run_eskapade(settings=None):
         return status
 
     # executes chains according to specifications
-    if settings.get('doCodeProfiling'):
+    if 'doCodeProfiling' in settings:
         pr = cProfile.Profile()
         # turn on profiling
         pr.enable()
@@ -99,7 +99,7 @@ def run_eskapade(settings=None):
         pr.disable()
         s = io.StringIO()
         # sort output by cumulative time
-        sortby = 'cumulative'
+        sortby = settings['doCodeProfiling']
         ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
         ps.print_stats()
         print (s.getvalue())
