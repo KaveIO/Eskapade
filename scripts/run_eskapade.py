@@ -40,7 +40,6 @@ if __name__ == "__main__":
     runBatch = display is None or not re.search(':\d', display)
     runInterpreter = False
     settings = ConfigObject()
-    settings['doCodeProfiling'] = False
     settings['storeResultsEachChain'] = False
     settings['doNotStoreResults'] = False
 
