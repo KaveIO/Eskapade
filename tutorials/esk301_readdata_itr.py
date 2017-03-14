@@ -138,10 +138,19 @@ if settings['do_example2']:
 
     # --- do something useful with the test dataset here ...
     #     e.g. apply selections, or collect into histograms.
+
+    # querySet = seletions that are applies to incoming_records
+    # after selections, only keep column in selectColumns ('a', 'c')
+    link = analysis.ApplySelectionToDf(readKey ='test2',
+                                       storeKey = 'reduced_data',
+                                       querySet = ['x>1'])
+    # Any other kwargs given to ApplySelectionToDf are passed on the the
+    # pandas query() function.
+    ch.add_link(link)
     
-    # --- As an example, will merge test3's back into a single, merged dataframe.
+    # --- As an example, will merge reduced datasets back into a single, merged dataframe.
     concat = analysis.DfConcatenator()
-    concat.readKeys = ['merged','test2']
+    concat.readKeys = ['merged','reduced_data']
     concat.storeKey = 'merged'
     concat.ignore_missing_input = True # in first iteration input 'merged' is missing. 
     ch.add_link(concat) 
