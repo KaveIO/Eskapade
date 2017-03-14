@@ -42,6 +42,7 @@ took to run each of of them.
 log.info(msg)
 
 # turn on code profiling in the ConfigObject
+# turn off this line if you want to experiment with the profiling from the cmd line!
 settings['doCodeProfiling'] = 'cumulative'
 
 #########################################################################################
