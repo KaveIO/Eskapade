@@ -1,13 +1,11 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk207_record_vectorizer                                                         *
-# * Created: 2017/03/13                                                                  *
+# * Macro  : esk207_record_vectorizer                                              *
+# * Created: 2017/03/13                                                            *
 # * Description:                                                                   *
-# *      Macro to (please fill in short description here) 
-# *      
-# *                                                                                *
-# * Authors:                                                                       *
-# *      Your name(s) here                                                         *
+# *     This macro performs the vectorization of an input column of an input dataframe.
+# *     E.g. a columnn x with values 1, 2 is tranformed into columns x_1 and x_2, 
+# *     with values True or False assigned per record.
 # *                                                                                *
 # * Redistribution and use in source and binary forms, with or without             *
 # * modification, are permitted according to the terms listed in the file          *
