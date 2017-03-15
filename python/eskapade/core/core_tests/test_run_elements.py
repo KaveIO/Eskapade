@@ -37,14 +37,6 @@ class LinkTest(unittest.TestCase):
     def setUp(self):
         pass
 
-    def test_clone(self):
-        l1 = Link('l1')
-
-        l1_clone = l1.clone()
-
-        self.assertNotEqual(id(l1), id(l1_clone))
-        self.assertEqual(l1.name, l1_clone.name)
-
     def test_load(self):
         pass
 
@@ -59,19 +51,6 @@ class LinkTest(unittest.TestCase):
 class ChainTest(unittest.TestCase):
     def setUp(self):
         pass
-
-    def test_clone(self):
-        c1 = Chain('c1')
-        l1 = Link('l1')
-        l2 = Link('l2')
-        c1.links = [l1, l2]
-
-        c1_clone = c1.clone()
-
-        self.assertNotEqual(id(c1), id(c1_clone))
-        self.assertNotEqual(id(c1.links[0]), id(c1_clone.links[0]))
-        self.assertEqual(c1.name, c1_clone.name)
-        self.assertEqual(c1.links[0].name, c1_clone.links[0].name)
 
     @mock.patch('eskapade.core.run_elements.Link.initialize_link')
     @mock.patch('eskapade.core.run_elements.Link.execute_link')
