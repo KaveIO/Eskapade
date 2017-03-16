@@ -181,29 +181,30 @@ class ConfigObject(ProcessService, dict):
     def __init__(self):
         """Initialize ConfigObject instance"""
 
-        # version, analysisName, and configuration file define an entire analysis
-        # version and analysisName are used for bookkeeping purposes (e.g. directory structure)
+        # general run settings
         self['version'] = 0
         self['analysisName'] = ''
-        # file path of the configuration macro
         self['macro'] = ''
-        # display mode
         self['interactive'] = False
         self['batchMode'] = True
-        # logging level used throughout Eskapade run
         self['doCodeProfiling'] = False
         self['logLevel'] = logging.INFO
+
+        # chain settings
         self['storeResultsEachChain'] = False
         self['doNotStoreResults'] = False
-        # seed for random generator
+
+        # random-generator settings
         self['seed'] = 0
-        # base directories for results, macros, data
+
+        # file I/O paths
         self['esRoot'] = project_utils.get_dir_path('es_root')
-        self['resultsDir'] = self['esRoot'] + ('/' if self['esRoot'] else '') + 'results'
-        self['dataDir'] = self['esRoot'] + ('/' if self['esRoot'] else '') + 'data'
-        self['macrosDir'] = self['esRoot'] + ('/' if self['esRoot'] else '') + 'tutorials'
-        self['templatesDir'] = self['esRoot'] + ('/' if self['esRoot'] else '') + 'templates'
-        # mongo collections
+        root_path = self['esRoot'] + ('/' if self['esRoot'] and self['esRoot'][-1] != '/' else '')
+        for subdir in ['results', 'data', 'templates']:
+            self['{}Dir'.format(subdir)] = root_path + subdir
+        self['macrosDir'] = root_path + 'tutorials'
+
+        # MongoDB settings
         self['all_mongo_collections'] = None
 
     def io_base_dirs(self):

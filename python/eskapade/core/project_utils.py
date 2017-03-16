@@ -16,6 +16,7 @@
 import os
 import argparse
 import subprocess
+import logging
 
 ENV_VARS = dict(es_root='ESKAPADE', wd_root='WORKDIRROOT', spark_args='PYSPARK_SUBMIT_ARGS',
                 docker='DE_DOCKER', display='DISPLAY')
@@ -132,3 +133,64 @@ def create_parser(settings):
                         action="store_true", default=settings['doNotStoreResults'])
 
     return parser
+
+
+def arg_setter(user_args, settings):
+    """Set user arguments for run
+
+    Get user arguments from specified parsed command-line arguments
+    and convert arguments into configuration settings for Eskapade
+    run.
+
+    :param user_args argparse.Namespace: parsed arguments
+    :param ConfigObject settings: Eskapade settings
+    :return: (runInterpreter, settings)
+    :rtype: tuple
+    """
+
+    from eskapade import core, ConfigObject
+    if user_args.log_level:     # this fixes the logging level globally
+        if user_args.log_level not in core.definitions.LOG_LEVELS:
+            raise ValueError("Unknown logging level: %r" % user_args.log_level)
+        settings['logLevel'] = core.definitions.LOG_LEVELS[user_args.log_level]
+    else:
+        settings['logLevel'] = logging.INFO
+    settings['logFormat'] = user_args.log_format
+    if user_args.seed != 0:  # 0 is default because type is int
+        settings['seed'] = user_args.seed
+    settings['batchMode'] = bool(user_args.batch_mode)
+    if user_args.begin_with_chain and len(user_args.begin_with_chain) > 0:
+        settings['beginWithChain'] = user_args.begin_with_chain
+    if user_args.end_with_chain and len(user_args.end_with_chain) > 0:
+        settings['endWithChain'] = user_args.end_with_chain
+    if user_args.single_chain and len(user_args.single_chain) > 0:
+        settings['beginWithChain'] = user_args.single_chain
+        settings['endWithChain'] = user_args.single_chain
+    if user_args.store_intermediate_result:
+        settings['storeResultsEachChain'] = user_args.store_intermediate_result
+    if user_args.store_intermediate_result_one_chain:
+        settings['storeResultsOneChain'] = user_args.store_intermediate_result_one_chain
+    if user_args.do_not_store_results:
+        settings['doNotStoreResults'] = user_args.do_not_store_results
+    if user_args.data_version != 0:
+        settings['version'] = user_args.data_version
+    if user_args.run_profiling:
+        settings['doCodeProfiling'] = True
+    settings['interactive'] = bool(user_args.interactive)
+    if user_args.cmd:
+        settings['cmd'] = user_args.cmd
+        settings.parse_cmd_options()
+    if user_args.userArg:
+        settings['userArg'] = user_args.userArg
+    if user_args.analysis_name and len(user_args.analysis_name) > 0:
+        settings['analysisName'] = user_args.analysis_name
+    if len(user_args.results_dir) > 0:
+        settings['resultsDir'] = user_args.results_dir
+    if len(user_args.data_dir) > 0:
+        settings['dataDir'] = user_args.data_dir
+    if len(user_args.macros_dir) > 0:
+        settings['macrosDir'] = user_args.macros_dir
+    if user_args.unpickle_config:
+        # load configuration settings from a Pickle file
+        settings = ConfigObject.import_from_file(user_args.configFile[0])
+    return settings
