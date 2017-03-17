@@ -15,7 +15,8 @@ class CommandLineArgumentTest(unittest.TestCase):
         test_args = test_parser.parse_args(["path"])
 
         # The dict is what is in the parser after parsing CLAs.
-        self.assertDictEqual({'run_profiling': False, 'cmd': None,
+        self.assertDictEqual({'run_profiling': False,
+                              'conf_var': None,
                               'configFile': ['path'],
                               'userArg': '',
                               'interactive': False,
@@ -45,10 +46,10 @@ class CommandLineArgumentTest(unittest.TestCase):
         settings['doNotStoreResults'] = True
 
         test_parser = create_parser(settings)
-        test_args = test_parser.parse_args(["path", "-d=dir", "--cmd='a=1'", "-a analysis"])
+        test_args = test_parser.parse_args(["path", "-d=dir", "-aanalysis", "--conf-var=a=1", "-cb=2"])
 
         self.assertDictEqual({'run_profiling': False,
-                              'cmd': "'a=1'",
+                              'conf_var': ['a=1', 'b=2'],
                               'configFile': ['path'],
                               'userArg': '',
                               'interactive': True,
@@ -63,7 +64,7 @@ class CommandLineArgumentTest(unittest.TestCase):
                               'log_level': None,
                               'end_with_chain': '',
                               'store_intermediate_result_one_chain': '',
-                              'analysis_name': ' analysis',
+                              'analysis_name': 'analysis',
                               'data_dir': 'dir',
                               'unpickle_config': False,
                               'data_version': 0,
@@ -110,7 +111,7 @@ class ArgumentSetterTest(unittest.TestCase):
         parser.add_argument("-W", "--store-intermediate-result-one-chain",
                             help="store intermediate result of one chain",
                             default="")
-        parser.add_argument("-c", "--cmd", help="python commands to process (semi-colon-seperated)")
+        parser.add_argument("-c", "--conf-var", action="append", help="Configuration variable: \"key=value\"")
         parser.add_argument("-U", "--userArg", help="arbitrary user argument(s)", default="")
         parser.add_argument("-P", "--run-profiling",
                             help="Run a python profiler during main Eskapade execution",
@@ -174,7 +175,7 @@ class ArgumentSetterTest(unittest.TestCase):
         parser.add_argument("-W", "--store-intermediate-result-one-chain",
                             help="store intermediate result of one chain",
                             default="")
-        parser.add_argument("-c", "--cmd", help="python commands to process (semi-colon-seperated)")
+        parser.add_argument("-c", "--conf-var", action="append", help="Configuration variable: \"key=value\"")
         parser.add_argument("-U", "--userArg", help="arbitrary user argument(s)", default="")
         parser.add_argument("-P", "--run-profiling",
                             help="Run a python profiler during main Eskapade execution",
@@ -190,7 +191,8 @@ class ArgumentSetterTest(unittest.TestCase):
         parser.add_argument("-n", "--do-not-store-results", help="Do not store results in pickle files",
                             action="store_true", default=True)
 
-        DecisionEngineArgs = parser.parse_args(["path", "-d=data", "--results-dir=result", "-v 3"])
+        DecisionEngineArgs = parser.parse_args(["path", "-d=data", "--results-dir=result", "-v 3",
+                                                "-c testDict={'foo': 'bar', 'count': 100, 'level': 6.35}"])
 
         settings = arg_setter(DecisionEngineArgs, settings)
 
@@ -210,7 +212,9 @@ class ArgumentSetterTest(unittest.TestCase):
                               'all_mongo_collections': None,
                               'templatesDir': self.pythonpath + '/templates',
                               'seed': 0,
-                              'storeResultsEachChain': True}, settings,
+                              'storeResultsEachChain': True,
+                              'testDict': {'foo': 'bar', 'count': 100, 'level': 6.35}},
+                             settings,
                              'The non-default settings are not set properly by arg_setter')
 
     def tearDown(self):

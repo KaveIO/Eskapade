@@ -17,6 +17,7 @@ import os
 import argparse
 import subprocess
 import logging
+import ast
 
 ENV_VARS = dict(es_root='ESKAPADE', wd_root='WORKDIRROOT', spark_args='PYSPARK_SUBMIT_ARGS',
                 docker='DE_DOCKER', display='DISPLAY')
@@ -116,7 +117,7 @@ def create_parser(settings):
                         action="store_true", default=settings['storeResultsEachChain'])
     parser.add_argument("-W", "--store-intermediate-result-one-chain", help="store intermediate result of one chain",
                         default="")
-    parser.add_argument("-c", "--cmd", help="python commands to process (semi-colon-seperated)")
+    parser.add_argument("-c", "--conf-var", action="append", help="Configuration variable: \"key=value\"")
     parser.add_argument("-U", "--userArg", help="arbitrary user argument(s)", default="")
     parser.add_argument("-P", "--run-profiling",
                         help="Run a python profiler during main Eskapade execution",
@@ -177,9 +178,20 @@ def arg_setter(user_args, settings):
     if user_args.run_profiling:
         settings['doCodeProfiling'] = True
     settings['interactive'] = bool(user_args.interactive)
-    if user_args.cmd:
-        settings['cmd'] = user_args.cmd
-        settings.parse_cmd_options()
+    if user_args.conf_var:
+        # set configuration variables
+        for var in user_args.conf_var:
+            # parse key-value pair
+            try:
+                key, value = var[:var.find('=')].strip(), var[var.find('=') + 1:].strip()
+            except:
+                raise RuntimeError('Expected "key=value" for --conf-var command-line argument; got "{}"'.format(var))
+
+            # interpret type of value
+            try:
+                settings[key] = ast.literal_eval(value)
+            except:
+                settings[key] = value
     if user_args.userArg:
         settings['userArg'] = user_args.userArg
     if user_args.analysis_name and len(user_args.analysis_name) > 0:

@@ -33,9 +33,9 @@ msg = r"""
 The two flags below control whether chains are turned on or off. (default=on)
 from the cmd line, control these with: 
 
--c 'do_chain0=False; do_chain1=False' 
+-c do_chain0=False -c do_chain1=False
 
-Try it. No hello world statements are printed.
+Try it; No Hello Worlds will be printed.
 """
 log.info(msg)
 

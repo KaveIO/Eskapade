@@ -227,31 +227,6 @@ class ConfigObject(ProcessService, dict):
         return persistence.IoConfig(analysis_name=self['analysisName'], analysis_version=self['version'],
                                     **self.io_base_dirs())
 
-    def parse_cmd_options(self):
-        """Parse command line arguments
-
-        Arguments are given to the run_eskapade script with the
-        --cmd / -c option.  This script calls this function to
-        parse the specified arguments.
-        """
-
-        if self.get('cmd') is not None:
-            cmd = self.get('cmd')
-            try:
-                # We have to explicitly copy because the variables will be pointers.
-                old_vars = vars().copy()
-                exec(cmd)
-                new_vars = vars().copy()
-                # The set operator grabs the keys, not the values. No key calling is necessary.
-                new_keys = list(set(new_vars) - set(old_vars))
-                # Add the new keys and their values to settings.
-                for k in new_keys:
-                    self[k] = vars()[k]
-                self.log().info('Python cmd executed: %s', cmd)
-            except Exception as exc:
-                self.log().critical('Unable to execute argument "%s"', cmd)
-                raise exc
-
     def Print(self):
         """Print a summary of the settings"""
 

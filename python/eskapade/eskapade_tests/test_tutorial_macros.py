@@ -157,9 +157,6 @@ class TutorialMacrosTest(unittest.TestCase):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
         settings['macro'] = settings['esRoot'] + '/tutorials/esk107_chain_looper.py'
-
-        # fake a setting from the cmd-line. picked up in the macro
-        settings['cmd'] = 'do_chain0=False'
         
         status = execution.run_eskapade(settings)
 
