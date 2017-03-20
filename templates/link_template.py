@@ -49,7 +49,7 @@ class LINKTEMPLATE(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute LINKTEMPLATE"""
+        """Execute the central code of LINKTEMPLATE"""
 
         proc_mgr = ProcessManager()
         settings = proc_mgr.service(ConfigObject)
@@ -63,7 +63,7 @@ class LINKTEMPLATE(Link):
         return StatusCode.Success
 
     def finalize(self):
-        """Finalize LINKTEMPLATE"""
+        """Clearing up of LINKTEMPLATE"""
 
         ## --- any code to finalize the link follows here
 

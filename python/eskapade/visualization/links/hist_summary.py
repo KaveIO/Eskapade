@@ -1,10 +1,9 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : DfSummary                                                             *
-# * Created: 2017/02/17                                                            *
-# *                                                                                *
+# * Class  : HistSummary                                                          *
+# * Created: 2017/03/06                                                                  *
 # * Description:                                                                   *
-# *      Link to create a statistics summary of data frame columns                 *
+# *      Algorithm to do...(fill in one-liner here)                                *
 # *                                                                                *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands                           *
@@ -16,44 +15,52 @@
 
 import os
 import pandas as pd
+import numpy as np
 
-from eskapade import StatusCode, DataStore, Link, ProcessManager, ConfigObject
+from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 from eskapade import core, visualization
 from eskapade.analysis import statistics
+from eskapade.analysis.histogram import Histogram
+
 
 NUMBER_OF_BINS = 30
 
 
-class DfSummary(Link):
-    """Create a summary of a dataframe
+class HistSummary(Link):
+    """Creates a summary document of input histograms
 
-    Creates a report page for each variable in data frame, containing:
+    The summary contains a page for each histogram, containing:
 
-    * a profile of the column dataset
-    * a nicely scaled plot of the column dataset
+    * a profile of the histogram
+    * a nicely scaled plot of the histogram
 
-    Example is available in: tutorials/esk302_dfsummary_plotter.py
+    Example is available in: tutorials/esk303_histogram_filling_plotting.py
     """
 
     def __init__(self, **kwargs):
-        """Initialize the DfSummary link
+        """Store and do basic check on the attributes of link HistSummary
 
         :param str name: name of link
-        :param str read_key: key of input data to read from data store
+        :param str read_key: key of input histograms dictionary to read from data store
         :param str results_path: output path of summary result files
-        :param list columns: columns pick up from input data to make & plot summaries for
+        :param list hist_keys: histograms keys pick up from input histogram dict to make & plot summaries for
         :param dict var_labels: dict of column names with a label per column
         :param dict var_units: dict of column names with a unit per column
         :param dict var_bins: dict of column names with the number of bins per column. Default per column is 30.
         :param str hist_y_label: y-axis label to plot for all columns. Default is 'Bin Counts'.
         """
 
-        # initialize Link
-        Link.__init__(self, kwargs.pop('name', 'df_summary'))
+        # initialize Link, pass name from kwargs
+        Link.__init__(self, kwargs.pop('name', 'HistSummary'))
 
         # process keyword arguments
-        self._process_kwargs(kwargs, read_key='', results_path='', columns=None,
-                             var_labels={}, var_units={}, var_bins={},
+        self._process_kwargs(kwargs,
+                             read_key='',
+                             results_path='',
+                             hist_keys=None,
+                             var_labels={},
+                             var_units={},
+                             var_bins={},
                              hist_y_label='Bin counts')
         self.check_extra_kwargs(kwargs)
 
@@ -61,11 +68,11 @@ class DfSummary(Link):
         self.pages = []
 
     def initialize(self):
-        """Inititialize DfSummary link"""
+        """Initialize and (further) check the assigned attributes of HistSummary"""
 
         # check input arguments
         self.check_arg_types(read_key=str)
-        self.check_arg_types(recurse=True, allow_none=True, columns=str,
+        self.check_arg_types(recurse=True, allow_none=True, hist_keys=str,
                              var_labels=str, var_units=str)
         self.check_arg_vals('read_key')
 
@@ -76,7 +83,7 @@ class DfSummary(Link):
         with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) \
                 as templ_file:
             self.report_template = templ_file.read()
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) \
+        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex'))\
                 as templ_file:
             self.page_template = templ_file.read()
 
@@ -99,7 +106,7 @@ class DfSummary(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute DfSummary
+        """Execute HistSummary
 
         Creates a report page for each variable in data frame.
 
@@ -115,52 +122,69 @@ class DfSummary(Link):
         from matplotlib.backends.backend_pdf import PdfPages
 
         # fetch and check input data frame
-        data = ProcessManager().service(DataStore).get(self.read_key, None)
-        if not isinstance(data, pd.DataFrame):
-            self.log().critical('no Pandas data frame "%s" found in data store for %s',
+        hist_dict = ProcessManager().service(DataStore).get(self.read_key, None)
+        if not isinstance(hist_dict, dict):
+            self.log().critical('no histograms "%s" found in data store for %s',
                                 self.read_key, str(self))
             raise RuntimeError('no input data found for %s' % str(self))
 
+        if self.hist_keys is None:
+            self.hist_keys = hist_dict.keys()
+
         # create report page for each variable in data frame
         self.pages = []
-        for col in (data if self.columns is None else self).columns:
-            # output column name
-            self.log().debug('processing column "%s"', col)
+        for name in self.hist_keys:
+            # histogram name
+            self.log().info('processing histogram "%s"', name)
 
-            # check if column is in data frame
-            if col not in data:
-                self.log().warning('column "%s" not in data frame', col)
+            # check if histogram is in dict
+            if name not in hist_dict:
+                self.log().warning('histogram "%s" not in dictionary "%s"', name, self.read_key)
                 continue
+            h = hist_dict[name]
 
-            # 1. create statistics object for column
-            var_label = self.var_labels.get(col, col)
-            stats = statistics.ArrayStats(data, col,
-                                          unit=self.var_units.get(col, ''),
+            # determine data properties
+            datatype = np.dtype(h.datatype)
+            col_props = statistics.get_col_props(datatype)
+            is_num = col_props['is_num']
+            is_ts = col_props['is_ts']
+
+            # retrieve _all_ filled bins to evaluate statistics
+            bin_labels = h.get_nonone_bin_centers()
+            bin_counts = h.get_nonone_bin_counts()
+            bin_edges = h.get_uniform_bin_edges()
+
+            # create statistics object for histogram
+            var_label = self.var_labels.get(name, name)
+            stats = statistics.ArrayStats(bin_labels, name,
+                                          weights=bin_counts,
+                                          unit=self.var_units.get(name, ''),
                                           label=var_label)
 
-            # 2. create overview table of column variable
+            # create overview table of histogram statistics
             stats_table = stats.get_latex_table()
 
-            # make histogram
-            nphist = stats.make_histogram(
-                var_bins=self.var_bins.get(
-                    col, NUMBER_OF_BINS))
-
-            # determine histogram properties for plotting
+            # determine histogram properties
             x_label = stats.get_x_label()
             y_label = self.hist_y_label if self.hist_y_label else None
-            is_num = stats.get_col_props()['is_num']
-            is_ts = stats.get_col_props()['is_ts']
 
-            # 3. plot histogram of column variable
+            # make nice plots here ...
+            # for numbers and timestamps, make cropped histogram, between percentiles 5-95%
+            # ... and project on existing binning.
+            # for categories, accept top N number of categories in bins.
+            # NB: bin_edges overrules var_bins (if it is not none)
+            nphist = stats.make_histogram(var_bins=self.var_bins.get(name, NUMBER_OF_BINS),
+                                          bin_edges=bin_edges)
+
+            # plot histogram of histogram
             fig = plt.figure(figsize=(7, 5))
             visualization.vis_utils.plot_histogram(nphist,
                                                    x_label=x_label,
                                                    y_label=y_label,
                                                    is_num=is_num, is_ts=is_ts)
 
-            # 4. store plot
-            hist_file_name = 'hist_{}.pdf'.format(col)
+            # store plot
+            hist_file_name = 'hist_{}.pdf'.format(name)
             pdf_file = PdfPages(
                 '{0:s}/{1:s}'.format(self.results_path, hist_file_name))
             plt.savefig(

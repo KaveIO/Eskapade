@@ -50,6 +50,7 @@ class WriteFromDf(Link):
         :param writer: file extension that can be written by a pandas writer function from pd.DataFrame. For example: 'csv'
         :param dict dictionary: keys (as in the arg above) and paths (as in the arg above) it will write out all the keys
             to the associated paths.
+        :param bool add_counter_to_name: if true, add an index to the output file name. Useful when running in loops. Default is false.
         :param kwargs: all other key word arguments are passed on to the pandas writers.
         """
 
@@ -58,11 +59,14 @@ class WriteFromDf(Link):
                 
         # process and register all relevant kwargs. kwargs are added as attributes of the link.
         # second arg is default value for an attribute. key is popped from kwargs.
-        self._process_kwargs(kwargs, path='', key='', writer=None, dictionary={})
+        self._process_kwargs(kwargs, path='', key='', writer=None, dictionary={}, add_counter_to_name=False)
 
         # pass on remaining kwargs to pandas writer
         self.kwargs = copy.deepcopy(kwargs)
 
+        # execute counter
+        self._counter = 0
+        
         return
 
     def initialize(self):
@@ -121,6 +125,9 @@ class WriteFromDf(Link):
         for k in list(self.dictionary.keys()):
             df = ds[k]
             path = self.dictionary[k]
+            if self.add_counter_to_name:
+                ps = os.path.splitext(path)
+                path = ps[0] + '_' + str(self._counter) + ps[1]
             writer = pandasWriter(path, self.writer)
             folder = os.path.dirname(path)
             self.log().debug('Checking for directory: %s', folder)
@@ -129,6 +136,7 @@ class WriteFromDf(Link):
             self.log().debug('Writing file: %s' % (path))
             writer(df, path, **self.kwargs)
 
+        self._counter += 1
         return StatusCode.Success
 
 
