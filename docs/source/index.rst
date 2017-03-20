@@ -73,6 +73,7 @@ Contents:
    installation
    tutorial
    tutorial_jupyter
+   command_line_arguments
    contributing
    code
 
