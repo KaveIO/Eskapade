@@ -2,7 +2,7 @@ import unittest
 import mock
 
 from ..run_elements import Chain
-from ..process_services import ProcessService
+from ..process_services import ProcessService, ConfigObject
 from ..process_manager import ProcessManager
 
 
@@ -162,6 +162,7 @@ class ProcessManagerTest(unittest.TestCase):
         from eskapade import ConfigObject, StatusCode, ProcessManager
 
         pm = ProcessManager()
+        pm.service(ConfigObject)['analysisName'] = 'test_execute_all'
         mock_execute.return_value = StatusCode.Success
         pm.chains = [Chain(str(it + 1)) for it in range(3)]
         for it, ch in enumerate(pm.chains):
@@ -182,6 +183,7 @@ class ProcessManagerTest(unittest.TestCase):
         for it, ch in enumerate(pm.chains):
             ch.prevChainName = str(it)
         settings = pm.service(ConfigObject)
+        settings['analysisName'] = 'test_execute_all'
         settings['doNotStoreResults'] = False
         settings['storeResultsEachChain'] = True
         settings['beginWithChain'] = '2'
@@ -202,6 +204,7 @@ class ProcessManagerTest(unittest.TestCase):
         from eskapade import StatusCode, ProcessManager
 
         pm = ProcessManager()
+        pm.service(ConfigObject)['analysisName'] = 'test_execute_all_status_return'
         c1 = Chain('1')
         c2 = Chain('2')
         c3 = Chain('fail')
@@ -213,6 +216,7 @@ class ProcessManagerTest(unittest.TestCase):
         self.assertNotIn(c4, executed_chains)
 
         pm.reset()
+        pm.service(ConfigObject)['analysisName'] = 'test_execute_all_status_return'
         mock_execute.reset_mock()
         c1 = Chain('1')
         c2 = Chain('2')

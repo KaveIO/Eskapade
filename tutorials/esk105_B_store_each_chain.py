@@ -31,12 +31,15 @@ settings['storeResultsEachChain'] = True
 
 msg = r"""
 
-The global flag ProcessManager().service(ConfigObject)['storeResultsEachChain']=True controls that the 
-datastore & configobject are written out after the execution of each chain.
-By default, these are only writting out after the last chain. (default=False) 
+The global flag settings['storeResultsEachChain'] (default = False)
+controls persistence of the run-process services after the execution of
+a chain.  By default, these objects are only stored after the last
+chain.
 
-From the cmd line, this flag is set with option: -w
-Alternatively, use the option '-W chain_name' to store the results of only one chain.  
+From the command line, this flag is set with option --store-all.
+Alternatively, the option --store-one="chain_name" can be used to store
+the results of a single chain.  The with the option --store-none, no
+results are stored.
 """
 log.info(msg)
 

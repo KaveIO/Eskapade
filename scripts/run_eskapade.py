@@ -17,10 +17,9 @@
 # **************************************************************************************
 
 import os
-import re
 import logging
 from eskapade import core, ProcessManager, ConfigObject, DataStore
-from eskapade.core.project_utils import create_parser, arg_setter
+from eskapade.core.project_utils import create_arg_parser
 
 if __name__ == "__main__":
     """
@@ -35,32 +34,30 @@ if __name__ == "__main__":
     evaluating the algorithms. By using this principle, links can be easily reused in future projects.
     """
 
-    # create config object for settings
-    settings = ConfigObject()
-
-    # set default value for batch-mode switch, based on display settings
-    display = core.project_utils.get_env_var('display')
-    settings['batchMode'] = display is None or not re.search(':\d', display)
-
-    # Create the argument parser that reads command line arguments.
-    parser = create_parser(settings)
+    # create parser for command-line arguments
+    parser = create_arg_parser()
     user_args = parser.parse_args()
 
-    # Process all cmd line arguments/options
+    # create config object for settings
+    if not user_args.unpickle_config:
+        # create new config
+        settings = ConfigObject()
+    else:
+        # read previously persisted settings if pickled file is specified
+        conf_path = user_args.config_files.pop(0)
+        settings = ConfigObject.import_from_file(conf_path)
+    del user_args.unpickle_config
 
-    # First mandatory user-defined configuration file
-    # (settings set in the configuration file supersede cmd line arguments.) 
-    settings['macro'] = os.path.abspath(user_args.configFile[0])
+    # set configuration macros
+    settings.add_macros(user_args.config_files)
 
-    # Then all optional cmd line settings (these may overwrite the macro)
-    settings = arg_setter(user_args, settings)
+    # set user options
+    settings.set_user_opts(user_args)
 
-    # Run Eskapade code here
-
-    # perform import here, else help function of argparse does not work correctly
+    # run Eskapade
     core.execution.run_eskapade(settings)
 
-    # if requested (-i), end execution in interpreter.
+    # start interpreter if requested (--interactive on command line)
     if settings.get('interactive'):
         # create process manager, config object, and data store
         proc_mgr = ProcessManager()
