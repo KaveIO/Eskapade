@@ -109,7 +109,7 @@ class ArrayStats(object):
         cnt, var_cnt, dist_cnt = (len(self.col), len(
             self.col_nn), self.col.nunique())
         if self.weights_nn is not None:
-            cnt, var_cnt = sum(self.weights), sum(self.weights_nn)
+            cnt, var_cnt = int(sum(self.weights)), int(sum(self.weights_nn))
         for stat_var, stat_val in zip(
                 ('count', 'filled', 'distinct'), (cnt, var_cnt, dist_cnt)):
             self.stat_vars.append(stat_var)
