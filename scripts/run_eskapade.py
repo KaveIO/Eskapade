@@ -21,17 +21,13 @@ import logging
 from eskapade import core, ProcessManager, ConfigObject, DataStore
 from eskapade.core.project_utils import create_arg_parser
 
-if __name__ == "__main__":
-    """
-    Top level control script for all command-line/run-conditions of Eskapade,
-    as run from the command line. 
+def main():
+    """Run Eskapade
 
-    The working principle of Eskapade is to run chains of custom code chunks
-    (so-called links). 
-
-    Each chain should have a specific purpose, for example pre-processing incoming data, 
-    booking and/or training predictive algorithms, validating these predictive algorithms, 
-    evaluating the algorithms. By using this principle, links can be easily reused in future projects.
+    Top-level control function for an Eskapade run started from the
+    command line.  Arguments specified by the user are parsed and
+    converted to settings in the configuration object.  Optionally, an
+    interactive IPython session is started when the run is finished.
     """
 
     # create parser for command-line arguments
@@ -78,3 +74,6 @@ if __name__ == "__main__":
         log.info("Continuing interactive session ... press Ctrl+d to exit.\n")
         from IPython import embed
         embed()
+
+if __name__ == "__main__":
+    main()

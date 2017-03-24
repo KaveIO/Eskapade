@@ -25,6 +25,7 @@ ENV_VARS = dict(es_root='ESKAPADE', wd_root='WORKDIRROOT', spark_args='PYSPARK_S
 PROJECT_DIRS = dict(es_root=('es_root', ''), es_python=('es_root', 'python'), es_scripts=('es_root', 'scripts'),
                     wd_root=('wd_root', ''))
 PROJECT_FILES = dict(py_mods=('es_root', 'es_python_modules.zip'),
+                     run_eskapade=('es_scripts', 'run_eskapade.py'),
                      coll_py_mods=('es_scripts', 'collect_python_modules.sh'))
 
 
