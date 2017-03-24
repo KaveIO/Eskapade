@@ -173,6 +173,7 @@ class TutorialMacrosTest(unittest.TestCase):
         macro_path = persistence.io_path('macros', settings.io_conf(), 'esk106_cmdline_options.py')
 
         # import run-script module
+        orig_mod_path = sys.path.copy()
         sys.path.append(os.path.dirname(script_path))
         script_mod = os.path.splitext(os.path.basename(script_path))[0]
         run_eskapade = importlib.import_module(script_mod)
@@ -221,6 +222,10 @@ class TutorialMacrosTest(unittest.TestCase):
                ['-cdo_chain0=False', '-cdo_chain1=True'],
                dict(do_chain0=False, do_chain1=True),
                ['Chain1'])
+
+        # restore module search path
+        sys.path.clear()
+        sys.path += orig_mod_path
 
     def test_esk107(self):
         settings = ProcessManager().service(ConfigObject)
