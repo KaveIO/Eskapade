@@ -18,8 +18,12 @@
 
 import os
 import logging
+import IPython
+import pandas as pd
+
 from eskapade import core, ProcessManager, ConfigObject, DataStore
 from eskapade.core.project_utils import create_arg_parser
+
 
 def main():
     """Run Eskapade
@@ -61,19 +65,13 @@ def main():
         ds = proc_mgr.service(DataStore)
 
         # set Pandas display options
-        import pandas as pd
         pd.set_option('display.width', 120)
         pd.set_option('display.max_columns', 50)
-
-        # enable tab completion (and fix terminal input at the same time)
-        import rlcompleter, readline
-        readline.parse_and_bind('tab: complete')
 
         # start interactive session
         log = logging.getLogger(__name__)
         log.info("Continuing interactive session ... press Ctrl+d to exit.\n")
-        from IPython import embed
-        embed()
+        IPython.embed()
 
 if __name__ == "__main__":
     main()
