@@ -30,11 +30,11 @@ from eskapade.analysis.histogram import Histogram, ValueCounts
 NUMERIC_SUBSTR = [
     np.dtype('int'),
     np.dtype('float'),
-    np.dtype('double'),
-    np.dtype('datetime64[ns]')]
-# string datatype get treated as categories, and are not converted to an index
+    np.dtype('double')]
+# string datatype get treated as categories 
 STRING_SUBSTR = [np.dtype('str'), np.dtype('object'), np.dtype('bool')]
-
+# timestamps are converted to nanoseconds (int)
+TIME_SUBSTR = [np.dtype('datetime64[ns]'), np.datetime64]
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
@@ -69,8 +69,6 @@ class ValueCounter(Link):
                           'date': { 'bin_width': np.timedelta64(30,'D'), \
                                     'bin_offset': np.datetime64('2010-01-04') } }
 
-        :param bool num_ts_to_bin_index: convert numeric and timestamp columns to and index (to group on). Default is True.
-        :param bool num_ts_to_bin_center: convert numeric and timestamp columns to a center-of-bin value (to group on). Default is False. Inverse of num_ts_to_bin_index.
         :param dict datatype: dict of datatypes of the columns to study from dataframe. If not provided, try to determine datatypes directy from dataframe.
         :param bool store_at_finalize: Store histograms and/or ValueCount object in datastore at finalize(), not at execute(). Useful when looping over datasets. Default is False.
         :param bool drop_inconsistent_key_types: cleanup histograms and/or ValueCount objects by removing alls bins/keys with inconsistent datatypes.
@@ -96,8 +94,6 @@ class ValueCounter(Link):
                              store_key_hists=None,
                              columns=[],
                              bin_specs={},
-                             num_ts_to_bin_index=True,
-                             num_ts_to_bin_center=False,
                              datatype={},
                              store_at_finalize=False,
                              drop_inconsistent_key_types=True,
@@ -106,9 +102,9 @@ class ValueCounter(Link):
         # check residual kwargs. exit if any present.
         self.check_extra_kwargs(kwargs)
 
-        self._unit_bin_specs = {'bin_width': 1, 'bin_offset': 0}
-        self._unit_timestamp_specs = {'bin_width': np.timedelta64(30, 'D'),
-                                      'bin_offset': np.datetime64('2010-01-04')}
+        self._unit_bin_specs = { 'bin_width': 1, 'bin_offset': 0 }
+        self._unit_timestamp_specs = { 'bin_width': pd.Timedelta(days=30).value, \
+                                       'bin_offset': pd.Timestamp('2010-01-04').value }
         # these get filled during execution
         self._counts = {}
         self._valcnts = {}
@@ -128,16 +124,6 @@ class ValueCounter(Link):
                 'store_key_counts has not been set to string.'
         assert self.store_key_hists is not None or self.store_key_counts is not None, \
             'ERROR. No store key has been set.'
-
-        # numerical or timestamp variables get converted to either indices or
-        # bin center values. value counts happens based on the converted vars.
-        assert self.num_ts_to_bin_index is not self.num_ts_to_bin_center, \
-            'num_ts_to_bin_index <%s> cannot equal num_ts_to_bin_center <%s>' % \
-            (self.num_ts_to_bin_index, self.num_ts_to_bin_center)
-        if self.num_ts_to_bin_index:
-            self.log().info('Numeric and time stamp observables will be converted to integer indices.')
-        elif self.num_ts_to_bin_center:
-            self.log().info('Numeric and time stamp observables will be converted to bin centers.')
 
         # default histogram creation is at execute(). At finalize is useful for
         # looping over datasets.
@@ -161,13 +147,10 @@ class ValueCounter(Link):
         for k in self.datatype.keys():
             try:
                 self.datatype[k] = np.dtype(self.datatype[k]).type
-                if (self.datatype[k] is np.string_) or (
-                        self.datatype[k] is np.object_):
+                if (self.datatype[k] is np.string_) or (self.datatype[k] is np.object_):
                     self.datatype[k] = str
             except:
-                raise Exception(
-                    'ERROR. Unknown assigned datatype to variable <%s>.' %
-                    k)
+                raise Exception('ERROR. Unknown assigned datatype to variable <%s>.' % k)
 
         return StatusCode.Success
 
@@ -177,6 +160,7 @@ class ValueCounter(Link):
         Does 4 things:
 
         * check presence and data type of requested columns
+        * timestamp variables are converted to nanosec (integers)
         * numerical and timestamp variables are converted to indices (for grouping by)
         * do the actual value counting based on categories and created indices
         * then convert to histograms and add to datastore
@@ -194,36 +178,38 @@ class ValueCounter(Link):
         assert len(df.index) > 0, 'dataframe %s is empty.' % self.read_key
 
         # 1. check presence and data type of requested columns
-        # sort columns into numerical and category based
-        # numerical variables are converted to indices below
+        # sort columns into numerical, timestamp and category based
         strcols = []
         numcols = []
+        dtcols = []
         for c in self.columns:
             for col in c:
-                assert col in df.columns, 'column <%s> not in dataframe <%s>' % (
-                    col, self.read_key)
+                assert col in df.columns, 'column <%s> not in dataframe <%s>' % (col,self.read_key)
                 dt = df[col].dtype
                 if not col in self.datatype:
                     self.datatype[col] = dt.type
-                    if (self.datatype[col] is np.string_) or (
-                            self.datatype[col] is np.object_):
+                    if (self.datatype[col] is np.string_) or (self.datatype[col] is np.object_):
                         self.datatype[col] = str
-                assert dt in STRING_SUBSTR or dt in NUMERIC_SUBSTR, \
-                    'ERROR. Cannot process column <%s> of data type <%s>.' % (
-                        col, dt)
+                assert dt in STRING_SUBSTR or dt in NUMERIC_SUBSTR or dt in TIME_SUBSTR, \
+                    'ERROR. Cannot process column <%s> of data type <%s>.' % (col,dt)
                 is_number = isinstance(dt.type(), np.number)
                 is_timestamp = isinstance(dt.type(), np.datetime64)
-                colset = numcols if is_number or is_timestamp else strcols
-                if col not in colset:
-                    colset.append(col)
-                self.log().debug(
-                    'Datatype of column <%s> is <%s>.' %
-                    (col, self.datatype[col]))
+                colset = numcols if is_number else dtcols if is_timestamp else strcols
+                if col not in colset: colset.append(col)
+                self.log().debug('Datatype of column <%s> is <%s>.' % (col,self.datatype[col]))
 
-        # 2. numerical variables are converted to indices here
+        # 2. timestamp variables are converted to ns here
         # make temp df for value counting (used below)
         idf = df[strcols].copy(deep=False)
-        for col in numcols:
+        for col in dtcols:
+            self.log().debug('Converting column <%s> of type <%s> to nanosec.' % (col,self.datatype[col]))
+            def to_ns(x):
+                if pd.isnull(x): return 0
+                return pd.to_datetime(x).value
+            idf[col] = df[col].apply(to_ns)
+
+        # 3. numerical variables are converted to indices here
+        for col in numcols+dtcols:
             self.log().debug(
                 'Converting column <%s> of type <%s> to index.' %
                 (col, self.datatype[col]))
@@ -232,14 +218,12 @@ class ValueCounter(Link):
             dt = df[col].dtype
             is_number = isinstance(dt.type(), np.number)
             is_timestamp = isinstance(dt.type(), np.datetime64)
-            bin_specs = self.bin_specs.get(
-                col, self._unit_bin_specs if is_number else self._unit_timestamp_specs)
-            if self.num_ts_to_bin_index:
-                idf[col] = df[col].apply(value_to_bin_index, **bin_specs)
-            elif self.num_ts_to_bin_center:
-                idf[col] = df[col].apply(value_to_bin_center, **bin_specs)
+            sf = idf if is_timestamp else df
+            bin_specs = self.bin_specs.get(col, 
+                self._unit_bin_specs if is_number else self._unit_timestamp_specs)
+            idf[col] = sf[col].apply(value_to_bin_index, **bin_specs)
 
-        # 3. do the actual value counting based on categories and created
+        # 4. do the actual value counting based on categories and created
         # indices
         for c in self.columns:
             name = ':'.join(c)
@@ -255,7 +239,7 @@ class ValueCounter(Link):
         # cleanup temp df
         del idf
 
-        # 4. storage
+        # 5. storage
         # then convert to histograms and add to datastore
         if self.store_key_hists is not None and not self.store_at_finalize:
             self.make_and_store_1dhistograms()
@@ -320,12 +304,10 @@ class ValueCounter(Link):
             # bin_specs is used for converting index back to original var in
             # histogram class.
             bin_specs = {}
-            if self.num_ts_to_bin_index:
-                if is_number:
-                    bin_specs = self.bin_specs.get(name, self._unit_bin_specs)
-                elif is_timestamp:
-                    bin_specs = self.bin_specs.get(
-                        name, self._unit_timestamp_specs)
+            if is_number:
+                bin_specs = self.bin_specs.get(name, self._unit_bin_specs)
+            elif is_timestamp:
+                bin_specs = self.bin_specs.get(name, self._unit_timestamp_specs)
             h = Histogram(self._counts[name], variable=name, datatype=self.datatype[name],
                           bin_specs=bin_specs)
 
@@ -373,7 +355,7 @@ class ValueCounter(Link):
             is_converted = isinstance(
                 dt, np.number) or isinstance(
                 dt, np.datetime64)
-            if is_converted and self.num_ts_to_bin_index:
+            if is_converted:
                 comp_dtype.append(np.int64)
             else:
                 comp_dtype.append(self.datatype[col])

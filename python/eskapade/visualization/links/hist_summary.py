@@ -150,6 +150,11 @@ class HistSummary(Link):
             bin_counts = h.get_nonone_bin_counts()
             bin_edges = h.get_uniform_bin_edges()
 
+            if is_ts:
+                to_timestamp = np.vectorize(lambda x: pd.Timestamp(x))
+                bin_labels = to_timestamp(bin_labels).tolist()
+                bin_edges = to_timestamp(bin_edges).tolist()
+
             # create statistics object for histogram
             var_label = self.var_labels.get(name, name)
             stats = statistics.ArrayStats(bin_labels, name, weights=bin_counts, unit=self.var_units.get(name, ''),
