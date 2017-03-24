@@ -31,7 +31,7 @@ NUMERIC_SUBSTR = [
 # string datatype get treated as categories 
 STRING_SUBSTR = [np.dtype('str'), np.dtype('object'), np.dtype('bool')]
 # timestamps are converted to nanoseconds (int)
-TIME_SUBSTR = [np.dtype('datetime64[ns]')]
+TIME_SUBSTR = [np.dtype('datetime64[ns]'), np.datetime64]
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
@@ -170,7 +170,8 @@ class HistogrammarFiller(Link):
         for col in dtcols:
             self.log().debug('Converting column <%s> of type <%s> to nanosec.' % (col,self.datatype[col]))
             def to_ns(x):
-                return pd.Timestamp(x).value
+                if pd.isnull(x): return 0
+                return pd.to_datetime(x).value
             idf[col] = df[col].apply(to_ns)
 
         # 3. do the actual histogram filling
