@@ -18,10 +18,10 @@ from copy import deepcopy, copy
 
 from eskapade.core.definitions import StatusCode
 from eskapade.core import persistence
-from eskapade.core.mixins import LoggingMixin, ArgumentsMixin
+from eskapade.core.mixins import LoggingMixin, ArgumentsMixin, TimerMixin
 
 
-class Link(ArgumentsMixin, LoggingMixin):
+class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
     """Link base class
 
     A link defines the content of an algorithm.  Any actual link is derived
@@ -77,6 +77,9 @@ class Link(ArgumentsMixin, LoggingMixin):
     def __init__(self, name):
         """Initialize link instance"""
 
+        # initialize timer
+        TimerMixin.__init__(self)
+        
         self.name = name
         self.prefix = ''
 
@@ -308,8 +311,16 @@ class Link(ArgumentsMixin, LoggingMixin):
 
         # run execute function of actual link
         self.log().debug("Now executing link \'%s\'" % self.name)
+
+        # Start the timer directly after the message.
+        self.start_timer()
+
         status = self.execute()
+
         self.log().debug("Done executing link \'%s\'" % self.name)
+
+        # Stop the timer when the link is done 
+        self.stop_timer()
 
         return status
 
@@ -324,6 +335,9 @@ class Link(ArgumentsMixin, LoggingMixin):
         # run finalize function of actual link
         self.log().debug("Now finalizing link \'%s\'" % self.name)
         status = self.finalize()
+
+        self.log().debug("{0}: execute() took: {1:.2f} seconds.".format(self.name,self.total_time()))
+
         self.log().debug("Done finalizing link \'%s\'" % self.name)
 
         return status
@@ -359,7 +373,7 @@ class Link(ArgumentsMixin, LoggingMixin):
         return StatusCode.Success
 
 
-class Chain(LoggingMixin):
+class Chain(LoggingMixin, TimerMixin):
     """Chain of links
 
     A Chain object contains a collection of links with analysis code.  The
@@ -398,6 +412,9 @@ class Chain(LoggingMixin):
 
         :param str name: name of the chain
         """
+        # initialize timer
+        TimerMixin.__init__(self)
+        
         self.init_instance(name)
 
     def clone(self, newName=""):
@@ -443,6 +460,9 @@ class Chain(LoggingMixin):
         status = StatusCode.Success
 
         self.log().debug("Now initializing chain \'%s\'" % self.name)
+
+        # Start the timer directly after the initialize message.
+        self.start_timer()
 
         # initialization
         for mod in self.links:
@@ -503,6 +523,10 @@ class Chain(LoggingMixin):
                 return status
 
         self.log().debug("Done finalizing chain \'%s\'" % self.name)
+
+        # Stop the timer when the chain is done and print.
+        total_time = self.stop_timer()
+        self.log().debug("{0}: total runtime: {1:.2f} seconds.".format(self.name,total_time))
 
         return status
 

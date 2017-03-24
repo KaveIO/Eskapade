@@ -16,7 +16,7 @@
 # **********************************************************************************
 
 import logging
-
+import timeit
 
 class ArgumentsMixin(object):
     """Mixin base class for argument parsing
@@ -138,3 +138,48 @@ class LoggingMixin(object):
             cls.log().debug('logging level of "%s" set to "%s"', cls.log().name, level)
         except ValueError:
             cls.log().error('logging level of "%s" unchanged: got invalid value "%s"', cls.log().name, level)
+
+
+class TimerMixin(object):
+    """Mixin base class for timing
+    """
+    def __init__(self):
+        """Initialize timer
+        """
+        self._start_time = 0
+        self._stop_time = 0
+        self._total_time = 0
+    
+    def start_timer(self):
+        """Start run timer
+
+        Start the timer.  The timer is used to
+        compute the run time.
+
+        :returns: UNIX time stamp from the timeit module
+        """
+
+        self._start_time = timeit.default_timer()
+        return self._start_time
+
+    def stop_timer(self, start_time=0):
+        """Stop the run timer
+
+        Stop the timer.  The timer is used to
+        compute the run time.
+
+        :param start_time: function start_time input
+        :returns: number of seconds
+        """
+
+        self._stop_time = timeit.default_timer()
+
+        diff_time = self._stop_time - (start_time if start_time!=0 else self._start_time) 
+        self._total_time += diff_time
+        
+        return diff_time
+
+    def total_time(self):
+        """Return the total run time"""
+
+        return self._total_time

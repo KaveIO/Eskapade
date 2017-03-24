@@ -18,16 +18,15 @@
 import importlib
 import os
 import glob
-import timeit
 
 from . import persistence
-from .mixins import LoggingMixin
+from .mixins import LoggingMixin, TimerMixin
 from .definitions import StatusCode
 from .process_services import ProcessService, ConfigObject
 from .run_elements import Chain
 
 
-class ProcessManager(LoggingMixin):
+class ProcessManager(LoggingMixin, TimerMixin):
     """Eskapade run-process manager
 
     The processManager singleton class forms the core of Eskapade.  It
@@ -96,12 +95,13 @@ class ProcessManager(LoggingMixin):
             return
         self._initialized = True
 
+        # initialize timer
+        TimerMixin.__init__(self)
+
         # set attributes
         self.prevChainName = ''
         self.chains = []
         self._services = {}
-        self._start_time = 0
-        self._stop_time = 0
 
     def service(self, serv_spec):
         """Get or register process service
@@ -508,7 +508,7 @@ class ProcessManager(LoggingMixin):
         self.log().info("Finalizing process manager ...")
 
         # Stop the timer when the Process Manager is done and print.
-        total_time = self.stop_timer(self._start_time)
+        total_time = self.stop_timer()
         self.log().info("Total runtime is: {0:.2f} seconds.".format(total_time))
 
         self.log().debug("Done finalizing process manager ...")
@@ -697,27 +697,3 @@ class ProcessManager(LoggingMixin):
         self._initialized = False
         self.__init__()
 
-    def start_timer(self):
-        """Start run timer
-
-        Start the timer of the Eskapade run.  The timer is used to
-        compute the run time.
-
-        :returns: UNIX time stamp from the timeit module
-        """
-
-        self._start_time = timeit.default_timer()
-        return self._start_time
-
-    def stop_timer(self, start_time=0):
-        """Stop the run timer
-
-        Stop the timer of the Eskapade run.  The timer is used to
-        compute the run time.
-
-        :param start_time: function start_time input
-        :returns: number of seconds
-        """
-
-        self._stop_time = timeit.default_timer()
-        return self._stop_time - start_time
