@@ -528,14 +528,10 @@ class ProcessManager(LoggingMixin):
         self.log().info("     Process manager summary")
         self.log().info("*-------------------------------------------------*")
 
-        if 'beginWithChain' in settings:
-            self.log().info(
-                "Starting from chain: %s",
-                settings['beginWithChain'])
-        if 'endWithChain' in settings:
-            self.log().info(
-                "Ending with chain:   %s",
-                settings['endWithChain'])
+        if settings.get('beginWithChain'):
+            self.log().info('Starting from chain: "{}"'.format(settings['beginWithChain']))
+        if settings.get('endWithChain'):
+            self.log().info('Ending with chain:   "{}"'.format(settings['endWithChain']))
 
         self.log().info('Number of registered services: %d (tree printed at DEBUG log level)', len(self._services))
         self.print_services()
@@ -573,8 +569,8 @@ class ProcessManager(LoggingMixin):
         self.log().debug("ProcessManager:")
         settings = self.service(ConfigObject)
 
-        begin = self.get_chain_idx(settings['beginWithChain']) if 'beginWithChain' in settings else 0
-        end = (self.get_chain_idx(settings['endWithChain']) + 1) if 'endWithChain' in settings else len(self.chains)
+        begin = self.get_chain_idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
+        end = (self.get_chain_idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self.chains)
         for chain in self.chains[begin:end]:
             self.log().debug("  Chain: %s ", chain.name)
             for link in chain.links:
@@ -594,8 +590,8 @@ class ProcessManager(LoggingMixin):
         settings = self.service(ConfigObject)
 
         # determine which chains need to be run
-        begin = self.get_chain_idx(settings['beginWithChain']) if 'beginWithChain' in settings else 0
-        end = (self.get_chain_idx(settings['endWithChain']) + 1) if 'endWithChain' in settings else len(self.chains)
+        begin = self.get_chain_idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
+        end = (self.get_chain_idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self.chains)
 
         if begin > 0:
             # import services from previous chain, persisted in a previous run

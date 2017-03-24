@@ -15,8 +15,10 @@
 import logging
 import os
 import pickle
+import re
 
-from . import project_utils, persistence, definitions
+from . import project_utils, persistence
+from .definitions import LOG_LEVELS, CONFIG_VARS, CONFIG_DEFAULTS, USER_OPTS, CONFIG_OPTS_SETTERS
 from .mixins import LoggingMixin
 
 
@@ -181,26 +183,21 @@ class ConfigObject(ProcessService, dict):
     def __init__(self):
         """Initialize ConfigObject instance"""
 
-        # version, analysisName, and configuration file define an entire analysis
-        # version and analysisName are used for bookkeeping purposes (e.g. directory structure)
-        self['version'] = 0
-        self['analysisName'] = ''
-        # file path of the configuration macro
-        self['macro'] = ''
-        # display mode
-        self['batchMode'] = True
-        # logging level used throughout Eskapade run
-        self['logLevel'] = logging.INFO
-        # seed for random generator
-        self['seed'] = 0
-        # base directories for results, macros, data
+        # initialize settings with default values
+        for sec_keys in CONFIG_VARS.values():
+            for conf_key in sec_keys:
+                self[conf_key] = CONFIG_DEFAULTS.get(conf_key)
+
+        # initialize batch-mode setting with display variable from environment
+        display = project_utils.get_env_var('display')
+        self['batchMode'] = display is None or not re.search(':\d', display)
+
+        # initialize file I/O paths with repository directories with repo root from environment
         self['esRoot'] = project_utils.get_dir_path('es_root')
-        self['resultsDir'] = self['esRoot'] + ('/' if self['esRoot'] else '') + 'results'
-        self['dataDir'] = self['esRoot'] + ('/' if self['esRoot'] else '') + 'data'
-        self['macrosDir'] = self['esRoot'] + ('/' if self['esRoot'] else '') + 'tutorials'
-        self['templatesDir'] = self['esRoot'] + ('/' if self['esRoot'] else '') + 'templates'
-        # mongo collections
-        self['all_mongo_collections'] = None
+        root_path = self['esRoot'] + ('/' if self['esRoot'] and self['esRoot'][-1] != '/' else '')
+        for subdir in ['results', 'data', 'templates']:
+            self['{}Dir'.format(subdir)] = root_path + subdir
+        self['macrosDir'] = root_path + 'tutorials'
 
     def io_base_dirs(self):
         """Get configured base directories
@@ -225,19 +222,54 @@ class ConfigObject(ProcessService, dict):
     def Print(self):
         """Print a summary of the settings"""
 
-        self.log().info("*---------------------------------------------------*")
-        self.log().info("     Configuration")
-        self.log().info("*---------------------------------------------------*")
-        self.log().info("analysis name:        %s", self['analysisName'])
-        self.log().info("version:              %s", self['version'])
-        self.log().info("configuration file:   %s", self['macro'])
-        self.log().info("logging level:        %s", definitions.LOG_LEVELS[self['logLevel']])
-        self.log().info("results dir:          %s", self['resultsDir'])
-        self.log().info("random seed:          %s", self['seed'])
-        self.log().info("objects in dict: %d", len(self))
-        for key in sorted(self.keys()):
-            self.log().info("    %s: %s", str(key), str(self[key]))
-        self.log().info("*---------------------------------------------------*")
+        # print standard settings
+        self.log().info('-----------------')
+        self.log().info('Run configuration')
+        self.log().info('-----------------')
+        for sec, sec_keys in CONFIG_VARS.items():
+            self.log().info('{}:'.format(sec))
+            max_key_len = max(len(k) for k in sec_keys)
+            for key in sec_keys:
+                self.log().info('  {{0:<{:d}s}}  {{1:s}}'.format(max_key_len).format(key, str(self.get(key))))
+
+        # print additional settings
+        add_keys = sorted(set(self.keys()) - set(o for s in CONFIG_VARS.values() for o in s))
+        if add_keys:
+            self.log().info('additional:')
+            max_key_len = max(len(k) for k in add_keys)
+        for key in add_keys:
+            self.log().info('  {{0:<{:d}s}}  {{1:s}}'.format(max_key_len).format(key, str(self.get(key))))
+        self.log().info('-----------------')
+
+    def add_macros(self, macro_paths):
+        """Add configuration macros for Eskapade run"""
+
+        # convert input to list if single path is specified
+        if isinstance(macro_paths, str):
+            macro_paths = [macro_paths]
+
+        # loop over specified file paths
+        # FIXME: add all specified macros instead of only the first one
+        for path in macro_paths:
+            self['macro'] = path
+            break
+
+    def set_user_opts(self, parsed_args):
+        """Set options specified by user on command line
+
+        :param argparse.Namespace parsed_args: parsed user arguments
+        """
+
+        # loop over arguments
+        args = vars(parsed_args)
+        known_opts = set(opt for sec_opts in USER_OPTS.values() for opt in sec_opts)
+        for opt_key in args.keys():
+            # only process known config options
+            if opt_key not in known_opts:
+                continue
+
+            # call setter function for this user option
+            CONFIG_OPTS_SETTERS[opt_key](opt_key, self, args)
 
 
 class DataStore(ProcessService, dict):

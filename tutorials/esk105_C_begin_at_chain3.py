@@ -32,19 +32,21 @@ settings['beginWithChain'] = 'chain3'
 
 msg = r"""
 
---> Make sure to run this macro after running macro: esk105_B_store_each_chain.py
+--> Make sure to run this macro after running macro
+    esk105_B_store_each_chain.py
 
-By default, the process manager starts the execution of the first configured chain 
-and end with the last one. If the datastore & configobject are written out after 
-the execution of each chain (-w), then it is possible to execute one particular chain,
-which is done by picking up the datastore written out by the previous configure chain. 
-This is a nice feature for debugging and developing purposes.  
+By default, the process manager starts the execution of the first
+configured chain and end with the last one.  If the run-process services
+are written out after the execution of each chain (--store-all), it is
+possible to execute one particular chain.  This is done by picking up
+the services written out by the previous chain.  This is a nice feature
+for debugging and developing purposes.
 
 From the command line use the options:
 
-[-b BEGIN_WITH_CHAIN] 
-[-e END_WITH_CHAIN]                          
-[-s SINGLE_CHAIN]
+-b BEGIN_WITH_CHAIN
+-e END_WITH_CHAIN
+-s SINGLE_CHAIN
 """
 log.info(msg)
 
