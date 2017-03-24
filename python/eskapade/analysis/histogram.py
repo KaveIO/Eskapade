@@ -701,6 +701,10 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
                 raise RuntimeError('invalid type for specified counts')
             self._from_numpy(counts, var_vals)
 
+        # remove inconsistent keys. Do this before nonone_bins dict is created,
+        # which required sortable (= consistent) keys
+        self.remove_keys_of_inconsistent_type()
+            
         # check counts
         if self._val_counts.num_nonone_bins < 1:
             self.log().critical('no bin counts specified for "%s"', self.variable)
