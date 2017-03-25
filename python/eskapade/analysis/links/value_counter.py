@@ -241,11 +241,8 @@ class ValueCounter(Link):
 
         # 5. storage
         # then convert to histograms and add to datastore
-        if self.store_key_hists is not None and not self.store_at_finalize:
-            self.make_and_store_1dhistograms()
-        # store the Counter objects as well?
-        if self.store_key_counts is not None and not self.store_at_finalize:
-            self.make_and_store_valuecounts()
+        if not self.store_at_finalize:
+            self.make_and_store()
 
         return StatusCode.Success
 
@@ -256,11 +253,8 @@ class ValueCounter(Link):
         """
 
         # convert to histograms and add to datastore
-        if self.store_key_hists is not None and self.store_at_finalize:
-            self.make_and_store_1dhistograms()
-        # store the Counter objects as well?
-        if self.store_key_counts is not None and self.store_at_finalize:
-            self.make_and_store_valuecounts()
+        if self.store_at_finalize:
+            self.make_and_store()
 
         # cleanup
         if self.store_key_counts is None:
@@ -271,10 +265,13 @@ class ValueCounter(Link):
 
         return StatusCode.Success
 
-    def make_and_store_valuecounts(self):
+    def make_and_store(self):
         """Make ValueCount objects, clean them up, and store them """
 
-        # construct hist from value counts
+        proc_mgr = ProcessManager()
+        ds = proc_mgr.service(DataStore)
+
+        # 1. construct value counts
         for c in self.columns:
             name = ':'.join(c)
             vc = ValueCounts(c, c, self._counts[name])
@@ -285,15 +282,13 @@ class ValueCounter(Link):
                 vc = self.drop_inconsistent_keys(c, vc)
             self._valcnts[name] = vc
 
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
-        ds[self.store_key_counts] = self._valcnts
-        return
+        if self.store_key_counts is not None:
+            ds[self.store_key_counts] = self._valcnts
 
-    def make_and_store_1dhistograms(self):
-        """Make histograms of all 1d value_counts, clean them up, and store them"""
+        # 2. construct hists from value counts
+        if self.store_key_hists is None:
+            return
 
-        # construct hist from value counts
         for c in self.columns:
             if len(c) != 1:
                 continue
@@ -308,19 +303,13 @@ class ValueCounter(Link):
                 bin_specs = self.bin_specs.get(name, self._unit_bin_specs)
             elif is_timestamp:
                 bin_specs = self.bin_specs.get(name, self._unit_timestamp_specs)
-            h = Histogram(self._counts[name], variable=name, datatype=self.datatype[name],
+            h = Histogram(self._valcnts[name], variable=name, datatype=self.datatype[name],
                           bin_specs=bin_specs)
-
-            # remove all items from Counters where the key is not of correct datatype.
-            # e.g. in Counter dict of ints, remove any non-ints that may arise
-            # from dq issues.
-            if self.drop_inconsistent_key_types:
-                h = self.drop_inconsistent_keys(c, h)
             self._hists1d[name] = h
-        # storage
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        # and store
         ds[self.store_key_hists] = self._hists1d
+
+        return
 
     def drop_requested_keys(self, name, counts):
         """ Drop requested keys from value_counts dictionary.
