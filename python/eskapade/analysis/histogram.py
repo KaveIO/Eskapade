@@ -977,12 +977,6 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
         :param tuple prefered_key_type: the prefered key type to keep. Can be a tuple, list, or single type. E.g. str or (int,str,float).
         If None provided, the most common key type found is kept.
         """
-
-        # has array been converted first? if so, set correct comparison
-        # datatype
-        prefered_key_type = prefered_key_type if isinstance(prefered_key_type,list) \
-                else [prefered_key_type]
-        
         n_keys_prev = len(self._val_counts._cnts)
         self._val_counts.remove_keys_of_inconsistent_type(prefered_key_type)
         n_keys_new = len(self._val_counts._cnts)
