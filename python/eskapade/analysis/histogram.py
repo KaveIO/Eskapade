@@ -703,7 +703,7 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
 
         # remove inconsistent keys. Do this before nonone_bins dict is created,
         # which required sortable (= consistent) keys
-        self.remove_keys_of_inconsistent_type()
+        self.remove_keys_of_inconsistent_type(self.datatype)
             
         # check counts
         if self._val_counts.num_nonone_bins < 1:
@@ -981,8 +981,26 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
         :param tuple prefered_key_type: the prefered key type to keep. Can be a tuple, list, or single type. E.g. str or (int,str,float).
         If None provided, the most common key type found is kept.
         """
+
+        # has array been converted first? if so, set correct comparison
+        # datatype
+        dtarr = prefered_key_type if isinstance(prefered_key_type,list) \
+                else [prefered_key_type]
+        
+        comp_dtype = []
+        for datatype in dtarr:
+            dt = np.dtype(datatype).type()
+            is_converted = isinstance(
+                dt, np.number) or isinstance(
+                dt, np.datetime64)
+            if is_converted:
+                comp_dtype.append(np.int64)
+            else:
+                comp_dtype.append(datatype)
+        # keep only keys of types in comp_dtype
+        
         n_keys_prev = len(self._val_counts._cnts)
-        self._val_counts.remove_keys_of_inconsistent_type(prefered_key_type)
+        self._val_counts.remove_keys_of_inconsistent_type(comp_dtype)
         n_keys_new = len(self._val_counts._cnts)
 
         if n_keys_new < n_keys_prev:

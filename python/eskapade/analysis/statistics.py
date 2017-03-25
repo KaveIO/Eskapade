@@ -154,7 +154,8 @@ class ArrayStats(LoggingMixin):
 
         # add value counts to print lines
         self.print_lines.append('{}:'.format(self.label if self.label else self.name))
-        self.print_lines.append('{0:d} entries ({1:.0f}%)'.format(var_cnt, var_cnt / cnt * 100))
+        ratio = (var_cnt / cnt) * 100 if cnt != 0 else 0
+        self.print_lines.append('{0:d} entries ({1:.0f}%)'.format(var_cnt, ratio))
         self.print_lines.append('{0:d} unique entries'.format(dist_cnt))
 
         # convert time stamps to integers
@@ -164,7 +165,7 @@ class ArrayStats(LoggingMixin):
             col_num = self.col_nn
 
         # get additional statistics for numeric variables
-        if col_props['is_num']:
+        if col_props['is_num'] and len(col_num):
             stat_vars = ('mean', 'std', 'min', 'max', 'p01', 'p05', 'p16', 'p50', 'p84', 'p95', 'p99')
             quant_probs = (0, 1, 0.01, 0.05, 0.16, 0.50, 0.84, 0.95, 0.99)
             #stat_vals = (col_num.mean(), col_num.std(), col_num.min(), col_num.max())\
