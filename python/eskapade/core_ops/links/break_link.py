@@ -1,6 +1,6 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : BreakLink                                                             *
+# * Class  : Break                                                             *
 # * Created: 2017/02/26                                                            *
 # * Description:                                                                   *
 # *      Algorithm to send break signal to process manager and halt execution      *
@@ -16,7 +16,7 @@
 from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 
 
-class BreakLink(Link):
+class Break(Link):
     """Link sends failure signal and halts execution of process manager
 
     Break the execution of the processManager at a specific location 
@@ -24,20 +24,20 @@ class BreakLink(Link):
     """
 
     def __init__(self, **kwargs):
-        """Store the configuration of link BreakLink
+        """Store the configuration of link Break
 
         :param str name: name of link
         """
 
         # initialize Link, pass name from kwargs
-        Link.__init__(self, kwargs.pop('name', 'BreakLink'))
+        Link.__init__(self, kwargs.pop('name', 'Break'))
 
         # check residual kwargs. exit if any present. 
         self.check_extra_kwargs(kwargs)
 
 
     def execute(self):
-        """Execute BreakLink"""
+        """Execute Break"""
 
         self.log().info('Now sending break signal to halt execution!')
         # halt the execution of proc_mgr by sending a failure signal

@@ -60,7 +60,10 @@ class RecordVectorizer(Link):
     def initialize(self):
         """ Initialize and (further) check the assigned attributes of RecordVectorizer """
 
-        assert self.read_key != '', 'DataStore read key has not been set!'
+        self.check_arg_types(read_key=str)
+        self.check_arg_types(recurse=True, allow_none=True, columns=str)
+        self.check_arg_vals('read_key')
+        
         if self.store_key is None:
             self.store_key = self.read_key + '_vectorized'
             self.log().info('store key was empty, has been set to <%s>' % self.store_key)
@@ -88,13 +91,13 @@ class RecordVectorizer(Link):
             assert c in df.columns, 'Column name <%s> not present in input data frame.' % (c)
 
         # checks of column_compare_with
+        if isinstance(self.column_compare_with,str) and len(self.column_compare_with):
+            assert self.column_compare_with in ds, 'Column compare with <%s> not found in data store.' % \
+                (self.column_compare_with)
+            self.column_compare_with = df[self.column_compare_with]
+        if not isinstance(self.column_compare_with,dict):
+            raise RuntimeError('Column compare dict not set correctly.')
         for c in self.columns:
-            if isinstance(self.column_compare_with,str) and len(self.column_compare_with):
-                assert self.column_compare_with in ds, 'Column compare with <%s> not found in data store.' % \
-                    (self.column_compare_with)
-                self.column_compare_with = df[self.column_compare_with]
-            if not isinstance(self.column_compare_with,dict):
-                raise RuntimeError('Column compare dict not set correctly.')
             if not c in self.column_compare_with:
                 self.column_compare_with[c] = df[c].unique()
             else:

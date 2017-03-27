@@ -1,5 +1,5 @@
 __all__ = ['AssertInDs', 'DsObjectDeleter', 'DsToDs', 'EventLooper', 'LinePrinter', 'HelloWorld', 'PrintDs',
-           'RepeatChain', 'SkipChainIfEmpty', 'ToDsDict', 'IPythonEmbed', 'BreakLink']
+           'RepeatChain', 'SkipChainIfEmpty', 'ToDsDict', 'IPythonEmbed', 'Break']
 from .assert_in_ds import AssertInDs
 from .ds_object_deleter import DsObjectDeleter
 from .ds_to_ds import DsToDs
@@ -11,4 +11,4 @@ from .repeat_chain import RepeatChain
 from .skip_chain_if_empty import SkipChainIfEmpty
 from .to_ds_dict import ToDsDict
 from .ipython_embed import IPythonEmbed
-from .break_link import BreakLink
+from .break_link import Break

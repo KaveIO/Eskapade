@@ -83,12 +83,12 @@ ch.add_link(link)
 
 # 4. This link sends out a break signal!
 # eskapade execution or any remaining links and chains is skipped.
-link = core_ops.BreakLink()
+link = core_ops.Break()
 # keys are the items for which the contents of the actual item is printed.
 ch.add_link(link)
 link.keys = ['foo', 'hello', 'd']
 
-# 5. this link should not be reached because of the BreakLink!
+# 5. this link should not be reached because of the Break!
 ch = proc_mgr.add_chain('End')
 link = core_ops.PrintDs(name = 'printer3')
 ch.add_link(link)
