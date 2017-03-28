@@ -363,6 +363,18 @@ Example esk108: Event loop
 Example 108 processes a text data set to loop through every word and do a Map and Reduce operation on the data set.
 Finally a line printer prints out the result.
 
+Example esk109: Debugging tips
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This macro illustrates basic debugging features of Eskapade.
+The macro shows how to start interactive ipython sessions while
+running through the chains, and also how to break out of a chain.
+
+Example esk110: Code profiling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This macro demonstrates how to run Eskapade with code profiling turned on.
+
 Example esk201: Read data
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -398,6 +410,12 @@ Example esk206: Merge DataFrames
 Macro 206 creates two DataFrames that are subsequently merged into one. The original data is deleted and the result
 is printed out.
 
+Example esk207: Record vectorization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This macro performs the vectorization of an input column of an input dataframe.
+E.g. a columnn x with values 1, 2 is tranformed into columns x_1 and x_2, with values True or False assigned per record.
+
 Example esk301: File loop
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -411,6 +429,13 @@ Example esk302: Summary plot
 
 Macro 302 generates some data using a generator Link (in the previous macros it was hard-coded) and visualizes the
 result using a plotter Link.
+
+Example esk303: Histogram filling and plotting
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macro 303 takes data from a dummy dataset, loops over this dataset in chunks while it fills histograms of the
+columns of the data. The histograms are visualized with a histogram plotter Link.
+
 
 Eskapade in PyCharm
 -------------------

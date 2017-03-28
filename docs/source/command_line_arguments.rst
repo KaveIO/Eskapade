@@ -287,9 +287,17 @@ option ``--profile``:
 
 .. code-block:: bash
 
-  $ run_eskapade.py --profile tutorials/tutorial_1.py
+  $ run_eskapade.py --profile=cumulative tutorials/tutorial_1.py
 
-After running this prints out a long list of all functions called, including the time it took to run each of of them.
+After running this prints out a long list of all functions called,
+including the time it took to run each of of them, where the functions
+are sorted based on cumulative time.
+
+To get the the list of sorting options for the profiling, run:
+
+.. code-block:: bash
+
+  $ run_eskapade.py --help
 
 
 Combining arguments

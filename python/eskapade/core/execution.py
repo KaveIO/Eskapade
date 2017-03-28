@@ -12,8 +12,8 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import cProfile
 import logging
+import cProfile, pstats, io
 
 from .process_manager import ProcessManager
 from .process_services import ConfigObject
@@ -88,12 +88,25 @@ def run_eskapade(settings=None):
     if status.isFailure():
         return status
 
-    # executes chains according to specifications
     if settings.get('doCodeProfiling'):
-        cProfile.run('proc_mgr = ProcessManager(); status = proc_mgr.execute_all()')
-    else:
-        status = proc_mgr.execute_all()
-        pass
+        # turn on profiling
+        profiler = cProfile.Profile()
+        profiler.enable()
+
+    # run Eskapade
+    status = proc_mgr.execute_all()
+
+    if settings.get('doCodeProfiling'):
+        # turn off profiling
+        profiler.disable()
+
+        # print profile output
+        profile_output = io.StringIO()
+        profile_stats = pstats.Stats(profiler, stream=profile_output).sort_stats(settings['doCodeProfiling'])
+        profile_stats.print_stats()
+        print(profile_output.getvalue())
+
+    # check execution return code
     if status.isFailure():
         return status
 
