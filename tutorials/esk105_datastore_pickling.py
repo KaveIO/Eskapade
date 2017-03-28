@@ -62,7 +62,7 @@ ch = proc_mgr.add_chain('chain1')
 
 # the link ToDsDict adds objects to the datastore at link execution.
 link = core_ops.ToDsDict(name='intods_1')
-link.storeKey = 'f'
+link.store_key = 'f'
 link.obj = f
 ch.add_link(link)
 
@@ -83,7 +83,7 @@ ch.add_link(link)
 
 # the link ToDsDict adds objects to the datastore at link execution.
 link = core_ops.ToDsDict(name='intods_2')
-link.storeKey = 'g'
+link.store_key = 'g'
 link.obj = g
 ch.add_link(link)
 
@@ -103,7 +103,7 @@ ch.add_link(link)
 
 # the link ToDsDict adds objects to the datastore at link execution.
 link = core_ops.ToDsDict(name='intods_3')
-link.storeKey = 'h'
+link.store_key = 'h'
 link.obj = h
 ch.add_link(link)
 

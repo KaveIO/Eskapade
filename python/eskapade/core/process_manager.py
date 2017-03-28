@@ -18,16 +18,15 @@
 import importlib
 import os
 import glob
-import timeit
 
 from . import persistence
-from .mixins import LoggingMixin
+from .mixins import LoggingMixin, TimerMixin
 from .definitions import StatusCode
 from .process_services import ProcessService, ConfigObject
 from .run_elements import Chain
 
 
-class ProcessManager(LoggingMixin):
+class ProcessManager(LoggingMixin, TimerMixin):
     """Eskapade run-process manager
 
     The processManager singleton class forms the core of Eskapade.  It
@@ -96,12 +95,13 @@ class ProcessManager(LoggingMixin):
             return
         self._initialized = True
 
+        # initialize timer
+        TimerMixin.__init__(self)
+
         # set attributes
         self.prevChainName = ''
         self.chains = []
         self._services = {}
-        self._start_time = 0
-        self._stop_time = 0
 
     def service(self, serv_spec):
         """Get or register process service
@@ -344,53 +344,38 @@ class ProcessManager(LoggingMixin):
         settings = self.service(ConfigObject)
         if not settings.get('doNotStoreResults') and copyfile:
             import shutil
-            shutil.copy(
-                filename,
-                persistence.io_dir(
-                    'results_config',
-                    settings.io_conf()))
+            shutil.copy(filename, persistence.io_dir('results_config', settings.io_conf()))
 
-    def add_chain(self, input_chain, new_name=''):
+    def add_chain(self, input_chain):
         """Add a chain to the process manager
 
-        Add a chain to be run by the process manager.  After it is
-        added, the chain is owned by the process manager.
+        Add a chain to be run by the process manager.  A check is
+        performed that a chain with this name does not already
+        exist.
 
-        :param input_chain: the chain to be added
+        :param input_chain: (name of) the chain to be added
         :type input_chain: str or Chain
-        :param str new_name: the name of the new chain to be added
         :raises RuntimeError: if chain with same name already exists
         :returns: the chain that has been added
         :rtype: Chain
         """
 
         # first check specified chain name
-        if not isinstance(new_name, str):
-            self.log().critical('specified chain name has type "%s"', type(new_name).__name__)
-            raise TypeError(
-                'the name of a new chain in the process manager must be specified as a string')
-        if not new_name:
-            if isinstance(input_chain, Chain):
-                new_name = input_chain.name
-            elif isinstance(input_chain, str):
-                new_name = input_chain
-            else:
-                print(type(input_chain), input_chain)
-                self.log().critical(
-                    'specifying chain by type "%s" not supported',
-                    type(input_chain).__name__)
-                raise NotImplementedError(
-                    'unsupported input type for add_chain function of process manager')
+        if isinstance(input_chain, Chain):
+            new_name = input_chain.name
+        elif isinstance(input_chain, str):
+            new_name = input_chain
+        else:
+            self.log().critical('specifying chain by type "%s" not supported', type(input_chain).__name__)
+            raise NotImplementedError('unsupported input type for add_chain function of process manager')
         if any(c.name == new_name for c in self.chains):
-            self.log().critical('chain "%s" already exists; please use a different name', new_name)
-            raise RuntimeError(
-                'tried to add chain with existing name to process manager')
+            self.log().critical('Chain "%s" already exists; please use a different name', new_name)
+            raise RuntimeError('tried to add chain with existing name to process manager')
 
         # add new chain
         self.log().debug('booking new chain "%s"', new_name)
-        self.chains.append(
-            input_chain.clone(new_name) if isinstance(
-                input_chain, Chain) else Chain(new_name))
+        self.chains.append(input_chain if isinstance(input_chain, Chain) else Chain(new_name))
+
         return self.chains[-1]
 
     def get_chain_idx(self, name):
@@ -401,11 +386,12 @@ class ProcessManager(LoggingMixin):
         :rtype: int
         :raises Exception: if chain name not found
         """
+
         for (idx, chain) in enumerate(self.chains):
             if chain.name == name:
                 return idx
 
-        raise Exception("No chain with name \'%s\' found" % name)
+        raise Exception('No chain with name "%s" found' % name)
 
     def get_chain(self, name):
         """Find the chain with the given name
@@ -415,11 +401,12 @@ class ProcessManager(LoggingMixin):
         :rtype: Chain
         :raises RuntimeError: if chain name not found
         """
+
         for chain in self.chains:
             if chain.name == name:
                 return chain
 
-        raise RuntimeError("No chain with name \'%s\' found" % name)
+        raise RuntimeError('No chain with name "%s" found' % name)
 
     def has_chain(self, name):
         """Check if chain exists for this name
@@ -458,7 +445,7 @@ class ProcessManager(LoggingMixin):
                 self.chains.pop(i)
                 return
 
-        self.log().warning("Chain named '%s' does not exist. Cannot be removed.", name)
+        self.log().warning('Chain named "%s" does not exist; cannot be removed', name)
 
     def initialize(self):
         """Initialize the process manager
@@ -472,7 +459,7 @@ class ProcessManager(LoggingMixin):
 
         status = StatusCode.Success
 
-        self.log().info("Initializing process manager ...")
+        self.log().info('Initializing process manager')
 
         # Start the timer directly after the initialize message.
         self.start_timer()
@@ -484,7 +471,7 @@ class ProcessManager(LoggingMixin):
 
         prevChainName = ''
         for chain in self.chains:
-            self.log().debug("Configuring chain: %s ", chain.name)
+            self.log().debug('Configuring chain "%s"', chain.name)
             if not chain.prevChainName:
                 chain.prevChainName = prevChainName
             prevChainName = chain.name
@@ -494,7 +481,7 @@ class ProcessManager(LoggingMixin):
         self.Print()
         self.service(ConfigObject).Print()
 
-        self.log().debug("Done initializing process manager ...")
+        self.log().debug('Done initializing process manager')
 
         return status
 
@@ -505,13 +492,13 @@ class ProcessManager(LoggingMixin):
         :rtype: StatusCode
         """
 
-        self.log().info("Finalizing process manager ...")
+        self.log().info('Finalizing process manager')
 
         # Stop the timer when the Process Manager is done and print.
-        total_time = self.stop_timer(self._start_time)
-        self.log().info("Total runtime is: {0:.2f} seconds.".format(total_time))
+        total_time = self.stop_timer()
+        self.log().info('Total runtime: {0:.2f} seconds'.format(total_time))
 
-        self.log().debug("Done finalizing process manager ...")
+        self.log().debug('Done finalizing process manager')
 
         return StatusCode.Success
 
@@ -524,26 +511,17 @@ class ProcessManager(LoggingMixin):
 
         settings = self.service(ConfigObject)
 
-        self.log().info("*-------------------------------------------------*")
-        self.log().info("     Process manager summary")
-        self.log().info("*-------------------------------------------------*")
+        self.log().info('Summary of process manager')
+        if settings.get('beginWithChain'):
+            self.log().info('  Starting from chain: "%s"', settings['beginWithChain'])
+        if settings.get('endWithChain'):
+            self.log().info('  Ending with chain:   "%s"', settings['endWithChain'])
 
-        if 'beginWithChain' in settings:
-            self.log().info(
-                "Starting from chain: %s",
-                settings['beginWithChain'])
-        if 'endWithChain' in settings:
-            self.log().info(
-                "Ending with chain:   %s",
-                settings['endWithChain'])
-
-        self.log().info('Number of registered services: %d (tree printed at DEBUG log level)', len(self._services))
+        self.log().info('  Number of registered services: %d', len(self._services))
         self.print_services()
 
-        self.log().info("Number of chains:    %d", len(self.chains))
-        self.log().info("Chain names: (set log level DEBUG)")
+        self.log().info('  Number of registered chains: %d', len(self.chains))
         self.print_chains()
-        self.log().info("*-------------------------------------------------*")
 
     def print_services(self):
         """Print registered process services"""
@@ -562,24 +540,22 @@ class ProcessManager(LoggingMixin):
                 _print_level(level[lev_path], prefix, depth + 1)
 
         # print service tree
-        self.log().debug('Registered process services:')
         serv_tree = self.get_service_tree()
-        _print_level(serv_tree, '  ', 0)
+        self.log().debug('  Registered process services')
+        _print_level(serv_tree, '    ', 0)
 
     def print_chains(self):
         """Print all chains defined in the manager"""
 
-        self.log().debug("*------------------------------------------*")
-        self.log().debug("ProcessManager:")
         settings = self.service(ConfigObject)
+        self.log().debug('  Chains to be executed')
 
-        begin = self.get_chain_idx(settings['beginWithChain']) if 'beginWithChain' in settings else 0
-        end = (self.get_chain_idx(settings['endWithChain']) + 1) if 'endWithChain' in settings else len(self.chains)
+        begin = self.get_chain_idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
+        end = (self.get_chain_idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self.chains)
         for chain in self.chains[begin:end]:
-            self.log().debug("  Chain: %s ", chain.name)
+            self.log().debug('    Chain: %s', chain.name)
             for link in chain.links:
-                self.log().debug("    Link: %s", link.name)
-        self.log().debug("*------------------------------------------*")
+                self.log().debug('      Link: %s', link.name)
 
     def execute_all(self):
         """Execute all chains in order
@@ -587,15 +563,16 @@ class ProcessManager(LoggingMixin):
         :returns: status code of execution attempt
         :rtype: StatusCode
         """
+
         status = StatusCode.Success
 
-        self.log().info("Executing process manager ...")
+        self.log().info('Executing process manager')
 
         settings = self.service(ConfigObject)
 
         # determine which chains need to be run
-        begin = self.get_chain_idx(settings['beginWithChain']) if 'beginWithChain' in settings else 0
-        end = (self.get_chain_idx(settings['endWithChain']) + 1) if 'endWithChain' in settings else len(self.chains)
+        begin = self.get_chain_idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
+        end = (self.get_chain_idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self.chains)
 
         if begin > 0:
             # import services from previous chain, persisted in a previous run
@@ -626,7 +603,7 @@ class ProcessManager(LoggingMixin):
             # persist process services with the output of this chain
             self.persist_services(io_conf=settings.io_conf(), chain=chain.name)
 
-        self.log().debug("Done executing process manager ...")
+        self.log().debug('Done executing process manager')
 
         return status
 
@@ -700,28 +677,3 @@ class ProcessManager(LoggingMixin):
         # re-initialize
         self._initialized = False
         self.__init__()
-
-    def start_timer(self):
-        """Start run timer
-
-        Start the timer of the Eskapade run.  The timer is used to
-        compute the run time.
-
-        :returns: UNIX time stamp from the timeit module
-        """
-
-        self._start_time = timeit.default_timer()
-        return self._start_time
-
-    def stop_timer(self, start_time=0):
-        """Stop the run timer
-
-        Stop the timer of the Eskapade run.  The timer is used to
-        compute the run time.
-
-        :param start_time: function start_time input
-        :returns: number of seconds
-        """
-
-        self._stop_time = timeit.default_timer()
-        return self._stop_time - start_time

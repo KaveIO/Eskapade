@@ -1,13 +1,19 @@
 import unittest
+import mock
+import sys
 import os
 import shutil
+import importlib
 import pandas as pd
 
-from eskapade.core import execution, definitions
+from eskapade.core import execution, definitions, persistence, project_utils
 from eskapade import ProcessManager, ConfigObject, DataStore
 
 
 class TutorialMacrosTest(unittest.TestCase):
+    """Integration tests based on tutorial macros"""
+
+    maxDiff = None
 
     def setUp(self):
         execution.reset_eskapade()
@@ -137,7 +143,7 @@ class TutorialMacrosTest(unittest.TestCase):
         settings['macro'] = settings['esRoot'] + '/tutorials/esk106_cmdline_options.py'
 
         # fake a setting from the cmd-line. picked up in the macro
-        settings['cmd'] = 'do_chain0=False'
+        settings['do_chain0'] = False
         
         status = execution.run_eskapade(settings)
 
@@ -149,17 +155,82 @@ class TutorialMacrosTest(unittest.TestCase):
         self.assertTrue(status.isSuccess())
         self.assertEqual(1, len(pm.chains))
         self.assertEqual('Chain1', pm.chains[0].name)
-        self.assertEqual(False, settings['do_chain0'])
-        self.assertEqual(True, settings['do_chain1'])
+        self.assertEqual(False, settings.get('do_chain0', True))
+        self.assertEqual(True, settings.get('do_chain1', True))
         self.assertEqual('Universe', pm.chains[0].links[0].hello)
+
+    @mock.patch('sys.argv')
+    def test_esk106_script(self, mock_argv):
+        """Test Eskapade run with esk106 macro from script"""
+
+        proc_mgr = ProcessManager()
+
+        # get file paths
+        settings = proc_mgr.service(ConfigObject)
+        settings['analysisName'] = 'esk106_cmdline_options'
+        settings_ = settings.copy()
+        script_path = project_utils.get_file_path('run_eskapade')
+        macro_path = persistence.io_path('macros', settings.io_conf(), 'esk106_cmdline_options.py')
+
+        # import run-script module
+        orig_mod_path = sys.path.copy()
+        sys.path.append(os.path.dirname(script_path))
+        script_mod = os.path.splitext(os.path.basename(script_path))[0]
+        run_eskapade = importlib.import_module(script_mod)
+
+        # mock command-line arguments
+        args = []
+        mock_argv.__getitem__ = lambda s, k: args.__getitem__(k)
+
+        # base settings
+        args_ = [script_path, macro_path, '-LDEBUG', '--batch-mode']
+        settings_['macro'] = macro_path
+        settings_['logLevel'] = definitions.LOG_LEVELS['DEBUG']
+        settings_['batchMode'] = True
+
+        def do_run(name, args, args_, settings_, add_args, add_settings, chains):
+            # set arguments
+            args.clear()
+            args += args_ + add_args
+            settings = settings_.copy()
+            settings.update(add_settings)
+
+            # run Eskapade
+            proc_mgr.reset()
+            run_eskapade.main()
+            settings_run = proc_mgr.service(ConfigObject)
+
+            # check results
+            self.assertListEqual([c.name for c in proc_mgr.chains], chains,
+                                 'unexpected chain names in "{}" test'.format(name))
+            self.assertDictEqual(settings_run, settings, 'unexpected settings in "{}" test'.format(name))
+
+        # run both chains
+        do_run('both chains', args, args_, settings_,
+               ['--store-all', '-cdo_chain0=True', '-cdo_chain1=True'],
+               dict(storeResultsEachChain=True, do_chain0=True, do_chain1=True),
+               ['Chain0', 'Chain1'])
+
+        # run only last chain by skipping the first
+        do_run('skip first', args, args_, settings_,
+               ['-bChain1', '-cdo_chain0=True', '-cdo_chain1=True'],
+               dict(beginWithChain='Chain1', do_chain0=True, do_chain1=True),
+               ['Chain0', 'Chain1'])
+
+        # run only last chain by not defining the first
+        do_run('no first', args, args_, settings_,
+               ['-cdo_chain0=False', '-cdo_chain1=True'],
+               dict(do_chain0=False, do_chain1=True),
+               ['Chain1'])
+
+        # restore module search path
+        sys.path.clear()
+        sys.path += orig_mod_path
 
     def test_esk107(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
         settings['macro'] = settings['esRoot'] + '/tutorials/esk107_chain_looper.py'
-
-        # fake a setting from the cmd-line. picked up in the macro
-        settings['cmd'] = 'do_chain0=False'
         
         status = execution.run_eskapade(settings)
 
@@ -382,7 +453,7 @@ class TutorialMacrosTest(unittest.TestCase):
         self.assertEqual(2, ds['n_test2'])
         self.assertEqual(36, ds['n_sum_test1'])
         self.assertEqual(36, ds['n_sum_test2'])
-        self.assertEqual(36, ds['n_merged'])
+        self.assertEqual(24, ds['n_merged'])
         
     def test_esk302(self):
         settings = ProcessManager().service(ConfigObject)
@@ -403,6 +474,35 @@ class TutorialMacrosTest(unittest.TestCase):
         self.assertIsInstance(ds['data'], pd.DataFrame)
         self.assertListEqual(list(ds['data'].columns), columns)
         self.assertEqual(10000, len(ds['data']))
+
+        # data-summary checks
+        file_names = ['report.tex'] + ['hist_{}.pdf'.format(col) for col in columns]
+        for fname in file_names:
+            path = '{0:s}/{1:s}/data/v0/report/{2:s}'.format(settings['resultsDir'], settings['analysisName'], fname)
+            self.assertTrue(os.path.exists(path))
+            statinfo = os.stat(path)
+            self.assertTrue(statinfo.st_size > 0)
+
+    def test_esk303(self):
+        settings = ProcessManager().service(ConfigObject)
+        settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
+        settings['macro'] = settings['esRoot'] + '/tutorials/esk303_histogram_filler_plotter.py'
+        settings['batchMode'] = True
+
+        status = execution.run_eskapade(settings)
+
+        pm = ProcessManager()
+        settings = ProcessManager().service(ConfigObject)
+        ds = ProcessManager().service(DataStore)
+        columns = ['date','isActive','age','eyeColor','gender','company','latitude','longitude']
+
+        # data-generation checks
+        self.assertTrue(status.isSuccess())
+        self.assertIn('n_sum_rc', ds)
+        self.assertEqual(1300, ds['n_sum_rc'])
+        self.assertIn('hist', ds)
+        self.assertIsInstance(ds['hist'], dict)
+        self.assertListEqual(sorted(ds['hist'].keys()), sorted(columns))
 
         # data-summary checks
         file_names = ['report.tex'] + ['hist_{}.pdf'.format(col) for col in columns]

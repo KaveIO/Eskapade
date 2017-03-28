@@ -3,7 +3,7 @@ set -e
 
 # variables
 ESUSER="esdev"
-VHOSTNAMES="eshost mongo"
+VHOSTNAMES="es-host es-mongo es-jboss es-rabbitmq es-service"
 ESMOUNTID="esrepo"
 TMPDIR="/tmp/esinstall"
 LOGDIR="/var/log/esinstall"
@@ -13,7 +13,7 @@ KTBDIR="/opt/KaveToolbox"
 ANADIR="/opt/anaconda"
 SPARKRELEASE="2.1.0"
 SPARKDIR="/opt/spark"
-ROOTRELEASE="6.06.08"
+ROOTRELEASE="6.08.06"
 ROOTDIR="/opt/root"
 PYCHARMRELEASE="2016.3.2"
 PYCHARMDIR="/opt/pycharm"
@@ -64,7 +64,8 @@ log "upgrading system"
 apt-get -y dist-upgrade &> "${LOGDIR}/dist-upgrade.log"
 log "installing additional packages"
 apt-get -y install openjdk-8-jdk gfortran cmake libgsl-dev libfftw3-dev dpkg-dev libxpm-dev libxft-dev libxext-dev\
-                   locales locales-all texlive &> "${LOGDIR}/install.log"
+  freeglut3-dev libxml2-dev graphviz-dev\
+  locales locales-all texlive &> "${LOGDIR}/install.log"
 
 # install KAVE Toolbox
 log "installing KAVE Toolbox"
@@ -81,7 +82,7 @@ sed -i -e "s|/etc/profile\.d/kave\.sh|${KTBDIR}/pro/scripts/kave.sh|g" /etc/bash
 # setup Spark environment
 sed -e "s|SPARK_HOME_VAR|${SPARKDIR}/pro|g" /vagrant/spark/spark_env.sh >> "${KTBDIR}/pro/scripts/KaveEnv.sh"
 mkdir -p "${SPARKDIR}"
-ln -sf "spark-${SPARKRELEASE}" "${SPARKDIR}/pro"
+ln -sfT "spark-${SPARKRELEASE}" "${SPARKDIR}/pro"
 
 # install Spark
 log "installing Spark in ${SPARKDIR}/spark-${SPARKRELEASE}"
@@ -94,31 +95,48 @@ build/mvn -DskipTests clean package &> "${LOGDIR}/install-spark.log"
 # setup ROOT environment
 sed -e "s|ROOTSYS_VAR|${ROOTDIR}/pro|g" /vagrant/root/root_env.sh >> "${KTBDIR}/pro/scripts/KaveEnv.sh"
 mkdir -p "${ROOTDIR}"
-ln -sf "root-${ROOTRELEASE}" "${ROOTDIR}/pro"
+ln -sfT "root-${ROOTRELEASE}" "${ROOTDIR}/pro"
+
+# fetch ROOT
+cd "${TMPDIR}"
+wget -q "https://root.cern.ch/download/root_v${ROOTRELEASE}.source.tar.gz"
+tar -xzf "root_v${ROOTRELEASE}.source.tar.gz" --no-same-owner
+
+# apply ROOT patches
+log "applying ROOT patches"
+cd "root-${ROOTRELEASE}"
+for patchfile in $(ls /vagrant/root/patches/*.patch); do
+  patch -p1 -i "${patchfile}"
+done
 
 # install ROOT
 log "installing ROOT in ${ROOTDIR}/root-${ROOTRELEASE}"
 cd "${TMPDIR}"
-wget -q "https://root.cern.ch/download/root_v${ROOTRELEASE}.source.tar.gz"
-tar -xzf "root_v${ROOTRELEASE}.source.tar.gz" --no-same-owner
 mkdir -p root_build
 cd root_build
-cmake -DCMAKE_INSTALL_PREFIX="${ROOTDIR}/root-${ROOTRELEASE}"\
-      -DPYTHON_EXECUTABLE="${ANADIR}/pro/bin/python"\
-      -DCMAKE_CXX_FLAGS="-D_GLIBCXX_USE_CXX11_ABI=0" -Dcxx11=ON -Dcxx14=ON -Dpython=ON -Dx11=ON\
-      -Dmathmore=ON -Dminuit2=ON -Droofit=ON -Dtmva=ON -Dssl=OFF -Dxml=OFF\
-      "../root-${ROOTRELEASE}" &> "${LOGDIR}/install-root.log"
+cmake -DCMAKE_INSTALL_PREFIX="${ROOTDIR}/root-${ROOTRELEASE}" \
+  -Dfail-on-missing=ON \
+  -Dcxx14=ON -Droot7=ON -Dshared=ON -Dsoversion=ON -Dthread=ON -Dfortran=ON -Dpython=ON -Dcling=ON -Dx11=ON -Dssl=ON \
+  -Dxml=ON -Dfftw3=ON -Dbuiltin_fftw3=OFF -Dmathmore=ON -Dminuit2=ON -Droofit=ON -Dtmva=ON -Dopengl=ON -Dgviz=ON \
+  -Dalien=OFF -Dbonjour=OFF -Dcastor=OFF -Dchirp=OFF -Ddavix=OFF -Ddcache=OFF -Dfitsio=OFF -Dgfal=OFF -Dhdfs=OFF \
+  -Dkrb5=OFF -Dldap=OFF -Dmonalisa=OFF -Dmysql=OFF -Dodbc=OFF -Doracle=OFF -Dpgsql=OFF -Dpythia6=OFF -Dpythia8=OFF \
+  -Dsqlite=OFF -Drfio=OFF -Dxrootd=OFF \
+  -DPYTHON_EXECUTABLE="${ANADIR}/pro/bin/python" \
+  -DNUMPY_INCLUDE_DIR="${ANADIR}/pro/lib/python3.5/site-packages/numpy/core/include" \
+  "../root-${ROOTRELEASE}" &> "${LOGDIR}/install-root.log"
 cmake --build . --target install -- -j4 &>> "${LOGDIR}/install-root.log"
 
 # install Python packages for ROOT
 log "installing Python packages for ROOT"
-bash -c "source ${KTBDIR}/pro/scripts/KaveEnv.sh && ${ANADIR}/pro/bin/pip install rootpy root-numpy root_pandas"\
+cd "${TMPDIR}"
+git clone git://github.com/rootpy/root_numpy.git
+bash -c "source ${KTBDIR}/pro/scripts/KaveEnv.sh && python ${TMPDIR}/root_numpy/setup.py install"\
     &> "${LOGDIR}/install-root-python.log"
 
 # setup PyCharm environment
 sed -e "s|PYCHARM_HOME_VAR|${PYCHARMDIR}/pro|g" /vagrant/pycharm/pycharm_env.sh >> "${KTBDIR}/pro/scripts/KaveEnv.sh"
 mkdir -p "${PYCHARMDIR}"
-ln -sf "pycharm-community-${PYCHARMRELEASE}" "${PYCHARMDIR}/pro"
+ln -sfT "pycharm-community-${PYCHARMRELEASE}" "${PYCHARMDIR}/pro"
 
 # install PyCharm
 log "installing PyCharm in ${PYCHARMDIR}/pycharm-community-${PYCHARMRELEASE}"

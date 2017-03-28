@@ -30,36 +30,6 @@ settings['analysisName'] = 'esk301_readdata_itr'
 settings['version'] = 0
 
 #########################################################################################
-# --- process commands passed on from the command line (-c).
-#     any variable declared on the cmd line will be instantiated. 
-if 'cmd' in settings: 
-    try:
-        exec(settings['cmd'])
-        log.info('Python cmd executed: %s' % settings['cmd'])
-    except: pass
-    
-# --- Utility func, used below, to check if variable has been defined
-#     already, either on cmd line or in settings object.
-#     If already exists, return corresponding value.
-#     Else, create in settings and set to 'default'.
-def checkVar(varName, dic1=vars(), dic2=ProcessManager().service(ConfigObject), default=False):
-    varValue = default
-    if varName in dic1:   # check existence from cmd line
-        varValue = dic1[varName]
-    elif varName in dic2: # check in ConfigObject
-        varValue = dic2[varName]
-    return varValue
-
-#########################################################################################
-
-# --- Analysis configuration flags.
-#     E.g. use these flags turn on or off certain chains with links.
-#     by default all set to false, unless already configured in
-#     configobject or vars()
-
-# turn on/off the 2 examples 
-settings['do_example1'] = checkVar('do_example1', default=True) 
-settings['do_example2'] = checkVar('do_example2', default=True) 
 
 # when chunking through an input file, pick up only N lines in each iteration.
 chunksize = 5 
@@ -75,7 +45,7 @@ proc_mgr = ProcessManager()
 
 # --- example 1: readdata loops over the input files, but no file chunking.
 
-if settings['do_example1']:
+if settings.get('do_example1', True):
     ch = proc_mgr.add_chain('MyChain1')
 
     # --- a loop is set up in the chain MyChain.
@@ -114,7 +84,7 @@ if settings['do_example1']:
 
 # --- example 2: readdata loops over the input files, with file chunking.
 
-if settings['do_example2']:
+if settings.get('do_example2', True):
     ch = proc_mgr.add_chain('MyChain2')
 
     # --- a loop is set up in the chain MyChain.
@@ -138,10 +108,19 @@ if settings['do_example2']:
 
     # --- do something useful with the test dataset here ...
     #     e.g. apply selections, or collect into histograms.
+
+    # querySet = seletions that are applies to incoming_records
+    # after selections, only keep column in selectColumns ('a', 'c')
+    link = analysis.ApplySelectionToDf(readKey ='test2',
+                                       storeKey = 'reduced_data',
+                                       querySet = ['x>1'])
+    # Any other kwargs given to ApplySelectionToDf are passed on the the
+    # pandas query() function.
+    ch.add_link(link)
     
-    # --- As an example, will merge test3's back into a single, merged dataframe.
+    # --- As an example, will merge reduced datasets back into a single, merged dataframe.
     concat = analysis.DfConcatenator()
-    concat.readKeys = ['merged','test2']
+    concat.readKeys = ['merged','reduced_data']
     concat.storeKey = 'merged'
     concat.ignore_missing_input = True # in first iteration input 'merged' is missing. 
     ch.add_link(concat) 
