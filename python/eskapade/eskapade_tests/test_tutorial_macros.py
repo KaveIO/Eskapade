@@ -8,6 +8,7 @@ import pandas as pd
 
 from eskapade.core import execution, definitions, persistence, project_utils
 from eskapade import ProcessManager, ConfigObject, DataStore
+from eskapade.core_ops import Break
 
 
 class TutorialMacrosTest(unittest.TestCase):
@@ -287,8 +288,7 @@ class TutorialMacrosTest(unittest.TestCase):
         settings = ProcessManager().service(ConfigObject)
         ds = ProcessManager().service(DataStore)
 
-        from eskapade.core_ops import BreakLink
-        self.assertTrue(isinstance(pm.chains[0].links[2],BreakLink))
+        self.assertTrue(isinstance(pm.chains[0].links[2], Break))
         self.assertTrue(status.isFailure())
 
     def test_esk110(self):
