@@ -4,7 +4,7 @@
 # * Created: 2017/03/13                                                            *
 # * Description:                                                                   *
 # *     This macro performs the vectorization of an input column of an input dataframe.
-# *     E.g. a columnn x with values 1, 2 is tranformed into columns x_1 and x_2, 
+# *     E.g. a columnn x with values 1, 2 is tranformed into columns x_1 and x_2,
 # *     with values True or False assigned per record.
 # *                                                                                *
 # * Redistribution and use in source and binary forms, with or without             *
@@ -42,11 +42,11 @@ data_path = persistence.io_path('data', settings.io_conf(), 'dummy.csv')
 ch1 = proc_mgr.add_chain('MyChain1')
 
 # --- read dummy dataset
-readdata = analysis.ReadToDf(key ='test1', sep='|', reader='csv', path=data_path)
+readdata = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
 ch1.add_link(readdata)
 
 # --- print contents of the datastore
-pds = core_ops.PrintDs(name = 'printer1')
+pds = core_ops.PrintDs(name='printer1')
 pds.keys = ['test1']
 ch1.add_link(pds)
 
@@ -54,18 +54,17 @@ ch1.add_link(pds)
 #     Here the columns x and y of the input dataset are vectorized
 #     e.g. x=1 becomes the column: x_1 = True
 vect = analysis.RecordVectorizer()
-vect.columns = ['x','y']
+vect.columns = ['x', 'y']
 vect.read_key = 'test1'
 vect.store_key = 'vect_test'
 vect.astype = int
 ch1.add_link(vect)
 
 # --- print contents of the datastore
-pds = core_ops.PrintDs(name = 'printer2')
+pds = core_ops.PrintDs(name='printer2')
 pds.keys = ['vect_test']
 ch1.add_link(pds)
 
 #########################################################################################
 
 log.debug('Done parsing configuration file esk207_record_vectorizer')
-

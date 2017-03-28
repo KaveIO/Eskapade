@@ -366,7 +366,7 @@ Finally a line printer prints out the result.
 Example esk109: Debugging tips
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This macro illustrates basic debugging features of Eskapade. 
+This macro illustrates basic debugging features of Eskapade.
 The macro shows how to start interactive ipython sessions while
 running through the chains, and also how to break out of a chain.
 
@@ -433,7 +433,7 @@ result using a plotter Link.
 Example esk303: Histogram filling and plotting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Macro 303 takes data from a dummy dataset, loops over this dataset in chunks while it fills histograms of the 
+Macro 303 takes data from a dummy dataset, loops over this dataset in chunks while it fills histograms of the
 columns of the data. The histograms are visualized with a histogram plotter Link.
 
 

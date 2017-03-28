@@ -281,7 +281,7 @@ class TutorialMacrosTest(unittest.TestCase):
 
         # this flag turns off ipython embed link
         settings['TESTING'] = True
-        
+
         status = execution.run_eskapade(settings)
 
         pm = ProcessManager()
@@ -307,7 +307,7 @@ class TutorialMacrosTest(unittest.TestCase):
         self.assertEqual(0, len(ds.keys()))
         self.assertTrue('doCodeProfiling' in settings)
         self.assertEqual('cumulative', settings['doCodeProfiling'])
-        
+
     def test_esk201(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
@@ -428,7 +428,7 @@ class TutorialMacrosTest(unittest.TestCase):
         ds = ProcessManager().service(DataStore)
 
         columns = sorted(['x_1', 'x_3', 'x_5', 'x_4', 'y_9', 'y_8', 'y_7', 'y_6', 'y_5', 'y_4'])
-        
+
         self.assertTrue(status.isSuccess())
         self.assertTrue('vect_test' in ds)
         df = ds['vect_test']

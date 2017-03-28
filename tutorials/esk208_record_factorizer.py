@@ -42,11 +42,11 @@ data_path = persistence.io_path('data', settings.io_conf(), 'dummy.csv')
 ch1 = proc_mgr.add_chain('MyChain1')
 
 # --- read dummy dataset
-readdata = analysis.ReadToDf(key ='test1', sep='|', reader='csv', path=data_path)
+readdata = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
 ch1.add_link(readdata)
 
 # --- print contents of the datastore
-pds = core_ops.PrintDs(name = 'printer1')
+pds = core_ops.PrintDs(name='printer1')
 pds.keys = ['test1']
 ch1.add_link(pds)
 
@@ -56,14 +56,14 @@ ch1.add_link(pds)
 #     x = [0, 1, 2, 0, 2]
 #     The mapping is stored in a dict under key: 'map_'+store_key
 fact = analysis.RecordFactorizer()
-fact.columns = ['dummy','loc']
+fact.columns = ['dummy', 'loc']
 fact.read_key = 'test1'
 fact.store_key = 'test1_fact'
 ch1.add_link(fact)
 
 # --- print contents of the datastore
-pds = core_ops.PrintDs(name = 'printer2')
-pds.keys = ['test1','test1_fact','map_test1_fact']
+pds = core_ops.PrintDs(name='printer2')
+pds.keys = ['test1', 'test1_fact', 'map_test1_fact']
 ch1.add_link(pds)
 
 #########################################################################################

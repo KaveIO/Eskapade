@@ -17,14 +17,15 @@ from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 
 
 class Break(Link):
-    """Link sends failure signal and halts execution of process manager
+    """Halt execution
 
-    Break the execution of the processManager at a specific location 
-    by simply adding this link at any location in a chain.
+    Link sends failure signal and halts execution of process manager.  Break
+    the execution of the processManager at a specific location by simply
+    adding this link at any location in a chain.
     """
 
     def __init__(self, **kwargs):
-        """Store the configuration of link Break
+        """Initialize Break instance
 
         :param str name: name of link
         """
@@ -32,14 +33,12 @@ class Break(Link):
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'Break'))
 
-        # check residual kwargs. exit if any present. 
+        # check residual kwargs. exit if any present
         self.check_extra_kwargs(kwargs)
-
 
     def execute(self):
         """Execute Break"""
 
-        self.log().info('Now sending break signal to halt execution!')
         # halt the execution of proc_mgr by sending a failure signal
+        self.log().info('Now sending break signal to halt execution!')
         return StatusCode.Failure
-

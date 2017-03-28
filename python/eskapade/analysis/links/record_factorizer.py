@@ -24,15 +24,16 @@ from eskapade import ProcessManager, Link, StatusCode, DataStore
 
 
 class RecordFactorizer(Link):
-    """
-    Perform factorization of input column of an input dataframe.
+    """Factorize data-frame columns
 
-    E.g. a columnn x with values 'apple', 'tree', 'pear', 'apple', 'pear'
-    is tranformed into columns x with values 0, 1, 2, 0, 2, etc.
+    Perform factorization of input column of an input dataframe.  E.g. a
+    columnn x with values 'apple', 'tree', 'pear', 'apple', 'pear' is
+    tranformed into columns x with values 0, 1, 2, 0, 2, etc.
     """
 
     def __init__(self, **kwargs):
-        """
+        """Initialize RecordFactorizer instance
+
         Store and do basic check on the attributes of link RecordFactorizer
 
         :param str read_key: key to read dataframe from the data store. Dataframe of records that is to be transformed.
@@ -50,14 +51,16 @@ class RecordFactorizer(Link):
                              store_key=None,
                              columns=[],
                              inplace=False)
-        
-        # check residual kwargs. exit if any present. 
+
+        # check residual kwargs. exit if any present
         self.check_extra_kwargs(kwargs)
-        
-        return
 
     def initialize(self):
-        """ Initialize and (further) check the assigned attributes of RecordFactorizer """
+        """Initialize RecordFactorizer
+
+        Initialize and (further) check the assigned attributes of
+        the RecordFactorizer
+        """
 
         self.check_arg_types(read_key=str)
         self.check_arg_types(recurse=True, allow_none=True, columns=str)
@@ -65,17 +68,16 @@ class RecordFactorizer(Link):
 
         if self.inplace:
             self.store_key = self.read_key
-            self.log().info('store_key has been set to read_key <%s>' % self.store_key)
-            
+            self.log().info('store_key has been set to read_key "%s"', self.store_key)
+
         if self.store_key is None:
             self.store_key = self.read_key + '_factorized'
-            self.log().info('store_key was empty, has been set to <%s>' % self.store_key)
-        
+            self.log().info('store_key was empty, has been set to "%s"', self.store_key)
+
         return StatusCode.Success
 
-
     def execute(self):
-        """ Execute RecordFactorizer 
+        """Execute RecordFactorizer
 
         Perform factorization input column 'column' of input dataframe.
         Resulting dataset stored as new dataset.
@@ -84,14 +86,16 @@ class RecordFactorizer(Link):
         ds = ProcessManager().service(DataStore)
 
         # basic checks on contensts of the data frame
-        assert self.read_key in list(ds.keys()), 'Key %s not in DataStore.' % self.read_key
+        if self.read_key not in ds:
+            raise KeyError('Key "%s" not in DataStore' % self.read_key)
         df = ds[self.read_key]
         if not isinstance(df, DataFrame):
-            raise Exception('Retrieved object not of type pandas DataFrame.')
-        ndf = len(df.index)
-        assert ndf > 0, 'dataframe %s is empty.' % self.read_key
+            raise TypeError('retrieved object not of type pandas DataFrame')
+        if len(df.index) == 0:
+            raise AssertionError('dataframe "%s" is empty' % self.read_key)
         for c in self.columns:
-            assert c in df.columns, 'Column name <%s> not present in input data frame.' % (c)
+            if c not in df.columns:
+                raise AssertionError('column "%s" not present in input data frame' % c)
 
         # do factorization for all columns
         mapping = {}
@@ -100,7 +104,7 @@ class RecordFactorizer(Link):
             labels, unique = df[c].factorize()
             df_fact[c] = labels
             mapping[c] = unique
-        
+
         ds[self.store_key] = df_fact
         ds['map_' + self.store_key] = mapping
 

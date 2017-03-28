@@ -3,8 +3,8 @@
 # * Macro  : esk110_code_profiling                                                 *
 # * Created: 2017/02/26                                                            *
 # * Description:                                                                   *
-# *      Macro to demo how to run eskapade with code profiling turned on 
-# *      
+# *      Macro to demo how to run eskapade with code profiling turned on
+# *
 # *                                                                                *
 # * Redistribution and use in source and binary forms, with or without             *
 # * modification, are permitted according to the terms listed in the file          *
@@ -34,10 +34,10 @@ settings['version'] = 0
 msg = r"""
 
 Your can profile the speed of your analysis functions by running with the cmd line option: -P
-You will need to select the order in which the profile output is shown on screen. 
+You will need to select the order in which the profile output is shown on screen.
 For example: -P cumulative
 
-After running, this prints out a long list of all functions called, including the time it 
+After running, this prints out a long list of all functions called, including the time it
 took to run each of of them, sorted in the way you have specified.
 """
 log.info(msg)
@@ -58,4 +58,3 @@ settings['doCodeProfiling'] = 'cumulative'
 #########################################################################################
 
 log.debug('Done parsing configuration file esk110_code_profiling')
-
