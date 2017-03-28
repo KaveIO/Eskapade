@@ -463,8 +463,15 @@ class TutorialMacrosTest(unittest.TestCase):
             self.assertTrue(statinfo.st_size > 0)
 
     def tearDown(self):
+        """Tear down test"""
+
+        # reset run process
         settings = ProcessManager().service(ConfigObject)
         execution.reset_eskapade()
-        path = settings['resultsDir'] + '/' + settings['analysisName'] 
+        if not settings.get('analysisName'):
+            return
+
+        # remove persisted results for this test
+        path = persistence.io_dir('ana_results', settings.io_conf())
         if os.path.exists(path):
             shutil.rmtree(path)
