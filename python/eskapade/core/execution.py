@@ -88,24 +88,25 @@ def run_eskapade(settings=None):
     if status.isFailure():
         return status
 
-    # executes chains according to specifications
-    if 'doCodeProfiling' in settings:
-        pr = cProfile.Profile()
+    if settings.get('doCodeProfiling'):
         # turn on profiling
-        pr.enable()
-        # execute the code here
-        status = proc_mgr.execute_all()
+        profiler = cProfile.Profile()
+        profiler.enable()
+
+    # run Eskapade
+    status = proc_mgr.execute_all()
+
+    if settings.get('doCodeProfiling'):
         # turn off profiling
-        pr.disable()
-        s = io.StringIO()
-        # sort output by cumulative time
-        sortby = settings['doCodeProfiling']
-        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-        ps.print_stats()
-        print (s.getvalue())
-    else:
-        status = proc_mgr.execute_all()
-        pass
+        profiler.disable()
+
+        # print profile output
+        profile_output = io.StringIO()
+        profile_stats = pstats.Stats(profiler, stream=profile_output).sort_stats(settings['doCodeProfiling'])
+        profile_stats.print_stats()
+        print(profile_output.getvalue())
+
+    # check execution return code
     if status.isFailure():
         return status
 

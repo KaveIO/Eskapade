@@ -118,8 +118,8 @@ CONFIG_VARS['chains'] = ['beginWithChain', 'endWithChain', 'storeResultsEachChai
 CONFIG_VARS['file_io'] = ['esRoot', 'resultsDir', 'dataDir', 'macrosDir', 'templatesDir']
 CONFIG_VARS['db_io'] = ['all_mongo_collections']
 CONFIG_VARS['rand_gen'] = ['seed']
-CONFIG_TYPES = dict(version=int, batchMode=bool, interactive=bool, doCodeProfiling=bool, storeResultsEachChain=bool,
-                    doNotStoreResults=bool, all_mongo_collections=list, seed=int)
+CONFIG_TYPES = dict(version=int, batchMode=bool, interactive=bool, storeResultsEachChain=bool, doNotStoreResults=bool,
+                    all_mongo_collections=list, seed=int)
 CONFIG_DEFAULTS = dict(version=0, batchMode=True, interactive=False, logLevel=logging.INFO,
                        logFormat='%(asctime)s %(levelname)s [%(module)s]: %(message)s',
                        doCodeProfiling=None, storeResultsEachChain=False, doNotStoreResults=False, esRoot='',
@@ -152,7 +152,6 @@ USER_OPTS_KWARGS = dict(analysis_name=dict(help='set name of analysis in run',
                         unpickle_config=dict(help='interpret first CONFIG_FILE as path to pickled settings',
                                              action='store_true'),
                         profile=dict(help='run Python profiler, sort output by specified column',
-                                     action='store_true',
                                      choices=['stdname', 'nfl', 'pcalls', 'file', 'calls', 'time', 'line',
                                               'cumulative', 'module', 'name'],
                                      metavar='{stdname,nfl,pcalls,file,calls,time,line,cumulative,module,name}'),
