@@ -1,0 +1,263 @@
+From 26f0e9641c88cbdba1c18d8b42a496e2b8fdc2d1 Mon Sep 17 00:00:00 2001
+From: Jeroen van Leerdam <vanLeerdam.Jeroen@kpmg.nl>
+Date: Wed, 15 Mar 2017 09:44:20 +0100
+Subject: [PATCH 7/7] TMVA: Make base path for file I/O configurable
+
+Commit f009d8e2b9ee9ee669735bc456685b569eb7f2f4 implements the TMVA data
+loader.  With this implementation, the name of the data loader is
+prepended to the directory path for weight files.  As a result, this
+directory path is always relative to the directory from which the user
+runs the TMVA job.
+
+To make the weight-file path configurable again, a new public variable
+is introduced. This variable determines the base path for the weight
+files.  By default it is an empty string, which results in the old
+behaviour of writing output in the current directory.
+
+The original variable for the weight-file directory still determines the
+subdirectory.  The full path is given by:
+"base_path/data_loader_name/weight_file_dir/weight_file"
+
+Also the directory for options files is created in the base path:
+"base_path/opts_file_dir/opts_file"
+---
+ documentation/tmva/UsersGuide/UsingTMVA.tex |  4 ++-
+ tmva/tmva/inc/TMVA/Config.h                 |  5 ++++
+ tmva/tmva/src/Config.cxx                    | 39 +++++++++++++++++++++++++++++
+ tmva/tmva/src/Configurable.cxx              |  4 +--
+ tmva/tmva/src/Factory.cxx                   | 16 +++++-------
+ tmva/tmva/src/MethodBase.cxx                |  2 +-
+ tmva/tmva/src/MethodBoost.cxx               |  5 ++--
+ tmva/tmva/src/MethodCompositeBase.cxx       |  5 ++--
+ tutorials/tmva/TMVAClassification.C         |  1 +
+ tutorials/tmva/TMVARegression.C             |  1 +
+ 10 files changed, 62 insertions(+), 20 deletions(-)
+
+diff --git a/documentation/tmva/UsersGuide/UsingTMVA.tex b/documentation/tmva/UsersGuide/UsingTMVA.tex
+index 13fb6a6..e2c9d61 100644
+--- a/documentation/tmva/UsersGuide/UsingTMVA.tex
++++ b/documentation/tmva/UsersGuide/UsingTMVA.tex
+@@ -556,7 +556,8 @@ The training results are stored in the weight files\index{Weight
+   files} which are saved in the directory \code{weights} (which, if
+ not existing is created).\footnote { The default weight file directory
+   name can be modified from the user script through the global
+-  configuration variable
++  configuration variables
++  \code{(TMVA::gConfig().GetIONames()).fBasePath} and
+   \code{(TMVA::gConfig().GetIONames()).fWeightFileDir}.  } The weight
+ files are named \code{Jobname_MethodName.weights.<extension>}, where
+ the job name has been specified at the instantiation of the Factory,
+@@ -951,6 +952,7 @@ can be modified as follows:
+ (TMVA::gConfig().GetVariablePlotting()).fNbinsXOfROCCurve = 100;
+ 
+ // For file name settings, modify the struct TMVA::Config::IONames
++(TMVA::gConfig().GetIONames()).fBasePath = "TMVAOutput";
+ (TMVA::gConfig().GetIONames()).fWeightFileDir = "myWeightFileDir";
+ \end{tmvacode}
+ \caption[.]{\codeexampleCaptionSize Modifying global parameter
+diff --git a/tmva/tmva/inc/TMVA/Config.h b/tmva/tmva/inc/TMVA/Config.h
+index b8cc041..1f97bed 100644
+--- a/tmva/tmva/inc/TMVA/Config.h
++++ b/tmva/tmva/inc/TMVA/Config.h
+@@ -77,6 +77,10 @@ namespace TMVA {
+       VariablePlotting& GetVariablePlotting() { return fVariablePlotting; }
+       IONames&          GetIONames()          { return fIONames; }
+ 
++      TString ConstrIOPath(const char *subPath = 0, const char *name = 0) const;
++      TString ConstrWeightFileDir(const char *dataName = 0) const;
++      TString ConstrOptsRefFileDir() const;
++
+       // publicly accessible global settings
+       class VariablePlotting {
+          // data collection class to configure plotting of variables
+@@ -97,6 +101,7 @@ namespace TMVA {
+ 
+       public:
+ 
++         TString fBasePath;
+          TString fWeightFileDir;
+          TString fWeightFileExtension;
+          TString fOptionsReferenceFileDir;
+diff --git a/tmva/tmva/src/Config.cxx b/tmva/tmva/src/Config.cxx
+index bf44df3..bdd1235 100644
+--- a/tmva/tmva/src/Config.cxx
++++ b/tmva/tmva/src/Config.cxx
+@@ -62,6 +62,7 @@ TMVA::Config::Config() :
+    fVariablePlotting.fNbinsXOfROCCurve = 100;
+ 
+    // IO names
++   fIONames.fBasePath                = "";
+    fIONames.fWeightFileDir           = "weights";
+    fIONames.fWeightFileExtension     = "weights";
+    fIONames.fOptionsReferenceFileDir = "optionInfo";
+@@ -107,3 +108,41 @@ TMVA::Config& TMVA::Config::Instance()
+ #endif
+ }
+ 
++////////////////////////////////////////////////////////////////////////////////
++/// function to construct I/O path
++
++TString TMVA::Config::ConstrIOPath(const char *subPath, const char *name) const
++{
++   // get base path
++   TString path = fIONames.fBasePath;
++   if (path.Length() > 0 && path[path.Length() - 1] != '/') {
++      path += "/";
++   }
++
++   // append specified subpath
++   path += subPath;
++   if (path.Length() > 0 && path[path.Length() - 1] != '/') {
++      path += "/";
++   }
++
++   // append name of last path component
++   path += name;
++
++   return path.Strip(TString::EStripType::kTrailing, '/');
++}
++
++////////////////////////////////////////////////////////////////////////////////
++/// function to construct directory for weights file
++
++TString TMVA::Config::ConstrWeightFileDir(const char *dataName) const
++{
++   return ConstrIOPath(dataName, fIONames.fWeightFileDir);
++}
++
++////////////////////////////////////////////////////////////////////////////////
++/// function to construct directory for options reference file
++
++TString TMVA::Config::ConstrOptsRefFileDir() const
++{
++   return ConstrIOPath(0, fIONames.fOptionsReferenceFileDir);
++}
+diff --git a/tmva/tmva/src/Configurable.cxx b/tmva/tmva/src/Configurable.cxx
+index b61859e..7199059 100644
+--- a/tmva/tmva/src/Configurable.cxx
++++ b/tmva/tmva/src/Configurable.cxx
+@@ -412,8 +412,8 @@ void TMVA::Configurable::ReadOptionsFromXML( void* node )
+ 
+ void TMVA::Configurable::WriteOptionsReferenceToFile()
+ {
+-   TString dir = gConfig().GetIONames().fOptionsReferenceFileDir;
+-   gSystem->MakeDirectory( dir );
++   TString dir = gConfig().ConstrOptsRefFileDir();
++   gSystem->mkdir(dir, kTRUE);
+    fReferenceFile = dir + "/" + GetConfigName() + "_optionsRef.txt";
+    std::ofstream o( fReferenceFile );
+    if (!o.good()) { // file could not be opened --> Error
+diff --git a/tmva/tmva/src/Factory.cxx b/tmva/tmva/src/Factory.cxx
+index 4b88f20..2746bf0 100644
+--- a/tmva/tmva/src/Factory.cxx
++++ b/tmva/tmva/src/Factory.cxx
+@@ -336,9 +336,6 @@ void TMVA::Factory::SetVerbose( Bool_t v )
+ //_______________________________________________________________________
+ TMVA::MethodBase* TMVA::Factory::BookMethod( TMVA::DataLoader *loader, TString theMethodName, TString methodTitle, TString theOption )
+ {
+-   // Book a classifier or regression method
+-   if(fModelPersistence) gSystem->MakeDirectory(loader->GetName());//creating directory for DataLoader output
+-
+    TString datasetname=loader->GetName();
+   
+    if( fAnalysisType == Types::kNoAnalysisType ){
+@@ -379,11 +376,11 @@ TMVA::MethodBase* TMVA::Factory::BookMethod( TMVA::DataLoader *loader, TString t
+    conf->ParseOptions();
+    delete conf;
+    TString fFileDir;
+-   if(fModelPersistence)
+-   {
+-       fFileDir=loader->GetName();
+-       fFileDir+="/"+gConfig().GetIONames().fWeightFileDir;
++   if (fModelPersistence) {
++      fFileDir = gConfig().ConstrWeightFileDir(loader->GetName());
++      gSystem->mkdir(fFileDir, kTRUE);
+    }
++
+    // initialize methods
+    IMethod* im;
+    if (!boostNum) {
+@@ -936,9 +933,8 @@ void TMVA::Factory::TrainAllMethods()
+ 	    //ToDo, Do we need to fill the DataSetManager of MethodBoost here too?
+             
+             
+-            TString fFileDir= m->DataInfo().GetName();
+-            fFileDir+="/"+gConfig().GetIONames().fWeightFileDir;
+-            m->SetWeightFileDir(fFileDir);
++            m->SetWeightFileDir(gConfig().ConstrWeightFileDir(
++                  m->DataInfo().GetName()));
+             m->SetModelPersistence(fModelPersistence);
+             m->SetSilentFile(IsSilentFile());
+ 	    m->SetAnalysisType(fAnalysisType);
+diff --git a/tmva/tmva/src/MethodBase.cxx b/tmva/tmva/src/MethodBase.cxx
+index c0a1331..7074574 100644
+--- a/tmva/tmva/src/MethodBase.cxx
++++ b/tmva/tmva/src/MethodBase.cxx
+@@ -1995,7 +1995,7 @@ TDirectory* TMVA::MethodBase::BaseDir() const
+ void TMVA::MethodBase::SetWeightFileDir( TString fileDir )
+ {
+    fFileDir = fileDir;
+-   gSystem->MakeDirectory( fFileDir );
++   gSystem->mkdir(fFileDir, kTRUE);
+ }
+ 
+ ////////////////////////////////////////////////////////////////////////////////
+diff --git a/tmva/tmva/src/MethodBoost.cxx b/tmva/tmva/src/MethodBoost.cxx
+index 1c85a08..3dc3961 100644
+--- a/tmva/tmva/src/MethodBoost.cxx
++++ b/tmva/tmva/src/MethodBoost.cxx
+@@ -671,9 +671,8 @@ void TMVA::MethodBoost::SingleTrain()
+    if (meth){
+        meth->SetSilentFile(IsSilentFile());
+        if(IsModelPersistence()){
+-           TString _fFileDir= DataInfo().GetName();
+-           _fFileDir+="/"+gConfig().GetIONames().fWeightFileDir;
+-           meth->SetWeightFileDir(_fFileDir);
++           meth->SetWeightFileDir(gConfig().ConstrWeightFileDir(
++                   DataInfo().GetName()));
+        }
+        meth->SetModelPersistence(IsModelPersistence());
+        meth->TrainMethod();
+diff --git a/tmva/tmva/src/MethodCompositeBase.cxx b/tmva/tmva/src/MethodCompositeBase.cxx
+index 399a256..a2ac375 100644
+--- a/tmva/tmva/src/MethodCompositeBase.cxx
++++ b/tmva/tmva/src/MethodCompositeBase.cxx
+@@ -201,9 +201,8 @@ void TMVA::MethodCompositeBase::ReadWeightsFromXML( void* wghtnode )
+ 
+       void* methXML = gTools().GetChild(ch);
+       
+-      TString _fFileDir= meth->DataInfo().GetName();
+-      _fFileDir+="/"+gConfig().GetIONames().fWeightFileDir;
+-      meth->SetWeightFileDir(_fFileDir);
++      meth->SetWeightFileDir(gConfig().ConstrWeightFileDir(
++              meth->DataInfo().GetName()));
+       meth->SetModelPersistence(IsModelPersistence());
+       meth->SetSilentFile(IsSilentFile());
+       meth->SetupMethod();
+diff --git a/tutorials/tmva/TMVAClassification.C b/tutorials/tmva/TMVAClassification.C
+index ee2056f..397d5e3 100644
+--- a/tutorials/tmva/TMVAClassification.C
++++ b/tutorials/tmva/TMVAClassification.C
+@@ -200,6 +200,7 @@ int TMVAClassification( TString myMethodList = "" )
+    // (please check "src/Config.h" to see all available global options)
+    //
+    //    (TMVA::gConfig().GetVariablePlotting()).fTimesRMS = 8.0;
++   //    (TMVA::gConfig().GetIONames()).fBasePath = "TMVAOutput";
+    //    (TMVA::gConfig().GetIONames()).fWeightFileDir = "myWeightDirectory";
+ 
+    // Define the input variables that shall be used for the MVA training
+diff --git a/tutorials/tmva/TMVARegression.C b/tutorials/tmva/TMVARegression.C
+index 850ff84..3d7bfe9 100644
+--- a/tutorials/tmva/TMVARegression.C
++++ b/tutorials/tmva/TMVARegression.C
+@@ -141,6 +141,7 @@ void TMVARegression( TString myMethodList = "" )
+    // (please check "src/Config.h" to see all available global options)
+    //
+    //     (TMVA::gConfig().GetVariablePlotting()).fTimesRMS = 8.0;
++   //     (TMVA::gConfig().GetIONames()).fBasePath = "TMVAOutput";
+    //     (TMVA::gConfig().GetIONames()).fWeightFileDir = "myWeightDirectory";
+ 
+    // Define the input variables that shall be used for the MVA training
+-- 
+2.9.3
+
