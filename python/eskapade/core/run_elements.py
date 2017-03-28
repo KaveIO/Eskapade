@@ -14,7 +14,6 @@
 # **********************************************************************************
 
 import os
-from copy import deepcopy, copy
 
 from eskapade.core.definitions import StatusCode
 from eskapade.core import persistence
@@ -81,13 +80,11 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         TimerMixin.__init__(self)
 
         self.name = name
-        self.prefix = ''
-
-        # readKey is typically the name string of the object picked up from the datastore
-        # readKey can be a string or list of strings
-        self.readKey = None
-        # storeKey is typically the name string of the object put back in the datastore
-        self.storeKey = name
+        # read_key is typically the name string of the object picked up from the datastore
+        # read_key can be a string or list of strings
+        self.read_key = None
+        # store_key is typically the name string of the object put back in the datastore
+        self.store_key = name
         # required kwargs. filled by _process_kwargs
         self._required_vars = []
         # chain is a reference to the chain that executes this link.
@@ -96,8 +93,6 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         self.ifInputMissing = StatusCode.Failure
         # return code by store()
         self.ifOutputExists = StatusCode.Success
-
-        self.init_instance(name)
 
     def __str__(self):
         """String of the link"""
@@ -137,15 +132,15 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
                 dats.append(ds[r])
                 stats.append(StatusCode.Success.value)
             except KeyError:
-                self.log().warn('Some input data did not exist ' + str(r) + ' ' + self.prefix)
+                self.log().warn('Some input data did not exist ' + str(r) + ' ' + self.name)
                 stats.append(self.ifInputMissing.value)
                 dats.append(None)
         return StatusCode(max(stats)), dats
 
-    def load(self, ds, readKey=None):
+    def load(self, ds, read_key=None):
         """Read all data from specified source
 
-        readKey can either be:
+        read_key can either be:
 
         * one Link: return statuscode, [data_from_link,...]
         * A list of locations: return statuscode, [data,...]
@@ -156,24 +151,24 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         Do something logical with a statuscode if this data does not exist
         link.ifInputMissing = statuscode
 
-        :returns: a tuple statuscode, [data in same order as readKey]
+        :returns: a tuple statuscode, [data in same order as read_key]
         :rtype: (StatusCode,list)
         """
 
-        if readKey is not None:
-            rk = readKey
-        elif self.readKey is not None:
-            rk = self.readKey
+        if read_key is not None:
+            rk = read_key
+        elif self.read_key is not None:
+            rk = self.read_key
         else:
-            self.log().debug('No readKey defined ' + self.prefix)
+            self.log().debug('No read_key defined ' + self.name)
             return self.ifInputMissing, []
 
         # Handle the case where this is only one link
         if isinstance(rk, Link):
-            if rk.storeKey is None:
-                self.log().warn('Link has no storeKey ' + rk.name + ' ' + self.prefix)
+            if rk.store_key is None:
+                self.log().warn('Link has no store_key ' + rk.name + ' ' + self.name)
                 return self.ifInputMissing, [None]
-            rk = rk.storeKey
+            rk = rk.store_key
         # Always treat it as a list
         if type(rk) in [str, str]:
             rk = [rk]
@@ -184,12 +179,12 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
             try:
                 # Handle links which appear in lists ...
                 if isinstance(r, Link):
-                    if r.storeKey is None:
-                        self.log().warn('Link has no storeKey ' + r.name + ' ' + self.prefix)
+                    if r.store_key is None:
+                        self.log().warn('Link has no store_key ' + r.name + ' ' + self.name)
                         stats.append(self.ifInputMissing.value)
                         dats.append(None)
                         continue
-                    r = r.storeKey
+                    r = r.store_key
                     if type(r) not in [str, str]:
                         stati, dati = self.__ret_data_list(ds, r)
                         stats.append(stati.value)
@@ -198,7 +193,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
                 dats.append(ds[r])
                 stats.append(StatusCode.Success.value)
             except KeyError:
-                self.log().warn('Some input data did not exist ' + str(r) + ' ' + self.prefix)
+                self.log().warn('Some input data did not exist ' + str(r) + ' ' + self.name)
                 stats.append(self.ifInputMissing.value)
                 dats.append(None)
         return StatusCode(max(stats)), dats
@@ -214,29 +209,29 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         """
 
         if not self.ifOutputExists.isSuccess() and loc in ds:
-            self.log().error('Store key already exists, I am not overwriting ' + loc + ' ' + self.prefix)
+            self.log().error('Store key already exists, I am not overwriting ' + loc + ' ' + self.name)
             return self.ifOutputExists
         return StatusCode.Success
 
-    def store(self, ds, data, storeKey=None, force=False):
+    def store(self, ds, data, store_key=None, force=False):
         """Store data back to datastore
 
         Do something logical with a statuscode if this data already exists
-        link.ifOutputExists = statuscode uses self.storeKey.  If self.storeKey is
+        link.ifOutputExists = statuscode uses self.store_key.  If self.store_key is
         a list of locations, I must sent a list of the same length here
         """
 
-        if storeKey is not None:
-            sk = storeKey
-        elif self.storeKey is not None:
-            sk = self.storeKey
+        if store_key is not None:
+            sk = store_key
+        elif self.store_key is not None:
+            sk = self.store_key
         else:
-            raise AttributeError('storeKey has not been set for this link, so I cannot store! ' + self.prefix)
+            raise AttributeError('store_key has not been set for this link, so I cannot store! ' + self.name)
 
         if type(sk) not in [str, str]:
-            if len(data) != len(self.storeKey):
+            if len(data) != len(self.store_key):
                 raise ValueError('If you want to store multiple things at once, then the length of the things'
-                                 'you want to store must be the same as the length of self.storeKey')
+                                 ' you want to store must be the same as the length of self.store_key')
         else:
             data = [data]
             sk = [sk]
@@ -261,27 +256,6 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
             self._name = str(name)
         except:
             self.log().warning('Name could not be set')
-
-    def clone(self, prefix=""):
-        """Clone into a new object
-
-        :param str prefix: Optional new prefix for the copied algorithm
-        """
-
-        if prefix == '':
-            prefix = self.prefix
-        # copies all properties prior to initialize
-        newLink = deepcopy(self)
-        newLink.init_instance(prefix)
-        return newLink
-
-    def init_instance(self, prefix):
-        """Initialize prefix settings
-
-        :param str prefix: The prefix to use
-        """
-
-        self.prefix = prefix
 
     def initialize_link(self):
         """Initialize the link
@@ -422,38 +396,7 @@ class Chain(LoggingMixin, TimerMixin):
         # initialize timer
         TimerMixin.__init__(self)
 
-        self.init_instance(name)
-
-    def clone(self, newName=None):
-        """Clone chain into a new one
-
-        :param str newName: optional new name for the chain
-        """
-
-        if not newName:
-            newName = self.name
-
-        #  copies all properties prior to initialize
-        newChn = deepcopy(self)
-        newChn.init_instance(newName)
-
-        newChn.links = deepcopy(self.links)
-
-        for link in newChn.links:
-            link.init_instance(newChn.prefix)
-        return newChn
-
-    def init_instance(self, name):
-        """Initialize chain
-
-        :param str name: name of chain
-        """
-
-        # shared method between __init__ and clone
         self.name = name
-        self.prefix = 'prefix/' + self.name
-
-        # attributes to below are OK to deepcopy
         self.prevChainName = ''
         self.links = []
         self.exitStatus = StatusCode.Undefined
@@ -540,11 +483,10 @@ class Chain(LoggingMixin, TimerMixin):
 
         return status
 
-    def add_link(self, obj, do_deepcopy=True):
+    def add_link(self, obj):
         """Add link as a pre-built object
 
         :param obj: The link to add
-        :param bool do_deepcopy: if true (default) make copy of the link
         :returns: the link just added
         :rtype: Link
         """
@@ -558,17 +500,11 @@ class Chain(LoggingMixin, TimerMixin):
                 raise RuntimeError('Link "%s" already exists in Chain "%s"; please use a different name'
                                    % (obj.name, self.name))
 
-        # Create a copy
-        if do_deepcopy:
-            newObj = deepcopy(obj)
-        else:
-            newObj = copy(obj)
-
         # Reset algorithm parent
-        newObj.chain = self
+        obj.chain = self
 
-        # Add algorithm clone to the list
-        self.links.append(newObj)
+        # Add algorithm to the list
+        self.links.append(obj)
         return self.links[-1]
 
     def get_link(self, name):

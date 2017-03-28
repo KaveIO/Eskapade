@@ -344,48 +344,38 @@ class ProcessManager(LoggingMixin, TimerMixin):
         settings = self.service(ConfigObject)
         if not settings.get('doNotStoreResults') and copyfile:
             import shutil
-            shutil.copy(
-                filename,
-                persistence.io_dir(
-                    'results_config',
-                    settings.io_conf()))
+            shutil.copy(filename, persistence.io_dir('results_config', settings.io_conf()))
 
-    def add_chain(self, input_chain, new_name=''):
+    def add_chain(self, input_chain):
         """Add a chain to the process manager
 
-        Add a chain to be run by the process manager.  After it is
-        added, the chain is owned by the process manager.
+        Add a chain to be run by the process manager.  A check is
+        performed that a chain with this name does not already
+        exist.
 
-        :param input_chain: the chain to be added
+        :param input_chain: (name of) the chain to be added
         :type input_chain: str or Chain
-        :param str new_name: the name of the new chain to be added
         :raises RuntimeError: if chain with same name already exists
         :returns: the chain that has been added
         :rtype: Chain
         """
 
         # first check specified chain name
-        if not isinstance(new_name, str):
-            self.log().critical('Specified chain name has type "%s"', type(new_name).__name__)
-            raise TypeError('the name of a new chain in the process manager must be specified as a string')
-        if not new_name:
-            if isinstance(input_chain, Chain):
-                new_name = input_chain.name
-            elif isinstance(input_chain, str):
-                new_name = input_chain
-            else:
-                print(type(input_chain), input_chain)
-                self.log().critical('Specifying chain by type "%s" not supported', type(input_chain).__name__)
-                raise NotImplementedError('unsupported input type for add_chain function of process manager')
+        if isinstance(input_chain, Chain):
+            new_name = input_chain.name
+        elif isinstance(input_chain, str):
+            new_name = input_chain
+        else:
+            self.log().critical('specifying chain by type "%s" not supported', type(input_chain).__name__)
+            raise NotImplementedError('unsupported input type for add_chain function of process manager')
         if any(c.name == new_name for c in self.chains):
             self.log().critical('Chain "%s" already exists; please use a different name', new_name)
             raise RuntimeError('tried to add chain with existing name to process manager')
 
         # add new chain
         self.log().debug('booking new chain "%s"', new_name)
-        self.chains.append(
-            input_chain.clone(new_name) if isinstance(
-                input_chain, Chain) else Chain(new_name))
+        self.chains.append(input_chain if isinstance(input_chain, Chain) else Chain(new_name))
+
         return self.chains[-1]
 
     def get_chain_idx(self, name):

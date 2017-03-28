@@ -26,7 +26,7 @@ class ToDsDict(Link):
         Link to store one external object in the DataStore dict during run time.
 
         :param str name: name of link
-        :param str storeKey: key of object to store in data store
+        :param str store_key: key of object to store in data store
         :param obj: object to store
         :param bool force: overwrite if already present in datastore. default is false. (optional)
         :param bool at_initialize: store at initialize of link. Default is false.
@@ -38,12 +38,12 @@ class ToDsDict(Link):
 
         # process keyword arguments
         self._process_kwargs(kwargs,
-                             storeKey=None,
+                             store_key=None,
                              obj=None,
-                             at_initialize = False,
-                             at_execute = True,
-                             force = False,
-                             copydict = False)
+                             at_initialize=False,
+                             at_execute=True,
+                             force=False,
+                             copydict=False)
         self.check_extra_kwargs(kwargs)
 
         return
@@ -53,10 +53,11 @@ class ToDsDict(Link):
 
         # perform basic checks.
         if self.obj is None:
-            raise Exception('ERROR. object <%s> to store is of type None.' % self.storeKey)
+            raise RuntimeError('object "%s" to store is of type None', self.store_key)
         # storage key needs to be set in nearly all cases
-        if not (self.copydict and isinstance(self.obj,dict)):
-            assert isinstance(self.storeKey,str) and len(self.storeKey), 'ERROR. object storage key has not been set.'
+        if not (self.copydict and isinstance(self.obj, dict)):
+            if not (isinstance(self.store_key, str) and len(self.store_key)):
+                raise RuntimeError('object storage key has not been set')
 
         ds = ProcessManager().service(DataStore)
         return StatusCode.Success if not self.at_initialize else self.dostorage(ds)
