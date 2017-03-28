@@ -205,6 +205,7 @@ class ConfigObject(ProcessService, dict):
         :returns: base directories
         :rtype: dict
         """
+
         return dict([(key + '_dir', self[key + 'Dir']) for key in ['results', 'data', 'macros', 'templates']])
 
     def io_conf(self):
@@ -216,6 +217,7 @@ class ConfigObject(ProcessService, dict):
         :return: I/O configuration
         :rtype: IoConfig
         """
+
         return persistence.IoConfig(analysis_name=self['analysisName'], analysis_version=self['version'],
                                     **self.io_base_dirs())
 

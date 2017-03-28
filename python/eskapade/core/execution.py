@@ -102,6 +102,6 @@ def run_eskapade(settings=None):
     if status.isFailure():
         return status
 
-    log.info("\n\n * * * Leaving Eskapade. Bye! * * * \n")
+    log.info('\n\n * * * Leaving Eskapade. Bye! * * *\n')
 
     return status

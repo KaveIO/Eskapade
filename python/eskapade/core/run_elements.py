@@ -79,7 +79,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
 
         # initialize timer
         TimerMixin.__init__(self)
-        
+
         self.name = name
         self.prefix = ''
 
@@ -118,9 +118,9 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
     def summary(self):
         """Print a summary of the main settings of the link"""
 
-        self.log().debug("Link: %s" % self.name)
+        self.log().debug('Link: %s' % self.name)
         for key in sorted(self._required_vars):
-            line = "  attr: %s = " % key
+            line = '  attr: %s = ' % key
             if not hasattr(self, key):
                 raise KeyError('%s does not contain item "%s"' % (str(self), str(key)))
             item = getattr(self, key)
@@ -137,7 +137,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
                 dats.append(ds[r])
                 stats.append(StatusCode.Success.value)
             except KeyError:
-                self.log().warn("Some input data did not exist " + str(r) + " " + self.prefix)
+                self.log().warn('Some input data did not exist ' + str(r) + ' ' + self.prefix)
                 stats.append(self.ifInputMissing.value)
                 dats.append(None)
         return StatusCode(max(stats)), dats
@@ -165,13 +165,13 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         elif self.readKey is not None:
             rk = self.readKey
         else:
-            self.log().debug("No readKey defined " + self.prefix)
+            self.log().debug('No readKey defined ' + self.prefix)
             return self.ifInputMissing, []
 
         # Handle the case where this is only one link
         if isinstance(rk, Link):
             if rk.storeKey is None:
-                self.log().warn("Link has no storeKey " + rk.name + " " + self.prefix)
+                self.log().warn('Link has no storeKey ' + rk.name + ' ' + self.prefix)
                 return self.ifInputMissing, [None]
             rk = rk.storeKey
         # Always treat it as a list
@@ -185,7 +185,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
                 # Handle links which appear in lists ...
                 if isinstance(r, Link):
                     if r.storeKey is None:
-                        self.log().warn("Link has no storeKey " + r.name + " " + self.prefix)
+                        self.log().warn('Link has no storeKey ' + r.name + ' ' + self.prefix)
                         stats.append(self.ifInputMissing.value)
                         dats.append(None)
                         continue
@@ -198,7 +198,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
                 dats.append(ds[r])
                 stats.append(StatusCode.Success.value)
             except KeyError:
-                self.log().warn("Some input data did not exist " + str(r) + " " + self.prefix)
+                self.log().warn('Some input data did not exist ' + str(r) + ' ' + self.prefix)
                 stats.append(self.ifInputMissing.value)
                 dats.append(None)
         return StatusCode(max(stats)), dats
@@ -214,7 +214,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         """
 
         if not self.ifOutputExists.isSuccess() and loc in ds:
-            self.log().error("Store key already exists, I am not overwriting " + loc + " " + self.prefix)
+            self.log().error('Store key already exists, I am not overwriting ' + loc + ' ' + self.prefix)
             return self.ifOutputExists
         return StatusCode.Success
 
@@ -231,12 +231,12 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         elif self.storeKey is not None:
             sk = self.storeKey
         else:
-            raise AttributeError("storeKey has not been set for this link, so I cannot store! " + self.prefix)
+            raise AttributeError('storeKey has not been set for this link, so I cannot store! ' + self.prefix)
 
         if type(sk) not in [str, str]:
             if len(data) != len(self.storeKey):
-                raise ValueError("If you want to store multiple things at once, then the length of the things"
-                                 "you want to store must be the same as the length of self.storeKey")
+                raise ValueError('If you want to store multiple things at once, then the length of the things'
+                                 'you want to store must be the same as the length of self.storeKey')
         else:
             data = [data]
             sk = [sk]
@@ -248,7 +248,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
             if not stat.isSuccess():
                 continue
             ds[k] = d
-            self.log().debug('Put object <%s> in data store with type <%s>.' % (k, type(d)))
+            self.log().debug('Put object "%s" in data store with type "%s"' % (k, type(d)))
         return StatusCode(max(stats))
 
     @property
@@ -260,7 +260,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         try:
             self._name = str(name)
         except:
-            self.log().warning('name could not be set')
+            self.log().warning('Name could not be set')
 
     def clone(self, prefix=""):
         """Clone into a new object
@@ -268,7 +268,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         :param str prefix: Optional new prefix for the copied algorithm
         """
 
-        if prefix == "":
+        if prefix == '':
             prefix = self.prefix
         # copies all properties prior to initialize
         newLink = deepcopy(self)
@@ -289,15 +289,16 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         :returns: status code of initialize attempt
         :rtype: StatusCode
         """
+
         status = StatusCode.Success
 
         # initialize
-        self.log().debug("Now initializing link \'%s\'" % self.name)
+        self.log().debug('Now initializing link "%s"' % self.name)
         # print summary of main members
         self.summary()
         # run initialize function of actual link
         status = self.initialize()
-        self.log().debug("Done initializing link \'%s\'" % self.name)
+        self.log().debug('Done initializing link "%s"' % self.name)
 
         return status
 
@@ -307,19 +308,20 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         :returns: status code of execute attempt
         :rtype: StatusCode
         """
+
         status = StatusCode.Success
 
         # run execute function of actual link
-        self.log().debug("Now executing link \'%s\'" % self.name)
+        self.log().debug('Now executing link "%s"' % self.name)
 
         # Start the timer directly after the message.
         self.start_timer()
 
         status = self.execute()
 
-        self.log().debug("Done executing link \'%s\'" % self.name)
+        self.log().debug('Done executing link "%s"' % self.name)
 
-        # Stop the timer when the link is done 
+        # Stop the timer when the link is done
         self.stop_timer()
 
         return status
@@ -330,15 +332,16 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         :returns: status code of finalize attempt
         :rtype: StatusCode
         """
+
         status = StatusCode.Success
 
         # run finalize function of actual link
-        self.log().debug("Now finalizing link \'%s\'" % self.name)
+        self.log().debug('Now finalizing link "%s"' % self.name)
         status = self.finalize()
 
-        self.log().debug("{0}: execute() took: {1:.2f} seconds.".format(self.name,self.total_time()))
+        self.log().debug('{0}: execute() took {1:.2f} seconds'.format(self.name, self.total_time()))
 
-        self.log().debug("Done finalizing link \'%s\'" % self.name)
+        self.log().debug('Done finalizing link "%s"' % self.name)
 
         return status
 
@@ -350,6 +353,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         :returns: status code of initialize attempt
         :rtype: StatusCode
         """
+
         return StatusCode.Success
 
     def execute(self):
@@ -360,6 +364,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         :returns: status code of execute attempt
         :rtype: StatusCode
         """
+
         return StatusCode.Success
 
     def finalize(self):
@@ -370,6 +375,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
         :returns: status code of finalize attempt
         :rtype: StatusCode
         """
+
         return StatusCode.Success
 
 
@@ -412,18 +418,19 @@ class Chain(LoggingMixin, TimerMixin):
 
         :param str name: name of the chain
         """
+
         # initialize timer
         TimerMixin.__init__(self)
-        
+
         self.init_instance(name)
 
-    def clone(self, newName=""):
+    def clone(self, newName=None):
         """Clone chain into a new one
 
         :param str newName: optional new name for the chain
         """
 
-        if newName == "":
+        if not newName:
             newName = self.name
 
         #  copies all properties prior to initialize
@@ -457,9 +464,10 @@ class Chain(LoggingMixin, TimerMixin):
         :returns: status code of initialization attempt
         :rtype: StatusCode
         """
+
         status = StatusCode.Success
 
-        self.log().debug("Now initializing chain \'%s\'" % self.name)
+        self.log().debug('Now initializing chain "%s"' % self.name)
 
         # Start the timer directly after the initialize message.
         self.start_timer()
@@ -468,13 +476,13 @@ class Chain(LoggingMixin, TimerMixin):
         for mod in self.links:
             status = mod.initialize_link()
             if status.isFailure():
-                self.log().critical("Problem initializing link <%s> in chain <%s>." % (mod.name, self.name))
+                self.log().critical('Problem initializing link "%s" in chain "%s"' % (mod.name, self.name))
                 return status
             elif status.isSkipChain():
-                self.log().warning("Skipping chain <%s>, as requested by link <%s>." % (self.name, mod.name))
+                self.log().warning('Skipping chain "%s", as requested by link "%s"' % (self.name, mod.name))
                 return status
 
-        self.log().debug("Done initializing chain \'%s\'" % self.name)
+        self.log().debug('Done initializing chain "%s"' % self.name)
 
         return status
 
@@ -484,24 +492,25 @@ class Chain(LoggingMixin, TimerMixin):
         :returns: status code of execution attempt
         :rtype: StatusCode
         """
+
         status = StatusCode.Success
 
-        self.log().debug("Now executing chain \'%s\'" % self.name)
+        self.log().debug('Now executing chain "%s"' % self.name)
 
         # execution
         for mod in self.links:
             status = mod.execute_link()
             if status.isFailure():
-                self.log().critical("Problem executing link <%s> in chain <%s>." % (mod.name, self.name))
+                self.log().critical('Problem executing link "%s" in chain "%s"' % (mod.name, self.name))
                 return status
             elif status.isRepeatChain():
-                self.log().warning("Repeating chain <%s>, as requested by link <%s>." % (self.name, mod.name))
+                self.log().warning('Repeating chain "%s", as requested by link "%s"' % (self.name, mod.name))
                 return status
             elif status.isSkipChain():
-                self.log().warning("Skipping chain <%s>, as requested by link <%s>." % (self.name, mod.name))
+                self.log().warning('Skipping chain "%s", as requested by link "%s"' % (self.name, mod.name))
                 return status
 
-        self.log().debug("Done executing chain \'%s\'" % self.name)
+        self.log().debug('Done executing chain "%s"' % self.name)
 
         return status
 
@@ -511,22 +520,23 @@ class Chain(LoggingMixin, TimerMixin):
         :returns: status code of finalization attempt
         :rtype: StatusCode
         """
+
         status = StatusCode.Success
 
-        self.log().debug("Now finalizing chain \'%s\'" % self.name)
+        self.log().debug('Now finalizing chain "%s"' % self.name)
 
         # finalization
         for mod in self.links:
             status = mod.finalize_link()
             if status.isFailure():
-                self.log().critical("Problem finalizing link <%s> in chain <%s>." % (mod.name, self.name))
+                self.log().critical('Problem finalizing link "%s" in chain "%s"' % (mod.name, self.name))
                 return status
 
-        self.log().debug("Done finalizing chain \'%s\'" % self.name)
+        self.log().debug('Done finalizing chain "%s"' % self.name)
 
         # Stop the timer when the chain is done and print.
         total_time = self.stop_timer()
-        self.log().debug("{0}: total runtime: {1:.2f} seconds.".format(self.name,total_time))
+        self.log().debug('{0}: total runtime: {1:.2f} seconds'.format(self.name, total_time))
 
         return status
 
@@ -540,13 +550,14 @@ class Chain(LoggingMixin, TimerMixin):
         """
 
         if not isinstance(obj, Link):
-            raise RuntimeError("add_link does not support input of type '%s'." % (type(obj)))
+            raise RuntimeError('add_link does not support input of type "%s"' % (type(obj)))
 
         # Verify that this name is not already used
         for mod in self.links:
             if mod.name == obj.name:
-                raise RuntimeError("Link %s already exists in Chain %s. Please use a different name."
+                raise RuntimeError('Link "%s" already exists in Chain "%s"; please use a different name'
                                    % (obj.name, self.name))
+
         # Create a copy
         if do_deepcopy:
             newObj = deepcopy(obj)
@@ -573,7 +584,7 @@ class Chain(LoggingMixin, TimerMixin):
             if mod.name == name:
                 return mod
 
-        raise RuntimeError("No link with name %s found" % name)
+        raise RuntimeError('No link with name "%s" found' % name)
 
     def has_link(self, name):
         """Check if link with name exists in this chain
@@ -582,6 +593,7 @@ class Chain(LoggingMixin, TimerMixin):
         :returns: boolean answer
         :rtype: bool
         """
+
         for m in self.links:
             if m.name == name:
                 return True
@@ -605,9 +617,9 @@ class Chain(LoggingMixin, TimerMixin):
         elif isinstance(mod, str):
             aMod = self.get_link(mod)
         else:
-            raise ValueError("Chain: link type %s not supported" % (type(mod)))
+            raise ValueError('Chain: link type "%s" not supported' % (type(mod)))
 
         try:
             self.links.remove(aMod)
         except:
-            self.log().warning("Unable to remove link %s from chain %s" % (aMod.name, self.name))
+            self.log().warning('Unable to remove link "%s" from chain "%s"' % (aMod.name, self.name))

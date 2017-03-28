@@ -366,9 +366,8 @@ class ProcessManager(LoggingMixin, TimerMixin):
 
         # first check specified chain name
         if not isinstance(new_name, str):
-            self.log().critical('specified chain name has type "%s"', type(new_name).__name__)
-            raise TypeError(
-                'the name of a new chain in the process manager must be specified as a string')
+            self.log().critical('Specified chain name has type "%s"', type(new_name).__name__)
+            raise TypeError('the name of a new chain in the process manager must be specified as a string')
         if not new_name:
             if isinstance(input_chain, Chain):
                 new_name = input_chain.name
@@ -376,15 +375,11 @@ class ProcessManager(LoggingMixin, TimerMixin):
                 new_name = input_chain
             else:
                 print(type(input_chain), input_chain)
-                self.log().critical(
-                    'specifying chain by type "%s" not supported',
-                    type(input_chain).__name__)
-                raise NotImplementedError(
-                    'unsupported input type for add_chain function of process manager')
+                self.log().critical('Specifying chain by type "%s" not supported', type(input_chain).__name__)
+                raise NotImplementedError('unsupported input type for add_chain function of process manager')
         if any(c.name == new_name for c in self.chains):
-            self.log().critical('chain "%s" already exists; please use a different name', new_name)
-            raise RuntimeError(
-                'tried to add chain with existing name to process manager')
+            self.log().critical('Chain "%s" already exists; please use a different name', new_name)
+            raise RuntimeError('tried to add chain with existing name to process manager')
 
         # add new chain
         self.log().debug('booking new chain "%s"', new_name)
@@ -401,11 +396,12 @@ class ProcessManager(LoggingMixin, TimerMixin):
         :rtype: int
         :raises Exception: if chain name not found
         """
+
         for (idx, chain) in enumerate(self.chains):
             if chain.name == name:
                 return idx
 
-        raise Exception("No chain with name \'%s\' found" % name)
+        raise Exception('No chain with name "%s" found' % name)
 
     def get_chain(self, name):
         """Find the chain with the given name
@@ -415,11 +411,12 @@ class ProcessManager(LoggingMixin, TimerMixin):
         :rtype: Chain
         :raises RuntimeError: if chain name not found
         """
+
         for chain in self.chains:
             if chain.name == name:
                 return chain
 
-        raise RuntimeError("No chain with name \'%s\' found" % name)
+        raise RuntimeError('No chain with name "%s" found' % name)
 
     def has_chain(self, name):
         """Check if chain exists for this name
@@ -458,7 +455,7 @@ class ProcessManager(LoggingMixin, TimerMixin):
                 self.chains.pop(i)
                 return
 
-        self.log().warning("Chain named '%s' does not exist. Cannot be removed.", name)
+        self.log().warning('Chain named "%s" does not exist; cannot be removed', name)
 
     def initialize(self):
         """Initialize the process manager
@@ -472,7 +469,7 @@ class ProcessManager(LoggingMixin, TimerMixin):
 
         status = StatusCode.Success
 
-        self.log().info("Initializing process manager ...")
+        self.log().info('Initializing process manager')
 
         # Start the timer directly after the initialize message.
         self.start_timer()
@@ -484,7 +481,7 @@ class ProcessManager(LoggingMixin, TimerMixin):
 
         prevChainName = ''
         for chain in self.chains:
-            self.log().debug("Configuring chain: %s ", chain.name)
+            self.log().debug('Configuring chain "%s"', chain.name)
             if not chain.prevChainName:
                 chain.prevChainName = prevChainName
             prevChainName = chain.name
@@ -494,7 +491,7 @@ class ProcessManager(LoggingMixin, TimerMixin):
         self.Print()
         self.service(ConfigObject).Print()
 
-        self.log().debug("Done initializing process manager ...")
+        self.log().debug('Done initializing process manager')
 
         return status
 
@@ -505,13 +502,13 @@ class ProcessManager(LoggingMixin, TimerMixin):
         :rtype: StatusCode
         """
 
-        self.log().info("Finalizing process manager ...")
+        self.log().info('Finalizing process manager')
 
         # Stop the timer when the Process Manager is done and print.
         total_time = self.stop_timer()
-        self.log().info("Total runtime is: {0:.2f} seconds.".format(total_time))
+        self.log().info('Total runtime: {0:.2f} seconds'.format(total_time))
 
-        self.log().debug("Done finalizing process manager ...")
+        self.log().debug('Done finalizing process manager')
 
         return StatusCode.Success
 
@@ -583,9 +580,10 @@ class ProcessManager(LoggingMixin, TimerMixin):
         :returns: status code of execution attempt
         :rtype: StatusCode
         """
+
         status = StatusCode.Success
 
-        self.log().info("Executing process manager ...")
+        self.log().info('Executing process manager')
 
         settings = self.service(ConfigObject)
 
@@ -622,7 +620,7 @@ class ProcessManager(LoggingMixin, TimerMixin):
             # persist process services with the output of this chain
             self.persist_services(io_conf=settings.io_conf(), chain=chain.name)
 
-        self.log().debug("Done executing process manager ...")
+        self.log().debug('Done executing process manager')
 
         return status
 
@@ -696,4 +694,3 @@ class ProcessManager(LoggingMixin, TimerMixin):
         # re-initialize
         self._initialized = False
         self.__init__()
-
