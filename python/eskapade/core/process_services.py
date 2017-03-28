@@ -225,23 +225,22 @@ class ConfigObject(ProcessService, dict):
         """Print a summary of the settings"""
 
         # print standard settings
-        self.log().info('-----------------')
         self.log().info('Run configuration')
-        self.log().info('-----------------')
         for sec, sec_keys in CONFIG_VARS.items():
-            self.log().info('{}:'.format(sec))
+            if not sec_keys:
+                continue
+            self.log().info('  {}:'.format(sec))
             max_key_len = max(len(k) for k in sec_keys)
             for key in sec_keys:
-                self.log().info('  {{0:<{:d}s}}  {{1:s}}'.format(max_key_len).format(key, str(self.get(key))))
+                self.log().info('    {{0:<{:d}s}}  {{1:s}}'.format(max_key_len).format(key, str(self.get(key))))
 
-        # print additional settings
+        # print additional custom settings
         add_keys = sorted(set(self.keys()) - set(o for s in CONFIG_VARS.values() for o in s))
         if add_keys:
-            self.log().info('additional:')
+            self.log().info('  custom:')
             max_key_len = max(len(k) for k in add_keys)
         for key in add_keys:
-            self.log().info('  {{0:<{:d}s}}  {{1:s}}'.format(max_key_len).format(key, str(self.get(key))))
-        self.log().info('-----------------')
+            self.log().info('    {{0:<{:d}s}}  {{1:s}}'.format(max_key_len).format(key, str(self.get(key))))
 
     def add_macros(self, macro_paths):
         """Add configuration macros for Eskapade run"""
@@ -313,12 +312,13 @@ class DataStore(ProcessService, dict):
     _persist = True
 
     def Print(self):
-        """Print a summary of the contents of the data store"""
+        """Print a summary the data store contents"""
 
-        self.log().info("*-------------------------------------------------*")
-        self.log().info("     Summary of DataStore")
-        self.log().info("*-------------------------------------------------*")
-        self.log().info("Objects in dict: %d", len(list(self.keys())))
+        self.log().info('Summary of data store ({:d} objects)'.format(len(self)))
+        if not self:
+            return
+
+        max_key_len = max(len(k) for k in self.keys())
         for key in sorted(self.keys()):
-            self.log().info("    key name: %s  %s" % (key, type(self[key])))
-        self.log().info("*-------------------------------------------------*")
+            self.log().info('  {{0:<{:d}s}}  <{{1:s}}.{{2:s}} at {{3:x}}>'.format(max_key_len).format(key,
+                type(self[key]).__module__, type(self[key]).__name__, id(self[key])))

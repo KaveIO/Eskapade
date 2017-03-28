@@ -121,7 +121,7 @@ CONFIG_VARS['rand_gen'] = ['seed']
 CONFIG_TYPES = dict(version=int, batchMode=bool, interactive=bool, doCodeProfiling=bool, storeResultsEachChain=bool,
                     doNotStoreResults=bool, all_mongo_collections=list, seed=int)
 CONFIG_DEFAULTS = dict(version=0, batchMode=True, interactive=False, logLevel=logging.INFO,
-                       logFormat='%(asctime)s %(levelname)s [%(module)s/%(funcName)s]: %(message)s',
+                       logFormat='%(asctime)s %(levelname)s [%(module)s]: %(message)s',
                        doCodeProfiling=False, storeResultsEachChain=False, doNotStoreResults=False, esRoot='',
                        resultsDir='results', dataDir='data', macrosDir='tutorials', templatesDir='templates',
                        seed=0)

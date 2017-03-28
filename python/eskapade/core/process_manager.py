@@ -521,22 +521,17 @@ class ProcessManager(LoggingMixin, TimerMixin):
 
         settings = self.service(ConfigObject)
 
-        self.log().info("*-------------------------------------------------*")
-        self.log().info("     Process manager summary")
-        self.log().info("*-------------------------------------------------*")
-
+        self.log().info('Summary of process manager')
         if settings.get('beginWithChain'):
-            self.log().info('Starting from chain: "{}"'.format(settings['beginWithChain']))
+            self.log().info('  Starting from chain: "%s"', settings['beginWithChain'])
         if settings.get('endWithChain'):
-            self.log().info('Ending with chain:   "{}"'.format(settings['endWithChain']))
+            self.log().info('  Ending with chain:   "%s"', settings['endWithChain'])
 
-        self.log().info('Number of registered services: %d (tree printed at DEBUG log level)', len(self._services))
+        self.log().info('  Number of registered services: %d', len(self._services))
         self.print_services()
 
-        self.log().info("Number of chains:    %d", len(self.chains))
-        self.log().info("Chain names: (set log level DEBUG)")
+        self.log().info('  Number of registered chains: %d', len(self.chains))
         self.print_chains()
-        self.log().info("*-------------------------------------------------*")
 
     def print_services(self):
         """Print registered process services"""
@@ -555,24 +550,22 @@ class ProcessManager(LoggingMixin, TimerMixin):
                 _print_level(level[lev_path], prefix, depth + 1)
 
         # print service tree
-        self.log().debug('Registered process services:')
         serv_tree = self.get_service_tree()
-        _print_level(serv_tree, '  ', 0)
+        self.log().debug('  Registered process services')
+        _print_level(serv_tree, '    ', 0)
 
     def print_chains(self):
         """Print all chains defined in the manager"""
 
-        self.log().debug("*------------------------------------------*")
-        self.log().debug("ProcessManager:")
         settings = self.service(ConfigObject)
+        self.log().debug('  Chains to be executed')
 
         begin = self.get_chain_idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
         end = (self.get_chain_idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self.chains)
         for chain in self.chains[begin:end]:
-            self.log().debug("  Chain: %s ", chain.name)
+            self.log().debug('    Chain: %s', chain.name)
             for link in chain.links:
-                self.log().debug("    Link: %s", link.name)
-        self.log().debug("*------------------------------------------*")
+                self.log().debug('      Link: %s', link.name)
 
     def execute_all(self):
         """Execute all chains in order
