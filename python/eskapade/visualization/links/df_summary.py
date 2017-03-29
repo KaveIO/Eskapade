@@ -73,11 +73,9 @@ class DfSummary(Link):
         io_conf = ProcessManager().service(ConfigObject).io_conf()
 
         # read report templates
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) \
-                as templ_file:
+        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) \
-                as templ_file:
+        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
 
         # get path to results directory
@@ -117,8 +115,7 @@ class DfSummary(Link):
         # fetch and check input data frame
         data = ProcessManager().service(DataStore).get(self.read_key, None)
         if not isinstance(data, pd.DataFrame):
-            self.log().critical('no Pandas data frame "%s" found in data store for %s',
-                                self.read_key, str(self))
+            self.log().critical('No Pandas data frame "%s" found in data store for %s', self.read_key, str(self))
             raise RuntimeError('no input data found for %s' % str(self))
 
         # create report page for each variable in data frame
@@ -134,17 +131,13 @@ class DfSummary(Link):
 
             # 1. create statistics object for column
             var_label = self.var_labels.get(col, col)
-            stats = statistics.ArrayStats(data, col,
-                                          unit=self.var_units.get(col, ''),
-                                          label=var_label)
+            stats = statistics.ArrayStats(data, col, unit=self.var_units.get(col, ''), label=var_label)
 
-            # 2. create overview table of column variable
-            stats_table = stats.get_latex_table()
+            # evaluate statistical properties of array
+            stats.create_stats()
 
             # make histogram
-            nphist = stats.make_histogram(
-                var_bins=self.var_bins.get(
-                    col, NUMBER_OF_BINS))
+            nphist = stats.make_histogram(var_bins=self.var_bins.get(col, NUMBER_OF_BINS))
 
             # determine histogram properties for plotting
             x_label = stats.get_x_label()
@@ -170,6 +163,9 @@ class DfSummary(Link):
                 pad_inches=0)
             plt.close()
             pdf_file.close()
+
+            # create overview table of column variable
+            stats_table = stats.get_latex_table()
 
             # create page string
             self.pages.append(self.page_template.replace('VAR_LABEL', var_label)

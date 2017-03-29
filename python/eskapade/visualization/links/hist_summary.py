@@ -1,9 +1,9 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : HistSummary                                                          *
-# * Created: 2017/03/06                                                                  *
+# * Class  : HistSummary                                                           *
+# * Created: 2017/03/06                                                            *
 # * Description:                                                                   *
-# *      Algorithm to do...(fill in one-liner here)                                *
+# *      Link to create a statistics summary of a set of histograms                *
 # *                                                                                *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands                           *
@@ -80,17 +80,14 @@ class HistSummary(Link):
         io_conf = ProcessManager().service(ConfigObject).io_conf()
 
         # read report templates
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) \
-                as templ_file:
+        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex'))\
-                as templ_file:
+        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
 
         # get path to results directory
         if not self.results_path:
-            self.results_path = core.persistence.io_path(
-                'results_data', io_conf, 'report')
+            self.results_path = core.persistence.io_path('results_data', io_conf, 'report')
 
         # check if output directory exists
         if os.path.exists(self.results_path):
@@ -124,8 +121,7 @@ class HistSummary(Link):
         # fetch and check input data frame
         hist_dict = ProcessManager().service(DataStore).get(self.read_key, None)
         if not isinstance(hist_dict, dict):
-            self.log().critical('no histograms "%s" found in data store for %s',
-                                self.read_key, str(self))
+            self.log().critical('No histograms "%s" found in data store for %s', self.read_key, str(self))
             raise RuntimeError('no input data found for %s' % str(self))
 
         if self.hist_keys is None:
@@ -156,13 +152,10 @@ class HistSummary(Link):
 
             # create statistics object for histogram
             var_label = self.var_labels.get(name, name)
-            stats = statistics.ArrayStats(bin_labels, name,
-                                          weights=bin_counts,
-                                          unit=self.var_units.get(name, ''),
+            stats = statistics.ArrayStats(bin_labels, name, weights=bin_counts, unit=self.var_units.get(name, ''),
                                           label=var_label)
-
-            # create overview table of histogram statistics
-            stats_table = stats.get_latex_table()
+            # evaluate statitical properties of array
+            stats.create_stats()
 
             # determine histogram properties
             x_label = stats.get_x_label()
@@ -173,8 +166,7 @@ class HistSummary(Link):
             # ... and project on existing binning.
             # for categories, accept top N number of categories in bins.
             # NB: bin_edges overrules var_bins (if it is not none)
-            nphist = stats.make_histogram(var_bins=self.var_bins.get(name, NUMBER_OF_BINS),
-                                          bin_edges=bin_edges)
+            nphist = stats.make_histogram(var_bins=self.var_bins.get(name, NUMBER_OF_BINS), bin_edges=bin_edges)
 
             # plot histogram of histogram
             fig = plt.figure(figsize=(7, 5))
@@ -185,26 +177,21 @@ class HistSummary(Link):
 
             # store plot
             hist_file_name = 'hist_{}.pdf'.format(name)
-            pdf_file = PdfPages(
-                '{0:s}/{1:s}'.format(self.results_path, hist_file_name))
-            plt.savefig(
-                pdf_file,
-                format='pdf',
-                bbox_inches='tight',
-                pad_inches=0)
+            pdf_file = PdfPages('{0:s}/{1:s}'.format(self.results_path, hist_file_name))
+            plt.savefig(pdf_file, format='pdf', bbox_inches='tight', pad_inches=0)
             plt.close()
             pdf_file.close()
 
+            # create overview table of histogram statistics
+            stats_table = stats.get_latex_table()
+
             # create page string
-            self.pages.append(self.page_template.replace('VAR_LABEL', var_label)
-                                                .replace('VAR_STATS_TABLE', stats_table)
+            self.pages.append(self.page_template.replace('VAR_LABEL', var_label)\
+                                                .replace('VAR_STATS_TABLE', stats_table)\
                                                 .replace('VAR_HISTOGRAM_PATH', hist_file_name))
 
         # write report file
         with open('{}/report.tex'.format(self.results_path), 'w') as report_file:
-            report_file.write(
-                self.report_template.replace(
-                    'INPUT_PAGES', ''.join(
-                        self.pages)))
+            report_file.write(self.report_template.replace('INPUT_PAGES', ''.join(self.pages)))
 
         return StatusCode.Success
