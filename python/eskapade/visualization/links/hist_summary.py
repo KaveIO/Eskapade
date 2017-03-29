@@ -20,7 +20,6 @@ import numpy as np
 from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 from eskapade import core, visualization
 from eskapade.analysis import statistics
-from eskapade.analysis.histogram import Histogram
 
 
 NUMBER_OF_BINS = 30
@@ -146,9 +145,9 @@ class HistSummary(Link):
             is_ts = col_props['is_ts']
 
             # retrieve _all_ filled bins to evaluate statistics
-            bin_labels = h.get_nonone_bin_centers()
-            bin_counts = h.get_nonone_bin_counts()
-            bin_edges = h.get_uniform_bin_edges()
+            bin_labels = h.bin_centers()
+            bin_counts = h.bin_entries()
+            bin_edges = h.bin_edges()
 
             if is_ts:
                 to_timestamp = np.vectorize(lambda x: pd.Timestamp(x))

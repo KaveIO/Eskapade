@@ -776,6 +776,19 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
         self._datatype = dt
 
     @property
+    def n_dim(self):
+        """Number of histogram dimensions
+
+        The number of histogram dimensions, which is equal to one by
+        construction.
+
+        :returns: number of dimensions
+        :rtype: int
+        """
+
+        return 1
+
+    @property
     def num_bins(self):
         """
         Return the number of bins in the ValueCounts object.
@@ -793,6 +806,15 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
         :rtype: array
         """
         return [v[0] for v in self._val_counts.nononecounts.keys()]
+
+    def bin_labels(self):
+        """Return bin labels
+
+        :returns: array of all bin labels
+        :rtype: array
+        """
+
+        return self.get_bin_labels()
 
     def get_uniform_bin_edges(self):
         """
@@ -827,6 +849,17 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
             bin_edges = edges + [edges[-1] + width]
         return bin_edges
 
+    def bin_edges(self):
+        """Return bin edges
+
+        Return NumPy-style bin-edges array with uniform binning.
+
+        :returns: array of all bin edges
+        :rtype: array
+        """
+
+        return self.get_uniform_bin_edges()
+
     def get_nonone_bin_centers(self):
         """
         Return the bin centers of the known bins in the value_counts object.
@@ -852,6 +885,17 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
             bin_centers = [
                 offset + (v[0] + 0.5) * width for v in self._val_counts.nononecounts.keys()]
         return bin_centers
+
+    def bin_centers(self):
+        """Return bin centers
+
+        Return the bin centers of the known bins in the value_counts object.
+
+        :returns: array of the bin centers
+        :rtype: array
+        """
+
+        return self.get_nonone_bin_centers()
 
     def get_bin_count(self, bin_label):
         """ Get bin count for specific bin, based on bin's label.
@@ -885,6 +929,17 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
         else:
             bin_counts = self._val_counts.nononecounts.values()
         return bin_counts
+
+    def bin_entries(self):
+        """Return number of bin entries
+
+        Return the bin counts of the known bins in the value_counts object.
+
+        :returns: array of the bin counts
+        :rtype: array
+        """
+
+        return self.get_nonone_bin_counts()
 
     def get_bin_range(self):
         """
