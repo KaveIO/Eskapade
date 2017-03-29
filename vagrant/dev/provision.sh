@@ -150,6 +150,7 @@ apt-get -y install lubuntu-desktop &>> "${LOGDIR}/install-desktop.log"
 
 # general configuration for ESKAPADE user
 cp /vagrant/bash/bashrc "/home/${ESUSER}/.bashrc"
+cat /vagrant/bash/bash_aliases >> "/home/${ESUSER}/.bash_aliases"
 cp /vagrant/vim/vimrc "/home/${ESUSER}/.vimrc"
 
 # clean up
