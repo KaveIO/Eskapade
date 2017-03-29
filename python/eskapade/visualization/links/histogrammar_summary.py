@@ -142,13 +142,10 @@ class HistogrammarSummary(Link):
                 continue
             h = hist_dict[name]
 
-            # determine data properties
-            n_dim = 1 if not isinstance(datatype,list) else len(datatype)
-
-            if n_dim==1: 
-                self.process_1d_histogram(name, h, datatype[0])
-            elif n_dim==2:
-                self.process_2d_histogram(name, h, datatype)            
+            if h.n_dim==1: 
+                self.process_1d_histogram(name, h)
+            elif h.n_dim==2:
+                self.process_2d_histogram(name, h)            
 
         # write report file
         with open('{}/report.tex'.format(self.results_path), 'w') as report_file:
@@ -255,7 +252,7 @@ class HistogrammarSummary(Link):
         plt.close()
         pdf_file.close()
 
-        # basic statistics
+        # add some basic statistics
         sum_entries = 0 
         try:
             for i in h.bins:
