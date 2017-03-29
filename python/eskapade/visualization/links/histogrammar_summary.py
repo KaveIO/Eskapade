@@ -143,11 +143,11 @@ class HistogrammarSummary(Link):
             h = hist_dict[name]
 
             # determine data properties
-            datatype = h.datatype
+            n_dim = 1 if not isinstance(datatype,list) else len(datatype)
 
-            if len(datatype)==1: 
+            if n_dim==1: 
                 self.process_1d_histogram(name, h, datatype[0])
-            elif len(datatype)==2:
+            elif n_dim==2:
                 self.process_2d_histogram(name, h, datatype)            
 
         # write report file
@@ -156,16 +156,16 @@ class HistogrammarSummary(Link):
 
         return StatusCode.Success
 
-    def process_1d_histogram(self, name, h, datatype):
+    def process_1d_histogram(self, name, h):
         """
         """
-
         # import matplotlib here to prevent import before setting backend in
         # core.execution.run_eskapade
         import matplotlib.pyplot as plt
         from matplotlib.backends.backend_pdf import PdfPages
 
         # datatype properties
+        datatype = h.datatype
         col_props = statistics.get_col_props(datatype)
         is_num = col_props['is_num']
         is_ts = col_props['is_ts']
@@ -224,7 +224,7 @@ class HistogrammarSummary(Link):
                           .replace('VAR_HISTOGRAM_PATH', hist_file_name))
 
 
-    def process_2d_histogram(self, name, h, datatype):
+    def process_2d_histogram(self, name, h):
         """
         """
         if not hasattr(h,'plotmatplotlib'):

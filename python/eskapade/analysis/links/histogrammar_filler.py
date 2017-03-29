@@ -234,8 +234,10 @@ class HistogrammarFiller(Link):
             else:
                 h = hg.Categorize(quantity = q, value = h)
 
-        # stick data types to histogram
-        h.datatype = [self.datatype[col] for col in c]
+        # FIXME stick data types and number of dimension to histogram
+        dta = [self.datatype[col] for col in c]
+        h.datatype = dta[0] if len(c)==1 else dta
+        h.n_dim = len(c)
         
         return h
 
