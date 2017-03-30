@@ -75,8 +75,10 @@ Debugging
 
 To inspect the state of the Eskapade objects (DataStore and Configurations) after the various chains see the
 command line examples below.
-NOTE: inspecting intermediate states requires Eskapade to be run with the option storeResultsEachChain
-(command line: ``-w``) on.
+.. note::
+
+  Inspecting intermediate states requires Eskapade to be run with the option storeResultsEachChain
+  (command line: ``-w``) on.
 
 .. code-block:: python
 
@@ -97,6 +99,10 @@ NOTE: inspecting intermediate states requires Eskapade to be run with the option
   # --- example showing Eskapade settings
   co = ConfigObject.import_from_file(os.environ['ESKAPADE']+'/results/Tutorial_1/proc_service_data/v0/_Summary/eskapade.core.process_services.ConfigObject.pkl')
   co.Print()
+
+The ``import_from_file`` function imports a pickle file that was written out by Eskapade, containing the DataStore.
+This can be used to start from an intermediate state of your Eskapade. For example, you do some operations on your
+DataStore and then save it. At a later time you load this saved DataStore and continue from there.
 
 Tutorial 3: running in a notebook
 =================================

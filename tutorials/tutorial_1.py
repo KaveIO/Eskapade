@@ -66,9 +66,6 @@ conv_funcs = [{'func': comp_date, 'colin': 'doy', 'colout': 'date'},
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-# create process manager
-proc_mgr = ProcessManager()
-
 # create first chain
 proc_mgr.add_chain('Data')
 
