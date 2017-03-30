@@ -8,7 +8,7 @@ See `Eskapade on a virtual machine`_ to get started. Alternatively, you can down
 the repository and run it on your own machine. See `Eskapade on your own machine`_ for the
 requirements.
 
-This manual is written for Linux systems, but Eskapade also runs fine on MacOS systems.
+This manual is written for Linux systems, but Eskapade also runs fine on `MacOS <MacOS.html>`_ systems.
 
 Eskapade on a virtual machine
 -----------------------------
@@ -61,3 +61,8 @@ or in python with
   os.environ['ESKAPADE']
 
 See the readme files in other parts of the repository for specific usage.
+
+Installing Eskapade on MacOS
+----------------------------
+
+To install eskapade on MacOS, see our `MacOS appendix <MacOS.html>`_.
