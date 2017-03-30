@@ -1,5 +1,7 @@
-Setting up ESKAPADE environemnt for MacOS (Sierra)
-==================================================
+Setting up Eskapade environment for MacOS
+=========================================
+
+This installation guide is written using **MacOS Sierra**.
 
 To install eskapade on MacOS there are basically 3 challenges to overcome certain versioning issues:
   * Getting an isolated Python 3.5.2 environment,
@@ -7,11 +9,7 @@ To install eskapade on MacOS there are basically 3 challenges to overcome certai
   * Getting Python packages similar to those in Anaconda,
   * Getting SPARK 2.1.0 set up (the homebrew version does not cooperate).
 
-Therefore we are building a KaveToolBox for MacOS and re-use our Vagrant code.
-
-.. note::
-
-  Maybe, unless you are stubborn, you shouldn't be doing this and you should just stick with Vagrant/Docker for the moment.
+Therefore we are building a KaveToolBox for MacOS and re-use the Vagrant code.
 
 Setup Python 3
 --------------
@@ -91,10 +89,10 @@ Getting Python packages
 -----------------------
 
 Then we want to install the same packages as there are in a proper KaveToolBox environment to avoid version conflicts
-and random issues. We can use a requirements file, obtained through a ``pip freeze`` on the Vagrant/Docker installation.
+and random issues. We can use a requirements file, obtained through a ``pip freeze`` on the Vagrant/Docker installation
+that works.
 
-Basically, just copy the list of packages and their versions in the list below to a plain 'requirements.txt' file and
-do:
+To install the requirements run:
 
 .. code-block:: bash
 
@@ -268,7 +266,7 @@ Input for the requirements.txt file is the following::
 Setting up SPARK 2.1.0
 ----------------------
 
-Let's get SPARK from apache, extract it, and compile it:
+Now download SPARK from apache, extract it, and compile it:
 
 .. code-block:: bash
 
@@ -283,8 +281,8 @@ Ensure it has the py4j package:
 
   pip install py4j
 
-Make docker containers accessible
----------------------------------
+Add docker containers to hosts
+------------------------------
 
 Add the following aliases to the localhost line in /etc/hosts, so it looks like::
 
@@ -293,10 +291,10 @@ Add the following aliases to the localhost line in /etc/hosts, so it looks like:
 This will ensure you can reach the docker containers via the port forwards from the container to the docker host
 (i.e. localhost).
 
-Clean environment
------------------
+Cleaning the environment
+------------------------
 
-Everytime you want to have a clean ESKAPADE environment run the following::
+Everytime you want to have a clean Eskapade environment run the following::
 
   # --- setup PYTHON
   source /usr/local/bin/virtualenvwrapper.sh
@@ -310,10 +308,10 @@ Everytime you want to have a clean ESKAPADE environment run the following::
   export PYTHONPATH=$SPARK_HOME/python/:$PYTHONPATH
   export PYSPARK_SUBMIT_ARGS="--master local[4] --num-executors 1 --executor-cores 4 --executor-memory 4g pyspark-shell"
 
-  # --- setup ESKAPADE
+  # --- setup Eskapade
   cd ~/git/gitlab-nl/decision-engine
   source ./eskapade/setup.sh
   source ./analyticsengine/setup.sh
 
 
-To automate this you can put it in a 'setup_eskapade.sh' script.
+To automate this you can put it in a 'setup_eskapade.sh' script, but at the time of writing we have not done this yet.
