@@ -50,3 +50,4 @@ wcwidth
 jaydebeapi
 sphinx
 tabulate
+histogrammar
