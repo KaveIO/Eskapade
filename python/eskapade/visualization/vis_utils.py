@@ -1,11 +1,11 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 
-def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False):
+def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False,
+                   pdf_file_name=''):
     """Create and plot histogram of column values
 
     :param hist: input numpy histogram = values, bin_edges
@@ -13,7 +13,15 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False):
     :param str y_label: Label for histogram y-axis
     :param bool is_num: True if observable to plot is numeric
     :param bool is_ts: True if observable to plot is a timestamp
+    :param str pdf_file_name: if set, will store the plot in a pdf file
     """
+    # import matplotlib here to prevent import before setting backend in
+    # core.execution.run_eskapade
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_pdf import PdfPages
+
+    fig = plt.figure(figsize=(7, 5))
+
     try:
         hist_values = hist[0]
         hist_bins = hist[1]
@@ -83,3 +91,53 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False):
         fontsize=14)
     plt.yticks(fontsize=12)
     plt.grid()
+
+    # store plot
+    if pdf_file_name:
+        pdf_file = PdfPages(pdf_file_name)
+        plt.savefig(pdf_file, format='pdf', bbox_inches='tight', pad_inches=0)
+        plt.close()
+        pdf_file.close()
+
+
+def plot_2d_histogram(hist, x_lim, y_lim, title, x_label, y_label, pdf_file_name):
+    """Plot 2d histogram with matplotlib
+
+    :param hist: input numpy histogram = x_bin_edges, y_bin_edges, bin_entries_2dgrid
+    :param tuple x_lim: range tuple of x-axis (min,max)
+    :param tuple y_lim: range tuple of y-axis (min,max)
+    :param str title: title of plot
+    :param str x_label: Label for histogram x-axis
+    :param str y_label: Label for histogram y-axis
+    :param str pdf_file_name: if set, will store the plot in a pdf file
+    """
+    # import matplotlib here to prevent import before setting backend in
+    # core.execution.run_eskapade
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_pdf import PdfPages
+
+    fig = plt.figure(figsize=(7, 5))
+
+    try:
+        x_ranges = hist[0]
+        y_ranges = hist[1]
+        grid = hist[2]
+    except:
+        raise Exception(
+            'Cannot extract ranges and grid from input histogram')
+
+    ax = plt.gca()
+    ax.pcolormesh(x_ranges, y_ranges, grid)
+    ax.set_ylim(y_lim)
+    ax.set_xlim(x_lim)
+    ax.set_title(title)
+
+    plt.xlabel(x_label, fontsize=14)
+    plt.ylabel(y_label, fontsize=14)
+    plt.grid()
+
+    if pdf_file_name:
+        pdf_file = PdfPages(pdf_file_name)
+        plt.savefig(pdf_file, format='pdf', bbox_inches='tight', pad_inches=0)
+        plt.close()
+        pdf_file.close()

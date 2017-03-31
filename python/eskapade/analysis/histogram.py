@@ -397,7 +397,9 @@ class BinningUtil(object):
         if bin_specs is not None:
             self.bin_specs = bin_specs
         elif bin_edges is not None:
-            assert isinstance(bin_edges, list), 'bin_edges should be a list.'
+            if isinstance(bin_edges,np.ndarray):
+                bin_edges = bin_edges.tolist()
+            assert isinstance(bin_edges, list), 'bin_edges should be a numpy array or list.'
             self.bin_specs = {'bin_edges': bin_edges}
         else:
             self.bin_specs = {}
@@ -813,8 +815,7 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
         :returns: array of all bin labels
         :rtype: array
         """
-
-        return self.get_bin_labels()
+        return np.array(self.get_bin_labels())
 
     def get_uniform_bin_edges(self):
         """
@@ -857,8 +858,7 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
         :returns: array of all bin edges
         :rtype: array
         """
-
-        return self.get_uniform_bin_edges()
+        return np.array(self.get_uniform_bin_edges())
 
     def get_nonone_bin_centers(self):
         """
@@ -894,8 +894,7 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
         :returns: array of the bin centers
         :rtype: array
         """
-
-        return self.get_nonone_bin_centers()
+        return np.array(self.get_nonone_bin_centers())
 
     def get_bin_count(self, bin_label):
         """ Get bin count for specific bin, based on bin's label.
@@ -938,8 +937,7 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
         :returns: array of the bin counts
         :rtype: array
         """
-
-        return self.get_nonone_bin_counts()
+        return np.array(self.get_nonone_bin_counts())
 
     def get_bin_range(self):
         """
