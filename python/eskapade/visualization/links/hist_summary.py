@@ -212,6 +212,9 @@ class HistSummary(Link):
         :param h: input histogram object
         :param str name: name of the histogram
         """
+        if not hasattr(h,'xy_ranges_grid'):
+            self.log().warning('No plot for 2d hist <%s>. Cannot extract binning and values from input histogram.')
+            return
         try:
             nphist = h.xy_ranges_grid()
         except:
