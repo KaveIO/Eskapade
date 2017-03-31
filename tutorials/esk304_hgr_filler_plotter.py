@@ -1,6 +1,6 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk303_histogrammar_fill_and_plot                                                  *
+# * Macro  : esk304_hgr_filler_plotter                                                  *
 # * Created: 2017/02/17                                                            *
 # * Description:                                                                   *
 # *      Macro that illustrates how to loop over multiple (possibly large!)        *
@@ -16,19 +16,19 @@
 # **********************************************************************************
 
 import logging, os
-log = logging.getLogger('macro.esk303_histogrammar_fill_and_plot')
+log = logging.getLogger('macro.esk304_hgr_filler_plotter')
 
 import tempfile
 import numpy as np
 from eskapade import ConfigObject, ProcessManager
 from eskapade import core_ops, analysis, visualization
 
-log.debug('Now parsing configuration file esk303_histogrammar_fill_and_plot.py')
+log.debug('Now parsing configuration file esk304_hgr_filler_plotter.py')
 
 #########################################################################################
 # --- minimal analysis information
 settings = ProcessManager().service(ConfigObject)
-settings['analysisName'] = 'esk303_histogrammar_fill_and_plot'
+settings['analysisName'] = 'esk304_hgr_filler_plotter'
 settings['version'] = 0
 
 #########################################################################################
@@ -53,7 +53,7 @@ chunksize = 400
 #########################################################################################
 # --- create dummy example dataset, which is read in below
 
-input_files = [os.environ['ESKAPADE'] + '/data/esk303_data_mock_accounts.csv.gz'] * 1
+input_files = [os.environ['ESKAPADE'] + '/data/esk304_data_mock_accounts.csv.gz'] * 1
 
 def to_date(x):
     import pandas as pd
@@ -134,4 +134,4 @@ if settings['do_plotting']:
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk303_histogrammar_fill_and_plot.py')
+log.debug('Done parsing configuration file esk304_hgr_filler_plotter.py')
