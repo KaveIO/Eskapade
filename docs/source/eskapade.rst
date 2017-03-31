@@ -15,6 +15,14 @@ Subpackages
 Submodules
 ----------
 
+eskapade.exceptions module
+--------------------------
+
+.. automodule:: eskapade.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 eskapade.version module
 -----------------------
 
