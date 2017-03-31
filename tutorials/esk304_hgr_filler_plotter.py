@@ -53,7 +53,7 @@ chunksize = 400
 #########################################################################################
 # --- create dummy example dataset, which is read in below
 
-input_files = [os.environ['ESKAPADE'] + '/data/esk304_data_mock_accounts.csv.gz'] * 1
+input_files = [os.environ['ESKAPADE'] + '/data/esk303_data_mock_accounts.csv.gz'] * 1
 
 def to_date(x):
     import pandas as pd
