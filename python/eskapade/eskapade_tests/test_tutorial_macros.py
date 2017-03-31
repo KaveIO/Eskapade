@@ -435,6 +435,33 @@ class TutorialMacrosTest(unittest.TestCase):
         self.assertEqual(len(df.index),12)
         self.assertListEqual(sorted(df.columns.tolist()), columns)
 
+    def test_esk208(self):
+        settings = ProcessManager().service(ConfigObject)
+        settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
+        settings['macro'] = settings['esRoot'] + '/tutorials/esk208_record_factorizer.py'
+
+        status = execution.run_eskapade(settings)
+
+        pm = ProcessManager()
+        settings = ProcessManager().service(ConfigObject)
+        ds = ProcessManager().service(DataStore)
+
+        self.assertTrue(status.isSuccess())
+        self.assertTrue('test1' in ds)
+        self.assertTrue('test1_fact' in ds)
+        self.assertTrue('test1_refact' in ds)
+        self.assertTrue('to_original' in ds)
+        df1 = ds['test1']
+        df2 = ds['test1_refact']
+        self.assertEqual(len(df1.index),12)
+        self.assertEqual(len(df2.index),12)
+        self.assertTrue('dummy' in df1.columns)
+        self.assertTrue('loc' in df1.columns)
+        self.assertTrue('dummy' in df2.columns)
+        self.assertTrue('loc' in df2.columns)
+        self.assertListEqual(df1['dummy'].values.tolist(), df2['dummy'].values.tolist())
+        self.assertListEqual(df1['loc'].values.tolist(), df2['loc'].values.tolist())
+
     def test_esk301(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']

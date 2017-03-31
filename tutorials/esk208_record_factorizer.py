@@ -39,7 +39,7 @@ data_path = persistence.io_path('data', settings.io_conf(), 'dummy.csv')
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch1 = proc_mgr.add_chain('MyChain1')
+ch1 = proc_mgr.add_chain('Factorize')
 
 # --- read dummy dataset
 readdata = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
@@ -54,17 +54,35 @@ ch1.add_link(pds)
 #     Here the columns dummy and loc of the input dataset are factorized
 #     e.g. x = ['apple', 'tree', 'pear', 'apple', 'pear'] becomes the column:
 #     x = [0, 1, 2, 0, 2]
-#     The mapping is stored in a dict under key: 'map_'+store_key
-fact = analysis.RecordFactorizer()
+#     By default, the mapping is stored in a dict under key: 'map_'+store_key+'_to_original'
+fact = analysis.RecordFactorizer(name = 'rf1')
 fact.columns = ['dummy', 'loc']
 fact.read_key = 'test1'
 fact.store_key = 'test1_fact'
+fact.store_key_map = 'to_original'
+fact.set_log_level(logging.DEBUG)
 ch1.add_link(fact)
 
 # --- print contents of the datastore
 pds = core_ops.PrintDs(name='printer2')
-pds.keys = ['test1', 'test1_fact', 'map_test1_fact']
+pds.keys = ['to_original', 'test1', 'test1_fact']
 ch1.add_link(pds)
+
+ch2 = proc_mgr.add_chain('ReFactorize')
+
+# --- add second record factorizer, which now maps the columns
+#     dummy and loc back to their original format
+refact = analysis.RecordFactorizer(name = 'rf2')
+refact.read_key = fact.store_key
+refact.store_key = 'test1_refact'
+refact.map_back = fact.store_key_map
+refact.set_log_level(logging.DEBUG)
+ch2.add_link(refact)
+
+# --- print contents of the datastore
+pds = core_ops.PrintDs(name='printer3')
+pds.keys = ['test1', 'test1_refact']
+ch2.add_link(pds)
 
 #########################################################################################
 
