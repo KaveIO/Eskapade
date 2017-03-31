@@ -1,4 +1,3 @@
-__all__ = ['DfSummary','HistSummary','HistogrammarSummary']
+__all__ = ['DfSummary','HistSummary']
 from .df_summary import DfSummary
 from .hist_summary import HistSummary
-from .histogrammar_summary import HistogrammarSummary
