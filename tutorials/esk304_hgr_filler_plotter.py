@@ -4,8 +4,8 @@
 # * Created: 2017/02/17                                                            *
 # * Description:                                                                   *
 # *      Macro that illustrates how to loop over multiple (possibly large!)        *
-# *      datasets in chunks, in each loop fill a (common) histogram, and plot the  * 
-# *      final histogram.
+# *      datasets in chunks, in each loop fill a histogrammar histograms, 
+# *      and plot the final histograms.
 # *                                                                                *
 # * Authors:                                                                       *
 # *      KPMG Big Data team.                                                       *
@@ -128,8 +128,8 @@ if settings['do_plotting']:
     ch.add_link(pds)
     
     # --- make a nice summary report of the created histograms
-    hist_summary = visualization.HistogrammarSummary(name='HistogramSummary', \
-                                                     read_key=hf.store_key)
+    hist_summary = visualization.HistSummary(name='HistogramSummary', \
+                                             read_key=hf.store_key)
     ch.add_link(hist_summary)
 
 #########################################################################################
