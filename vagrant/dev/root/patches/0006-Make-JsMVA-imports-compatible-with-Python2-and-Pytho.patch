@@ -1,0 +1,111 @@
+From e902ef2a1c45820da7ebbad0f1834fcb0b164437 Mon Sep 17 00:00:00 2001
+From: Enric Tejedor Saavedra <enric.tejedor.saavedra@cern.ch>
+Date: Thu, 15 Dec 2016 14:19:11 +0100
+Subject: [PATCH 6/7] Make JsMVA imports compatible with Python2 and Python3
+
+---
+ bindings/pyroot/JsMVA/DataLoader.py        | 6 +++++-
+ bindings/pyroot/JsMVA/Factory.py           | 8 ++++++--
+ bindings/pyroot/JsMVA/JPyInterface.py      | 9 ++++++---
+ bindings/pyroot/JsMVA/JsMVAMagic.py        | 4 ++--
+ bindings/pyroot/JsMVA/OutputTransformer.py | 2 +-
+ 5 files changed, 20 insertions(+), 9 deletions(-)
+
+diff --git a/bindings/pyroot/JsMVA/DataLoader.py b/bindings/pyroot/JsMVA/DataLoader.py
+index 4f5d07e..df21e6c 100644
+--- a/bindings/pyroot/JsMVA/DataLoader.py
++++ b/bindings/pyroot/JsMVA/DataLoader.py
+@@ -5,7 +5,11 @@
+ 
+ 
+ from ROOT import TH1F, TMVA, TBufferJSON
+-import JPyInterface
++import sys
++if sys.version_info >= (3, 0):
++    from JsMVA import JPyInterface
++else:
++    import JPyInterface
+ import ROOT
+ 
+ 
+diff --git a/bindings/pyroot/JsMVA/Factory.py b/bindings/pyroot/JsMVA/Factory.py
+index 3afefbf..69dee08 100644
+--- a/bindings/pyroot/JsMVA/Factory.py
++++ b/bindings/pyroot/JsMVA/Factory.py
+@@ -6,7 +6,11 @@
+ 
+ import ROOT
+ from ROOT import TMVA
+-import JPyInterface
++import sys
++if sys.version_info >= (3, 0):
++    from JsMVA import JPyInterface
++else:
++    import JPyInterface
+ from xml.etree.ElementTree import ElementTree
+ import json
+ from IPython.core.display import display, HTML, clear_output
+@@ -825,4 +829,4 @@ def DrawDNNWeights(fac, datasetName, methodName="DNN"):
+     button = widgets.Button(description="Draw", font_weight="bold", font_size="16")
+     button.on_click(drawWrapper)
+     box = widgets.HBox([selectLayer, button])
+-    display(box)
+\ No newline at end of file
++    display(box)
+diff --git a/bindings/pyroot/JsMVA/JPyInterface.py b/bindings/pyroot/JsMVA/JPyInterface.py
+index 51b32f1..ee79aa1 100644
+--- a/bindings/pyroot/JsMVA/JPyInterface.py
++++ b/bindings/pyroot/JsMVA/JPyInterface.py
+@@ -8,10 +8,13 @@
+ from IPython.core.display import display, HTML
+ from string import Template
+ import ROOT
+-import DataLoader
+-import Factory
++import sys
++if sys.version_info >= (3, 0):
++    from JsMVA import DataLoader, Factory
++else:
++    import DataLoader, Factory
++from JsMVA import OutputTransformer
+ import types
+-import OutputTransformer
+ 
+ 
+ ## Function inserter class
+diff --git a/bindings/pyroot/JsMVA/JsMVAMagic.py b/bindings/pyroot/JsMVA/JsMVAMagic.py
+index 436ea41..b2b1edf 100644
+--- a/bindings/pyroot/JsMVA/JsMVAMagic.py
++++ b/bindings/pyroot/JsMVA/JsMVAMagic.py
+@@ -23,7 +23,7 @@ class JsMVAMagic(Magics):
+     @magic_arguments()
+     @argument('arg', nargs="?", default="on", help='Enable/Disable JavaScript visualisation for TMVA')
+     def jsmva(self, line):
+-        from JPyInterface import functions
++        from JsMVA.JPyInterface import functions
+         args = parse_argstring(self.jsmva, line)
+         if args.arg == 'on':
+            functions.register()
+@@ -35,4 +35,4 @@ class JsMVAMagic(Magics):
+ 
+ ## Function for registering the magic class
+ def load_ipython_extension(ipython):
+-    ipython.register_magics(JsMVAMagic)
+\ No newline at end of file
++    ipython.register_magics(JsMVAMagic)
+diff --git a/bindings/pyroot/JsMVA/OutputTransformer.py b/bindings/pyroot/JsMVA/OutputTransformer.py
+index 81393a4..05755a8 100644
+--- a/bindings/pyroot/JsMVA/OutputTransformer.py
++++ b/bindings/pyroot/JsMVA/OutputTransformer.py
+@@ -3,7 +3,7 @@
+ #  @author Attila Bagoly <battila93@gmail.com>
+ # This class will transform the TMVA original output to HTML formated output.
+ 
+-import DataLoader
++from JsMVA import DataLoader
+ import cgi
+ import re
+ 
+-- 
+2.9.3
+

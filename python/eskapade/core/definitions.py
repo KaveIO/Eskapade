@@ -5,6 +5,8 @@
 # *      Definitions used in Eskapade runs:                                        *
 # *        * logging levels                                                        *
 # *        * return-status codes                                                   *
+# *        * default configuration variables                                       *
+# *        * user options                                                          *
 # *                                                                                *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands                           *
@@ -17,6 +19,8 @@
 
 from enum import Enum
 import logging
+import collections
+import ast
 
 # dummy logging level to turn off logging.
 logging.OFF = 60
@@ -103,3 +107,151 @@ class StatusCode(Enum):
         :rtype: bool
         """
         return StatusCode.Undefined == self
+
+
+# configuration variables
+CONFIG_VARS = collections.OrderedDict()
+CONFIG_VARS['run'] = ['analysisName', 'version', 'macro', 'batchMode', 'interactive', 'logLevel', 'logFormat',
+                      'doCodeProfiling']
+CONFIG_VARS['chains'] = ['beginWithChain', 'endWithChain', 'storeResultsEachChain', 'storeResultsOneChain',
+                         'doNotStoreResults']
+CONFIG_VARS['file_io'] = ['esRoot', 'resultsDir', 'dataDir', 'macrosDir', 'templatesDir']
+CONFIG_VARS['db_io'] = ['all_mongo_collections']
+CONFIG_VARS['rand_gen'] = ['seed']
+CONFIG_TYPES = dict(version=int, batchMode=bool, interactive=bool, storeResultsEachChain=bool, doNotStoreResults=bool,
+                    all_mongo_collections=list, seed=int)
+CONFIG_DEFAULTS = dict(version=0, batchMode=True, interactive=False, logLevel=logging.INFO,
+                       logFormat='%(asctime)s %(levelname)s [%(module)s]: %(message)s',
+                       doCodeProfiling=None, storeResultsEachChain=False, doNotStoreResults=False, esRoot='',
+                       resultsDir='results', dataDir='data', macrosDir='tutorials', templatesDir='templates',
+                       seed=0)
+
+# user options in command-line arguments
+USER_OPTS = collections.OrderedDict()
+USER_OPTS['run'] = ['analysis_name', 'analysis_version', 'batch_mode', 'interactive', 'log_level', 'log_format',
+                    'unpickle_config', 'profile', 'conf_var']
+USER_OPTS['chains'] = ['begin_with', 'end_with', 'single_chain', 'store_all', 'store_one', 'store_none']
+USER_OPTS['file_io'] = ['results_dir', 'data_dir', 'macros_dir', 'templates_dir']
+USER_OPTS['rand_gen'] = ['seed']
+USER_OPTS_SHORT = dict(analysis_name='n', analysis_version='v', interactive='i', log_level='L', conf_var='c',
+                       begin_with='b', end_with='e', single_chain='s')
+USER_OPTS_KWARGS = dict(analysis_name=dict(help='set name of analysis in run',
+                                           metavar='NAME'),
+                        analysis_version=dict(help='set version of analysis version in run',
+                                              type=int,
+                                              metavar='VERSION'),
+                        batch_mode=dict(help='run in batch mode (no X Windows)',
+                                        action='store_true'),
+                        interactive=dict(help='start IPython shell after run',
+                                         action='store_true'),
+                        log_level=dict(help='set logging level',
+                                       choices=['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'FATAL', 'OFF'],
+                                       metavar='{NOTSET,DEBUG,INFO,WARNING,ERROR,FATAL,OFF}'),
+                        log_format=dict(help='set log-message format',
+                                        metavar='FORMAT'),
+                        unpickle_config=dict(help='interpret first CONFIG_FILE as path to pickled settings',
+                                             action='store_true'),
+                        profile=dict(help='run Python profiler, sort output by specified column',
+                                     choices=['stdname', 'nfl', 'pcalls', 'file', 'calls', 'time', 'line',
+                                              'cumulative', 'module', 'name'],
+                                     metavar='{stdname,nfl,pcalls,file,calls,time,line,cumulative,module,name}'),
+                        conf_var=dict(help='set configuration variable',
+                                      action='append',
+                                      metavar='KEY=VALUE'),
+                        begin_with=dict(help='begin execution with chain CHAIN_NAME',
+                                        metavar='CHAIN_NAME'),
+                        end_with=dict(help='end execution with chain CHAIN_NAME',
+                                      metavar='CHAIN_NAME'),
+                        single_chain=dict(help='only execute chain CHAIN_NAME',
+                                          metavar='CHAIN_NAME'),
+                        store_all=dict(help='store run-process services after every chain',
+                                       action='store_true'),
+                        store_one=dict(help='store run-process services after chain CHAIN_NAME',
+                                       metavar='CHAIN_NAME'),
+                        store_none=dict(help='do not store run-process services',
+                                        action='store_true'),
+                        results_dir=dict(help='set directory path for results output',
+                                         metavar='RESULTS_DIR'),
+                        data_dir=dict(help='set directory path for data',
+                                      metavar='DATA_DIR'),
+                        macros_dir=dict(help='set directory path for macros',
+                                        metavar='MACROS_DIR'),
+                        templates_dir=dict(help='set directory path for template files',
+                                           metavar='TEMPLATES_DIR'),
+                        seed=dict(help='set seed for random-number generation',
+                                  type=int,
+                                  metavar='SEED'))
+USER_OPTS_CONF_KEYS = dict(analysis_name='analysisName', analysis_version='analysisVersion', batch_mode='batchMode',
+                           log_level='logLevel', log_format='logFormat', profile='doCodeProfiling',
+                           begin_with='beginWithChain', end_with='endWithChain', store_all='storeResultsEachChain',
+                           store_one='storeResultsOneChain', store_none='doNotStoreResults')
+
+
+def set_opt_var(opt_key, settings, args):
+    """Set configuration variable from user options"""
+
+    value = args.get(opt_key)
+    if value is None:
+        return
+    conf_key = USER_OPTS_CONF_KEYS.get(opt_key, opt_key)
+    settings[conf_key] = CONFIG_TYPES.get(conf_key, str)(value)
+CONFIG_OPTS_SETTERS = collections.defaultdict(lambda: set_opt_var)
+
+
+def set_log_level_opt(opt_key, settings, args):
+    """Set configuration log level from user option"""
+
+    level = args.get(opt_key)
+    if not level:
+        return
+    if level not in LOG_LEVELS:
+        raise ValueError('invalid logging level specified: "{}"'.format(str(level)))
+
+    settings[USER_OPTS_CONF_KEYS.get(opt_key, opt_key)] = LOG_LEVELS[level]
+CONFIG_OPTS_SETTERS['log_level'] = set_log_level_opt
+
+
+def set_begin_end_chain_opt(opt_key, settings, args):
+    """Set begin/end-chain variable from user option"""
+
+    chain = args.get(opt_key)
+    if not chain:
+        return
+    if args.get('single_chain'):
+        raise RuntimeError('"begin-with" and "end-with" chain options cannot be combined with "single-chain" option')
+    settings[USER_OPTS_CONF_KEYS.get(opt_key, opt_key)] = str(chain)
+CONFIG_OPTS_SETTERS['begin_with'] = set_begin_end_chain_opt
+CONFIG_OPTS_SETTERS['end_with'] = set_begin_end_chain_opt
+
+
+def set_single_chain_opt(opt_key, settings, args):
+    """Set single-chain variable from user option"""
+
+    chain = args.get(opt_key)
+    if not chain:
+        return
+    settings[USER_OPTS_CONF_KEYS['begin_with']] = str(chain)
+    settings[USER_OPTS_CONF_KEYS['end_with']] = str(chain)
+CONFIG_OPTS_SETTERS['single_chain'] = set_single_chain_opt
+
+
+def set_custom_user_vars(opt_key, settings, args):
+    """Set custom user configuration variables"""
+
+    custom_vars = args.get(opt_key)
+    if not custom_vars:
+        return
+
+    for var in custom_vars:
+        # parse key-value pair
+        eq_pos = var.find('=')
+        if eq_pos < 1 or eq_pos > len(var) - 2:
+            raise RuntimeError('Expected "key=value" for --conf-var command-line argument; got "{}"'.format(var))
+        key, value = var[:eq_pos].strip(), var[eq_pos + 1:].strip()
+
+        # interpret type of value
+        try:
+            settings[key] = ast.literal_eval(value)
+        except:
+            settings[key] = value
+CONFIG_OPTS_SETTERS['conf_var'] = set_custom_user_vars

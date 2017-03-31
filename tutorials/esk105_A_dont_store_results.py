@@ -31,11 +31,11 @@ settings['doNotStoreResults'] = True
 
 msg = r"""
 
-The global flag ProcessManager().service(ConfigObject)['doNotStoreResults']=True controls that the 
-datastore & configobject are not written out at the end of the program.
-By default, these are only writting out after the last chain. (default=False) 
+The global flag settings['doNotStoreResults'] (default = False) controls
+the non-persistence of the run-process services after execution of the
+chains.  By default, services are stored after the last chain.
 
-From the cmd line, this flag is set with option: -n
+From the command line, this flag is set with option --store-none.
 """
 log.info(msg)
 

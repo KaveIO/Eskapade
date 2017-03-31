@@ -1,9 +1,9 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : HistSummary                                                          *
-# * Created: 2017/03/06                                                                  *
+# * Class  : HistSummary                                                           *
+# * Created: 2017/03/06                                                            *
 # * Description:                                                                   *
-# *      Algorithm to do...(fill in one-liner here)                                *
+# *      Link to create a statistics summary of a set of histograms                *
 # *                                                                                *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands                           *
@@ -20,8 +20,7 @@ import numpy as np
 from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 from eskapade import core, visualization
 from eskapade.analysis import statistics
-from eskapade.analysis.histogram import Histogram
-
+import tabulate
 
 NUMBER_OF_BINS = 30
 
@@ -81,16 +80,15 @@ class HistSummary(Link):
 
         # read report templates
         with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) \
-                as templ_file:
+             as templ_file:
             self.report_template = templ_file.read()
         with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex'))\
-                as templ_file:
+             as templ_file:
             self.page_template = templ_file.read()
 
         # get path to results directory
         if not self.results_path:
-            self.results_path = core.persistence.io_path(
-                'results_data', io_conf, 'report')
+            self.results_path = core.persistence.io_path('results_data', io_conf, 'report')
 
         # check if output directory exists
         if os.path.exists(self.results_path):
@@ -106,9 +104,7 @@ class HistSummary(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute HistSummary
-
-        Creates a report page for each variable in data frame.
+        """Creates a report page for each variable in data frame.
 
         * create statistics object for column
         * create overview table of column variable
@@ -116,22 +112,17 @@ class HistSummary(Link):
         * store plot
         """
 
-        # import matplotlib here to prevent import before setting backend in
-        # core.execution.run_eskapade
-        import matplotlib.pyplot as plt
-        from matplotlib.backends.backend_pdf import PdfPages
-
         # fetch and check input data frame
         hist_dict = ProcessManager().service(DataStore).get(self.read_key, None)
         if not isinstance(hist_dict, dict):
-            self.log().critical('no histograms "%s" found in data store for %s',
+            self.log().critical('no histograms "%s" found in data store for %s', \
                                 self.read_key, str(self))
             raise RuntimeError('no input data found for %s' % str(self))
 
         if self.hist_keys is None:
             self.hist_keys = hist_dict.keys()
 
-        # create report page for each variable in data frame
+        # create report page for histogram
         self.pages = []
         for name in self.hist_keys:
             # histogram name
@@ -143,68 +134,124 @@ class HistSummary(Link):
                 continue
             h = hist_dict[name]
 
-            # determine data properties
-            datatype = np.dtype(h.datatype)
-            col_props = statistics.get_col_props(datatype)
-            is_num = col_props['is_num']
-            is_ts = col_props['is_ts']
+            # process each histogram (plot and make summary table)
+            if h.n_dim==1:
+                self.process_1d_histogram(name, h)
+            elif h.n_dim==2:
+                self.process_2d_histogram(name, h)
 
-            # retrieve _all_ filled bins to evaluate statistics
-            bin_labels = h.get_nonone_bin_centers()
-            bin_counts = h.get_nonone_bin_counts()
-            bin_edges = h.get_uniform_bin_edges()
-
-            # create statistics object for histogram
-            var_label = self.var_labels.get(name, name)
-            stats = statistics.ArrayStats(bin_labels, name,
-                                          weights=bin_counts,
-                                          unit=self.var_units.get(name, ''),
-                                          label=var_label)
-
-            # create overview table of histogram statistics
-            stats_table = stats.get_latex_table()
-
-            # determine histogram properties
-            x_label = stats.get_x_label()
-            y_label = self.hist_y_label if self.hist_y_label else None
-
-            # make nice plots here ...
-            # for numbers and timestamps, make cropped histogram, between percentiles 5-95%
-            # ... and project on existing binning.
-            # for categories, accept top N number of categories in bins.
-            # NB: bin_edges overrules var_bins (if it is not none)
-            nphist = stats.make_histogram(var_bins=self.var_bins.get(name, NUMBER_OF_BINS),
-                                          bin_edges=bin_edges)
-
-            # plot histogram of histogram
-            fig = plt.figure(figsize=(7, 5))
-            visualization.vis_utils.plot_histogram(nphist,
-                                                   x_label=x_label,
-                                                   y_label=y_label,
-                                                   is_num=is_num, is_ts=is_ts)
-
-            # store plot
-            hist_file_name = 'hist_{}.pdf'.format(name)
-            pdf_file = PdfPages(
-                '{0:s}/{1:s}'.format(self.results_path, hist_file_name))
-            plt.savefig(
-                pdf_file,
-                format='pdf',
-                bbox_inches='tight',
-                pad_inches=0)
-            plt.close()
-            pdf_file.close()
-
-            # create page string
-            self.pages.append(self.page_template.replace('VAR_LABEL', var_label)
-                                                .replace('VAR_STATS_TABLE', stats_table)
-                                                .replace('VAR_HISTOGRAM_PATH', hist_file_name))
-
-        # write report file
+        # write out accumulated histogram statistics into report file
         with open('{}/report.tex'.format(self.results_path), 'w') as report_file:
-            report_file.write(
-                self.report_template.replace(
-                    'INPUT_PAGES', ''.join(
-                        self.pages)))
+            report_file.write(self.report_template.replace('INPUT_PAGES', ''.join(self.pages)))
 
         return StatusCode.Success
+
+    def process_1d_histogram(self, name, h):
+        """Create statistics of and plot input 1d histogram
+
+        :param h: input histogram object
+        :param str name: name of the histogram
+        """
+        # datatype properties
+        datatype = h.datatype
+        col_props = statistics.get_col_props(datatype)
+        is_num = col_props['is_num']
+        is_ts = col_props['is_ts']
+
+        # retrieve _all_ filled bins to evaluate statistics
+        bin_labels = h.bin_centers() if is_num else h.bin_labels()
+        bin_counts = h.bin_entries()
+        bin_edges  = h.bin_edges() if is_num else None
+
+        if is_ts:
+            to_timestamp = np.vectorize(lambda x: pd.Timestamp(x))
+            bin_labels = to_timestamp(bin_labels)
+            bin_edges  = to_timestamp(bin_edges)
+
+        # create statistics object for histogram
+        var_label = self.var_labels.get(name, name)
+        stats = statistics.ArrayStats(bin_labels, name, \
+                                      weights = bin_counts, \
+                                      unit=self.var_units.get(name, ''), \
+                                      label=var_label)
+        # evaluate statitical properties of array
+        stats.create_stats()
+
+        # make nice plots here ...
+        # for numbers and timestamps, make cropped histogram, between percentiles 5-95%
+        # ... and project on existing binning.
+        # for categories, accept top N number of categories in bins.
+        # NB: bin_edges overrules var_bins (if it is not none)
+        nphist = stats.make_histogram( var_bins=self.var_bins.get(name,NUMBER_OF_BINS), \
+                                       bin_edges=bin_edges )
+
+        # determine histogram properties for plotting below
+        x_label = stats.get_x_label()
+        y_label = self.hist_y_label if self.hist_y_label else None
+        hist_file_name = 'hist_{}.pdf'.format(name)
+        pdf_file_name  = '{0:s}/{1:s}'.format(self.results_path, hist_file_name)
+
+        # matplotlib plot of histogram
+        visualization.vis_utils.plot_histogram(nphist,
+                                               x_label=x_label,
+                                               y_label=y_label,
+                                               is_num=is_num, is_ts=is_ts,
+                                               pdf_file_name=pdf_file_name)
+
+        # create overview table of histogram statistics
+        stats_table = stats.get_latex_table()
+
+        # create page string
+        self.pages.append(self.page_template.replace('VAR_LABEL', var_label)\
+                          .replace('VAR_STATS_TABLE', stats_table)\
+                          .replace('VAR_HISTOGRAM_PATH', hist_file_name))
+
+    def process_2d_histogram(self, name, h):
+        """Create statistics of and plot input 2d histogram
+
+        :param h: input histogram object
+        :param str name: name of the histogram
+        """
+        try:
+            nphist = h.xy_ranges_grid()
+        except:
+            raise Exception(
+                'Cannot extract binning and values from input histogram')
+
+        # calc some basic histogram statistics
+        sum_entries = 0
+        try:
+            grid = nphist[2]
+            ynum = len(grid)
+            xnum = len(grid[0])
+            for i in range(xnum):
+                for j in range(ynum):
+                    sum_entries += grid[i,j]
+        except:
+            pass
+        sum_entries = int(sum_entries)
+
+        # create LaTeX string of statistics
+        table = [('count','%d' % sum_entries)]
+        stats_table = tabulate.tabulate(table, tablefmt='latex')
+
+        # histogram attributes for plotting
+        var_label = self.var_labels.get(name, name.replace(':','_vs_'))
+        try:
+            xlab = name.split(':')[0]
+            ylab = name.split(':')[1]
+        except:
+            xlab = 'unknown x'
+            ylab = 'unknown y'
+        hist_file_name = 'hist_{}.pdf'.format(name.replace(':','_vs_'))
+        pdf_file_name = '{0:s}/{1:s}'.format(self.results_path, hist_file_name)
+
+        # plot the 2d histogram
+        visualization.vis_utils.plot_2d_histogram(nphist, x_lim=h.x_lim(), y_lim=h.y_lim(),
+                                                  title=var_label, x_label=xlab, y_label=ylab,
+                                                  pdf_file_name=pdf_file_name)
+
+        # create page string for report
+        self.pages.append(self.page_template.replace('VAR_LABEL', var_label)\
+                          .replace('VAR_STATS_TABLE', stats_table)\
+                          .replace('VAR_HISTOGRAM_PATH', hist_file_name))

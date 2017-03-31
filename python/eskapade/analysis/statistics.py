@@ -5,11 +5,12 @@ import tabulate
 from statsmodels.stats.weightstats import DescrStatsW
 from collections import Counter
 from eskapade.analysis.histogram import BinningUtil
+from eskapade.core.mixins import LoggingMixin
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 
-class ArrayStats(object):
+class ArrayStats(LoggingMixin):
     """Create summary of an array
 
     Class to calculate statistics (mean, standard deviation, percentiles,
@@ -62,9 +63,8 @@ class ArrayStats(object):
                 raise TypeError('Specified weights object is not iterable')
 
         # check sizes of data and weights
-        if self.weights is not None:
-            assert len(self.col) == len(self.weights), \
-                'weights and data do not have the same length.'
+        if self.weights is not None and len(self.col) != len(self.weights):
+            raise AssertionError('weights and data do not have the same length')
 
         # store data and weights in a Pandas Series
         if not isinstance(self.col, pd.Series):
@@ -75,8 +75,7 @@ class ArrayStats(object):
 
         # store non-null column values
         self.col_nn = self.col[self.col.notnull()]
-        self.weights_nn = self.weights[
-            self.col.notnull()] if self.weights is not None else None
+        self.weights_nn = self.weights[self.col.notnull()] if self.weights is not None else None
 
         # to be filled in make_histogram
         self.hist = None
@@ -87,6 +86,46 @@ class ArrayStats(object):
         :returns dict: Column properties
         """
         return get_col_props(self.col.dtype)
+
+    def create_mpv_stat(self):
+        """Compute most probable value from histogram
+
+        This function computes the most probable value based on the histogram
+        from make_histogram(), and adds it to the statistics.
+        """
+
+        # basic checks
+        if self.hist is None:
+            self.log().warning('Internal histogram is not filled. Run make_histogram() first.')
+            return
+        if len(self.hist) != 2:
+            raise AssertionError('internal histogram needs to consist of two arrays')
+        values, bins = self.hist
+        if not isinstance(values, np.ndarray) and not isinstance(values, list):
+            raise TypeError('values should be a list or numpy array')
+        if not isinstance(bins, np.ndarray) and not isinstance(bins, list):
+            raise TypeError('bins should be a list or numpy array')
+        if len(bins) != len(values) and len(bins) != len(values) + 1:
+            raise AssertionError('bins and values have inconsistent lengths')
+
+        # if two max elements are equal, this will return the element with the lowest index.
+        max_idx = max(enumerate(values), key=lambda x: x[1])[0]
+        bc = bins[max_idx]
+
+        # determine column properties
+        col_props = self.get_col_props()
+
+        if col_props['is_num'] and len(bins) == len(values) + 1:
+            # shift to bin center. note: this also works for timestamps.
+            bc += (bins[max_idx + 1] - bc) / 2
+
+        # append statistics
+        mpv_name = 'mpv'
+        self.stat_vars.append(mpv_name)
+        self.stat_vals[mpv_name] = (bc, '%s' % str(bc))
+        name_len = max(len(n) for n in self.stat_vars)
+        self.print_lines.append('{{0:{:d}s}} : {{1:s}}'.format(name_len)
+                                .format(mpv_name, self.stat_vals[mpv_name][1]))
 
     def create_stats(self):
         """Compute statistical properties of column variable
@@ -106,22 +145,17 @@ class ArrayStats(object):
         col_props = self.get_col_props()
 
         # get value counts
-        cnt, var_cnt, dist_cnt = (len(self.col), len(
-            self.col_nn), self.col.nunique())
+        cnt, var_cnt, dist_cnt = (len(self.col), len(self.col_nn), self.col.nunique())
         if self.weights_nn is not None:
             cnt, var_cnt = int(sum(self.weights)), int(sum(self.weights_nn))
-        for stat_var, stat_val in zip(
-                ('count', 'filled', 'distinct'), (cnt, var_cnt, dist_cnt)):
+        for stat_var, stat_val in zip(('count', 'filled', 'distinct'), (cnt, var_cnt, dist_cnt)):
             self.stat_vars.append(stat_var)
             self.stat_vals[stat_var] = (stat_val, '{:d}'.format(stat_val))
 
         # add value counts to print lines
-        self.print_lines.append(
-            '{}:'.format(
-                self.label if self.label else self.name))
-        self.print_lines.append(
-            '{0:d} entries ({1:.0f}%)'.format(
-                var_cnt, var_cnt / cnt * 100))
+        self.print_lines.append('{}:'.format(self.label if self.label else self.name))
+        ratio = (var_cnt / cnt) * 100 if cnt != 0 else 0
+        self.print_lines.append('{0:d} entries ({1:.0f}%)'.format(var_cnt, ratio))
         self.print_lines.append('{0:d} unique entries'.format(dist_cnt))
 
         # convert time stamps to integers
@@ -131,43 +165,27 @@ class ArrayStats(object):
             col_num = self.col_nn
 
         # get additional statistics for numeric variables
-        if col_props['is_num']:
-            stat_vars = (
-                'mean',
-                'std',
-                'min',
-                'max',
-                'p01',
-                'p05',
-                'p16',
-                'p50',
-                'p84',
-                'p95',
-                'p99')
+        if col_props['is_num'] and len(col_num):
+            stat_vars = ('mean', 'std', 'min', 'max', 'p01', 'p05', 'p16', 'p50', 'p84', 'p95', 'p99')
+            quant_probs = (0, 1, 0.01, 0.05, 0.16, 0.50, 0.84, 0.95, 0.99)
+            #stat_vals = (col_num.mean(), col_num.std(), col_num.min(), col_num.max())\
+            #            + tuple(col_num.quantile((0.01, 0.05, 0.16, 0.50, 0.84, 0.95, 0.99)))
             # two lines below also work if weights are None
             des = DescrStatsW(col_num, self.weights_nn)
-            stat_vals = (des.mean, des.std) + \
-                tuple(weighted_quantile(col_num, self.weights_nn,
-                                        (0, 1, 0.01, 0.05, 0.16, 0.50, 0.84, 0.95, 0.99)))
+            stat_vals = (des.mean, des.std) + tuple(weighted_quantile(col_num, self.weights_nn, quant_probs))
             self.stat_vars += stat_vars
             for stat_var, stat_val in zip(stat_vars, stat_vals):
                 if not col_props['is_ts']:
                     # value entry for floats and integers
-                    self.stat_vals[stat_var] = (
-                        stat_val, '{:+g}'.format(stat_val))
+                    self.stat_vals[stat_var] = (stat_val, '{:+g}'.format(stat_val))
                 else:
                     if stat_var != 'std':
                         # display time stamps as date/time strings
-                        self.stat_vals[stat_var] = (
-                            pd.Timestamp(
-                                int(stat_val)), str(
-                                pd.Timestamp(
-                                    int(stat_val))))
+                        self.stat_vals[stat_var] = (pd.Timestamp(int(stat_val)), str(pd.Timestamp(int(stat_val))))
                     else:
                         # display time-stamp range as number of days
                         stat_val /= NUM_NS_DAY
-                        self.stat_vals[stat_var] = (
-                            stat_val, '{:g}'.format(stat_val))
+                        self.stat_vals[stat_var] = (stat_val, '{:g}'.format(stat_val))
 
             # append statistics to print lines
             name_len = max(len(n) for n in stat_vars)
@@ -201,8 +219,7 @@ class ArrayStats(object):
             self.create_stats()
 
         # create LaTeX string
-        table = [(stat_var, self.stat_vals[stat_var][1])
-                 for stat_var in self.stat_vars]
+        table = [(stat_var, self.stat_vals[stat_var][1]) for stat_var in self.stat_vars]
         return tabulate.tabulate(table, tablefmt='latex')
 
     def get_x_label(self):
@@ -211,7 +228,7 @@ class ArrayStats(object):
             x_lab += ' [{}]'.format(self.unit)
         return x_lab
 
-    def make_histogram(self, var_bins=30, var_range=None, bin_edges=None):
+    def make_histogram(self, var_bins=30, var_range=None, bin_edges=None, create_mpv_stat=True):
         """Create histogram of column values
 
         :param int var_bins: Number of histogram bins
@@ -230,31 +247,25 @@ class ArrayStats(object):
 
             # determine histogram range for numeric variable
             if var_range:
-                # get minimum and maximum of variable for histogram from
-                # specified range
+                # get minimum and maximum of variable for histogram from specified range
                 var_min, var_max = var_range
                 if col_props['is_ts']:
                     # convert minimum and maximum to Unix time stamps
-                    var_min, var_max = pd.Timestamp(
-                        var_min).value, pd.Timestamp(var_max).value
+                    var_min, var_max = pd.Timestamp(var_min).value, pd.Timestamp(var_max).value
             else:
-                # determine minimum and maximum of variable for histogram from
-                # percentiles
-                var_min, var_max = self.stat_vals.get(
-                    'p05')[0], self.stat_vals.get('p95')[0]
+                # determine minimum and maximum of variable for histogram from percentiles
+                var_min, var_max = self.stat_vals.get('p05')[0], self.stat_vals.get('p95')[0]
                 if col_props['is_ts']:
-                    var_min, var_max = pd.Timestamp(
-                        var_min).value, pd.Timestamp(var_max).value
-                var_min -= 0.1 * (var_max - var_min)
-                var_max += 0.1 * (var_max - var_min)
+                    var_min, var_max = pd.Timestamp(var_min).value, pd.Timestamp(var_max).value
+                var_min -= 0.05 * (var_max - var_min)
+                var_max += 0.05 * (var_max - var_min)
                 if var_min > 0. and var_min < +0.2 * (var_max - var_min):
                     var_min = 0.
                 elif var_max < 0. and var_max > -0.2 * (var_max - var_min):
                     var_max = 0.
 
             if col_props['is_ts']:
-                # np.histogram cannot deal with timestamps, so convert to ints
-                # and convert them back below.
+                # np.histogram cannot deal with timestamps, so convert to ints and convert them back below.
                 to_timestamp = np.vectorize(lambda x: pd.Timestamp(x).value)
                 col_num = to_timestamp(self.col_nn)
                 if bin_edges is not None:
@@ -266,22 +277,17 @@ class ArrayStats(object):
                 var_min = bin_util.get_left_bin_edge(idx_min)
                 idx_max = bin_util.value_to_bin_label(var_max)
                 var_max = bin_util.get_right_bin_edge(idx_max)
-                var_bins = bin_util.truncated_bin_edges(
-                    variable_range=[var_min, var_max])
+                var_bins = bin_util.truncated_bin_edges(variable_range=[var_min, var_max])
             else:
                 if col_props['is_int'] or col_props['is_ts']:
                     # for ints and ts use bins around integer values
-                    bin_width = np.max(
-                        (np.round((var_max - var_min) / float(var_bins)), 1.))
+                    bin_width = np.max((np.round((var_max - var_min) / float(var_bins)), 1.))
                     var_min = np.floor(var_min - 0.5) + 0.5
-                    var_bins = int((var_max - var_min) // bin_width) + \
-                        int((var_max - var_min) % bin_width > 0.)
+                    var_bins = int((var_max - var_min) // bin_width) + int((var_max - var_min) % bin_width > 0.)
                     var_max = var_min + var_bins * bin_width
 
-            # make (weighted) histogram
-            values, bins = np.histogram(
-                col_num, bins=var_bins, range=(
-                    var_min, var_max), weights=self.weights_nn)
+            # make (weighted) histogram. note that var_bins supersedes range
+            values, bins = np.histogram(col_num, bins=var_bins, range=(var_min, var_max), weights=self.weights_nn)
 
             if col_props['is_ts']:
                 # convert Unix time stamps to Pandas time stamps
@@ -290,8 +296,7 @@ class ArrayStats(object):
         else:
             # get data from data frame for categorical column
             if self.weights_nn is None:
-                val_counts = self.col_nn.value_counts(
-                    sort=True).iloc[:var_bins].to_dict()
+                val_counts = self.col_nn.value_counts(sort=True).iloc[:var_bins].to_dict()
             else:
                 val_counts = Counter()
                 for k, v in zip(self.col_nn, self.weights_nn):
@@ -300,6 +305,10 @@ class ArrayStats(object):
             labels = sorted(lab for lab in val_counts.keys())
             values = [val_counts[lab] for lab in labels]
             self.hist = values, labels
+
+        # compute most probable value from histogram and add to statistics
+        if create_mpv_stat:
+            self.create_mpv_stat()
 
         return self.hist
 
@@ -320,27 +329,26 @@ def get_col_props(var_type):
 
 
 def weighted_quantile(data, weights=None, probability=[0.5]):
-    """
-    Compute the weighted quantile of a 1D numpy array.
+    """Compute the weighted quantile of a 1D numpy array
+
+    Weighted quantiles, inspired by:
+    https://github.com/nudomarinero/wquantiles/blob/master/wquantiles.py
+    written by Jose Sabater
+    Here updated to return multiple quantiles in one go.  Now also works
+    when weight is None.
 
     :param ndarray data: input array (one dimension).
     :param ndarray weights: array with the weights of the same size of `data`.
     :param ndarray probability: array of quantiles to compute. Each probablity must have a value between 0 and 1.
-    :return: list of the output value(s).
+    :returns: list of the output value(s).
     """
 
-    # Weighted quantiles, inspired by:
-    # https://github.com/nudomarinero/wquantiles/blob/master/wquantiles.py
-    # written by Jose Sabater
-    # Here updated to: return multiple quantiles in one go. Now also works
-    # when weight is None.
-
     # Check the inputs
-    if not isinstance(data, np.matrix):
+    if not isinstance(data, np.ndarray):
         data = np.asarray(data)
     if isinstance(probability, float):
         probability = [probability]
-    if not isinstance(probability, np.matrix):
+    if not isinstance(probability, np.ndarray):
         probability = np.asarray(probability)
     for p in probability:
         if p > 1 or p < 0:
@@ -349,7 +357,7 @@ def weighted_quantile(data, weights=None, probability=[0.5]):
         raise TypeError("data must be a one dimensional array")
     if weights is None:
         weights = np.ones(len(data))
-    if not isinstance(weights, np.matrix):
+    if not isinstance(weights, np.ndarray):
         weights = np.asarray(weights)
     if weights.ndim != 1:
         raise TypeError("weights must be a one dimensional array")

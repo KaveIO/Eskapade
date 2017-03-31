@@ -43,8 +43,11 @@ seaborn
 simplegeneric
 six
 sklearn
+sortedcontainers
+statsmodels
 traitlets
 wcwidth
 jaydebeapi
 sphinx
 tabulate
+histogrammar

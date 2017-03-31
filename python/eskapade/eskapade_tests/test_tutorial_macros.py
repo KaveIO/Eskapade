@@ -1,13 +1,20 @@
 import unittest
+import mock
+import sys
 import os
 import shutil
+import importlib
 import pandas as pd
 
-from eskapade.core import execution, definitions
+from eskapade.core import execution, definitions, persistence, project_utils
 from eskapade import ProcessManager, ConfigObject, DataStore
+from eskapade.core_ops import Break
 
 
 class TutorialMacrosTest(unittest.TestCase):
+    """Integration tests based on tutorial macros"""
+
+    maxDiff = None
 
     def setUp(self):
         execution.reset_eskapade()
@@ -137,7 +144,7 @@ class TutorialMacrosTest(unittest.TestCase):
         settings['macro'] = settings['esRoot'] + '/tutorials/esk106_cmdline_options.py'
 
         # fake a setting from the cmd-line. picked up in the macro
-        settings['cmd'] = 'do_chain0=False'
+        settings['do_chain0'] = False
         
         status = execution.run_eskapade(settings)
 
@@ -149,24 +156,88 @@ class TutorialMacrosTest(unittest.TestCase):
         self.assertTrue(status.isSuccess())
         self.assertEqual(1, len(pm.chains))
         self.assertEqual('Chain1', pm.chains[0].name)
-        self.assertEqual(False, settings['do_chain0'])
-        self.assertEqual(True, settings['do_chain1'])
+        self.assertEqual(False, settings.get('do_chain0', True))
+        self.assertEqual(True, settings.get('do_chain1', True))
         self.assertEqual('Universe', pm.chains[0].links[0].hello)
+
+    @mock.patch('sys.argv')
+    def test_esk106_script(self, mock_argv):
+        """Test Eskapade run with esk106 macro from script"""
+
+        proc_mgr = ProcessManager()
+
+        # get file paths
+        settings = proc_mgr.service(ConfigObject)
+        settings['analysisName'] = 'esk106_cmdline_options'
+        settings_ = settings.copy()
+        script_path = project_utils.get_file_path('run_eskapade')
+        macro_path = persistence.io_path('macros', settings.io_conf(), 'esk106_cmdline_options.py')
+
+        # import run-script module
+        orig_mod_path = sys.path.copy()
+        sys.path.append(os.path.dirname(script_path))
+        script_mod = os.path.splitext(os.path.basename(script_path))[0]
+        run_eskapade = importlib.import_module(script_mod)
+
+        # mock command-line arguments
+        args = []
+        mock_argv.__getitem__ = lambda s, k: args.__getitem__(k)
+
+        # base settings
+        args_ = [script_path, macro_path, '-LDEBUG', '--batch-mode']
+        settings_['macro'] = macro_path
+        settings_['logLevel'] = definitions.LOG_LEVELS['DEBUG']
+        settings_['batchMode'] = True
+
+        def do_run(name, args, args_, settings_, add_args, add_settings, chains):
+            # set arguments
+            args.clear()
+            args += args_ + add_args
+            settings = settings_.copy()
+            settings.update(add_settings)
+
+            # run Eskapade
+            proc_mgr.reset()
+            run_eskapade.main()
+            settings_run = proc_mgr.service(ConfigObject)
+
+            # check results
+            self.assertListEqual([c.name for c in proc_mgr.chains], chains,
+                                 'unexpected chain names in "{}" test'.format(name))
+            self.assertDictEqual(settings_run, settings, 'unexpected settings in "{}" test'.format(name))
+
+        # run both chains
+        do_run('both chains', args, args_, settings_,
+               ['--store-all', '-cdo_chain0=True', '-cdo_chain1=True'],
+               dict(storeResultsEachChain=True, do_chain0=True, do_chain1=True),
+               ['Chain0', 'Chain1'])
+
+        # run only last chain by skipping the first
+        do_run('skip first', args, args_, settings_,
+               ['-bChain1', '-cdo_chain0=True', '-cdo_chain1=True'],
+               dict(beginWithChain='Chain1', do_chain0=True, do_chain1=True),
+               ['Chain0', 'Chain1'])
+
+        # run only last chain by not defining the first
+        do_run('no first', args, args_, settings_,
+               ['-cdo_chain0=False', '-cdo_chain1=True'],
+               dict(do_chain0=False, do_chain1=True),
+               ['Chain1'])
+
+        # restore module search path
+        sys.path.clear()
+        sys.path += orig_mod_path
 
     def test_esk107(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
         settings['macro'] = settings['esRoot'] + '/tutorials/esk107_chain_looper.py'
-
-        # fake a setting from the cmd-line. picked up in the macro
-        settings['cmd'] = 'do_chain0=False'
         
         status = execution.run_eskapade(settings)
 
         pm = ProcessManager()
         settings = ProcessManager().service(ConfigObject)
         ds = ProcessManager().service(DataStore)
-
 
         # chain is repeated 10 times, with nothing put in datastore
         self.assertTrue(status.isSuccess())
@@ -200,10 +271,43 @@ class TutorialMacrosTest(unittest.TestCase):
         settings = ProcessManager().service(ConfigObject)
         ds = ProcessManager().service(DataStore)
 
-
         self.assertTrue(status.isSuccess())
         self.assertEqual(20, ds['n_products'])
         
+    def test_esk109(self):
+        settings = ProcessManager().service(ConfigObject)
+        settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
+        settings['macro'] = settings['esRoot'] + '/tutorials/esk109_debugging_tips.py'
+
+        # this flag turns off ipython embed link
+        settings['TESTING'] = True
+
+        status = execution.run_eskapade(settings)
+
+        pm = ProcessManager()
+        settings = ProcessManager().service(ConfigObject)
+        ds = ProcessManager().service(DataStore)
+
+        self.assertTrue(isinstance(pm.chains[0].links[2], Break))
+        self.assertTrue(status.isFailure())
+
+    def test_esk110(self):
+        settings = ProcessManager().service(ConfigObject)
+        settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
+        settings['macro'] = settings['esRoot'] + '/tutorials/esk110_code_profiling.py'
+
+        status = execution.run_eskapade(settings)
+
+        pm = ProcessManager()
+        settings = ProcessManager().service(ConfigObject)
+        ds = ProcessManager().service(DataStore)
+
+        self.assertTrue(status.isSuccess())
+        self.assertEqual(0, len(pm.chains))
+        self.assertEqual(0, len(ds.keys()))
+        self.assertTrue('doCodeProfiling' in settings)
+        self.assertEqual('cumulative', settings['doCodeProfiling'])
+
     def test_esk201(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
@@ -233,7 +337,6 @@ class TutorialMacrosTest(unittest.TestCase):
         settings = ProcessManager().service(ConfigObject)
         ds = ProcessManager().service(DataStore)
 
-
         self.assertTrue(status.isSuccess())
         self.assertEqual(36, ds['n_test'])
         path = settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/tmp3.csv'
@@ -252,7 +355,6 @@ class TutorialMacrosTest(unittest.TestCase):
         pm = ProcessManager()
         settings = ProcessManager().service(ConfigObject)
         ds = ProcessManager().service(DataStore)
-
 
         self.assertTrue(status.isSuccess())
         self.assertTrue('transformed_data' in ds)
@@ -313,6 +415,25 @@ class TutorialMacrosTest(unittest.TestCase):
         df = ds['outgoing']
         self.assertEqual(len(df.index),4)
         self.assertEqual(len(df.columns),5)
+
+    def test_esk207(self):
+        settings = ProcessManager().service(ConfigObject)
+        settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
+        settings['macro'] = settings['esRoot'] + '/tutorials/esk207_record_vectorizer.py'
+
+        status = execution.run_eskapade(settings)
+
+        pm = ProcessManager()
+        settings = ProcessManager().service(ConfigObject)
+        ds = ProcessManager().service(DataStore)
+
+        columns = sorted(['x_1', 'x_3', 'x_5', 'x_4', 'y_9', 'y_8', 'y_7', 'y_6', 'y_5', 'y_4'])
+
+        self.assertTrue(status.isSuccess())
+        self.assertTrue('vect_test' in ds)
+        df = ds['vect_test']
+        self.assertEqual(len(df.index),12)
+        self.assertListEqual(sorted(df.columns.tolist()), columns)
 
     def test_esk301(self):
         settings = ProcessManager().service(ConfigObject)
@@ -392,8 +513,15 @@ class TutorialMacrosTest(unittest.TestCase):
             self.assertTrue(statinfo.st_size > 0)
 
     def tearDown(self):
+        """Tear down test"""
+
+        # reset run process
         settings = ProcessManager().service(ConfigObject)
         execution.reset_eskapade()
-        path = settings['resultsDir'] + '/' + settings['analysisName'] 
+        if not settings.get('analysisName'):
+            return
+
+        # remove persisted results for this test
+        path = persistence.io_dir('ana_results', settings.io_conf())
         if os.path.exists(path):
             shutil.rmtree(path)
