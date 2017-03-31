@@ -72,8 +72,11 @@ log "installing KAVE Toolbox"
 cd "${TMPDIR}"
 wget -q "http://repos:kaverepos@repos.dna.kpmglab.com/noarch/KaveToolbox/${KTBRELEASE}/kavetoolbox-installer-${KTBRELEASE}.sh"
 mkdir -p /etc/kave
-cp /vagrant/ktb/CustomInstall.py /vagrant/ktb/requirements.txt /etc/kave/
+cp /vagrant/ktb/CustomInstall.py /etc/kave/
 bash "kavetoolbox-installer-${KTBRELEASE}.sh" --node &> "${LOGDIR}/install-ktb.log"
+
+# install Eskapade Python requirements
+"${ANADIR}/pro/bin/pip install" -r /vagrant/python/requirements.txt
 
 # source KAVE setup in both login and non-login shells (interactive)
 mv /etc/profile.d/kave.sh "${KTBDIR}/pro/scripts/"

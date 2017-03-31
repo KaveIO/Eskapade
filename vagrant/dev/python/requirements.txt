@@ -1,0 +1,11 @@
+ipython
+matplotlib
+mock
+numpy
+pandas
+sphinx
+sphinx_rtd_theme
+tabulate
+sortedcontainers
+statsmodels
+histogrammar
