@@ -76,7 +76,8 @@ cp /vagrant/ktb/CustomInstall.py /etc/kave/
 bash "kavetoolbox-installer-${KTBRELEASE}.sh" --node &> "${LOGDIR}/install-ktb.log"
 
 # install Eskapade Python requirements
-"${ANADIR}/pro/bin/pip install" -r /vagrant/python/requirements.txt
+log "installing Eskapade Python requirements"
+"${ANADIR}/pro/bin/pip" install -r /vagrant/python/requirements.txt &> "${LOGDIR}/install-Python-requirements.log"
 
 # source KAVE setup in both login and non-login shells (interactive)
 mv /etc/profile.d/kave.sh "${KTBDIR}/pro/scripts/"
