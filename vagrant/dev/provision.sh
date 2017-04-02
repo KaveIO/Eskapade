@@ -78,6 +78,7 @@ bash "kavetoolbox-installer-${KTBRELEASE}.sh" --node &> "${LOGDIR}/install-ktb.l
 # install Eskapade Python requirements
 log "installing Eskapade Python requirements"
 "${ANADIR}/pro/bin/pip" install -r /vagrant/python/requirements.txt &> "${LOGDIR}/install-Python-requirements.log"
+"${ANADIR}/pro/bin/pip" install django celery &>> "${LOGDIR}/install-Python-requirements.log"
 
 # source KAVE setup in both login and non-login shells (interactive)
 mv /etc/profile.d/kave.sh "${KTBDIR}/pro/scripts/"
