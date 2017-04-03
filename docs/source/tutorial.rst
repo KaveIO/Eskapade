@@ -237,9 +237,10 @@ Now run the entire macro with the new code and compile the output .tex file. Thi
 
 .. code-block:: bash
 
-  $ pdflatex $ESKAPADE/results/Tutorial_1/data/v0/report/report.tex
+  $ cd $ESKAPADE/results/Tutorial_1/data/v0/report/
+  $ pdflatex report.tex
 
-But first you have to install pdflatex on your machine.
+If you have pdflatex installed on your machine.
 Now take a look at the output pdf. The final output should look something like this:
 
 .. image:: ../../images/output_tutorial_1.png
@@ -324,7 +325,7 @@ Links.
 Example esk102: Multiple chains
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Macro 102 uses multiple links to print different kinds of output from one Link. This link is initialized multiple
+Macro 102 uses multiple chains to print different kinds of output from one Link. This link is initialized multiple
 times with different kwargs and names. There are if-statements in the macro to control the usage of the chains.
 
 Example esk103: Print the DataStore

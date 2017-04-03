@@ -294,9 +294,12 @@ We continue with a longer description of the steps above.
 
 When adding the new code to a new link the following conventions are used:
 
-In the ``__init__`` you specify the key word arguments of the Link and their default values, if you want to get an object from the DataStore or you want to write an object back into it, use the name ``readKey`` and ``storeKey``. Other keywords are free to use as you see fit.
+In the ``__init__`` you specify the key word arguments of the Link and their default values, if you want to get an
+object from the DataStore or you want to write an object back into it, use the name ``read_key`` and ``store_key``.
+Other keywords are free to use as you see fit.
 
-In the ``initialize`` function in the Link you define and initialize functions that you want to call when executing the code on your objects. If you want to import something, you can do this at the root of the Link, as per PEP8.
+In the ``initialize`` function in the Link you define and initialize functions that you want to call when executing the
+code on your objects. If you want to import something, you can do this at the root of the Link, as per PEP8.
 
 In the ``execute`` function you put the actual code in this format:
 
