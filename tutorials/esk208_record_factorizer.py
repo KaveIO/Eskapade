@@ -59,7 +59,7 @@ fact = analysis.RecordFactorizer(name = 'rf1')
 fact.columns = ['dummy', 'loc']
 fact.read_key = 'test1'
 fact.store_key = 'test1_fact'
-fact.skey_to_original = 'to_original'
+fact.sk_map_to_original = 'to_original'
 fact.set_log_level(logging.DEBUG)
 ch1.add_link(fact)
 
@@ -75,7 +75,7 @@ ch2 = proc_mgr.add_chain('ReFactorize')
 refact = analysis.RecordFactorizer(name = 'rf2')
 refact.read_key = fact.store_key
 refact.store_key = 'test1_refact'
-refact.map_to_original = fact.skey_to_original
+refact.map_to_original = fact.sk_map_to_original
 refact.set_log_level(logging.DEBUG)
 ch2.add_link(refact)
 
