@@ -1,13 +1,14 @@
-Setting up Eskapade environment for MacOS
-=========================================
+Eskapade on MacOS
+=================
 
 This installation guide is written using **MacOS Sierra**.
 
-To install eskapade on MacOS there are basically 3 challenges to overcome certain versioning issues:
+To install eskapade on MacOS there are basically four challenges to overcome certain versioning issues:
+
   * Getting an isolated Python 3.5.2 environment,
   * Getting ROOT 6.08/06 to work with Python 3.5.2 (ROOT conflicts with Anaconda),
   * Getting Python packages similar to those in Anaconda,
-  * Getting SPARK 2.1.0 set up (the homebrew version does not cooperate).
+  * Getting Spark 2.1.0 set up (the homebrew version does not cooperate).
 
 Therefore we are building a KaveToolBox for MacOS and re-use the Vagrant code.
 
@@ -34,8 +35,8 @@ Then we need to create an isolated Python environment which we call 'eskapade':
   mkvirtualenv -p .pyenv/versions/3.5.2/bin/python eskapade
   workon eskapade
 
-Installing ROOT6
-----------------
+Installing ROOT 6
+-----------------
 
 Clone ROOT from the git repository::
 
@@ -263,10 +264,10 @@ Input for the requirements.txt file is the following::
   wrapt==1.10.10
 
 
-Setting up SPARK 2.1.0
+Setting up Spark 2.1.0
 ----------------------
 
-Now download SPARK from apache, extract it, and compile it:
+Now download Spark from apache, extract it, and compile it:
 
 .. code-block:: bash
 
@@ -286,7 +287,7 @@ Add docker containers to hosts
 
 Add the following aliases to the localhost line in /etc/hosts, so it looks like::
 
-  127.0.0.1	localhost es-service es-mongo es-jboss es-proxy
+  127.0.0.1	localhost es-service es-mongo es-proxy
 
 This will ensure you can reach the docker containers via the port forwards from the container to the docker host
 (i.e. localhost).
@@ -296,14 +297,14 @@ Cleaning the environment
 
 Everytime you want to have a clean Eskapade environment run the following::
 
-  # --- setup PYTHON
+  # --- setup Python
   source /usr/local/bin/virtualenvwrapper.sh
   workon eskapade
 
   # --- setup ROOT
   source ~/root/bin/thisroot.sh
 
-  # --- setup SPARK
+  # --- setup Spark
   export SPARK_HOME=$HOME/spark-2.1.0
   export PYTHONPATH=$SPARK_HOME/python/:$PYTHONPATH
   export PYSPARK_SUBMIT_ARGS="--master local[4] --num-executors 1 --executor-cores 4 --executor-memory 4g pyspark-shell"
@@ -312,6 +313,5 @@ Everytime you want to have a clean Eskapade environment run the following::
   cd ~/git/gitlab-nl/decision-engine
   source ./eskapade/setup.sh
   source ./analyticsengine/setup.sh
-
 
 To automate this you can put it in a 'setup_eskapade.sh' script, but at the time of writing we have not done this yet.
