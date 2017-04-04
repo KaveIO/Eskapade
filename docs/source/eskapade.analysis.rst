@@ -9,6 +9,34 @@ Subpackages
     eskapade.analysis.analysis_tests
     eskapade.analysis.links
 
+Submodules
+----------
+
+eskapade.analysis.datetime module
+---------------------------------
+
+.. automodule:: eskapade.analysis.datetime
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.analysis.histogram module
+----------------------------------
+
+.. automodule:: eskapade.analysis.histogram
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.analysis.statistics module
+-----------------------------------
+
+.. automodule:: eskapade.analysis.statistics
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Module contents
 ---------------
 

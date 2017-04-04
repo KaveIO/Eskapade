@@ -52,6 +52,14 @@ eskapade.analysis.links.df_merger module
     :undoc-members:
     :show-inheritance:
 
+eskapade.analysis.links.histogrammar_filler module
+--------------------------------------------------
+
+.. automodule:: eskapade.analysis.links.histogrammar_filler
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 eskapade.analysis.links.random_sample_splitter module
 -----------------------------------------------------
 
@@ -68,10 +76,26 @@ eskapade.analysis.links.read_to_df module
     :undoc-members:
     :show-inheritance:
 
+eskapade.analysis.links.record_factorizer module
+------------------------------------------------
+
+.. automodule:: eskapade.analysis.links.record_factorizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 eskapade.analysis.links.record_vectorizer module
 ------------------------------------------------
 
 .. automodule:: eskapade.analysis.links.record_vectorizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.analysis.links.value_counter module
+--------------------------------------------
+
+.. automodule:: eskapade.analysis.links.value_counter
     :members:
     :undoc-members:
     :show-inheritance:

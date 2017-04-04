@@ -12,6 +12,14 @@ eskapade.analysis.analysis_tests.test_apply_func_to_df module
     :undoc-members:
     :show-inheritance:
 
+eskapade.analysis.analysis_tests.test_histogram module
+------------------------------------------------------
+
+.. automodule:: eskapade.analysis.analysis_tests.test_histogram
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------
