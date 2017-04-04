@@ -71,7 +71,9 @@ class RecordFactorizer(Link):
         self.check_extra_kwargs(kwargs)
 
         # map to factorized filled during execution
-        self.map_to_factorized = {}
+        self._mtf = {}
+        # map to original, dict set below
+        self._mto = {}
 
     def initialize(self):
         """Initialize RecordFactorizer
@@ -139,8 +141,10 @@ class RecordFactorizer(Link):
             if isinstance(self.map_to_original,str):
                 assert len(self.map_to_original), 'map_to_original needs to be a filled string.'
                 assert self.map_to_original in ds, 'map_to_original key <%s> not found in datastore.'
-                self.map_to_original = ds[self.map_to_original]
-            assert isinstance(self.map_to_original,dict), 'map_to_original needs to be a dict'
+                self._mto = ds[self.map_to_original]
+            elif isinstance(self.map_to_original,dict):
+                self._mto = self.map_to_original
+            assert isinstance(self._mto,dict), 'map_to_original needs to be a dict'
             
         # 1. do factorization for all specified columns
         if not self.map_to_original:
@@ -149,16 +153,16 @@ class RecordFactorizer(Link):
                 self.log().debug('Factorizing column <%s> of dataframe <%s>' % (c, self.read_key))
                 labels, unique = df[c].factorize()
                 df_fact[c] = labels
-                self.map_to_original[c] = dict((i,v) for i,v in enumerate(unique))
-                self.map_to_factorized[c] = dict((v,i) for i,v in enumerate(unique))
+                self._mto[c] = dict((i,v) for i,v in enumerate(unique))
+                self._mtf[c] = dict((v,i) for i,v in enumerate(unique))
             # store the mapping here
-            ds[self.sk_map_to_original] = self.map_to_original
-            ds[self.sk_map_to_factorized] = self.map_to_factorized
+            ds[self.sk_map_to_original] = self._mto
+            ds[self.sk_map_to_factorized] = self._mtf
         # 2. do the mapping back to original format
         else:
             self.log().debug('ReFactorizing columns %s of dataframe <%s>' % \
-                             (list(self.map_to_original.keys()), self.read_key))
-            df_fact = df.replace(self.map_to_original, inplace=self.inplace)
+                             (list(self._mto.keys()), self.read_key))
+            df_fact = df.replace(self._mto, inplace=self.inplace)
             if self.inplace:
                 df_fact = df
 
