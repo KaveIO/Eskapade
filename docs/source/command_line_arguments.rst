@@ -17,9 +17,9 @@ out to:
 
 .. code-block:: bash
 
-  $ ls -l results/Tutorial_1/proc_service_data/v0/latest/
+  $ ls -l results/Tutorial_1/data/v0/latest/
   
-When you are working on a macro, once you are done tweaking it, you can store also the results of each chain in pickle
+When you are working on a macro, once you are done tweaking it, you can also store the results of each chain in pickle
 files:
 
 .. code-block:: bash
@@ -234,7 +234,8 @@ Changing analysis version
 A version number is assigned to each analysis, which by default is 0. It
 can be upgraded by using the option ``--analysis-version``.   When
 working on an analysis, it is recommended to update this number
-regularly for bookkeeping purposes.
+regularly for bookkeeping purposes. The command line always has higher priority over the macro. If the macro is version
+0 and the command line uses version 1, the command line will overrule the macro.
 
 .. code-block:: bash
 

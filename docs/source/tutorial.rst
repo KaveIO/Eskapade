@@ -121,10 +121,11 @@ When looking at the output in the terminal we read something like the following:
    * * * Leaving Eskapade. Bye! * * *
 
 There is a lot more output than these lines (tens or hundred of lines depending on the log level).
-Eskapade has run the code from each link in the summary from top to bottom.
+Eskapade has run the code from each link, and at the top of the output in your terminal you can see a summary.
 
-We can see that the macro contains two chains and a few Link are contained in these chains. Note that chain 2 is empty at
-this moment. In the first chain we see that data is loaded first and then a transformation is applied to this data.
+When you look at the output in the terminal you can see that the macro contains two chains and a few Link are contained
+in these chains. Note that chain 2 is empty at this moment. In the code of the macro we see that in the first chain
+that data is loaded first and then a transformation is applied to this data.
 
 Before we are going to change the code in the macro, there will be a short introduction to the framework.
 
@@ -134,13 +135,14 @@ Short introduction to the Framework
 At this point we will not go into the underlying structure of the code that is underneath the macro, but later in this
 tutorial we will. For now we will take a look in the macro. So open ``tutorials/tutorial_1.py`` in your
 favorite editor. We notice the structure: first imports, then defining all the settings, and finally the actual
-analysis: Chains and Links. There are two chains added to the macro, by running the code:
+analysis: Chains and Links. There are two chains added to the macro, with following line you can add a chain:
 
 .. code-block:: python
 
   proc_mgr.add_chain('Data')
 
-a chain called ``Data`` is added to the ProcessManager, which is the object that runs the entire macro. Then the chain is fetched by:
+This chain called ``Data`` is added to the ProcessManager, which is the object that runs the entire macro. Then the
+chain is fetched by:
 
 .. code-block:: python
 
@@ -223,20 +225,22 @@ which all data is saved. DataStore inherits from a dict, so by calling the right
 to get the DataFrame that includes the latest transformations.
 
 Now we are going to make a completely different
-transformation in the Link and apply it to the object in the DataStore. We want to do add a column to the data that
+transformation in the Link and apply it to the object in the DataStore. We want to add a column to the data that
 states how humid it is. When column 'humidity' is less than 50 it is 'dry', otherwise it is 'humid'.
 You will have to use some pandas functionality or perhaps something else if you prefer. Save the
 new column back into the DataFrame and then put the DataFrame in the DataStore under the key 'data_new'.
 
 We are going to let our plot functionality loose on this DataFrame once more, to see what happens to our generated
-textual data, since this can normally not be plotted!
+textual data. It can not be plotted. In the future this functionality will be available for most data types.
 
 Now run the entire macro with the new code and compile the output .tex file. This can be done on the command line with
 
 .. code-block:: bash
 
-  $ pdflatex $ESKAPADE/results/Tutorial_1/data/v0/report/report.tex
+  $ cd $ESKAPADE/results/Tutorial_1/data/v0/report/
+  $ pdflatex report.tex
 
+If you have pdflatex installed on your machine.
 Now take a look at the output pdf. The final output should look something like this:
 
 .. image:: ../../images/output_tutorial_1.png
@@ -298,12 +302,13 @@ Links that are in the release. Every subpackage contains links in its ``links/``
 
 (In the near future we will add spark links as well.)
 
-The name of every link indicates its basic function. If you want to know explicitly you can read the auto-documentation.
+The name of every link indicates its basic function. If you want to know explicitly you can read the
+`API-docs <eskapade_index.html>`_.
 If that does not help, read and try to understand the example macro's in ``tutorials/``, which show the basic usage
 of most Eskapade functionality. (See also the `Examples <tutorial.html#examples>`_ section below.)
 If still unclear, go into the link's code to find out how it exactly works.
 
-Hopefully you now have enough knowledge to make this tutorial and finally run Eskapade by yourself.
+Hopefully you now have enough knowledge to do this tutorial and finally run Eskapade by yourself.
 
 Examples
 --------
@@ -320,7 +325,7 @@ Links.
 Example esk102: Multiple chains
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Macro 102 uses multiple links to print different kinds of output from one Link. This link is initialized multiple
+Macro 102 uses multiple chains to print different kinds of output from one Link. This link is initialized multiple
 times with different kwargs and names. There are if-statements in the macro to control the usage of the chains.
 
 Example esk103: Print the DataStore
@@ -360,7 +365,7 @@ Example 107 adds a chain to the macro and using a repeater Link it repeats the c
 Example esk108: Event loop
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Example 108 processes a text data set to loop through every word and do a Map and Reduce operation on the data set.
+Example 108 processes a textual data set, to loop through every word and do a Map and Reduce operation on the data set.
 Finally a line printer prints out the result.
 
 Example esk109: Debugging tips
@@ -378,7 +383,7 @@ This macro demonstrates how to run Eskapade with code profiling turned on.
 Example esk201: Read data
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Macro 201 reads a files into the DataStore. The first chain reads one csv into the DataStore, the second chain reads
+Macro 201 reads a file into the DataStore. The first chain reads one csv into the DataStore, the second chain reads
 multiple files (actually the same file multiple times) into the DataStore. (Looping over data is shown in example esk301.)
 
 Example esk202: Write data
