@@ -557,11 +557,13 @@ class TutorialMacrosTest(unittest.TestCase):
         self.assertEqual(650, ds['n_sum_rc'])
         self.assertIn('hist', ds)
         self.assertIsInstance(ds['hist'], dict)
-        col_names = ['date','isActive','age','eyeColor','gender','company','latitude','longitude','isActive:age','latitude:longitude']
+        col_names = ['date', 'isActive', 'age', 'eyeColor', 'gender', 'company', 'latitude', 'longitude',
+                     'isActive:age', 'latitude:longitude']
         self.assertListEqual(sorted(ds['hist'].keys()), sorted(col_names))
 
         # data-summary checks
-        f_bases = ['date','isActive','age','eyeColor','gender','company','latitude','longitude','latitude_vs_longitude']
+        f_bases = ['date', 'isActive', 'age', 'eyeColor', 'gender', 'company', 'latitude', 'longitude',
+                   'latitude_vs_longitude']
         file_names = ['report.tex'] + ['hist_{}.pdf'.format(col) for col in f_bases]
         for fname in file_names:
             path = '{0:s}/{1:s}/data/v0/report/{2:s}'.format(settings['resultsDir'], settings['analysisName'], fname)

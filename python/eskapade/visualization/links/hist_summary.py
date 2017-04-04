@@ -16,17 +16,17 @@
 import os
 import pandas as pd
 import numpy as np
+import tabulate
 
 from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 from eskapade import core, visualization
 from eskapade.analysis import statistics
-import tabulate
 
 NUMBER_OF_BINS = 30
 
 
 class HistSummary(Link):
-    """Creates a summary document of input histograms
+    """Create a summary document of input histograms
 
     The summary contains a page for each histogram, containing:
 
@@ -37,7 +37,9 @@ class HistSummary(Link):
     """
 
     def __init__(self, **kwargs):
-        """Store and do basic check on the attributes of link HistSummary
+        """Initialize HistSummary instance
+
+        Store and do basic check on the attributes of link HistSummary.
 
         :param str name: name of link
         :param str read_key: key of input histograms dictionary to read from data store
@@ -67,7 +69,11 @@ class HistSummary(Link):
         self.pages = []
 
     def initialize(self):
-        """Initialize and (further) check the assigned attributes of HistSummary"""
+        """Initialize HistSummary
+
+        :returns: initialization status code
+        :rtype: StatusCode
+        """
 
         # check input arguments
         self.check_arg_types(read_key=str)
@@ -79,11 +85,9 @@ class HistSummary(Link):
         io_conf = ProcessManager().service(ConfigObject).io_conf()
 
         # read report templates
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) \
-             as templ_file:
+        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex'))\
-             as templ_file:
+        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
 
         # get path to results directory
@@ -104,19 +108,21 @@ class HistSummary(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Creates a report page for each variable in data frame.
+        """Create a report of the data frame variables
 
         * create statistics object for column
         * create overview table of column variable
         * plot histogram of column variable
         * store plot
+
+        :returns: execution status code
+        :rtype: StatusCode
         """
 
         # fetch and check input data frame
         hist_dict = ProcessManager().service(DataStore).get(self.read_key, None)
         if not isinstance(hist_dict, dict):
-            self.log().critical('no histograms "%s" found in data store for %s', \
-                                self.read_key, str(self))
+            self.log().critical('no histograms "%s" found in data store for %s', self.read_key, str(self))
             raise RuntimeError('no input data found for %s' % str(self))
 
         if self.hist_keys is None:
@@ -132,13 +138,13 @@ class HistSummary(Link):
             if name not in hist_dict:
                 self.log().warning('histogram "%s" not in dictionary "%s"', name, self.read_key)
                 continue
-            h = hist_dict[name]
+            hist = hist_dict[name]
 
             # process each histogram (plot and make summary table)
-            if h.n_dim==1:
-                self.process_1d_histogram(name, h)
-            elif h.n_dim==2:
-                self.process_2d_histogram(name, h)
+            if hist.n_dim == 1:
+                self.process_1d_histogram(name, hist)
+            elif hist.n_dim == 2:
+                self.process_2d_histogram(name, hist)
 
         # write out accumulated histogram statistics into report file
         with open('{}/report.tex'.format(self.results_path), 'w') as report_file:
@@ -146,33 +152,32 @@ class HistSummary(Link):
 
         return StatusCode.Success
 
-    def process_1d_histogram(self, name, h):
+    def process_1d_histogram(self, name, hist):
         """Create statistics of and plot input 1d histogram
 
-        :param h: input histogram object
+        :param hist: input histogram object
         :param str name: name of the histogram
         """
+
         # datatype properties
-        datatype = h.datatype
+        datatype = hist.datatype
         col_props = statistics.get_col_props(datatype)
         is_num = col_props['is_num']
         is_ts = col_props['is_ts']
 
         # retrieve _all_ filled bins to evaluate statistics
-        bin_labels = h.bin_centers() if is_num else h.bin_labels()
-        bin_counts = h.bin_entries()
-        bin_edges  = h.bin_edges() if is_num else None
+        bin_labels = hist.bin_centers() if is_num else hist.bin_labels()
+        bin_counts = hist.bin_entries()
+        bin_edges = hist.bin_edges() if is_num else None
 
         if is_ts:
             to_timestamp = np.vectorize(lambda x: pd.Timestamp(x))
             bin_labels = to_timestamp(bin_labels)
-            bin_edges  = to_timestamp(bin_edges)
+            bin_edges = to_timestamp(bin_edges)
 
         # create statistics object for histogram
         var_label = self.var_labels.get(name, name)
-        stats = statistics.ArrayStats(bin_labels, name, \
-                                      weights = bin_counts, \
-                                      unit=self.var_units.get(name, ''), \
+        stats = statistics.ArrayStats(bin_labels, name, weights=bin_counts, unit=self.var_units.get(name, ''),
                                       label=var_label)
         # evaluate statitical properties of array
         stats.create_stats()
@@ -182,44 +187,41 @@ class HistSummary(Link):
         # ... and project on existing binning.
         # for categories, accept top N number of categories in bins.
         # NB: bin_edges overrules var_bins (if it is not none)
-        nphist = stats.make_histogram( var_bins=self.var_bins.get(name,NUMBER_OF_BINS), \
-                                       bin_edges=bin_edges )
+        nphist = stats.make_histogram(var_bins=self.var_bins.get(name, NUMBER_OF_BINS), bin_edges=bin_edges)
 
         # determine histogram properties for plotting below
         x_label = stats.get_x_label()
         y_label = self.hist_y_label if self.hist_y_label else None
         hist_file_name = 'hist_{}.pdf'.format(name)
-        pdf_file_name  = '{0:s}/{1:s}'.format(self.results_path, hist_file_name)
+        pdf_file_name = '{0:s}/{1:s}'.format(self.results_path, hist_file_name)
 
         # matplotlib plot of histogram
-        visualization.vis_utils.plot_histogram(nphist,
-                                               x_label=x_label,
-                                               y_label=y_label,
-                                               is_num=is_num, is_ts=is_ts,
+        visualization.vis_utils.plot_histogram(nphist, x_label=x_label, y_label=y_label, is_num=is_num, is_ts=is_ts,
                                                pdf_file_name=pdf_file_name)
 
         # create overview table of histogram statistics
         stats_table = stats.get_latex_table()
 
         # create page string
-        self.pages.append(self.page_template.replace('VAR_LABEL', var_label)\
-                          .replace('VAR_STATS_TABLE', stats_table)\
-                          .replace('VAR_HISTOGRAM_PATH', hist_file_name))
+        page_templ = self.page_template
+        for kv in [('VAR_LABEL', var_label), ('VAR_STATS_TABLE', stats_table), ('VAR_HISTOGRAM_PATH', hist_file_name)]:
+            page_templ = page_templ.replace(*kv)
+        self.pages.append(page_templ)
 
-    def process_2d_histogram(self, name, h):
+    def process_2d_histogram(self, name, hist):
         """Create statistics of and plot input 2d histogram
 
-        :param h: input histogram object
+        :param hist: input histogram object
         :param str name: name of the histogram
         """
-        if not hasattr(h,'xy_ranges_grid'):
+
+        if not hasattr(hist, 'xy_ranges_grid'):
             self.log().warning('No plot for 2d hist <%s>. Cannot extract binning and values from input histogram.')
             return
         try:
-            nphist = h.xy_ranges_grid()
+            nphist = hist.xy_ranges_grid()
         except:
-            raise Exception(
-                'Cannot extract binning and values from input histogram')
+            raise RuntimeError('Cannot extract binning and values from input histogram')
 
         # calc some basic histogram statistics
         sum_entries = 0
@@ -229,32 +231,32 @@ class HistSummary(Link):
             xnum = len(grid[0])
             for i in range(xnum):
                 for j in range(ynum):
-                    sum_entries += grid[i,j]
+                    sum_entries += grid[i, j]
         except:
             pass
         sum_entries = int(sum_entries)
 
         # create LaTeX string of statistics
-        table = [('count','%d' % sum_entries)]
+        table = [('count', '%d' % sum_entries)]
         stats_table = tabulate.tabulate(table, tablefmt='latex')
 
         # histogram attributes for plotting
-        var_label = self.var_labels.get(name, name.replace(':','_vs_'))
+        var_label = self.var_labels.get(name, name.replace(':', '_vs_'))
         try:
             xlab = name.split(':')[0]
             ylab = name.split(':')[1]
         except:
             xlab = 'unknown x'
             ylab = 'unknown y'
-        hist_file_name = 'hist_{}.pdf'.format(name.replace(':','_vs_'))
+        hist_file_name = 'hist_{}.pdf'.format(name.replace(':', '_vs_'))
         pdf_file_name = '{0:s}/{1:s}'.format(self.results_path, hist_file_name)
 
         # plot the 2d histogram
-        visualization.vis_utils.plot_2d_histogram(nphist, x_lim=h.x_lim(), y_lim=h.y_lim(),
-                                                  title=var_label, x_label=xlab, y_label=ylab,
-                                                  pdf_file_name=pdf_file_name)
+        visualization.vis_utils.plot_2d_histogram(nphist, x_lim=hist.x_lim(), y_lim=hist.y_lim(), title=var_label,
+                                                  x_label=xlab, y_label=ylab, pdf_file_name=pdf_file_name)
 
         # create page string for report
-        self.pages.append(self.page_template.replace('VAR_LABEL', var_label)\
-                          .replace('VAR_STATS_TABLE', stats_table)\
-                          .replace('VAR_HISTOGRAM_PATH', hist_file_name))
+        page_templ = self.page_template
+        for kv in [('VAR_LABEL', var_label), ('VAR_STATS_TABLE', stats_table), ('VAR_HISTOGRAM_PATH', hist_file_name)]:
+            page_templ = page_templ.replace(*kv)
+        self.pages.append(page_templ)
