@@ -465,7 +465,7 @@ class TutorialMacrosTest(unittest.TestCase):
     def test_esk301(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk301_readdata_itr.py'
+        settings['macro'] = settings['esRoot'] + '/tutorials/esk301_read_big_data_itr.py'
 
         status = execution.run_eskapade(settings)
 
