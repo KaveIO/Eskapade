@@ -13,10 +13,12 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
+import sys
 import os
 import argparse
 import subprocess
 import logging
+import matplotlib
 
 from .definitions import USER_OPTS, USER_OPTS_SHORT, USER_OPTS_KWARGS
 
@@ -28,17 +30,60 @@ PROJECT_FILES = dict(py_mods=('es_root', 'es_python_modules.zip'),
                      run_eskapade=('es_scripts', 'run_eskapade.py'),
                      coll_py_mods=('es_scripts', 'collect_python_modules.sh'))
 
+log = logging.getLogger(__name__)
 
-def set_matplotlib_backend():
-    """Set Matplotlib backend in batch mode"""
 
+def set_matplotlib_backend(backend=None, batch=None, silent=True):
+    """Set Matplotlib backend
+
+    :param str backend: backend to set
+    :param bool batch: require backend to be non-interactive
+    :param bool silent: do not raise exception if backend cannot be set
+    :raises: RuntimeError
+    """
+
+    # determine if batch mode is required
     display = get_env_var('display')
-    runBatch = display is None or not display.startswith(':') or not display[1].isdigit()
-    if runBatch:
-        import matplotlib
-        matplotlib.use('Agg')
-        import matplotlib.pyplot as plt
-        plt.ioff()
+    run_batch = bool(batch) or display is None or not display.startswith(':') or not display[1].isdigit()
+    if run_batch:
+        matplotlib.interactive(False)
+
+    # check if batch mode can be set if it is requested
+    if not batch and batch is not None and run_batch:
+        if not silent:
+            raise RuntimeError('interactive Matplotlib mode requested, but no display found')
+        log.warning('Matplotlib cannot be used interactively; no display found')
+
+    # get Matplotlib backends
+    curr_backend = matplotlib.get_backend().lower()
+    ni_backends = [nib.lower() for nib in matplotlib.rcsetup.non_interactive_bk]
+
+    # determine backend to be set
+    if not backend:
+        # try to use current backend
+        backend = curr_backend if not run_batch or curr_backend in ni_backends else ni_backends[0]
+    backend = str(backend).lower()
+
+    # check if backend is compatible with mode
+    if run_batch and backend not in ni_backends:
+        if not silent:
+            raise RuntimeError('non-interactive Matplotlib backend required, but "{}" requested'.format(str(backend)))
+        log.warning('Set Matplotlib backend to "%s"; non-interactive backend required, but "%s" requested',
+                    ni_backends[0], backend)
+        backend = ni_backends[0]
+
+    # check if backend has to change
+    if backend == curr_backend:
+        return
+
+    # check if backend can still be set
+    if 'matplotlib.pyplot' in sys.modules:
+        if not silent:
+            raise RuntimeError('cannot set Matplotlib backend: pyplot module already loaded')
+        return
+
+    # set backend
+    matplotlib.use(backend)
 
 
 def get_env_var(key):
