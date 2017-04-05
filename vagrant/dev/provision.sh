@@ -3,7 +3,7 @@ set -e
 
 # variables
 ESUSER="esdev"
-VHOSTNAMES="es-host es-mongo es-jboss es-rabbitmq es-service"
+VHOSTNAMES="es-host es-mongo es-proxy es-rabbitmq es-service"
 ESMOUNTID="esrepo"
 TMPDIR="/tmp/esinstall"
 LOGDIR="/var/log/esinstall"
