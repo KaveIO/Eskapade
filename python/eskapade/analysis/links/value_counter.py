@@ -70,10 +70,12 @@ class ValueCounter(Link):
                           'date': { 'bin_width': np.timedelta64(30,'D'), \
                                     'bin_offset': np.datetime64('2010-01-04') } }
 
-        :param dict datatype: dict of datatypes of the columns to study from dataframe. If not provided, try to determine datatypes directy from dataframe.
-        :param bool store_at_finalize: Store histograms and/or ValueCount object in datastore at finalize(), not at execute(). Useful when looping over datasets. Default is False.
-        :param bool drop_inconsistent_key_types: cleanup histograms and/or ValueCount objects by removing alls bins/keys with inconsistent datatypes.
-        By default compare with data types in datatype dictionary.
+        :param dict datatype: dict of datatypes of the columns to study from dataframe. If not provided, try to
+               determine datatypes directy from dataframe.
+        :param bool store_at_finalize: Store histograms and/or ValueCount object in datastore at finalize(), not at
+               execute(). Useful when looping over datasets. Default is False.
+        :param bool drop_inconsistent_key_types: cleanup histograms and/or ValueCount objects by removing alls
+               bins/keys with inconsistent datatypes. By default compare with data types in datatype dictionary.
         :param drop_keys dict: dictionary used for dropping specific keys from created value_counts dictionaries.
 
         Example drop_keys dictionary is:

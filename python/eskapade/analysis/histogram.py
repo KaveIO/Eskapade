@@ -43,10 +43,11 @@ class ValueCounts(object):
         """ Initialize the ValueCounts object.
 
         :param list key: key is a tuple, list or string of (the) variable name(s), matching those and the structure of
-        the keys in the value_counts dictionary.
+               the keys in the value_counts dictionary.
         :param dict counts: the value_counts dictionary.
-        :param list subkey: subset of key. If provided, the value_counts dictionary will be projected from key onto the (subset of) subkey.
-        E.g. use this to map a two dimensional value_counts dictionary onto one specified dimension. Default is None. Optional.
+        :param list subkey: subset of key. If provided, the value_counts dictionary will be projected from key onto the
+               (subset of) subkey. E.g. use this to map a two dimensional value_counts dictionary onto one specified
+               dimension. Default is None. Optional.
         :param dict sel: Apply selections to value_counts dictionary. Default is {}. Optional.
         """
         key = self._transform_key(key)
@@ -270,8 +271,8 @@ class ValueCounts(object):
     def remove_keys_of_inconsistent_type(self, prefered_key_type=None):
         """ Remove all keys that have inconsistent data type(s)
 
-        :param tuple prefered_key_type: the prefered key type to keep. Can be a tuple, list, or single type. E.g. str or (int,str,float).
-        If None provided, the most common key type found is kept.
+        :param tuple prefered_key_type: the prefered key type to keep. Can be a tuple, list, or single type. E.g. str
+               or (int,str,float). If None provided, the most common key type found is kept.
         """
         self.process_counts()
 
@@ -367,7 +368,7 @@ class ValueCounts(object):
 
 
 class BinningUtil(object):
-    """ BinningUtil is a helper class used for interpreting bin specification dictionaries.
+    """BinningUtil is a helper class used for interpreting bin specification dictionaries.
 
     BinningUtil is a base class for the Histogram class.
     """
@@ -441,8 +442,9 @@ class BinningUtil(object):
         Return the bin index that belongs to a certain bin value.
 
         :param var_value: variable value for which to find the bin index.
-        :param bool greater_equal: for float, int, timestamp, return index of bin for which value falls in range [lower edge, upper edge).
-        If set to true, return index of bin for which value falls in range [lower edge, upper edge]. Default if false.
+        :param bool greater_equal: for float, int, timestamp, return index of bin for which value falls in range
+                                   [lower edge, upper edge). If set to true, return index of bin for which value falls
+                                   in range [lower edge, upper edge]. Default if false.
         :returns: bin index
         :rtype: int
         """
@@ -1027,8 +1029,8 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
     def remove_keys_of_inconsistent_type(self, prefered_key_type=None):
         """ Remove all keys that have inconsistent data type(s)
 
-        :param tuple prefered_key_type: the prefered key type to keep. Can be a tuple, list, or single type. E.g. str or (int,str,float).
-        If None provided, the most common key type found is kept.
+        :param tuple prefered_key_type: the prefered key type to keep. Can be a tuple, list, or single type. E.g. str
+               or (int,str,float). If None provided, the most common key type found is kept.
         """
         n_keys_prev = len(self._val_counts._cnts)
         self._val_counts.remove_keys_of_inconsistent_type(prefered_key_type)
