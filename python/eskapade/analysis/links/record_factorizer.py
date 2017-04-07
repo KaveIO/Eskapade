@@ -18,7 +18,7 @@
 
 import pandas as pd
 from pandas import DataFrame
-from functools import reduce
+import copy
 
 from eskapade import ProcessManager, Link, StatusCode, DataStore
 
@@ -160,9 +160,20 @@ class RecordFactorizer(Link):
             ds[self.sk_map_to_factorized] = self._mtf
         # 2. do the mapping back to original format
         else:
-            self.log().debug('ReFactorizing columns %s of dataframe <%s>' % \
-                             (list(self._mto.keys()), self.read_key))
-            df_fact = df.replace(self._mto, inplace=self.inplace)
+            # pandas replace() will not do transformations that are identical, including int 0/1 to bool.
+            # skip those column tranformations
+            mto = copy.copy(self._mto)
+            for c, c_mto in self._mto.items():
+                k = list(c_mto.keys())
+                v = list(c_mto.values())
+                if set(k) & set(v):
+                    # true in case of indentical transformation
+                    self.log().info('Identical transformation for column <%s>. Skipping column.' % c)
+                    del mto[c]
+            # refactorizing
+            self.log().debug('Refactorizing columns %s of dataframe <%s>' % \
+                             (list(mto.keys()), self.read_key))
+            df_fact = df.replace(mto, inplace=self.inplace)
             if self.inplace:
                 df_fact = df
 
