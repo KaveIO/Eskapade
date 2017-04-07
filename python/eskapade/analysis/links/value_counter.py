@@ -60,7 +60,7 @@ class ValueCounter(Link):
         :param str read_key: key of input data to read from data store
         :param str store_key_counts: key of output data to store ValueCounts objects in data store
         :param str store_key_hists: key of output data to store histograms in data store
-        :param list columns: colums to pick up from input data
+        :param list columns: colums to pick up from input data. Required unless copy_columns_from_df is set to true.
         :param dict bin_specs: dictionaries used for rebinning numeric or timestamp columns.
 
         Example bin_specs dictionary is:
@@ -77,6 +77,7 @@ class ValueCounter(Link):
         :param bool drop_inconsistent_key_types: cleanup histograms and/or ValueCount objects by removing alls
                bins/keys with inconsistent datatypes. By default compare with data types in datatype dictionary.
         :param drop_keys dict: dictionary used for dropping specific keys from created value_counts dictionaries.
+        :param bool copy_columns_from_df: if true, copy all columns from the dataframe.
 
         Example drop_keys dictionary is:
 
@@ -100,7 +101,7 @@ class ValueCounter(Link):
                              datatype={},
                              store_at_finalize=False,
                              drop_inconsistent_key_types=True,
-                             drop_keys={})
+                             drop_keys={}, copy_columns_from_df=False)
 
         # check residual kwargs. exit if any present.
         self.check_extra_kwargs(kwargs)
@@ -181,6 +182,19 @@ class ValueCounter(Link):
             raise TypeError('retrieved object not of type pandas data frame')
         if len(df.index) == 0:
             raise AssertionError('dataframe %s is empty' % self.read_key)
+
+        # copy all columns from the dataframe?
+        if self.copy_columns_from_df:
+            self.columns = df.columns.tolist()
+            # check that columns are set correctly.
+            for i, c in enumerate(self.columns):
+                if isinstance(c, str):
+                    self.columns[i] = [c]
+            # construct the empty value count dicts.
+            # updated in execute()
+            for c in self.columns:
+                name = ':'.join(c)
+                self._counts[name] = Counter()
 
         # 1. check presence and data type of requested columns
         # sort columns into numerical, timestamp and category based
@@ -301,6 +315,7 @@ class ValueCounter(Link):
             dt = np.dtype(self.datatype[name]).type()
             is_number = isinstance(dt, np.number)
             is_timestamp = isinstance(dt, np.datetime64)
+
             # bin_specs is used for converting index back to original var in
             # histogram class.
             bin_specs = {}

@@ -34,6 +34,8 @@ class HistSummary(Link):
     * a nicely scaled plot of the histogram
 
     Example is available in: tutorials/esk303_histogram_filling_plotting.py
+
+    Empty histograms are automatically skipped from processing.
     """
 
     def __init__(self, **kwargs):
@@ -165,7 +167,12 @@ class HistSummary(Link):
         is_num = col_props['is_num']
         is_ts = col_props['is_ts']
 
-        # retrieve _all_ filled bins to evaluate statistics
+        # skip empty histograms
+        n_bins = hist.n_bins
+        if n_bins == 0:
+            self.log().warning('Histogram <%s> is empty. Skipping.' % name)
+            return
+
         bin_labels = hist.bin_centers() if is_num else hist.bin_labels()
         bin_counts = hist.bin_entries()
         bin_edges = hist.bin_edges() if is_num else None
