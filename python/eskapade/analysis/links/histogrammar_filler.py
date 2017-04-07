@@ -247,6 +247,15 @@ class HistogrammarFiller(Link):
         dta = [self.datatype[col] for col in columns]
         hist.datatype = dta[0] if len(columns) == 1 else dta
         hist.n_dim = len(columns)
+        @property
+        def n_bins(self):
+            if hasattr(self, num):
+                return self.num
+            elif hasattr(size, size):
+                return self.size
+            else:
+                raise Exception('Cannot retrieve number of bins from hgr hist.')
+        hist.n_bins = n_bins
 
         return hist
 
