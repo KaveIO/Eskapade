@@ -793,6 +793,16 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
         return 1
 
     @property
+    def n_bins(self):
+        """
+        Return the number of bins in the ValueCounts object.
+
+        :returns: number of bins
+        :rtype: int
+        """
+        return self._val_counts.num_bins
+
+    @property
     def num_bins(self):
         """
         Return the number of bins in the ValueCounts object.
