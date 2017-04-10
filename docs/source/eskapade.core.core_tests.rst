@@ -20,6 +20,14 @@ eskapade.core.core_tests.test_process_services module
     :undoc-members:
     :show-inheritance:
 
+eskapade.core.core_tests.test_project_utils module
+--------------------------------------------------
+
+.. automodule:: eskapade.core.core_tests.test_project_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 eskapade.core.core_tests.test_run_elements module
 -------------------------------------------------
 

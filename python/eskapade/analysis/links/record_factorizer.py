@@ -40,11 +40,11 @@ class RecordFactorizer(Link):
 
         :param str read_key: key to read dataframe from the data store. Dataframe of records that is to be transformed.
         :param str store_key: store key of output dataFrame. Default is read_key + '_fact'. (optional)
-        :param str store_key_map: store key of dictiorary to map back factorized columns. 
-        Default is 'map_' + store_key + '_to_original'. (optional)
+        :param str store_key_map: store key of dictionary to map back factorized columns.
+               Default is 'map' + '_' + store_key + '_to_original'. (optional)
         :param list columns: list of columns that are to be factorized
         :param dict map_back: dictiorary or key do dictionary to map back factorized columns to original. 
-        map_back is a dict of dicts, one dict for each column.
+               map_back is a dict of dicts, one dict for each column.
         :param bool inplace: replace oritinal columns. Default is False. Overwrites store_key to read_key.
         """
 

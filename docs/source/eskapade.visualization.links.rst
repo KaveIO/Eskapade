@@ -12,6 +12,14 @@ eskapade.visualization.links.df_summary module
     :undoc-members:
     :show-inheritance:
 
+eskapade.visualization.links.hist_summary module
+------------------------------------------------
+
+.. automodule:: eskapade.visualization.links.hist_summary
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

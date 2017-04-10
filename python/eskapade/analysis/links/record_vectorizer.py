@@ -38,7 +38,7 @@ class RecordVectorizer(Link):
         :param list columns: list of columns that are to be vectorized
         :param str store_key: store key of output dataFrame. Default is read_key + '_vectorized'. (optional)
         :param dict column_compare_with: dict of unique items per column with which column values are compared.
-        If not given, this is derived automatically from the column. (optional)
+               If not given, this is derived automatically from the column. (optional)
         :param type astype: store answer of comparison of column with value as certain type. Default is bool. (optional)
         """
 

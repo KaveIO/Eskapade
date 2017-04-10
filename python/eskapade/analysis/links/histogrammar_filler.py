@@ -60,14 +60,15 @@ class HistogrammarFiller(Link):
                          'y': {'bin_edges': [0,2,3,4,5,7,8]}}
 
         :param dict datatype: dict of datatypes of the columns to study from dataframe.
-        If not provided, try to determine datatypes directy from dataframe.
+                              If not provided, try to determine datatypes directy from dataframe.
         :param dict quantity: dictionary of lambda functions of how to pars certain columns.
+
         Example quantity dictionary is:
 
         >>> quantity = {'y': lambda x: x}
 
         :param drop_keys dict: dictionary used for dropping specific keys from bins dictionaries of histograms.
-        Example drop_keys dictionary is:
+               Example drop_keys dictionary is:
 
         >>> drop_keys = {'x': [1,4,8,19],
                          'y': ['apple', 'pear', 'tomato']

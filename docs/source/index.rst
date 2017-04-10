@@ -17,6 +17,8 @@ Eskapade: Modular Analytics
 
 **Repository:** http://github.com/kaveio/eskapade
 
+**Code reference:** `API Documentation <code.html>`_
+
 **Issues & Ideas:** https://github.com/kaveio/eskapade/issues
 
 **Q&A Support:** contact us at: kave [at] kpmg [dot] com
@@ -55,7 +57,7 @@ Likewise, Eskapade uses a manner of different data structures to handle the data
 and more.
 
 Release
--------
+=======
 
 In our 0.4 release (Feb 2017) we are releasing the core code to run the framework. It is written in python 3.
 Anyone can use this to learn Eskapade, build data analyses with the link-chain methodology,
@@ -64,7 +66,8 @@ and start experiencing its advantages.
 The focus of the provided documentation is on constructing a data analysis setup in Eskapade.
 Machine learning interfaces will be included in an upcoming release. Stay tuned!
 
-Contents:
+Contents
+========
 
 .. toctree::
    :maxdepth: 2
@@ -75,13 +78,26 @@ Contents:
    tutorial_jupyter
    command_line_arguments
    contributing
+
+Appendices
+----------
+
+.. toctree::
+   :maxdepth: 2
+
+   mac_os
+
+API
+---
+
+.. toctree::
+   :maxdepth: 1
+
    code
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
-* :ref:`search`
-
