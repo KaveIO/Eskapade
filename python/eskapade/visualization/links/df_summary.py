@@ -16,6 +16,7 @@
 
 import os
 import pandas as pd
+import tabulate
 
 from eskapade import StatusCode, DataStore, Link, ProcessManager, ConfigObject
 from eskapade import core, visualization
@@ -123,13 +124,23 @@ class DfSummary(Link):
 
         # create report page for each variable in data frame
         self.pages = []
-        for col in (data if self.columns is None else self).columns:
+        nan_counts = []
+        all_columns = sorted((data if self.columns is None else self).columns.tolist())
+        for col in all_columns[:]:
             # output column name
             self.log().debug('processing column "%s"', col)
 
             # check if column is in data frame
             if col not in data:
                 self.log().warning('column "%s" not in data frame', col)
+                all_columns.remove(all_columns.index(col))
+                continue
+
+            # skip columns consisting entirely of nans
+            nan_cnt = data[col].isnull().sum()
+            nan_counts.append(nan_cnt)
+            if nan_cnt == len(data.index):
+                self.log().debug('column "%s" consists of nans only. Skipping.', col)
                 continue
 
             # 1. create statistics object for column
@@ -166,6 +177,10 @@ class DfSummary(Link):
                                                 .replace('VAR_STATS_TABLE', stats_table)
                                                 .replace('VAR_HISTOGRAM_PATH', hist_file_name))
 
+        # add nan histogram to summary
+        nan_hist = nan_counts, all_columns
+        self.process_nan_histogram(nan_hist, len(data.index))
+            
         # write report file
         with open('{}/report.tex'.format(self.results_path), 'w') as report_file:
             report_file.write(
@@ -174,3 +189,28 @@ class DfSummary(Link):
                         self.pages)))
 
         return StatusCode.Success
+
+
+    def process_nan_histogram(self, nphist, n_data):
+        """ process nans histogram
+
+        Add nans histogram to pdf list
+
+        :param nphist: numpy-style input histogram, consisting of comma-separaged bin_entries, bin_edges
+        :param int n_data: number of entries in the processed data set
+        """
+        var_label = 'NaN count'
+        x_label = 'Column name'
+        y_label = self.hist_y_label if self.hist_y_label else None
+        hist_file_name = 'hist_NaNs.pdf'
+        pdf_file_name  = '{0:s}/{1:s}'.format(self.results_path, hist_file_name)
+        visualization.vis_utils.plot_histogram(nphist,
+                                               x_label=x_label,
+                                               y_label=y_label,
+                                               is_num=False, is_ts=False,
+                                               pdf_file_name=pdf_file_name)
+        table = [('count', '%d' % n_data)]
+        stats_table = tabulate.tabulate(table, tablefmt='latex')
+        self.pages.append(self.page_template.replace('VAR_LABEL', var_label)
+                          .replace('VAR_STATS_TABLE', stats_table)
+                          .replace('VAR_HISTOGRAM_PATH', hist_file_name))

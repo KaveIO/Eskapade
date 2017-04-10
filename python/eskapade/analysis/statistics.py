@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import tabulate
+import operator
 from statsmodels.stats.weightstats import DescrStatsW
 from collections import Counter
 from eskapade.analysis.histogram import BinningUtil
@@ -150,7 +151,10 @@ class ArrayStats(LoggingMixin):
         for stat_var, stat_val in zip(('count', 'filled', 'distinct'), (cnt, var_cnt, dist_cnt)):
             self.stat_vars.append(stat_var)
             self.stat_vals[stat_var] = (stat_val, '{:d}'.format(stat_val))
-
+        n_nan = self.col.isnull().sum()
+        if n_nan:
+            self.stat_vars.append('nan')
+            self.stat_vals['nan'] = (n_nan, '{:d}'.format(n_nan))
         # add value counts to print lines
         self.print_lines.append('{}:'.format(self.label if self.label else self.name))
         ratio = (var_cnt / cnt) * 100 if cnt != 0 else 0
@@ -301,8 +305,9 @@ class ArrayStats(LoggingMixin):
                 for k, v in zip(self.col_nn, self.weights_nn):
                     val_counts[k] += v
                 val_counts = dict(val_counts.most_common(var_bins))
-            labels = sorted(lab for lab in val_counts.keys())
-            values = [val_counts[lab] for lab in labels]
+            sorted_vc = sorted(val_counts.items(), key=operator.itemgetter(1), reverse=True)
+            labels = [lc[0] for lc in sorted_vc]
+            values = [lc[1] for lc in sorted_vc]
             self.hist = values, labels
 
         # compute most probable value from histogram and add to statistics
