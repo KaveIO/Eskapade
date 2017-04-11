@@ -23,8 +23,8 @@ class LINKTEMPLATE(Link):
         """Store and do basic check on the attributes of link LINKTEMPLATE
 
         :param str name: name of link
-        :param str readKey: key of input data to read from data store
-        :param str storeKey: key of output data to store in data store
+        :param str read_key: key of input data to read from data store
+        :param str store_key: key of output data to store in data store
         """
 
         # initialize Link, pass name from kwargs
@@ -32,7 +32,7 @@ class LINKTEMPLATE(Link):
 
         # process and register all relevant kwargs. kwargs are added as attributes of the link.
         # second arg is default value for an attribute. key is popped from kwargs.
-        self._process_kwargs(kwargs, readKey=None, storeKey=None)
+        self._process_kwargs(kwargs, read_key=None, store_key=None)
 
         # check residual kwargs. exit if any present. 
         self.check_extra_kwargs(kwargs)
