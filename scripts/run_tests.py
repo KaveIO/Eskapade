@@ -6,7 +6,7 @@ import argparse
 
 import eskapade
 
-TEST_PACKAGES = ('', 'core', 'core_ops', 'visualization', 'analysis', 'root_analysis')
+TEST_PACKAGES = ('', 'core', 'core_ops', 'visualization', 'analysis', 'root_analysis', 'data_quality')
 TEST_MODS = dict(unit='', integration='integration')
 MISSING_PACKAGE_ERRORS = (eskapade.MissingRootError, eskapade.MissingRooFitError)
 
