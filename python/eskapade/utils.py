@@ -15,12 +15,10 @@
 
 import sys
 import os
-import argparse
 import subprocess
 import logging
 import matplotlib
 
-from .definitions import USER_OPTS, USER_OPTS_SHORT, USER_OPTS_KWARGS
 
 ENV_VARS = dict(es_root='ESKAPADE', wd_root='WORKDIRROOT', spark_args='PYSPARK_SUBMIT_ARGS',
                 docker='DE_DOCKER', display='DISPLAY')
@@ -129,25 +127,3 @@ def collect_python_modules():
     coll_script = get_file_path('coll_py_mods')
     if subprocess.call(['bash', coll_script, mods_file]) != 0:
         raise RuntimeError('Unable to collect python modules')
-
-
-def create_arg_parser():
-    """Create parser for user arguments
-
-    An argparse parser is created and returned, ready to parse
-    arguments specified by the user on the command line.
-
-    :returns: argparse.ArgumentParser
-    """
-
-    # create parser and add arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('config_files', nargs='+', metavar='CONFIG_FILE', help='configuration file to execute')
-    for sec_keys in USER_OPTS.values():
-        for opt_key in sec_keys:
-            args = ['--{}'.format(opt_key).replace('_', '-')]
-            if opt_key in USER_OPTS_SHORT:
-                args.append('-{}'.format(USER_OPTS_SHORT[opt_key]))
-            parser.add_argument(*args, **USER_OPTS_KWARGS.get(opt_key, {}))
-
-    return parser

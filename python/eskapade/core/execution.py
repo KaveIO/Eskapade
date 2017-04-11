@@ -17,9 +17,9 @@ import cProfile
 import pstats
 import io
 
+import eskapade.utils
 from .process_manager import ProcessManager
 from .process_services import ConfigObject
-from . import project_utils
 
 proc_mgr = ProcessManager()
 
@@ -70,7 +70,7 @@ def run_eskapade(settings=None):
     # check for batch mode
     if settings.get('batchMode'):
         # set non-interactive Matplotlib backend before plotting tools are imported
-        project_utils.set_matplotlib_backend(batch=True, silent=False)
+        eskapade.utils.set_matplotlib_backend(batch=True, silent=False)
 
     # execute configuration macro, this sets up the order of the chains and links.
     if not settings['macro']:

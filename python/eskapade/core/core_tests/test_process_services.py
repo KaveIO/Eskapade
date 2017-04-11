@@ -27,8 +27,8 @@ class ConfigObjectTest(unittest.TestCase):
 
     @mock.patch.dict('eskapade.core.definitions.CONFIG_DEFAULTS', clear=True)
     @mock.patch.dict('eskapade.core.definitions.CONFIG_VARS', clear=True)
-    @mock.patch('eskapade.core.project_utils.get_dir_path')
-    @mock.patch('eskapade.core.project_utils.get_env_var')
+    @mock.patch('eskapade.utils.get_dir_path')
+    @mock.patch('eskapade.utils.get_env_var')
     def test_init(self, mock_get_env_var, mock_get_dir_path):
         """Test initialization of config object"""
 

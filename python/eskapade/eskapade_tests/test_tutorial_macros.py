@@ -6,7 +6,8 @@ import shutil
 import importlib
 import pandas as pd
 
-from eskapade.core import execution, definitions, persistence, project_utils
+import eskapade.utils
+from eskapade.core import execution, definitions, persistence
 from eskapade import ProcessManager, ConfigObject, DataStore
 from eskapade.core_ops import Break
 
@@ -170,7 +171,7 @@ class TutorialMacrosTest(unittest.TestCase):
         settings = proc_mgr.service(ConfigObject)
         settings['analysisName'] = 'esk106_cmdline_options'
         settings_ = settings.copy()
-        script_path = project_utils.get_file_path('run_eskapade')
+        script_path = eskapade.utils.get_file_path('run_eskapade')
         macro_path = persistence.io_path('macros', settings.io_conf(), 'esk106_cmdline_options.py')
 
         # import run-script module

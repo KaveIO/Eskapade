@@ -20,6 +20,14 @@ eskapade.eskapade_tests.test_tutorial_macros module
     :undoc-members:
     :show-inheritance:
 
+eskapade.eskapade_tests.test_utils module
+-----------------------------------------
+
+.. automodule:: eskapade.eskapade_tests.test_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

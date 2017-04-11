@@ -1,17 +1,15 @@
 import unittest
 import mock
 import sys
-import os
 
-from ..definitions import USER_OPTS, USER_OPTS_SHORT, USER_OPTS_KWARGS
-from ..project_utils import set_matplotlib_backend, create_arg_parser
+from ..utils import set_matplotlib_backend
 
 
 class MatplotlibBackendTest(unittest.TestCase):
     """Test for setting Matplotlib backend"""
 
-    @mock.patch('eskapade.core.project_utils.log')
-    @mock.patch('eskapade.core.project_utils.get_env_var')
+    @mock.patch('eskapade.utils.log')
+    @mock.patch('eskapade.utils.get_env_var')
     @mock.patch.dict('sys.modules', clear=False)
     @mock.patch('matplotlib.rcsetup')
     @mock.patch('matplotlib.get_backend')
@@ -146,41 +144,3 @@ class MatplotlibBackendTest(unittest.TestCase):
         mock_interactive.reset_mock()
         mock_use.reset_mock()
         mock_log.reset_mock()
-
-
-class CommandLineArgumentTest(unittest.TestCase):
-    """Tests for parsing command-line arguments in run"""
-
-    @mock.patch.dict('eskapade.core.definitions.USER_OPTS_KWARGS', clear=True)
-    @mock.patch.dict('eskapade.core.definitions.USER_OPTS_SHORT', clear=True)
-    @mock.patch.dict('eskapade.core.definitions.USER_OPTS', clear=True)
-    @mock.patch('argparse.ArgumentParser')
-    def test_create_arg_parser(self, MockArgumentParser):
-        """Test creation of argument parser for Eskapade run"""
-
-        # create mock ArgumentParser instance
-        arg_parse_inst = mock.Mock(name='ArgumentParser_instance')
-        MockArgumentParser.return_value = arg_parse_inst
-
-        # call create function with mock options
-        USER_OPTS.update([('sec1', ['opt_1']), ('sec2', ['opt_2', 'opt_3'])])
-        USER_OPTS_SHORT.update(opt_2='a')
-        USER_OPTS_KWARGS.update(opt_1=dict(help='option 1', action='store_true'),
-                                opt_2=dict(help='option 2', type=int))
-        arg_parser = create_arg_parser()
-
-        # assert argument parser was created
-        MockArgumentParser.assert_called_once_with()
-        self.assertIs(arg_parser, arg_parse_inst)
-
-        # check number of added arguments
-        num_add = arg_parse_inst.add_argument.call_count
-        self.assertEqual(num_add, 4, 'Expected {0:d} arguments to be added, got {1:d}'.format(4, num_add))
-
-        # check arguments that were added
-        calls = [mock.call.add_argument('config_files', nargs='+', metavar='CONFIG_FILE',
-                                        help='configuration file to execute'),
-                 mock.call.add_argument('--opt-1', help='option 1', action='store_true'),
-                 mock.call.add_argument('--opt-2', '-a', help='option 2', type=int),
-                 mock.call.add_argument('--opt-3')]
-        arg_parse_inst.assert_has_calls(calls, any_order=False)

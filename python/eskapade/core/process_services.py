@@ -17,7 +17,8 @@ import os
 import pickle
 import re
 
-from . import project_utils, persistence
+import eskapade.utils
+from . import persistence
 from .definitions import LOG_LEVELS, CONFIG_VARS, CONFIG_DEFAULTS, USER_OPTS, CONFIG_OPTS_SETTERS
 from .mixins import LoggingMixin
 
@@ -189,11 +190,11 @@ class ConfigObject(ProcessService, dict):
                 self[conf_key] = CONFIG_DEFAULTS.get(conf_key)
 
         # initialize batch-mode setting with display variable from environment
-        display = project_utils.get_env_var('display')
+        display = eskapade.utils.get_env_var('display')
         self['batchMode'] = display is None or not re.search(':\d', display)
 
         # initialize file I/O paths with repository directories with repo root from environment
-        self['esRoot'] = project_utils.get_dir_path('es_root')
+        self['esRoot'] = eskapade.utils.get_dir_path('es_root')
         root_path = self['esRoot'] + ('/' if self['esRoot'] and self['esRoot'][-1] != '/' else '')
         for subdir in ['results', 'data', 'templates']:
             self['{}Dir'.format(subdir)] = root_path + subdir
