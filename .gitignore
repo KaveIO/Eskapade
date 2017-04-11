@@ -7,6 +7,10 @@
 *.pyc
 /**/.ipynb_checkpoints
 
+# C++ build
+lib
+/**/.build
+
 # log and data files
 *.log
 *.bak

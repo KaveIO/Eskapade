@@ -15,17 +15,15 @@
 
 import sys
 import os
-import argparse
 import subprocess
 import logging
 import matplotlib
 
-from .definitions import USER_OPTS, USER_OPTS_SHORT, USER_OPTS_KWARGS
 
 ENV_VARS = dict(es_root='ESKAPADE', wd_root='WORKDIRROOT', spark_args='PYSPARK_SUBMIT_ARGS',
                 docker='DE_DOCKER', display='DISPLAY')
 PROJECT_DIRS = dict(es_root=('es_root', ''), es_python=('es_root', 'python'), es_scripts=('es_root', 'scripts'),
-                    wd_root=('wd_root', ''))
+                    es_lib=('es_root', 'lib'), wd_root=('wd_root', ''), es_cxx_make=('es_root', ''))
 PROJECT_FILES = dict(py_mods=('es_root', 'es_python_modules.zip'),
                      run_eskapade=('es_scripts', 'run_eskapade.py'),
                      coll_py_mods=('es_scripts', 'collect_python_modules.sh'))
@@ -131,23 +129,28 @@ def collect_python_modules():
         raise RuntimeError('Unable to collect python modules')
 
 
-def create_arg_parser():
-    """Create parser for user arguments
+def build_cxx_library(lib_key='', accept_existing=False):
+    """Build Eskapade C++ library
 
-    An argparse parser is created and returned, ready to parse
-    arguments specified by the user on the command line.
-
-    :returns: argparse.ArgumentParser
+    :param str lib_key: key of the library to build: {'', 'roofit'} (build all if empty)
     """
 
-    # create parser and add arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument('config_files', nargs='+', metavar='CONFIG_FILE', help='configuration file to execute')
-    for sec_keys in USER_OPTS.values():
-        for opt_key in sec_keys:
-            args = ['--{}'.format(opt_key).replace('_', '-')]
-            if opt_key in USER_OPTS_SHORT:
-                args.append('-{}'.format(USER_OPTS_SHORT[opt_key]))
-            parser.add_argument(*args, **USER_OPTS_KWARGS.get(opt_key, {}))
+    # determine build target
+    target = 'install'
+    if lib_key:
+        target = '{0:s}-{1:s}'.format(str(lib_key), target)
 
-    return parser
+    # build library
+    make_dir = get_dir_path('es_cxx_make')
+    make_res = subprocess.run(['make', '-C', make_dir, target], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                              universal_newlines=True)
+
+    # check result
+    if make_res.returncode != 0:
+        lib_path = '{0:s}/libes{1:s}.so'.format(get_dir_path('es_lib'), lib_key)
+        if accept_existing and lib_key and os.path.isfile(lib_path):
+            log.warning('Failed to build library with target "%s"; using existing version', target)
+        else:
+            raise RuntimeError('failed to build library with target "{0:s}":\n{1:s}'.format(target, make_res.stderr))
+    else:
+        log.debug('Built library with target "%s":\n%s', target, make_res.stdout)

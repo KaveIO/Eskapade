@@ -22,7 +22,7 @@ import IPython
 import pandas as pd
 
 from eskapade import core, ProcessManager, ConfigObject, DataStore
-from eskapade.core.project_utils import create_arg_parser
+from eskapade.core.run_utils import create_arg_parser
 
 
 def main():
