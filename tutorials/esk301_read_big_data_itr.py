@@ -1,6 +1,6 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk301_read_big_data_itr                                                   *
+# * Macro  : esk301_read_big_data_itr                                              *
 # * Created: 2017/02/17                                                            *
 # * Description:                                                                   *
 # *      Macro to that illustrates how to loop over multiple (possibly large!)     *
@@ -32,7 +32,7 @@ settings['version'] = 0
 #########################################################################################
 
 # when chunking through an input file, pick up only N lines in each iteration.
-chunksize = 5 
+chunksize = 5
 
 #########################################################################################
 # --- Set path of data
@@ -54,9 +54,9 @@ if settings.get('do_example1', True):
 
     # --- readdata keeps on opening the next file in the file list.
     #     all kwargs are passed on to pandas file reader.
-    readdata = analysis.ReadToDf(name ='dflooper1', key ='test1', sep='|', reader='csv', usecols=['x', 'y'])
+    readdata = analysis.ReadToDf(name='dflooper1', key='test1', sep='|', reader='csv', usecols=['x', 'y'])
     readdata.path = [data_path] * 3
-    readdata.itr_over_files=True
+    readdata.itr_over_files = True
     ch.add_link(readdata)
 
     # --- this serves as the break statement from this loop.
@@ -75,11 +75,10 @@ if settings.get('do_example1', True):
     #     repeater listens to readdata is there are any more datasets coming. if so, continue the loop.
     repeater = core_ops.RepeatChain()
     # repeat until readdata says halt.
-    repeater.listenTo = 'chainRepeatRequestBy_'+readdata.name
-    # repeat max of 10 times 
-    #repeater.maxcount = 10 
+    repeater.listenTo = 'chainRepeatRequestBy_' + readdata.name
+    # repeat max of 10 times
+    #repeater.maxcount = 10
     ch.add_link(repeater)
-
 
 
 # --- example 2: readdata loops over the input files, with file chunking.
@@ -93,7 +92,8 @@ if settings.get('do_example2', True):
 
     # --- readdata keeps on opening the next 4 lines of the open or next file in the file list.
     #     all kwargs are passed on to pandas file reader.
-    readdata = analysis.ReadToDf(name ='dflooper2', key ='test2', sep='|', reader='csv', usecols=['x', 'y'], chunksize = chunksize)
+    readdata = analysis.ReadToDf(name='dflooper2', key='test2', sep='|', reader='csv', usecols=['x', 'y'],
+                                 chunksize=chunksize)
     readdata.path = [data_path] * 3
     ch.add_link(readdata)
 
@@ -111,34 +111,31 @@ if settings.get('do_example2', True):
 
     # querySet = seletions that are applies to incoming_records
     # after selections, only keep column in selectColumns ('a', 'c')
-    link = analysis.ApplySelectionToDf(readKey ='test2',
-                                       storeKey = 'reduced_data',
-                                       querySet = ['x>1'])
+    link = analysis.ApplySelectionToDf(readKey='test2', storeKey='reduced_data', querySet=['x>1'])
     # Any other kwargs given to ApplySelectionToDf are passed on the the
     # pandas query() function.
     ch.add_link(link)
-    
+
     # --- As an example, will merge reduced datasets back into a single, merged dataframe.
     concat = analysis.DfConcatenator()
-    concat.readKeys = ['merged','reduced_data']
+    concat.readKeys = ['merged', 'reduced_data']
     concat.storeKey = 'merged'
-    concat.ignore_missing_input = True # in first iteration input 'merged' is missing. 
-    ch.add_link(concat) 
-    
+    concat.ignore_missing_input = True  # in first iteration input 'merged' is missing.
+    ch.add_link(concat)
+
     # --- this serves as the continue statement of the loop. go back to start of the chain.
     repeater = core_ops.RepeatChain()
     # repeat until readdata says halt.
-    repeater.listenTo = 'chainRepeatRequestBy_'+readdata.name
-    # repeat max of 10 times 
-    #repeater.maxcount = 10 
+    repeater.listenTo = 'chainRepeatRequestBy_' + readdata.name
+    # repeat max of 10 times
+    #repeater.maxcount = 10
     ch.add_link(repeater)
-
 
 
 # --- print contents of the datastore
 proc_mgr.add_chain('Overview')
 pds = core_ops.PrintDs(name='End')
-pds.keys = ['n_test1','n_sum_test1','n_test2','n_sum_test2','test2','n_merged']
+pds.keys = ['n_test1', 'n_sum_test1', 'n_test2', 'n_sum_test2', 'test2', 'n_merged']
 proc_mgr.get_chain('Overview').add_link(pds)
 
 #########################################################################################

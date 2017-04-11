@@ -28,9 +28,9 @@ class RecordFactorizer(Link):
 
     Perform factorization of input column of an input dataframe.  E.g. a
     columnn x with values 'apple', 'tree', 'pear', 'apple', 'pear' is
-    tranformed into columns x with values 0, 1, 2, 0, 2, etc.
-    Resulting dataset stored as new dataset.
-    Alternatively, map transformed columns back to orginal format.
+    tranformed into columns x with values 0, 1, 2, 0, 2, etc.  Resulting
+    dataset stored as new dataset.  Alternatively, map transformed columns
+    back to orginal format.
     """
 
     def __init__(self, **kwargs):
@@ -88,21 +88,21 @@ class RecordFactorizer(Link):
 
         if self.inplace:
             self.store_key = self.read_key
-            self.log().info('store_key has been set to read_key "%s"', self.store_key)
+            self.log().debug('store_key has been set to read_key "%s"', self.store_key)
 
         if not self.store_key:
             self.store_key = self.read_key + '_fact'
-            self.log().info('store_key has been set to "%s"', self.store_key)
+            self.log().debug('store_key has been set to "%s"', self.store_key)
         if not self.sk_map_to_original:
             self.sk_map_to_original = 'map_' + self.store_key + '_to_original'
-            self.log().info('storage key <sk_map_to_original> has been set to "%s"', self.sk_map_to_original)
+            self.log().debug('storage key <sk_map_to_original> has been set to "%s"', self.sk_map_to_original)
         if not self.sk_map_to_factorized:
             self.sk_map_to_factorized = 'map_' + self.read_key + '_to_factorized'
-            self.log().info('storage key <sk_map_to_factorized> has been set to "%s"', self.sk_map_to_factorized)
+            self.log().debug('storage key <sk_map_to_factorized> has been set to "%s"', self.sk_map_to_factorized)
 
-        if not self.map_to_original:
-            assert isinstance(self.map_to_original,str) or isinstance(self.map_to_original,dict), \
-                'map_to_original needs to be a dict or string (to fetch a dict from the datastore)'
+        if self.map_to_original and not isinstance(self.map_to_original, str)\
+                and not isinstance(self.map_to_original, dict):
+            raise TypeError('map_to_original needs to be a dict or string (to fetch a dict from the datastore)')
 
         return StatusCode.Success
 
@@ -132,29 +132,29 @@ class RecordFactorizer(Link):
             if c in self.columns:
                 continue
             dt = df[c].dtype
-            if issubclass(dt.type,pd.types.dtypes.CategoricalDtypeType) and self.convert_all_categories:
+            if issubclass(dt.type, pd.types.dtypes.CategoricalDtypeType) and self.convert_all_categories:
                 self.columns.append(c)
             elif dt == 'bool' and self.convert_all_booleans:
-                self.columns.append(c)                
+                self.columns.append(c)
         # retrieve map_to_original from ds
         if self.map_to_original:
-            if isinstance(self.map_to_original,str):
-                assert len(self.map_to_original), 'map_to_original needs to be a filled string.'
-                assert self.map_to_original in ds, 'map_to_original key <%s> not found in datastore.'
+            if isinstance(self.map_to_original, str):
+                assert len(self.map_to_original), 'map_to_original needs to be a filled string'
+                assert self.map_to_original in ds, 'map_to_original key not found in datastore'
                 self._mto = ds[self.map_to_original]
-            elif isinstance(self.map_to_original,dict):
+            elif isinstance(self.map_to_original, dict):
                 self._mto = self.map_to_original
-            assert isinstance(self._mto,dict), 'map_to_original needs to be a dict'
-            
+            assert isinstance(self._mto, dict), 'map_to_original needs to be a dict'
+
         # 1. do factorization for all specified columns
         if not self.map_to_original:
             df_fact = df if self.inplace else pd.DataFrame(index=df.index)
             for c in self.columns:
-                self.log().debug('Factorizing column <%s> of dataframe <%s>' % (c, self.read_key))
+                self.log().debug('Factorizing column "%s" of dataframe "%s"', c, self.read_key)
                 labels, unique = df[c].factorize()
                 df_fact[c] = labels
-                self._mto[c] = dict((i,v) for i,v in enumerate(unique))
-                self._mtf[c] = dict((v,i) for i,v in enumerate(unique))
+                self._mto[c] = dict((i, v) for i, v in enumerate(unique))
+                self._mtf[c] = dict((v, i) for i, v in enumerate(unique))
             # store the mapping here
             ds[self.sk_map_to_original] = self._mto
             ds[self.sk_map_to_factorized] = self._mtf
@@ -168,11 +168,10 @@ class RecordFactorizer(Link):
                 v = list(c_mto.values())
                 if set(k) & set(v):
                     # true in case of indentical transformation
-                    self.log().info('Identical transformation for column <%s>. Skipping column.' % c)
+                    self.log().debug('Identical transformation for column "%s". Skipping column', c)
                     del mto[c]
             # refactorizing
-            self.log().debug('Refactorizing columns %s of dataframe <%s>' % \
-                             (list(mto.keys()), self.read_key))
+            self.log().debug('Refactorizing columns %s of dataframe "%s"', list(mto.keys()), self.read_key)
             df_fact = df.replace(mto, inplace=self.inplace)
             if self.inplace:
                 df_fact = df
