@@ -27,6 +27,7 @@ PROJECT_DIRS = dict(es_root=('es_root', ''), es_python=('es_root', 'python'), es
 PROJECT_FILES = dict(py_mods=('es_root', 'es_python_modules.zip'),
                      run_eskapade=('es_scripts', 'run_eskapade.py'),
                      coll_py_mods=('es_scripts', 'collect_python_modules.sh'))
+CXX_LIBRARIES = ('', 'roofit')
 
 log = logging.getLogger(__name__)
 
@@ -132,8 +133,14 @@ def collect_python_modules():
 def build_cxx_library(lib_key='', accept_existing=False):
     """Build Eskapade C++ library
 
-    :param str lib_key: key of the library to build: {'', 'roofit'} (build all if empty)
+    :param str lib_key: key of the library to build (build all if empty)
+    :param bool accept_existing: accept existing library if build fails
     """
+
+    # check library key
+    lib_key = str(lib_key) if lib_key else ''
+    if lib_key not in CXX_LIBRARIES:
+        raise AssertionError('library key must be one of {}'.format(str(CXX_LIBRARIES)))
 
     # determine build target
     target = 'install'

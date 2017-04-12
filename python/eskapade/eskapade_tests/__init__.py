@@ -1,1 +1,1 @@
-from .test_utils import MatplotlibBackendTest
+from .test_utils import MatplotlibBackendTest, BuildCxxLibraryTest
