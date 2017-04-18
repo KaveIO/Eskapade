@@ -109,6 +109,62 @@ class StatusCode(Enum):
         return StatusCode.Undefined == self
 
 
+class RandomSeeds:
+    """Container for seeds of random generators
+
+    Seeds are stored as key-value pairs and are accessed with getitem and
+    setitem methods.  A default seed can be accessed with the key "default".
+    The default seed is also returned if no seed is set for the specified
+    key.
+
+    >>> seeds = RandomSeeds(default=999, foo=42, bar=13)
+    >>> seeds['NumPy'] = 100
+    >>> np.random.seed(seeds['NumPy'])
+    >>> print(seeds['nosuchseed'])
+    999
+    """
+
+    def __init__(self, **kwargs):
+        """Initialize RandomSeeds instance
+
+        Values of the specified keyword arguments must be integers, which are
+        set as seed values for the corresponding key.
+        """
+
+        # initialize attributes
+        self._seeds = {}
+        self._default = 1
+
+        # set specified seeds
+        for key, seed in kwargs.items():
+            self[key] = seed
+
+    def __getitem__(self, key):
+        """Return seed for specified lowercase-string key"""
+
+        return self._seeds.get(str(key).strip().lower(), self._default)
+
+    def __setitem__(self, key, seed):
+        """Set integer seed for specified lowercase-string key"""
+
+        # parse key and seed
+        key = str(key).strip().lower()
+        try:
+            seed = int(seed)
+        except:
+            raise TypeError('specified seed for key "{0:s}" is not an integer: "{1:s}"'.format(key, str(seed)))
+
+        # check if this is the default key
+        if key == 'default':
+            self._default = seed
+        else:
+            self._seeds[key] = seed
+
+    def __str__(self):
+        seed_str = ', '.join('{0:s}: {1:d}'.format(*kv) for kv in self._seeds.items())
+        return '{{default: {0:d} | {1:s}}}'.format(self._default, seed_str)
+
+
 # configuration variables
 CONFIG_VARS = collections.OrderedDict()
 CONFIG_VARS['run'] = ['analysisName', 'version', 'macro', 'batchMode', 'interactive', 'logLevel', 'logFormat',
@@ -117,14 +173,14 @@ CONFIG_VARS['chains'] = ['beginWithChain', 'endWithChain', 'storeResultsEachChai
                          'doNotStoreResults']
 CONFIG_VARS['file_io'] = ['esRoot', 'resultsDir', 'dataDir', 'macrosDir', 'templatesDir']
 CONFIG_VARS['db_io'] = ['all_mongo_collections']
-CONFIG_VARS['rand_gen'] = ['seed']
+CONFIG_VARS['rand_gen'] = ['seeds']
 CONFIG_TYPES = dict(version=int, batchMode=bool, interactive=bool, storeResultsEachChain=bool, doNotStoreResults=bool,
-                    all_mongo_collections=list, seed=int)
+                    all_mongo_collections=list)
 CONFIG_DEFAULTS = dict(version=0, batchMode=True, interactive=False, logLevel=logging.INFO,
                        logFormat='%(asctime)s %(levelname)s [%(module)s]: %(message)s',
                        doCodeProfiling=None, storeResultsEachChain=False, doNotStoreResults=False, esRoot='',
                        resultsDir='results', dataDir='data', macrosDir='tutorials', templatesDir='templates',
-                       seed=0)
+                       seeds=RandomSeeds())
 
 # user options in command-line arguments
 USER_OPTS = collections.OrderedDict()
@@ -179,12 +235,12 @@ USER_OPTS_KWARGS = dict(analysis_name=dict(help='set name of analysis in run',
                         templates_dir=dict(help='set directory path for template files',
                                            metavar='TEMPLATES_DIR'),
                         seed=dict(help='set seed for random-number generation',
-                                  type=int,
-                                  metavar='SEED'))
+                                  action='append',
+                                  metavar='KEY=SEED'))
 USER_OPTS_CONF_KEYS = dict(analysis_name='analysisName', analysis_version='analysisVersion', batch_mode='batchMode',
                            log_level='logLevel', log_format='logFormat', profile='doCodeProfiling',
                            begin_with='beginWithChain', end_with='endWithChain', store_all='storeResultsEachChain',
-                           store_one='storeResultsOneChain', store_none='doNotStoreResults')
+                           store_one='storeResultsOneChain', store_none='doNotStoreResults', seed='seeds')
 
 
 def set_opt_var(opt_key, settings, args):
@@ -235,6 +291,24 @@ def set_single_chain_opt(opt_key, settings, args):
 CONFIG_OPTS_SETTERS['single_chain'] = set_single_chain_opt
 
 
+def set_seeds(opt_key, settings, args):
+    """Set random seeds"""
+
+    seed_args = args.get(opt_key)
+    if not seed_args:
+        return
+
+    seeds = settings[USER_OPTS_CONF_KEYS.get(opt_key, opt_key)]
+    for kv in seed_args:
+        kv = kv.strip()
+        eq_pos = kv.find('=')
+        if eq_pos == 0 or eq_pos == len(kv) - 1:
+            raise RuntimeError('expected "key=seed" for --seed command-line argument; got "{}"'.format(kv))
+        key, value = (kv[:eq_pos].strip().lower(), kv[eq_pos + 1:].strip()) if eq_pos > 0 else ('default', kv.strip())
+        seeds[key] = value
+CONFIG_OPTS_SETTERS['seed'] = set_seeds
+
+
 def set_custom_user_vars(opt_key, settings, args):
     """Set custom user configuration variables"""
 
@@ -244,6 +318,7 @@ def set_custom_user_vars(opt_key, settings, args):
 
     for var in custom_vars:
         # parse key-value pair
+        var = var.strip()
         eq_pos = var.find('=')
         if eq_pos < 1 or eq_pos > len(var) - 2:
             raise RuntimeError('Expected "key=value" for --conf-var command-line argument; got "{}"'.format(var))

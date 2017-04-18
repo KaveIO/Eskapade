@@ -2,8 +2,8 @@ import unittest
 import mock
 
 from ..definitions import (LOG_LEVELS, CONFIG_VARS, CONFIG_TYPES, CONFIG_DEFAULTS, USER_OPTS, USER_OPTS_CONF_KEYS,
-                           CONFIG_OPTS_SETTERS, set_opt_var, set_log_level_opt, set_begin_end_chain_opt,
-                           set_single_chain_opt, set_custom_user_vars)
+                           CONFIG_OPTS_SETTERS, RandomSeeds, set_opt_var, set_log_level_opt, set_begin_end_chain_opt,
+                           set_single_chain_opt, set_seeds, set_custom_user_vars)
 from ..process_services import ProcessService, ConfigObject
 
 
@@ -54,6 +54,47 @@ class ConfigObjectTest(unittest.TestCase):
                             templatesDir='es_path/templates')
         self.assertDictEqual(settings, exp_settings, 'unexpected resulting settings dictionary')
 
+
+    def test_random_seeds(self):
+        """Test container class for random seeds"""
+
+        # create mock seeds instance
+        mock_seeds = mock.MagicMock(name='mock_seeds')
+
+        # test init method
+        RandomSeeds.__init__(mock_seeds, foo=42, bar=13)
+        self.assertEqual(mock_seeds._seeds, {}, 'seeds dictionary not properly initialized')
+        self.assertEqual(mock_seeds._default, 1, 'unexpected value for default seed')
+        mock_seeds.assert_has_calls([mock.call.__setitem__('foo', 42), mock.call.__setitem__('bar', 13)],
+                                    any_order=True)
+        mock_seeds.reset_mock()
+
+        # test getitem method
+        mock_seeds._seeds = dict(foo=42, bar=13)
+        for key, val in [('foo', 42), ('Foo', 42), (' fOO\t', 42), ('baz', mock_seeds._default)]:
+            self.assertEqual(RandomSeeds.__getitem__(mock_seeds, key), val, 'unexpected value for "{}"'.format(key))
+
+        # test setitem method
+        seeds_ = dict(bar=13)
+        default_ = mock.Mock()
+        mock_seeds._seeds = dict(bar=13)
+        mock_seeds._default = default_
+        for key, val in [('foo', 42), ('Foo', 43), (' fOO\t', 44)]:
+            RandomSeeds.__setitem__(mock_seeds, key, val)
+            seeds_['foo'] = val
+            self.assertDictEqual(mock_seeds._seeds, seeds_, 'unexpected keys after "{}"'.format(key))
+            self.assertEqual(mock_seeds._default, default_, 'unexpected default value after "{}"'.format(key))
+
+        # test setting default value
+        RandomSeeds.__setitem__(mock_seeds, 'default', 999)
+        self.assertDictEqual(mock_seeds._seeds, seeds_, 'unexpected keys after setting default'.format(key))
+        self.assertEqual(mock_seeds._default, 999, 'unexpected default value after setting default'.format(key))
+
+        # test setting non-integer value
+        with self.assertRaises(TypeError):
+            RandomSeeds.__setitem__(mock_seeds, 'foo', 'fortytwo')
+
+
     @mock.patch.dict('eskapade.core.definitions.USER_OPTS', clear=True)
     @mock.patch.dict('eskapade.core.definitions.CONFIG_OPTS_SETTERS', clear=True)
     def test_set_user_opts(self):
@@ -83,7 +124,7 @@ class ConfigObjectTest(unittest.TestCase):
 
         # check setter-function keys
         self.assertEqual(set(CONFIG_OPTS_SETTERS.keys()),
-                         set(['log_level', 'begin_with', 'end_with', 'single_chain', 'conf_var']),
+                         set(['log_level', 'begin_with', 'end_with', 'single_chain', 'seed', 'conf_var']),
                          'unexpected keys for options setters')
 
         # check setter-function IDs
@@ -209,6 +250,37 @@ class ConfigObjectTest(unittest.TestCase):
         set_single_chain_opt('opt2', settings, args)
         self.assertDictEqual(settings, settings_, 'unexpected settings dictionary')
         self.assertDictEqual(args, args_, 'arguments dictionary modified')
+
+    @mock.patch.dict('eskapade.core.definitions.USER_OPTS_CONF_KEYS', clear=True)
+    def test_set_seeds(self):
+        """Test setter function for seeds"""
+
+        # set option keys
+        USER_OPTS_CONF_KEYS.update(**dict(('opt{:d}'.format(it), 'seeds') for it in range(1, 9)))
+
+        # create mock seeds container
+        mock_seeds = mock.MagicMock(name='random_seeds_instance')
+
+        # create arguments and settings
+        args = dict(opt1=['foo=1', 'Bar=2', 'BAZ=100'], opt2=['42'], opt3=[], opt4=None)
+        args_ = args.copy()
+        settings = dict(var0='zero', seeds=mock_seeds)
+        settings_ = dict(var0='zero', seeds=mock_seeds)
+
+        # test normal operation
+        for opt_key in args.keys():
+            set_seeds(opt_key, settings, args)
+        self.assertDictEqual(settings, settings_, 'unexpected settings dictionary')
+        self.assertDictEqual(args, args_, 'arguments dictionary modified')
+        calls = [mock.call.__setitem__(kv.split('=')[0].lower(), kv.split('=')[1]) for kv in args['opt1']]
+        mock_seeds.assert_has_calls(calls, any_order=True)
+        mock_seeds.reset_mock()
+
+        # test setting malformed key-value pairs
+        args = dict(opt5=['='], opt6=['key='], opt7=['=42'])
+        for opt_key in args.keys():
+            with self.assertRaises(RuntimeError, msg='no error for malformed key-value pair in "{}"'.format(opt_key)):
+                set_seeds(opt_key, settings, args)
 
     def test_set_custom_user_vars(self):
         """Test setter function for custom user variables"""
