@@ -80,7 +80,7 @@ def run_eskapade(settings=None):
 
     if 'ROOT.RooFit' in sys.modules:
         # initialize logging for RooFit
-        from analytics_engine.root_analysis.roofit_utils import set_rf_log_level
+        from eskapade.root_analysis.roofit_utils import set_rf_log_level
         set_rf_log_level(settings['logLevel'])
 
     # check analysis name
