@@ -1,7 +1,7 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : LINKTEMPLATE                                                          *
-# * Created: DATE                                                                  *
+# * Class  : LINKTEMPLATE
+# * Created: DATE
 # * Description:                                                                   *
 # *      Algorithm to do...(fill in one-liner here)                                *
 # *                                                                                *
@@ -20,7 +20,7 @@ class LINKTEMPLATE(Link):
     """Defines the content of link LINKTEMPLATE"""
 
     def __init__(self, **kwargs):
-        """Store and do basic check on the attributes of link LINKTEMPLATE
+        """Initialize LINKTEMPLATE instance
 
         :param str name: name of link
         :param str read_key: key of input data to read from data store
@@ -30,43 +30,40 @@ class LINKTEMPLATE(Link):
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'LINKTEMPLATE'))
 
-        # process and register all relevant kwargs. kwargs are added as attributes of the link.
-        # second arg is default value for an attribute. key is popped from kwargs.
+        # Process and register keyword arguments.  All arguments are popped from
+        # kwargs and added as attributes of the link.  The values provided here
+        # are defaults.
         self._process_kwargs(kwargs, read_key=None, store_key=None)
 
-        # check residual kwargs. exit if any present. 
+        # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
-        # turn off line above, and on two lines below, if you wish to keep these extra kwargs.
-        #import copy
-        #self.kwargs = copy.deepcopy(kwargs)
+        # Turn off line above, and on two lines below if you wish to keep these
+        # extra kwargs.
+        #self.kwargs = kwargs
 
     def initialize(self):
-        """Initialize and (further) check the assigned attributes of LINKTEMPLATE"""
+        """Initialize LINKTEMPLATE"""
 
-        ## --- any initialization code for this link follows here
-
+        # --- any initialization code for this link follows here
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute the central code of LINKTEMPLATE"""
+        """Execute LINKTEMPLATE"""
 
         proc_mgr = ProcessManager()
         settings = proc_mgr.service(ConfigObject)
         ds = proc_mgr.service(DataStore)
 
-        ## --- your algorithm code goes here
+        # --- your algorithm code goes here
 
-        self.log().info('Now executing link: %s' % self.name)
-
+        self.log().debug('Now executing link: %s', self.name)
 
         return StatusCode.Success
 
     def finalize(self):
-        """Clearing up of LINKTEMPLATE"""
+        """Finalize LINKTEMPLATE"""
 
-        ## --- any code to finalize the link follows here
-
+        # --- any code to finalize the link follows here
 
         return StatusCode.Success
-
