@@ -144,6 +144,10 @@ class TruncExpFit(Link):
         ev_frac_err = np.sqrt(ev_frac_val * (1. - ev_frac_val) / num_samp)
         n_ev_val = norm_ratio_val * ev_frac_val * num_samp
         n_ev_err = np.sqrt((ev_frac_val * norm_ratio_err)**2 + (norm_ratio_val * ev_frac_err)**2) * num_samp
+        self.results = dict(num_samp=num_samp, norm_ratio=(norm_ratio_val, norm_ratio_err),
+                            ev_frac=(ev_frac_val, ev_frac_err), n_ev=(n_ev_val, n_ev_err))
+
+        # print results
         self.log().debug('Number of events with current range bounds: %.0f out of %.0f samples (%.1f%% +/- %.1f%%)',
                          ev_frac_val * num_samp, num_samp, ev_frac_val * 100., ev_frac_err * 100.)
         self.log().debug('Estimated PDF-normalization ratio: %.3f +/- %.3f', norm_ratio_val, norm_ratio_err)
