@@ -47,7 +47,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         # data-summary checks
         io_conf = ProcessManager().service(ConfigObject).io_conf()
-        file_names = ['report.tex'] + ['hist_{}.pdf'.format(col.replace(':','_vs_')) for col in columns]
+        file_names = ['report.tex'] + ['hist_{}.pdf'.format(col.replace(':', '_vs_')) for col in columns]
         for fname in file_names:
             path = persistence.io_path('results_data', io_conf, 'report/{}'.format(fname))
             self.assertTrue(os.path.exists(path))
@@ -117,8 +117,8 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIn('df_refact', ds)
         df1 = ds['accounts']
         df2 = ds['df_refact']
-        self.assertEqual(len(df1.index),650)
-        self.assertEqual(len(df2.index),650)
+        self.assertEqual(len(df1.index), 650)
+        self.assertEqual(len(df2.index), 650)
         self.assertTrue('eyeColor' in df1.columns)
         self.assertTrue('favoriteFruit' in df1.columns)
         self.assertTrue('eyeColor' in df2.columns)
@@ -237,12 +237,12 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         lo_risk = ws.var('N_low_risk')
         self.assertFalse(not lo_risk)
-        self.assertTrue(lo_risk.getVal()<1000)
-        self.assertTrue(lo_risk.getError()>0)
+        self.assertTrue(lo_risk.getVal() < 1000)
+        self.assertTrue(lo_risk.getError() > 0)
         hi_risk = ws.var('N_high_risk')
         self.assertFalse(not hi_risk)
-        self.assertTrue(hi_risk.getVal()>0)
-        self.assertTrue(hi_risk.getError()>0)
+        self.assertTrue(hi_risk.getVal() > 0)
+        self.assertTrue(hi_risk.getError() > 0)
 
     def test_esk408(self):
         """Test Esk-408: Classification error propagation after fit"""
@@ -271,8 +271,8 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         frac = ws.var('frac')
         self.assertFalse(not frac)
-        self.assertTrue(frac.getVal()>0)
-        self.assertTrue(frac.getError()>0)
+        self.assertTrue(frac.getVal() > 0)
+        self.assertTrue(frac.getError() > 0)
 
     def test_esk409(self):
         """Test Esk-409: Unredeemed vouchers"""
