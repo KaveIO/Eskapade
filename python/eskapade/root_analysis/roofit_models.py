@@ -5,7 +5,7 @@ import pandas as pd
 import ROOT
 from ROOT import RooFit
 
-from eskapade.root_analysis.roofit_utils import ROO_INF, load_libesroofit
+from eskapade.root_analysis import roofit_utils
 
 
 class RooFitModel:
@@ -23,7 +23,7 @@ class RooFitModel:
             raise TypeError('invalid workspace specified (type "{}")'.format(ws.__class__.__name__))
 
         # set attributes
-        self._name = name if name else self.__class__.__name__
+        self._name = str(name) if name else self.__class__.__name__
         self._ws = ws
         self._is_built = False
         self._pdf_name = None
@@ -77,7 +77,7 @@ class TruncExponential(RooFitModel):
         """
 
         # load Eskapade RooFit library
-        load_libesroofit()
+        roofit_utils.load_libesroofit()
 
         # initialize RooFitModel instance
         super(TruncExponential, self).__init__(ws, name)
@@ -208,7 +208,7 @@ class TruncExponential(RooFitModel):
             var.setMin(range_min)
         if range_max is not None:
             var.setMax(range_max)
-        max_var = ROOT.RooConstVar(self.max_var.GetName(), '', ROO_INF)
+        max_var = ROOT.RooConstVar(self.max_var.GetName(), '', roofit_utils.ROO_INF)
 
         # create new PDF with required range
         all_vars_set = ROOT.RooArgSet(var, max_var)
@@ -228,8 +228,8 @@ class TruncExponential(RooFitModel):
 
         # set max-var range in data
         data = data.reduce(self.max_var_set)
-        data.get()[self.max_var].setMin(-ROO_INF)
-        data.get()[self.max_var].setMax(+ROO_INF)
+        data.get()[self.max_var].setMin(-roofit_utils.ROO_INF)
+        data.get()[self.max_var].setMax(+roofit_utils.ROO_INF)
 
         # create new PDF with max-var from data
         all_vars_set = ROOT.RooArgSet(var, data.get()[self.max_var])

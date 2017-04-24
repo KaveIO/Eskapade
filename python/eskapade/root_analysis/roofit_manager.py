@@ -1,6 +1,5 @@
 import ROOT
 from ROOT import RooFit
-from ROOT import RooWorkspace
 
 from eskapade.core.process_services import ProcessService
 from .roofit_models import RooFitModel
@@ -22,23 +21,22 @@ class RooFitManager(ProcessService):
         """RooFit workspace for Eskapade run"""
 
         if not self._ws:
-            self._ws = RooWorkspace('esws', 'Eskapade workspace')
+            self._ws = ROOT.RooWorkspace('esws', 'Eskapade workspace')
+            ROOT.SetOwnership(self._ws, False)
 
-        # python does not take ownership of the workspace
-        ROOT.SetOwnership(self._ws, False)
         return self._ws
 
     def set_var_vals(self, vals):
         """Set values of workspace variables
 
-        :param list vals: values and errors to set: [(name1, (val1, err1)), (name2, (val2, err2)), ...]
+        :param dict vals: values and errors to set: {name1: (val1, err1), name2: (val2, err2), ...}
         """
 
         for var, (val, err) in vals.items():
             self.ws.var(var).setVal(val)
             self.ws.var(var).setError(err)
 
-    def model(self, name, model_cls=None, *args, **kwargs):
+    def model(self, name, model_cls=None, **kwargs):
         """Get RooFit model
 
         Return the RooFit model with the specified name.  Create the model if it
@@ -61,10 +59,12 @@ class RooFitManager(ProcessService):
                 return None
 
             # create model
-            self._models[name] = model_cls(self.ws, name, *args, **kwargs)
+            model = model_cls(self.ws, name, **kwargs)
 
             # check model type
-            if not isinstance(self._models[name], RooFitModel):
+            if not isinstance(model, RooFitModel):
                 raise TypeError('specified model is not a RooFitModel')
+
+            self._models[name] = model
 
         return self._models[name]
