@@ -210,8 +210,14 @@ class ArrayStats(LoggingMixin):
 
         return print_str
 
-    def get_latex_table(self):
-        """Get LaTeX code string for table of stats values"""
+    def get_latex_table(self, get_stats=None, latex=True):
+        """Get LaTeX code string for table of stats values
+        :param list get_stats: List of statistics that you want to filter on. (default None (all stats))
+               Available stats are: 'count', 'filled', 'distinct', 'mean', 'std', 'min', 'max', 'p05', 'p16', 'p50',
+                                    'p84', 'p95', 'p99'
+        :param bool latex: LaTeX output or list output (default True)
+        :returns str: LaTeX code snippet
+        """
 
         # create statistics print lines
         if not self.stat_vals:
@@ -219,7 +225,12 @@ class ArrayStats(LoggingMixin):
 
         # create LaTeX string
         table = [(stat_var, self.stat_vals[stat_var][1]) for stat_var in self.stat_vars]
-        return tabulate.tabulate(table, tablefmt='latex')
+        if get_stats is not None:
+            table = [(var, val) for var, val in table if var in get_stats]
+        if latex:
+            return tabulate.tabulate(table, tablefmt='latex')
+        else:
+            return table
 
     def get_x_label(self):
         x_lab = self.label if self.label else self.name
@@ -311,6 +322,58 @@ class ArrayStats(LoggingMixin):
 
         return self.hist
 
+class GroupByStats(ArrayStats):
+    """
+
+    """
+    def __init__(self, data, col_name, groupby=None, weights=None, unit='', label=''):
+        """
+        :param data: Input array
+        :type data: iterable
+        :type data: pandas Dataframe
+        :type data: (keys of) dict
+        :param col_name: column name
+        :param weights: Input array (default None)
+        :type weights: iterable
+        :type weights: string (column of data)
+        :param unit: Unit of column
+        :param str label: Label to describe column variable
+        :param groupby: column name
+        :raises: TypeError
+        """
+        if groupby:
+            assert groupby in data.columns, 'The groupby column is not in your DataFrame'
+            group = data.groupby(by=groupby)
+            self.stats_obj = {group_key: ArrayStats(group_df, col_name, weights=weights, unit=unit, label=label)
+                              for group_key, group_df in group}
+        else:
+            raise Exception('This class is a wrapper for group-by input. Please supply a proper "groupby" key word.')
+
+    def get_latex_table(self, get_stats=None):
+        """Get LaTeX code string for group-by table of stats values
+        :param list get_stats: same as ArrayStats.get_latex_table get_stats key word.
+        :returns str: LaTeX code snippet
+        """
+        # Explicitly strip the tables of their LaTeX headers and footers, concatenate the strings with a group-header
+        # and reattach the LaTeX header and footer so that it parses to proper LaTeX.
+        # self.table = ''
+        self.table = []
+        # self.lstrip = '\\begin{tabular}{lr}\n'
+        # self.rstrip = '\n\\hline\n\\end{tabular}'
+        for group_key in sorted(self.stats_obj.keys()):
+            s = self.stats_obj.get(group_key).get_latex_table(get_stats=get_stats, latex=False)
+            self.table = self.table + [group_key] + s
+
+        # s = self.stats_obj.get(group_key).get_latex_table(get_stats=get_stats, latex=False)
+        # s = group_key + s
+        #     s = s.lstrip(self.lstrip)
+        #     s = s.rstrip(self.rstrip)
+        #     s = '\\hline\n ' + str(group_key) + ' & \\\\\n\\' + s + '\\\\\n'
+        #     self.table += s
+        # self.table = self.lstrip + self.table
+        # self.table = self.table + self.rstrip
+        #
+        return tabulate.tabulate(self.table, tablefmt='latex')
 
 def get_col_props(var_type):
     """Get column properties

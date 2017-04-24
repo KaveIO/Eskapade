@@ -206,7 +206,7 @@ def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, 
         logging.debug('The number of categories of column {0} is too large, boxplot is not '
                       'generated'.format(cause_col))
 
-    fig = plt.figure(figsize=(15, 20))
+    fig = plt.figure(figsize=(8, 10))
     ax1 = fig.add_subplot(211)
 
     df_small, n_removed = delete_smallstat(df, cause_col, statlim=statlim)

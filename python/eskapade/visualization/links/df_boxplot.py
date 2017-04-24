@@ -50,7 +50,8 @@ class DfBoxplot(Link):
         Link.__init__(self, kwargs.pop('name', 'df_boxplot'))
 
         # process keyword arguments
-        self._process_kwargs(kwargs, read_key='', results_path='', column=None, cause_columns=None)
+        self._process_kwargs(kwargs, read_key='', results_path='', column=None, cause_columns=None,
+                             var_labels={}, var_units={})
         self.check_extra_kwargs(kwargs)
 
         # initialize attributes
@@ -127,20 +128,10 @@ class DfBoxplot(Link):
             # 1. create statistics object for column
             var_label = col
 
-            # TODO: Change the statistics that we want to put on the page
-            # stats = statistics.ArrayStats(data, col, unit=self.var_units.get(col, ''), label=var_label)
-
-            # evaluate statistical properties of array
-            # stats.create_stats()
-
-            # make histogram
-            # nphist = stats.make_histogram(var_bins=self.var_bins.get(col, NUMBER_OF_BINS))
-
-            # determine histogram properties for plotting
-            # x_label = stats.get_x_label()
-            # y_label = self.hist_y_label if self.hist_y_label else None
-            # is_num = stats.get_col_props()['is_num']
-            # is_ts = stats.get_col_props()['is_ts']
+            # 2. Calculate the statistical properties per group
+            # Notice that in this link we call GroupByStats and in df_summary we call ArrayStats
+            stats = statistics.GroupByStats(data, self.column, groupby=col, unit=self.var_units.get(self.column, ''),
+                                            label=var_label)
 
             # 3. plot histogram of column variable
             visualization.vis_utils.box_plot(data, col, self.column)
@@ -157,13 +148,12 @@ class DfBoxplot(Link):
             plt.close()
             pdf_file.close()
 
-            # create overview table of column variable
-            # TODO: Make this compatible with new statistics function
-            # stats_table = stats.get_latex_table()
+            # create overview table of column variable with a group-by applied by GroupByStats
+            stats_table = stats.get_latex_table(get_stats=['count', 'mean', 'min', 'max'])
 
             # create page string
             self.pages.append(self.page_template.replace('VAR_LABEL', var_label)
-                                                # .replace('VAR_STATS_TABLE', stats_table)
+                                                .replace('VAR_STATS_TABLE', stats_table)
                                                 .replace('VAR_HISTOGRAM_PATH', box_file_name))
 
         # write report file
