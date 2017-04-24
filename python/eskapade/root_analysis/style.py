@@ -1,5 +1,19 @@
-import ROOT
+# ********************************************************************************
+# * Project: Eskapade - A Python-based package for data analysis                 *
+# * Module: root_analysis.style                                                  *
+# * Created: 2017/04/24                                                          *
+# * Description:                                                                 *
+# *     Default ROOT style parameters for Eskapade                               *
+# *                                                                              *
+# * Authors:                                                                     *
+# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
+# *                                                                              *
+# * Redistribution and use in source and binary forms, with or without           *
+# * modification, are permitted according to the terms listed in the file        *
+# * LICENSE.                                                                     *
+# ********************************************************************************
 
+import ROOT
 
 # ROOT plot style
 ROOT.gStyle.SetPaperSize(20, 26)

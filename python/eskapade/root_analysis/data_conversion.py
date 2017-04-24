@@ -1,3 +1,18 @@
+# ********************************************************************************
+# * Project: Eskapade - A Python-based package for data analysis                 *
+# * Module: root_analysis.data_conversion                                        *
+# * Created: 2017/04/24                                                          *
+# * Description:                                                                 *
+# *     Converters between ROOT, RooFit, NumPy, and Pandas data formats          *
+# *                                                                              *
+# * Authors:                                                                     *
+# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
+# *                                                                              *
+# * Redistribution and use in source and binary forms, with or without           *
+# * modification, are permitted according to the terms listed in the file        *
+# * LICENSE.                                                                     *
+# ********************************************************************************
+
 import numpy as np
 import pandas as pd
 import uuid
