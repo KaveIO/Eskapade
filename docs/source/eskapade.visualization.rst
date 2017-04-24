@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
     eskapade.visualization.links
+    eskapade.visualization.tests
 
 Submodules
 ----------

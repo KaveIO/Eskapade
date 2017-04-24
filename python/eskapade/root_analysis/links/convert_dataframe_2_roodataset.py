@@ -59,7 +59,7 @@ class ConvertDataFrame2RooDataSet(Link):
         :param dict map_to_factorized: dictiorary or key to dictionary to map back columns to factorized ones.
                                        map_to_factorized is a dict of dicts, one dict for each column. (optional)
         :param str sk_map_to_original: store key of dictiorary to map factorized columns to original.
-                                       Default is 'key_' + store_key + '_to_original'. (optional)
+                                       Default is 'key' + '_' + store_key + '_to_original'. (optional)
         :param dict var_number_of_bins: number of bins for histogram of certain variable (optional)
         :param dict var_min_value: min value for histogram of certain variable (optional)
         :param dict var_max_value: max value for histogram of certain variable (optional)

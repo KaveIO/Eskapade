@@ -9,7 +9,8 @@ Subpackages
     eskapade.analysis
     eskapade.core
     eskapade.core_ops
-    eskapade.eskapade_tests
+    eskapade.root_analysis
+    eskapade.tests
     eskapade.visualization
 
 Submodules

@@ -495,7 +495,7 @@ def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}
                                      Default is None. (optional)
     :param list branch_names: input list of branch to be converted to roodataset. If empty, pick all branches.
                               If branches are unknown they are skipped. (optional)
-    :param str name: new name of the roodataset. If empty, pick 'rds_' + tree name (optional)
+    :param str name: new name of the roodataset. If empty, pick 'rds' + '_' + tree name (optional)
     :param dict category_vars: input dict with known conversion maps of boolean or categorical observable
                                to integer. (optional)
     :returns: comma-separated roodataset, rooargset, and dict with conversion maps of integer back to
@@ -617,7 +617,7 @@ def df_to_rds(df, rf_varset=None, category_vars={}, name='', store_index=True):
                                      Default is None. (optional)
     :param dict category_vars: input dict with known conversion maps of boolean or categorical observable
                                to integer. (optional)
-    :param str name: new name of the roodataset. If empty, pick 'rds_' + tree name (optional)
+    :param str name: new name of the roodataset. If empty, pick 'rds' + '_' + tree name (optional)
     :returns: comma-separated roodataset, rooargset, dict with updated conversion maps of
               extra boolean or categorical observable to integer, dict with conversion maps
               of integer back to boolean or categorical observable.

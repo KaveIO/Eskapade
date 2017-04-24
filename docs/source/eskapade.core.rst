@@ -6,7 +6,7 @@ Subpackages
 
 .. toctree::
 
-    eskapade.core.core_tests
+    eskapade.core.tests
 
 Submodules
 ----------

@@ -656,6 +656,14 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
         and 'bin_offset'.  'bin_width' and 'bin_offset' can be numeric or numpy
         timestamps.
 
+        Histogram counts can be specified as a ValueCounts object, a dictionary
+        or a tuple:
+
+        * tuple: Histogram((bin_values, bin_edges), variable=<your_variable_name>)
+        * dict: a dictionary as comes out of pandas.series.value_counts()
+          or pandas.Dataframe.groupby.size() over one variable.
+        * ValueCounts: a ValueCounts object contains a value_counts dictionary.
+
         Example bin_specs dictionaries are:
 
         >>> bin_specs = { 'bin_width': 1, 'bin_offset': 0 }
@@ -663,15 +671,11 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
         >>> bin_specs = { 'bin_width': np.timedelta64(30,'D'), \
                           'bin_offset': np.datetime64('2010-01-04') }
 
-        :param object counts: Can be a ValueCounts object, dict or tuple.
-                              * tuple: Histogram((bin_values, bin_edges), variable=<your_variable_name>)
-                              * dict: a dictionary as comes out of pandas.series.value_counts()
-                                or pandas.Dataframe.groupby.size() over one variable.
-                              * ValueCounts: a ValueCounts object contains a value_counts dictionary.
-        :param dict bin_specs: dictionary contains 'bin_width' and 'bin_offset' numbers or 'bin_edges' array.
-                               Default is None.
-        :param str variable: Name of the variable represented by the histogram.
-        :param type datatype: data type of the variable represented by the histogram. Optional.
+        :param counts: histogram counts
+        :param dict bin_specs: dictionary contains 'bin_width' and 'bin_offset' numbers or 'bin_edges' array
+                               (default is None)
+        :param str variable: name of the variable represented by the histogram
+        :param type datatype: data type of the variable represented by the histogram (optional)
         """
 
         # initialize Binning, pass bin_specs from kwargs
