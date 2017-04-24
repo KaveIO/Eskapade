@@ -17,7 +17,7 @@ import logging
 log = logging.getLogger('macro.esk104_basic_datastore_operations')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis
+from eskapade import core_ops
 
 log.debug('Now parsing configuration file esk104_basic_datastore_operations')
 

@@ -1,0 +1,220 @@
+# **********************************************************************************
+# * Project: Eskapade - A python-based package for data analysis                   *
+# * Class  : ConvertDataFrame2RooDataSet                                           *
+# * Created: 2017/03/25                                                            *
+# * Description:                                                                   *
+# *      Algorithm to convert a pandas dataframe into a roodataset                 *
+# *                                                                                *
+# * Authors:                                                                       *
+# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
+# *                                                                                *
+# * Redistribution and use in source and binary forms, with or without             *
+# * modification, are permitted according to the terms listed in the file          *
+# * LICENSE.                                                                       *
+# **********************************************************************************
+
+import pandas as pd
+import numpy as np
+
+import ROOT
+
+from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade.root_analysis import RooFitManager, data_conversion
+
+
+class ConvertDataFrame2RooDataSet(Link):
+    """Convert Pandas dataframe into a RooFit dataset
+
+    By default all observables of the dataframe are interpreted as
+    continuous (not category), except for boolean and numpy category
+    variables.  Other category observable first need to be converted
+    ('factorized') to numberic values, eg. using the link record_factorizer.
+    These other category variables can be picked up by setting:
+    map_to_factorized, which is dictiorary to map columns to factorized
+    ones. map_to_factorized is a dict of dicts, ie. one dict for each
+    column.
+
+    RooDataHistFiller stores a roodatahist object, a rooargset containing
+    all corresponding roofit observables and roocategories.  Also stored,
+    under key sk_map_to_original, is a dictiorary to map all factorized
+    columns back to original.
+
+    For each observable one can set the number of bins, and min and max
+    values.  The total number of bins in the roodatahist may not exceed
+    n_max_total_bins.
+    """
+
+    def __init__(self, **kwargs):
+        """Initialize ConvertDataFrame2RooDataSet instance
+
+        :param str name: name of link
+        :param str read_key: key of input data to read from data store
+        :param str read_key_vars: key of input rooargset of observables from data store (optional)
+        :param list columns: list of columns to pick up from dataset. Default is all columns. (optional)
+        :param list ignore_columns: list of columns to ignore from dataset. (optional)
+        :param str store_key: key of output roodataset to store in data store (optional)
+        :param str store_key_vars: key of output rooargset of observables to store in data store. (optional)
+        :param bool into_ws: if true, store in workspace, not datastore. Default is True
+        :param bool rm_original: if true, remove original histogram. Default is False
+        :param dict map_to_factorized: dictiorary or key to dictionary to map back columns to factorized ones.
+                                       map_to_factorized is a dict of dicts, one dict for each column. (optional)
+        :param str sk_map_to_original: store key of dictiorary to map factorized columns to original.
+                                       Default is 'key' + '_' + store_key + '_to_original'. (optional)
+        :param dict var_number_of_bins: number of bins for histogram of certain variable (optional)
+        :param dict var_min_value: min value for histogram of certain variable (optional)
+        :param dict var_max_value: max value for histogram of certain variable (optional)
+        :param int n_max_total_bins: max number of bins in roodatahist. Default is 1e6.
+        :param bool store_index: If true, copy df's index to rds. Default is true.
+        :param str create_keys_pdf: if set, create keys pdf from rds with this name and add
+                                    to ds or workspace (optional)
+        """
+
+        # initialize Link, pass name from kwargs
+        Link.__init__(self, kwargs.pop('name', 'ConvertDataFrame2RooDataSet'))
+
+        # process and register all relevant kwargs. kwargs are added as attributes of the link.
+        # second arg is default value for an attribute. key is popped from kwargs.
+        self._process_kwargs(kwargs,
+                             read_key='',
+                             read_key_vars='',
+                             columns=[],
+                             ignore_columns=[],
+                             store_key='',
+                             store_key_vars='',
+                             into_ws=False,
+                             rm_original=False,
+                             map_to_factorized={},
+                             sk_map_to_original='',
+                             var_number_of_bins={},
+                             var_min_value={},
+                             var_max_value={},
+                             n_max_total_bins=1e6,
+                             store_index=True,
+                             create_keys_pdf='')
+
+        # check residual kwargs. exit if any present.
+        self.check_extra_kwargs(kwargs)
+
+        self._varset = None
+
+    def initialize(self):
+        """Initialize ConvertDataFrame2RooDataSet"""
+
+        # check input arguments
+        self.check_arg_types(read_key=str, store_key=str, store_key_vars=str)
+        self.check_arg_types(recurse=True, allow_none=True, columns=str)
+        self.check_arg_vals('read_key')
+
+        if len(self.store_key) == 0:
+            self.store_key = 'rds_' + self.read_key.replace('df_', '')
+        if len(self.store_key_vars) == 0:
+            self.store_key_vars = self.read_key.replace('df_', '') + '_varset'
+        if not self.sk_map_to_original:
+            self.sk_map_to_original = 'map_' + self.store_key + '_to_original'
+            self.log().debug('Storage key "sk_map_to_original" has been set to "%s"', self.sk_map_to_original)
+
+        if not self.map_to_factorized and not (isinstance(self.map_to_factorized, str)
+                                               or isinstance(self.map_to_factorized, dict)):
+            raise TypeError('map_to_factorized needs to be a dict or string (to fetch a dict from the datastore)')
+
+        if self.n_max_total_bins < 1:
+            raise RuntimeError('max total number of bins in histogram needs to be greater than one')
+
+        if self.create_keys_pdf and not isinstance(self.create_keys_pdf, str):
+            raise TypeError('create_hist_pdf needs to be a filled string')
+
+        return StatusCode.Success
+
+    def execute(self):
+        """Execute ConvertDataFrame2RooDataSet"""
+
+        proc_mgr = ProcessManager()
+        settings = proc_mgr.service(ConfigObject)
+        ds = proc_mgr.service(DataStore)
+        ws = proc_mgr.service(RooFitManager).ws
+
+        # 1a. basic checks on contensts of the data frame
+        assert self.read_key in list(ds.keys()), 'key %s not in DataStore' % self.read_key
+        df = ds[self.read_key]
+        if not isinstance(df, pd.DataFrame):
+            raise TypeError('retrieved object "%s" not of type pandas DataFrame' % self.read_key)
+        assert len(df.index) > 0, 'dataframe "%s" is empty' % self.read_key
+
+        # 1b. retrieve map_to_factorized from ds if it's a string
+        if self.map_to_factorized:
+            if isinstance(self.map_to_factorized, str):
+                assert len(self.map_to_factorized), 'map_to_factorized needs to be a filled string'
+                assert self.map_to_factorized in ds, 'map_to_factorized key "%s" not found in datastore'
+                self.map_to_factorized = ds[self.map_to_factorized]
+            assert isinstance(self.map_to_factorized, dict), 'map_to_factorized needs to be a dict'
+
+        # 1c. retrieve read_key_vars rooargset from datastore
+        if self.read_key_vars:
+            assert isinstance(self.read_key_vars, str) and len(self.read_key_vars), \
+                'read_key_vars should be a filled string'
+            assert self.read_key_vars in ds, 'read_key_vars not in datastore'
+            varset = ds[self.read_key_vars]
+            assert isinstance(varset, ROOT.RooArgSet), 'read_key_vars is not a RooArgSet'
+            self._varset = varset
+        if self._varset:
+            # varset overrules provided columns
+            self.columns = [rv.GetName() for rv in self._varset]
+
+        # 1d. check all columns
+        if not self.columns:
+            self.columns = df.columns.tolist()
+        for col in self.columns[:]:
+            assert col in df.columns, 'column "%s" not in dataframe "%s"' % (col, self.read_key)
+            dt = df[col].dtype.type
+            # keep categorical observables -- convert these to roocategories in conversion
+            if issubclass(dt, pd.types.dtypes.CategoricalDtypeType):
+                continue
+            # reject all string-based columns
+            if (dt is np.string_) or (dt is np.object_):
+                self.log().warning('Skipping string-based column "%s"', col)
+                self.columns.remove(col)
+            if col in self.ignore_columns:
+                self.columns.remove(col)
+        self.log().debug('Picking up columns: %s', self.columns)
+
+        # 2. do conversion of df to roodataset
+        #    self.map_to_factorized are categorical variables to be turned into roocategories
+        rds, obs_vars, mtf, map_to_original = data_conversion.df_to_rds(df[self.columns],
+                                                                        rf_varset=self._varset,
+                                                                        category_vars=self.map_to_factorized,
+                                                                        name=self.read_key,
+                                                                        store_index=self.store_index)
+
+        # create pdf of dataset as well?
+        if self.create_keys_pdf:
+            obs_list = ROOT.RooArgList(obs_vars)
+            keys_name = self.create_keys_pdf
+            keys_pdf = ROOT.RooNDKeysPdf(keys_name, keys_name, obs_list, rds, 'ma')
+
+        # 3a. remove original df?
+        if self.rm_original:
+            del ds[self.read_key]
+
+        # 3b. put objects from the datastore into the workspace
+        if self.into_ws:
+            try:
+                ws[self.store_key] = rds
+                ws.defineSet(self.store_key_vars, obs_vars)
+            except:
+                raise RuntimeError('could not import object "%s" into rooworkspace' % self.read_key)
+        # 3c. put objects into datastore
+        else:
+            ds[self.store_key_vars] = obs_vars
+            ds[self.store_key] = rds
+
+        # 3d. workspace doesn't like keys pdf, so always keep in ds
+        if self.create_keys_pdf:
+            ds[keys_name] = keys_pdf
+
+        # 3e.
+        ds[self.sk_map_to_original] = map_to_original
+        n_rds = rds.numEntries()
+        ds['n_' + self.store_key] = n_rds
+        self.log().debug('Stored roodataset "%s" with length: %d', self.store_key, n_rds)
+
+        return StatusCode.Success

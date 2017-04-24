@@ -16,7 +16,7 @@
 # **********************************************************************************
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis
+from eskapade import core_ops
 import tempfile
 
 #########################################################################################

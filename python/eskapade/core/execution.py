@@ -12,14 +12,15 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
+import sys
 import logging
 import cProfile
 import pstats
 import io
 
+import eskapade.utils
 from .process_manager import ProcessManager
 from .process_services import ConfigObject
-from . import project_utils
 
 proc_mgr = ProcessManager()
 
@@ -61,7 +62,7 @@ def run_eskapade(settings=None):
         proc_mgr.service(settings)
     settings = proc_mgr.service(ConfigObject)
 
-    # First basic settings
+    # initialize logging
     logging.basicConfig(level=settings['logLevel'], format=settings.get(
         'logFormat', '%(asctime)s %(levelname)s [%(module)s/%(funcName)s]: %(message)s'))
     log = logging.getLogger(__name__)
@@ -70,12 +71,17 @@ def run_eskapade(settings=None):
     # check for batch mode
     if settings.get('batchMode'):
         # set non-interactive Matplotlib backend before plotting tools are imported
-        project_utils.set_matplotlib_backend(batch=True, silent=False)
+        eskapade.utils.set_matplotlib_backend(batch=True, silent=False)
 
     # execute configuration macro, this sets up the order of the chains and links.
     if not settings['macro']:
         raise RuntimeError('macro is not set')
     proc_mgr.execute_macro(settings['macro'])
+
+    if 'ROOT.RooFit' in sys.modules:
+        # initialize logging for RooFit
+        from eskapade.root_analysis.roofit_utils import set_rf_log_level
+        set_rf_log_level(settings['logLevel'])
 
     # check analysis name
     if not settings['analysisName']:

@@ -9,11 +9,28 @@ Subpackages
     eskapade.analysis
     eskapade.core
     eskapade.core_ops
-    eskapade.eskapade_tests
+    eskapade.root_analysis
+    eskapade.tests
     eskapade.visualization
 
 Submodules
 ----------
+
+eskapade.exceptions module
+--------------------------
+
+.. automodule:: eskapade.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.utils module
+---------------------
+
+.. automodule:: eskapade.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 eskapade.version module
 -----------------------

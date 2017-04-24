@@ -3,9 +3,9 @@
 # * Macro  : esk208_record_factorizer                                              *
 # * Created: 2017/03/13                                                            *
 # * Description:                                                                   *
-# *     This macro performs the factorization of an input column of an input dataframe.
-# *     E.g. a columnn x with values 'apple', 'tree', 'pear', 'apple', 'pear'
-# *     is tranformed into columns x with values 0, 1, 2, 0, 2, etc.
+# *     This macro performs the factorization of an input column of an input
+# *     dataframe.  E.g. a columnn x with values 'apple', 'tree', 'pear',
+# *     'apple', 'pear' is tranformed into columns x with values 0, 1, 2, 0, 2.
 # *                                                                                *
 # * Redistribution and use in source and binary forms, with or without             *
 # * modification, are permitted according to the terms listed in the file          *
@@ -55,11 +55,11 @@ ch1.add_link(pds)
 #     e.g. x = ['apple', 'tree', 'pear', 'apple', 'pear'] becomes the column:
 #     x = [0, 1, 2, 0, 2]
 #     By default, the mapping is stored in a dict under key: 'map_'+store_key+'_to_original'
-fact = analysis.RecordFactorizer(name = 'rf1')
+fact = analysis.RecordFactorizer(name='rf1')
 fact.columns = ['dummy', 'loc']
 fact.read_key = 'test1'
 fact.store_key = 'test1_fact'
-fact.store_key_map = 'to_original'
+fact.sk_map_to_original = 'to_original'
 fact.set_log_level(logging.DEBUG)
 ch1.add_link(fact)
 
@@ -72,10 +72,10 @@ ch2 = proc_mgr.add_chain('ReFactorize')
 
 # --- add second record factorizer, which now maps the columns
 #     dummy and loc back to their original format
-refact = analysis.RecordFactorizer(name = 'rf2')
+refact = analysis.RecordFactorizer(name='rf2')
 refact.read_key = fact.store_key
 refact.store_key = 'test1_refact'
-refact.map_back = fact.store_key_map
+refact.map_to_original = fact.sk_map_to_original
 refact.set_log_level(logging.DEBUG)
 ch2.add_link(refact)
 

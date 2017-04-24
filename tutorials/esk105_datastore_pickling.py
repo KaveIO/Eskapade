@@ -18,7 +18,7 @@ import logging
 log = logging.getLogger('macro.esk105_datastore_pickling')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis
+from eskapade import core_ops
 
 log.debug('Now parsing configuration file esk105_datastore_pickling')
 

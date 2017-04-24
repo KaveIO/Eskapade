@@ -6,7 +6,7 @@ Subpackages
 
 .. toctree::
 
-    eskapade.core.core_tests
+    eskapade.core.tests
 
 Submodules
 ----------
@@ -59,18 +59,18 @@ eskapade.core.process_services module
     :undoc-members:
     :show-inheritance:
 
-eskapade.core.project_utils module
-----------------------------------
-
-.. automodule:: eskapade.core.project_utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 eskapade.core.run_elements module
 ---------------------------------
 
 .. automodule:: eskapade.core.run_elements
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.core.run_utils module
+------------------------------
+
+.. automodule:: eskapade.core.run_utils
     :members:
     :undoc-members:
     :show-inheritance:

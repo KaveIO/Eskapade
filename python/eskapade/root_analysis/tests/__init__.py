@@ -1,0 +1,3 @@
+from .test_roofit_manager import RooFitManagerTest
+from .test_roofit_models import RooFitModelTest, TruncExponentialTest
+from .test_roofit_utils import LoadLibesroofitTest

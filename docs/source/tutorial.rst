@@ -384,7 +384,8 @@ Example esk201: Read data
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Macro 201 reads a file into the DataStore. The first chain reads one csv into the DataStore, the second chain reads
-multiple files (actually the same file multiple times) into the DataStore. (Looping over data is shown in example esk301.)
+multiple files (actually the same file multiple times) into the DataStore. (Looping over data is shown in example
+esk209.)
 
 Example esk202: Write data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -421,24 +422,24 @@ Example esk207: Record vectorization
 This macro performs the vectorization of an input column of an input dataframe.
 E.g. a columnn x with values 1, 2 is tranformed into columns x_1 and x_2, with values True or False assigned per record.
 
-Example esk301: File loop
+Example esk209: File loop
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Macro 301 loops over files in different ways. The first chain loops over 3 separate files (actually the same file
+Macro 209 loops over files in different ways. The first chain loops over 3 separate files (actually the same file
 multiple times), the second chain loops over the same 3 files but uses a chunk size. Then the individual results are merged into
 one DataFrame using a concatenation Link. This is to show the different ways of reading data in case of multiple or
 very large files.
 
-Example esk302: Summary plot
+Example esk301: Summary plot
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Macro 302 generates some data using a generator Link (in the previous macros it was hard-coded) and visualizes the
+Macro 301 generates some data using a generator Link (in the previous macros it was hard-coded) and visualizes the
 result using a plotter Link.
 
-Example esk303: Histogram filling and plotting
+Example esk302: Histogram filling and plotting
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Macro 303 takes data from a dummy dataset, loops over this dataset in chunks while it fills histograms of the
+Macro 302 takes data from a dummy dataset, loops over this dataset in chunks while it fills histograms of the
 columns of the data. The histograms are visualized with a histogram plotter Link.
 
 

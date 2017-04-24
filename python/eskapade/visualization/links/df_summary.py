@@ -32,7 +32,7 @@ class DfSummary(Link):
     * a profile of the column dataset
     * a nicely scaled plot of the column dataset
 
-    Example is available in: tutorials/esk302_dfsummary_plotter.py
+    Example is available in: tutorials/esk301_dfsummary_plotter.py
     """
 
     def __init__(self, **kwargs):

@@ -19,7 +19,7 @@ import logging
 log = logging.getLogger('macro.esk103_printdatastore')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis
+from eskapade import core_ops
 
 log.debug('Now parsing configuration file esk103_printdatastore')
 

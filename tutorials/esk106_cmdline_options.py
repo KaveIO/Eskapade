@@ -18,7 +18,7 @@ import logging
 log = logging.getLogger('macro.esk106_cmdline_options')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis
+from eskapade import core_ops
 
 log.debug('Now parsing configuration file esk106_cmdline_options')
 

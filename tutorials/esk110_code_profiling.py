@@ -15,7 +15,7 @@ import logging
 log = logging.getLogger('macro.esk110_code_profiling')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis
+from eskapade import core_ops
 
 log.debug('Now parsing configuration file esk110_code_profiling')
 
