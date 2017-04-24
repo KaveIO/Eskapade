@@ -1,6 +1,6 @@
 import unittest
 
-from eskapade.eskapade_tests.test_case_observers import MockDataStoreObserver, TestCaseObservable
+from eskapade.tests.observers import MockDataStoreObserver, TestCaseObservable
 
 
 class DsToDsTest(unittest.TestCase, TestCaseObservable):

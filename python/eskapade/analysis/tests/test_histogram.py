@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from eskapade.eskapade_tests.test_case_observers import TestCaseObservable
+from eskapade.tests.observers import TestCaseObservable
 from eskapade.analysis.histogram import Histogram
 
 
