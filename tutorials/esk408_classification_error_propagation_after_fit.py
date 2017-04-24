@@ -38,8 +38,7 @@ import logging
 log = logging.getLogger('macro.esk408_classification_error_propagation_after_fit')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis, visualization
-from eskapade import root_analysis
+from eskapade import core_ops, visualization, root_analysis
 
 import ROOT
 from ROOT import RooFit

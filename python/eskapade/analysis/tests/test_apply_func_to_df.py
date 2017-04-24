@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 
-from eskapade.eskapade_tests.test_case_observers import MockDataStoreObserver, TestCaseObservable
+from eskapade.tests.observers import MockDataStoreObserver, TestCaseObservable
 
 ''' TODO: test full functionality, i.e.:
     - applyFuncs (column and row-wise)

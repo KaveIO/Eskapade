@@ -24,8 +24,7 @@ import logging
 log = logging.getLogger('macro.esk401_roothist_fill_plot_convert')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis, visualization
-from eskapade import root_analysis
+from eskapade import core_ops, analysis, visualization, root_analysis
 
 log.debug('Now parsing configuration file esk401_roothist_fill_plot_convert')
 
@@ -46,7 +45,7 @@ settings['make_plot'] = True
 settings['convert_to_rdh'] = True
 settings['convert_to_rds'] = True
 
-input_files = [os.environ['ESKAPADE'] + '/data/esk401_correlated_data.sv.gz']
+input_files = [os.environ['ESKAPADE'] + '/data/correlated_data.sv.gz']
 
 #########################################################################################
 

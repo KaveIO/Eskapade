@@ -1,6 +1,6 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk301_read_big_data_itr                                              *
+# * Macro  : esk209_read_big_data_itr                                              *
 # * Created: 2017/02/17                                                            *
 # * Description:                                                                   *
 # *      Macro to that illustrates how to loop over multiple (possibly large!)     *
@@ -15,18 +15,18 @@
 # **********************************************************************************
 
 import logging
-log = logging.getLogger('macro.esk301_read_big_data_itr')
+log = logging.getLogger('macro.esk209_read_big_data_itr')
 
 from eskapade import ConfigObject, ProcessManager
 from eskapade import core_ops, analysis
 from eskapade.core import persistence
 
-log.debug('Now parsing configuration file esk301_read_big_data_itr')
+log.debug('Now parsing configuration file esk209_read_big_data_itr')
 
 #########################################################################################
 # --- minimal analysis information
 settings = ProcessManager().service(ConfigObject)
-settings['analysisName'] = 'esk301_read_big_data_itr'
+settings['analysisName'] = 'esk209_read_big_data_itr'
 settings['version'] = 0
 
 #########################################################################################
@@ -140,4 +140,4 @@ proc_mgr.get_chain('Overview').add_link(pds)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk301_read_big_data_itr')
+log.debug('Done parsing configuration file esk209_read_big_data_itr')

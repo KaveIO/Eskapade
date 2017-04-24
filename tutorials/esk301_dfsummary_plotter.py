@@ -1,6 +1,6 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk302_dfsummary_plotter                                              *
+# * Macro  : esk301_dfsummary_plotter                                              *
 # * Created: 2017/02/23                                                            *
 # * Description:                                                                   *
 # *      Macro shows how to plot the content of a dataframe in a nice summary
@@ -14,20 +14,20 @@
 # **********************************************************************************
 
 import logging
-log = logging.getLogger('macro.esk302_dfsummary_plotter')
+log = logging.getLogger('macro.esk301_dfsummary_plotter')
 
 import tempfile
 from eskapade import ConfigObject, ProcessManager
 from eskapade import core_ops, analysis, visualization
 import pandas as pd
 
-log.debug('Now parsing configuration file esk302_dfsummary_plotter')
+log.debug('Now parsing configuration file esk301_dfsummary_plotter')
 
 #########################################################################################
 # --- minimal analysis information
 
 settings = ProcessManager().service(ConfigObject)
-settings['analysisName'] = 'esk302_dfsummary_plotter'
+settings['analysisName'] = 'esk301_dfsummary_plotter'
 settings['version'] = 0
 
 #########################################################################################
@@ -74,4 +74,4 @@ proc_mgr.get_chain('Summary').add_link(summarizer)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk302_dfsummary_plotter')
+log.debug('Done parsing configuration file esk301_dfsummary_plotter')

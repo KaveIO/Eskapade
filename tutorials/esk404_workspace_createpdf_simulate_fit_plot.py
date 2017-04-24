@@ -1,6 +1,6 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk404_workspace_createpdf_simulate_fit_plot                                                *
+# * Macro  : esk404_workspace_createpdf_simulate_fit_plot                          *
 # * Created: 2017/03/27                                                            *
 # *                                                                                *
 # * Authors:                                                                       *
@@ -28,8 +28,7 @@ import logging
 log = logging.getLogger('macro.esk404_workspace_createpdf_simulate_fit_plot')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis, visualization
-from eskapade import root_analysis
+from eskapade import core_ops, visualization, root_analysis
 
 log.debug('Now parsing configuration file esk404_workspace_createpdf_simulate_fit_plot')
 

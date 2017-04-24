@@ -4,7 +4,7 @@
 # * Created: 2017/02/17                                                            *
 # * Description:                                                                   *
 # *      Macro to that illustrates how to repeat the execution of a chain.         *
-# *      Follow-up example in macro: esk301_readdata_itr.py                        *
+# *      Follow-up example in macro: esk209_readdata_itr.py                        *
 # *                                                                                *
 # * Authors:                                                                       *
 # *      KPMG Big Data team.                                                       *
@@ -18,7 +18,7 @@ import logging
 log = logging.getLogger('macro.esk107_chain_looper')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis
+from eskapade import core_ops
 
 log.debug('Now parsing configuration file esk107_chain_looper')
 

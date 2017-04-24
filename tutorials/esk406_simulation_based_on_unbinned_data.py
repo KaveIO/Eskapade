@@ -34,8 +34,7 @@ import logging
 log = logging.getLogger('macro.esk406_simulation_based_on_unbinned_data')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis, visualization
-from eskapade import root_analysis
+from eskapade import core_ops, analysis, visualization, root_analysis
 
 log.debug('Now parsing configuration file esk406_simulation_based_on_unbinned_data')
 
@@ -56,7 +55,7 @@ settings['generate'] = True
 settings['make_plot'] = True
 settings['high_num_dims'] = False
 
-input_files = [os.environ['ESKAPADE'] + '/data/esk401_correlated_data.sv.gz']
+input_files = [os.environ['ESKAPADE'] + '/data/correlated_data.sv.gz']
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
