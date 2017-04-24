@@ -41,8 +41,7 @@ import logging
 log = logging.getLogger('macro.esk405_simulation_based_on_binned_data')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis
-from eskapade import root_analysis
+from eskapade import core_ops, analysis, root_analysis
 
 log.debug('Now parsing configuration file esk405_simulation_based_on_binned_data')
 
@@ -60,7 +59,7 @@ settings['version'] = 0
 
 settings['high_num_dims'] = False
 
-input_files = [os.environ['ESKAPADE'] + '/data/esk303_data_mock_accounts.csv.gz']
+input_files = [os.environ['ESKAPADE'] + '/data/mock_accounts.csv.gz']
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags

@@ -1,6 +1,6 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk305_mock_accounts                                                  *
+# * Macro  : esk302_histogram_filler_plotter                                       *
 # * Created: 2017/02/17                                                            *
 # * Description:                                                                   *
 # *      Macro that illustrates how to loop over multiple (possibly large!)        *
@@ -16,19 +16,19 @@
 # **********************************************************************************
 
 import logging, os
-log = logging.getLogger('macro.esk305_mock_accounts')
+log = logging.getLogger('macro.esk302_histogram_filler_plotter')
 
 import tempfile
 import numpy as np
 from eskapade import ConfigObject, ProcessManager
 from eskapade import core_ops, analysis, visualization
 
-log.debug('Now parsing configuration file esk303_histogram_filler_plotter')
+log.debug('Now parsing configuration file esk302_histogram_filler_plotter')
 
 #########################################################################################
 # --- minimal analysis information
 settings = ProcessManager().service(ConfigObject)
-settings['analysisName'] = 'esk303_histogram_filler_plotter'
+settings['analysisName'] = 'esk302_histogram_filler_plotter'
 settings['version'] = 0
 
 #########################################################################################
@@ -52,8 +52,8 @@ chunksize = 400
 #########################################################################################
 # --- create dummy example dataset, which is read in below
 
-input_files = [os.environ['ESKAPADE'] + '/data/esk303_data_mock_accounts.csv.gz', \
-               os.environ['ESKAPADE'] + '/data/esk303_data_mock_accounts.csv.gz']
+input_files = [os.environ['ESKAPADE'] + '/data/mock_accounts.csv.gz', \
+               os.environ['ESKAPADE'] + '/data/mock_accounts.csv.gz']
 
 def to_date(x):
     import pandas as pd
@@ -135,4 +135,4 @@ procMgr.get_chain('Overview').add_link(hist_summary)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk303_histogram_filler_plotter')
+log.debug('Done parsing configuration file esk302_histogram_filler_plotter')

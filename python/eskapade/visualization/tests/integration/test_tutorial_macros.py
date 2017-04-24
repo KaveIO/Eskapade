@@ -8,31 +8,11 @@ from eskapade import ProcessManager, ConfigObject, DataStore
 
 class VisualizationTutorialMacrosTest(TutorialMacrosTest):
     """Integration tests based on visualization tutorial macros"""
-
+        
     def test_esk301(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk301_read_big_data_itr.py'
-
-        status = execution.run_eskapade(settings)
-
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
-
-
-        self.assertTrue(status.isSuccess())
-        self.assertTrue('test2' in ds)
-        self.assertEqual(12, ds['n_test1'])
-        self.assertEqual(2, ds['n_test2'])
-        self.assertEqual(36, ds['n_sum_test1'])
-        self.assertEqual(36, ds['n_sum_test2'])
-        self.assertEqual(24, ds['n_merged'])
-        
-    def test_esk302(self):
-        settings = ProcessManager().service(ConfigObject)
-        settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk302_dfsummary_plotter.py'
+        settings['macro'] = settings['esRoot'] + '/tutorials/esk301_dfsummary_plotter.py'
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
@@ -57,10 +37,10 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
 
-    def test_esk303(self):
+    def test_esk302(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk303_histogram_filler_plotter.py'
+        settings['macro'] = settings['esRoot'] + '/tutorials/esk302_histogram_filler_plotter.py'
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
@@ -86,10 +66,10 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
 
-    def test_esk304(self):
+    def test_esk303(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk304_hgr_filler_plotter.py'
+        settings['macro'] = settings['esRoot'] + '/tutorials/esk303_hgr_filler_plotter.py'
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)

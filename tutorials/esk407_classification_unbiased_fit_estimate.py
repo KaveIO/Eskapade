@@ -32,7 +32,7 @@ import logging
 log = logging.getLogger('macro.esk407_classification_unbiased_fit_estimate')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis
+from eskapade import core_ops, root_analysis
 import ROOT
 from ROOT import RooFit
 
@@ -46,12 +46,6 @@ proc_mgr = ProcessManager()
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'esk407_classification_unbiased_fit_estimate'
 settings['version'] = 0
-
-#########################################################################################
-# --- Analysis values, settings, helper functions, configuration flags.
-
-from eskapade import core_ops, analysis, visualization
-from eskapade import root_analysis
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags

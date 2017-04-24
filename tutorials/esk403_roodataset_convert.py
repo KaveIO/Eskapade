@@ -23,8 +23,7 @@ import logging
 log = logging.getLogger('macro.esk403_roodataset_convert')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis
-from eskapade import root_analysis
+from eskapade import core_ops, analysis, root_analysis
 
 log.debug('Now parsing configuration file esk403_roodataset_convert')
 
@@ -40,7 +39,7 @@ settings['version'] = 0
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
 
-input_files = [os.environ['ESKAPADE'] + '/data/esk303_data_mock_accounts.csv.gz']
+input_files = [os.environ['ESKAPADE'] + '/data/mock_accounts.csv.gz']
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags

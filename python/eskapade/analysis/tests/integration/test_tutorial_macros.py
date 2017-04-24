@@ -161,3 +161,23 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue('loc' in df2.columns)
         self.assertListEqual(df1['dummy'].values.tolist(), df2['dummy'].values.tolist())
         self.assertListEqual(df1['loc'].values.tolist(), df2['loc'].values.tolist())
+
+    def test_esk209(self):
+        settings = ProcessManager().service(ConfigObject)
+        settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
+        settings['macro'] = settings['esRoot'] + '/tutorials/esk209_read_big_data_itr.py'
+
+        status = execution.run_eskapade(settings)
+
+        pm = ProcessManager()
+        settings = ProcessManager().service(ConfigObject)
+        ds = ProcessManager().service(DataStore)
+
+
+        self.assertTrue(status.isSuccess())
+        self.assertTrue('test2' in ds)
+        self.assertEqual(12, ds['n_test1'])
+        self.assertEqual(2, ds['n_test2'])
+        self.assertEqual(36, ds['n_sum_test1'])
+        self.assertEqual(36, ds['n_sum_test2'])
+        self.assertEqual(24, ds['n_merged'])

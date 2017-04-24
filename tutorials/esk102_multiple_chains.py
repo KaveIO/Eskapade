@@ -17,7 +17,7 @@ import logging
 log = logging.getLogger('macro.esk102_multiple_chains')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis
+from eskapade import core_ops
 
 log.debug('Now parsing configuration file esk102_multiple_chains')
 

@@ -16,7 +16,7 @@ import logging
 log = logging.getLogger('macro.esk109_debugging_tips')
 
 from eskapade import ConfigObject, ProcessManager, DataStore
-from eskapade import core_ops, analysis
+from eskapade import core_ops
 
 log.debug('Now parsing configuration file esk109_debugging_tips')
 
