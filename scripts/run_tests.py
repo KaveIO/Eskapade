@@ -25,15 +25,16 @@ if __name__ == '__main__':
     # import test modules
     missing_exceptions = []
     for package in TEST_PACKAGES:
-        mod_names = ('eskapade', package, 'tests', TEST_MODS[args.type])
+        mod_name = '.'.join(p for p in ('eskapade', package, 'tests', TEST_MODS[args.type]) if p)
         try:
-            mod = importlib.import_module('.'.join(p for p in mod_names if p))
+            mod = importlib.import_module(mod_name)
             tests = loader.loadTestsFromModule(mod)
             suite.addTests(tests)
         except MISSING_PACKAGE_ERRORS as exc:
             missing_exceptions.append((package, exc))
-        except ImportError:
-            pass
+        except ImportError as exc:
+            if exc.name not in (mod_name, '.'.join(mod_name.split('.')[:-1])):
+                raise
 
     # run tests
     unittest.TextTestRunner(verbosity=2).run(suite)
