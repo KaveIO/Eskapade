@@ -48,7 +48,7 @@ class ValueCounts(object):
         """
 
         key = self._transform_key(key)
-        subkey = self._transform_key(subkey)
+        subkey = self._transform_key(subkey) if subkey is not None else key
         counts = dict((k if isinstance(k, tuple) else (k,), v) for k, v in counts.items())
 
         self._key = key
@@ -460,7 +460,12 @@ class BinningUtil(object):
         # NOTE: lines below also work with timestamps. Order is important!
         # find bin label
         if 'bin_width' in self.bin_specs:
-            return int(np.floor((var_value - self.bin_specs.get('bin_offset', 0)) / self.bin_specs['bin_width']))
+            ratio = (var_value - self.bin_specs.get('bin_offset', 0)) / self.bin_specs['bin_width']
+            ratio_floor = int(np.floor(ratio))
+            if greater_equal and ratio == ratio_floor:
+                # correct for upper bin edge
+                ratio_floor -= 1
+            return ratio_floor
         if var_value <= self.bin_specs['bin_edges'][0]:
             return 0
         elif var_value >= self.bin_specs['bin_edges'][-1]:
@@ -1030,7 +1035,7 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
                 bin_centers.append(bin_center)
             labs = [self.value_to_bin_label(bc) for bc in bin_centers]
 
-        return np.array([self.get_bin_count(v) for v in labs]), bins
+        return np.array([self.get_bin_count(v) for v in labs]), np.asarray(bins)
 
     def remove_keys_of_inconsistent_type(self, prefered_key_type=None):
         """Remove all keys that have inconsistent data type(s)
