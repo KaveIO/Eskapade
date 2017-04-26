@@ -16,6 +16,7 @@
 
 import numpy as np
 import pandas as pd
+import random
 
 from eskapade import Link, StatusCode, ProcessManager, DataStore
 
@@ -66,9 +67,14 @@ class BasicGenerator(Link):
             mu = conf.get('mean', 0.)
             sigma = conf.get('std', 1.)
             dtype = conf.get('dtype', float)
+            choice = conf.get('choice', ['a','b','c'])
+            p = conf.get('p', None)  # pdf for the list passed in choice
 
             # generate
-            data[col] = np.random.normal(loc=mu, scale=sigma, size=self.size).astype(dtype)
+            if dtype == str:
+                data[col] = np.random.choice(choice, size=self.size, p=p)
+            else:
+                data[col] = np.random.normal(loc=mu, scale=sigma, size=self.size).astype(dtype)
 
         # create data frame
         ProcessManager().service(DataStore)[self.key] = pd.DataFrame(data=data, columns=self.columns)
