@@ -16,7 +16,6 @@
 
 import os
 import pandas as pd
-import numpy
 
 from eskapade import StatusCode, DataStore, Link, ProcessManager, ConfigObject
 from eskapade import core, visualization
@@ -37,13 +36,16 @@ class DfBoxplot(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize the DfSummary link
+        """Initialize the DfBoxplot link
 
         :param str name: name of link
         :param str read_key: key of input data to read from data store
         :param str results_path: output path of summary result files
         :param str column: column pick up from input data to use as boxplot input
         :param list cause_columns: list of columns (str) to group-by, and per unique value plot a boxplot
+        :param list statistics: a list of strings of the statistics you want to generate for the boxplot
+               the full list is taken from statistics.ArrayStats.get_latex_table
+               defaults to: ['count', 'mean', 'min', 'max']
         """
 
         # initialize Link
@@ -51,7 +53,7 @@ class DfBoxplot(Link):
 
         # process keyword arguments
         self._process_kwargs(kwargs, read_key='', results_path='', column=None, cause_columns=None,
-                             var_labels={}, var_units={})
+                             var_labels={}, var_units={}, statistics=['count', 'mean', 'min', 'max'])
         self.check_extra_kwargs(kwargs)
 
         # initialize attributes
@@ -62,13 +64,13 @@ class DfBoxplot(Link):
 
         # check input arguments
         self.check_arg_types(read_key=str)
-        self.check_arg_types(recurse=True, allow_none=True, column=str, cause_columns=list)
+        self.check_arg_types(recurse=True, allow_none=True, column=str, cause_columns=list, statistics=list)
         self.check_arg_vals('read_key')
 
         # get I/O configuration
         io_conf = ProcessManager().service(ConfigObject).io_conf()
 
-        # read report templates
+        # read report templates, we use the summary_report template from the df summary link
         with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
         with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
@@ -76,8 +78,7 @@ class DfBoxplot(Link):
 
         # get path to results directory
         if not self.results_path:
-            self.results_path = core.persistence.io_path(
-                'results_data', io_conf, 'report')
+            self.results_path = core.persistence.io_path('results_data', io_conf, 'report')
 
         # check if output directory exists
         if os.path.exists(self.results_path):
@@ -93,13 +94,13 @@ class DfBoxplot(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute DfSummary
+        """Execute DfBoxplot
 
-        Creates a report page for each group that we group-by in the data frame.
+        Creates a report page for each column that we group-by in the data frame.
 
         * create statistics object for group
         * create overview table of column variable
-        * plot histogram of column variable
+        * plot boxplot of column variable per group
         * store plot
         """
 
@@ -126,7 +127,7 @@ class DfBoxplot(Link):
                 continue
 
             # 1. create statistics object for column
-            var_label = col
+            var_label = self.column
 
             # 2. Calculate the statistical properties per group
             # Notice that in this link we call GroupByStats and in df_summary we call ArrayStats
@@ -148,19 +149,16 @@ class DfBoxplot(Link):
             plt.close()
             pdf_file.close()
 
-            # create overview table of column variable with a group-by applied by GroupByStats
-            stats_table = stats.get_latex_table(get_stats=['count', 'mean', 'min', 'max'])
+            # 5. create overview table of column variable with a group-by applied by GroupByStats
+            stats_table = stats.get_latex_table(get_stats=self.statistics)
 
             # create page string
             self.pages.append(self.page_template.replace('VAR_LABEL', var_label)
                                                 .replace('VAR_STATS_TABLE', stats_table)
                                                 .replace('VAR_HISTOGRAM_PATH', box_file_name))
 
-        # write report file
+        # write report file from the strings in self.pages
         with open('{}/report_boxplots.tex'.format(self.results_path), 'w') as report_file:
-            report_file.write(
-                self.report_template.replace(
-                    'INPUT_PAGES', ''.join(
-                        self.pages)))
+            report_file.write(self.report_template.replace('INPUT_PAGES', ''.join(self.pages)))
 
         return StatusCode.Success

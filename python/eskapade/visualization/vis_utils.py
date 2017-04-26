@@ -79,7 +79,7 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False,
         # set x-axis properties
         def xtick(lab):
             lab = str(lab)
-            if len(lab) > 20:
+            if len(lab) > top:
                 lab = lab[:17] + '...'
             return lab
         plt.xlim((0., float(len(labels))))
@@ -179,15 +179,14 @@ def delete_smallstat(df, group_col, statlim=400):
 
 
 def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, ylim_low=0, rot=90, statlim=400,
-        label_dict=None, title_add=''):
+        label_dict=None, title_add='', top=20):
     """ Function that plots the boxplot of the column df[result_col] in groups of cause_col. This means that
     the DataFrame is grouped-by on the cause column and then the distribution per group is plotted in a boxplot
     using the standard pandas functionality.
     Boxplots with less than statlim (default=400 ) entries in it are automatically removed.
 
-    Input:
-    :param df: pandas DataFrame, cause column and result column
-    :param str cause_col: name of the column to group on. This can technically be a number, but that is very uncommon.
+    :param df: pandas DataFrame
+    :param str cause_col: name of the column to group on. This can technically be a number, but that is uncommon.
     :param str result_col: column to do the boxplot on
     :param float ylim_quant: the quantile of the y upper limit
     :param float ylim_high: when defined, this limit is used, when not defined, defaults to None and ylim_high is
@@ -200,14 +199,15 @@ def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, 
     """
 
     # Check the number of categories in the cause_col, if this is too large, only plot the top 20.
-    if len(df[cause_col].unique()) > 20:
-        top_20 = df[cause_col].value_counts()[:20].index
-        df = df[df[cause_col].isin(top_20)]
-        logging.debug('The number of categories of column {0} is too large, boxplot is not '
-                      'generated'.format(cause_col))
+    if len(df[cause_col].unique()) > top:
+        top_x = df[cause_col].value_counts()[:top].index
+        df = df[df[cause_col].isin(top_x)]
+        logging.warning('The number of categories of column {0} is too large, boxplot is not '
+                        'generated'.format(cause_col))
 
-    fig = plt.figure(figsize=(8, 10))
-    ax1 = fig.add_subplot(211)
+    # Build a figure
+    fig = plt.figure(figsize=(8, 6))
+    ax1 = fig.add_subplot(111)
 
     df_small, n_removed = delete_smallstat(df, cause_col, statlim=statlim)
 
@@ -222,9 +222,9 @@ def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, 
     ax1.set_xlabel(xlabel, fontsize=20)
 
     try:
-        title_label = label_dict[result_col]+title_add
+        title_label = label_dict[result_col] + title_add
     except:
-        title_label = result_col+title_add
+        title_label = result_col + title_add
     ax1.set_title(title_label, fontsize=20)
 
     # Label parameters
@@ -234,7 +234,7 @@ def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, 
 
     # Calculate quantile for y axis limit
     if ylim_high is None:
-      ylim_high = df[result_col].dropna().quantile(q=ylim_quant)
+        ylim_high = df[result_col].dropna().quantile(q=ylim_quant)
 
     ax1.set_ylim(ylim_low, ylim_high)
 

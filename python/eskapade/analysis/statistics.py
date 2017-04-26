@@ -356,23 +356,14 @@ class GroupByStats(ArrayStats):
         """
         # Explicitly strip the tables of their LaTeX headers and footers, concatenate the strings with a group-header
         # and reattach the LaTeX header and footer so that it parses to proper LaTeX.
-        # self.table = ''
         self.table = []
-        # self.lstrip = '\\begin{tabular}{lr}\n'
-        # self.rstrip = '\n\\hline\n\\end{tabular}'
         for group_key in sorted(self.stats_obj.keys()):
             s = self.stats_obj.get(group_key).get_latex_table(get_stats=get_stats, latex=False)
-            self.table = self.table + [group_key] + s
+            self.table = self.table + [[group_key]] + s  # The double list is needed for proper latex parsing
 
-        # s = self.stats_obj.get(group_key).get_latex_table(get_stats=get_stats, latex=False)
-        # s = group_key + s
-        #     s = s.lstrip(self.lstrip)
-        #     s = s.rstrip(self.rstrip)
-        #     s = '\\hline\n ' + str(group_key) + ' & \\\\\n\\' + s + '\\\\\n'
-        #     self.table += s
-        # self.table = self.lstrip + self.table
-        # self.table = self.table + self.rstrip
-        #
+        if len(self.table) > 25:
+            self.log().warning('The table is longer than 25 rows, the latex file will overflow.')
+
         return tabulate.tabulate(self.table, tablefmt='latex')
 
 def get_col_props(var_type):
