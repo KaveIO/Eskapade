@@ -313,8 +313,12 @@ Hopefully you now have enough knowledge to do this tutorial and finally run Eska
 Examples
 --------
 
-There is also a set of example macro's in the ``tutorials/`` folder. They start out with the basics and core code
-of Eskapade and work their way up to more complicated ways of working. The examples are described briefly here.
+There is also a full set of example macro's in the ``tutorials/`` folder. Please take a look at the full set.
+They start out with the basics and core code of Eskapade and work their way up to more complicated ways of working.
+The basic Eskapade examples are described briefly here.
+
+Please take a close look yourself at the full set in the ``tutorials/`` folder, it is much longer then the set listed here!
+You are actively encouraged to run all examples to see what they can do for you!
 
 Example esk101: Hello World!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -345,9 +349,9 @@ Example esk105: DataStore Pickling
 Macro 105 has 3 versions: A, B and C. These are built on top of the basic macro esk105. Each of these 3 macro's does
 something slightly different:
 
-  -A does not store any output pickles,
-  -B stores all output pickles,
-  -C starts at the 3rd chain of the macro.
+* A does not store any output pickles,
+* B stores all output pickles,
+* C starts at the 3rd chain of the macro.
 
 Using these examples one can see how the way macro's are run can be controlled and what it saves to disk.
 
@@ -391,56 +395,6 @@ Example esk202: Write data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Macro 202 reads a DataFrame into the data store and then writes the DataFrame to csv format on the disk.
-
-Example esk203: Apply a function
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Macro 203 creates a DataFrame and puts it in the DataStore. Next it uses the apply Link to apply some basic pandas functions to the
-data in the DataStore. The original data is deleted using a Link.
-
-Example esk204: Apply a query
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Macro 204 creates a DataFrame and puts it in the DataStore. Next it uses the selection Link to slice the data in the
-DataFrame. The original data is deleted using a Link.
-
-Example esk205: Concatenate DataFrames
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Macro 205 creates some DataFrames and puts them in the DataStore. The DataFrames are concatenated into a new DataFrame
-that is saved under a new key. The original data is deleted and the new DataFrame is printed out.
-
-Example esk206: Merge DataFrames
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Macro 206 creates two DataFrames that are subsequently merged into one. The original data is deleted and the result
-is printed out.
-
-Example esk207: Record vectorization
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This macro performs the vectorization of an input column of an input dataframe.
-E.g. a columnn x with values 1, 2 is tranformed into columns x_1 and x_2, with values True or False assigned per record.
-
-Example esk209: File loop
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Macro 209 loops over files in different ways. The first chain loops over 3 separate files (actually the same file
-multiple times), the second chain loops over the same 3 files but uses a chunk size. Then the individual results are merged into
-one DataFrame using a concatenation Link. This is to show the different ways of reading data in case of multiple or
-very large files.
-
-Example esk301: Summary plot
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Macro 301 generates some data using a generator Link (in the previous macros it was hard-coded) and visualizes the
-result using a plotter Link.
-
-Example esk302: Histogram filling and plotting
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Macro 302 takes data from a dummy dataset, loops over this dataset in chunks while it fills histograms of the
-columns of the data. The histograms are visualized with a histogram plotter Link.
 
 
 Eskapade in PyCharm
