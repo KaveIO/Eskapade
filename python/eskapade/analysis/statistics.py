@@ -213,8 +213,8 @@ class ArrayStats(LoggingMixin):
     def get_latex_table(self, get_stats=None, latex=True):
         """Get LaTeX code string for table of stats values
         :param list get_stats: List of statistics that you want to filter on. (default None (all stats))
-               Available stats are: 'count', 'filled', 'distinct', 'mean', 'std', 'min', 'max', 'p05', 'p16', 'p50',
-                                    'p84', 'p95', 'p99'
+        Available stats are: 'count', 'filled', 'distinct', 'mean', 'std', 'min', 'max', 'p05', 'p16', 'p50',
+        'p84', 'p95', 'p99'
         :param bool latex: LaTeX output or list output (default True)
         :returns str: LaTeX code snippet
         """
