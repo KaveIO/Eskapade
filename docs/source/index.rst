@@ -76,6 +76,7 @@ Contents
    installation
    tutorial
    tutorial_jupyter
+   package_structure
    command_line_arguments
    contributing
 
