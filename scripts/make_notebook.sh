@@ -8,8 +8,8 @@
 # Rewritten for notebooks 20170208 by Lodewijk Nauta
 
 # -- Check number of arguments --
-if [ $# -ne 3 ] ; then
-   echo "usage: make_notebook <notebook_directory> <notebook_name> <macro_name>"
+if [ $# -ne 2 ] ; then
+   echo "usage: make_notebook <notebook_directory> <notebook_name>"
    exit 1
 fi
 
@@ -34,7 +34,7 @@ fi
 
 directory=$1
 notebook=$2
-macro=$3
+macro="tutorial_1"
 
 # -- Get current date and put it into a tmp file.
 today="$(date +'%Y/%m/%d')"
@@ -47,3 +47,4 @@ rm "${template}.tmp"
 
 echo "Done, created:"
 echo "$directory/${notebook}.ipynb"
+

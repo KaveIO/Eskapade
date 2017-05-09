@@ -27,7 +27,7 @@ To run Eskapade use the ``make_notebook.sh`` script in ``scripts/`` to create a 
 
 .. code-block:: bash
 
-  $ make_notebook.sh ./ TestRun tutorial_1
+  $ make_notebook.sh ./ TestRun
 
 The minimal code you need to run a notebook is the following:
 
@@ -44,8 +44,8 @@ The minimal code you need to run a notebook is the following:
 
   # --- basic config
   settings = ProcessManager().service(ConfigObject)
-  settings['macro'] = os.environ['ESKAPADE'] + '/tutorials/MACRONAME.py'
-  settings['analysisName'] = 'MACRONAME'
+  settings['macro'] = os.environ['ESKAPADE'] + '/tutorials/tutorial_1.py'
+  settings['analysisName'] = 'Tutorial_1'
   settings['version'] = 0
   settings['logLevel'] = logging.DEBUG # and set the LogLevel here 
 
@@ -115,7 +115,7 @@ We start by making a notebook:
 
 .. code-block:: bash
 
-  $ make_notebook.sh tutorials/ tutorial_3_notebook tutorial_1
+  $ make_notebook.sh tutorials/ tutorial_3_notebook 
 
 This will create a notebook in ``tutorials/`` with the name ``tutorial_3_notebook`` running
 macro ``tutorial_1.py``. Now open jupyter and take a look at the notebook.
