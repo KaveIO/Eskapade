@@ -66,9 +66,14 @@ class BasicGenerator(Link):
             mu = conf.get('mean', 0.)
             sigma = conf.get('std', 1.)
             dtype = conf.get('dtype', float)
+            choice = conf.get('choice', ['a', 'b', 'c'])
+            choice_prob = conf.get('choice_prob', None)
 
             # generate
-            data[col] = np.random.normal(loc=mu, scale=sigma, size=self.size).astype(dtype)
+            if dtype == str:
+                data[col] = np.random.choice(choice, size=self.size, p=choice_prob)
+            else:
+                data[col] = np.random.normal(loc=mu, scale=sigma, size=self.size).astype(dtype)
 
         # create data frame
         ProcessManager().service(DataStore)[self.key] = pd.DataFrame(data=data, columns=self.columns)
