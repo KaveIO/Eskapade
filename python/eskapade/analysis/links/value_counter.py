@@ -101,7 +101,8 @@ class ValueCounter(Link):
                              datatype={},
                              store_at_finalize=False,
                              drop_inconsistent_key_types=True,
-                             drop_keys={}, copy_columns_from_df=False)
+                             drop_keys={},
+                             copy_columns_from_df=False)
 
         # check residual kwargs. exit if any present.
         self.check_extra_kwargs(kwargs)
@@ -154,7 +155,7 @@ class ValueCounter(Link):
                 self.datatype[k] = np.dtype(self.datatype[k]).type
                 if self.datatype[k] is np.string_ or self.datatype[k] is np.object_:
                     self.datatype[k] = str
-            except:
+            except BaseException:
                 raise RuntimeError('unknown assigned datatype to variable "%s"' % k)
 
         return StatusCode.Success
@@ -390,7 +391,7 @@ def value_to_bin_index(val, **kwargs):
         bin_offset = kwargs.get('bin_offset', 0)
         bin_index = int(np.floor((val - bin_offset) / bin_width))
         return bin_index
-    except:
+    except BaseException:
         pass
     return val
 
@@ -412,6 +413,6 @@ def value_to_bin_center(val, **kwargs):
         bin_index = int(np.floor((val - bin_offset) / bin_width))
         obj_type = type(bin_width)
         return bin_offset + obj_type((bin_index + 0.5) * bin_width)
-    except:
+    except BaseException:
         pass
     return val
