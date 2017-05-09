@@ -9,6 +9,7 @@ Subpackages
     eskapade.analysis
     eskapade.core
     eskapade.core_ops
+    eskapade.data_quality
     eskapade.root_analysis
     eskapade.tests
     eskapade.visualization

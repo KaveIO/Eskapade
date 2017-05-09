@@ -714,8 +714,7 @@ class Histogram(BinningUtil, ArgumentsMixin, LoggingMixin):
 
         # check counts
         if self._val_counts.num_nonone_bins < 1:
-            self.log().critical('no bin counts specified for "%s"', self.variable)
-            raise RuntimeError('no bin counts specified')
+            self.log().warning('no bin counts specified for "%s"', self.variable)
 
         # check bin specifications
         if self.bin_specs:

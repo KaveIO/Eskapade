@@ -34,6 +34,8 @@ class HistSummary(Link):
     * a nicely scaled plot of the histogram
 
     Example is available in: tutorials/esk303_histogram_filling_plotting.py
+
+    Empty histograms are automatically skipped from processing.
     """
 
     def __init__(self, **kwargs):
@@ -165,7 +167,12 @@ class HistSummary(Link):
         is_num = col_props['is_num']
         is_ts = col_props['is_ts']
 
-        # retrieve _all_ filled bins to evaluate statistics
+        # skip empty histograms
+        n_bins = hist.n_bins
+        if n_bins == 0:
+            self.log().warning('Histogram <%s> is empty. Skipping.' % name)
+            return
+
         bin_labels = hist.bin_centers() if is_num else hist.bin_labels()
         bin_counts = hist.bin_entries()
         bin_edges = hist.bin_edges() if is_num else None
@@ -220,7 +227,7 @@ class HistSummary(Link):
             return
         try:
             nphist = hist.xy_ranges_grid()
-        except:
+        except BaseException:
             raise RuntimeError('Cannot extract binning and values from input histogram')
 
         # calc some basic histogram statistics
@@ -232,7 +239,7 @@ class HistSummary(Link):
             for i in range(xnum):
                 for j in range(ynum):
                     sum_entries += grid[i, j]
-        except:
+        except BaseException:
             pass
         sum_entries = int(sum_entries)
 
@@ -245,7 +252,7 @@ class HistSummary(Link):
         try:
             xlab = name.split(':')[0]
             ylab = name.split(':')[1]
-        except:
+        except BaseException:
             xlab = 'unknown x'
             ylab = 'unknown y'
         hist_file_name = 'hist_{}.pdf'.format(name.replace(':', '_vs_'))
