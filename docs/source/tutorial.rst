@@ -313,12 +313,10 @@ Hopefully you now have enough knowledge to do this tutorial and finally run Eska
 Examples
 --------
 
-There is also a full set of example macro's in the ``tutorials/`` folder. Please take a look at the full set.
-They start out with the basics and core code of Eskapade and work their way up to more complicated ways of working.
-The basic Eskapade examples are described briefly here.
-
-Please take a close look yourself at the full set in the ``tutorials/`` folder, it is much longer then the set listed here!
-You are actively encouraged to run all examples to see what they can do for you!
+Eskapade example macros can be found in the ``tutorials`` directory.
+The basic examples are briefly described here.  The full set of example
+macros is much larger.  You are encouraged to run all examples to see
+what Eskapade can do for you!
 
 Example esk101: Hello World!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
