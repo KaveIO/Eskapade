@@ -74,11 +74,9 @@ class DfSummary(Link):
         io_conf = ProcessManager().service(ConfigObject).io_conf()
 
         # read report templates
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) \
-             as templ_file:
+        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) \
-             as templ_file:
+        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
 
         # get path to results directory
@@ -118,8 +116,7 @@ class DfSummary(Link):
         # fetch and check input data frame
         data = ProcessManager().service(DataStore).get(self.read_key, None)
         if not isinstance(data, pd.DataFrame):
-            self.log().critical('no Pandas data frame "%s" found in data store for %s', \
-                                self.read_key, str(self))
+            self.log().critical('No Pandas data frame "%s" found in data store for %s', self.read_key, str(self))
             raise RuntimeError('no input data found for %s' % str(self))
 
         # create report page for each variable in data frame
@@ -145,14 +142,12 @@ class DfSummary(Link):
 
             # 1. create statistics object for column
             var_label = self.var_labels.get(col, col)
-            stats = statistics.ArrayStats(data, col, \
-                                          unit=self.var_units.get(col, ''), \
-                                          label=var_label)
+            stats = statistics.ArrayStats(data, col, unit=self.var_units.get(col, ''), label=var_label)
             # evaluate statitical properties of array
             stats.create_stats()
 
             # make histogram
-            nphist = stats.make_histogram( var_bins=self.var_bins.get(col,NUMBER_OF_BINS) )
+            nphist = stats.make_histogram(var_bins=self.var_bins.get(col, NUMBER_OF_BINS))
 
             # determine histogram properties for plotting
             x_label = stats.get_x_label()
@@ -160,7 +155,7 @@ class DfSummary(Link):
             is_num = stats.get_col_props()['is_num']
             is_ts = stats.get_col_props()['is_ts']
             hist_file_name = 'hist_{}.pdf'.format(col)
-            pdf_file_name  = '{0:s}/{1:s}'.format(self.results_path, hist_file_name)
+            pdf_file_name = '{0:s}/{1:s}'.format(self.results_path, hist_file_name)
 
             # 3. plot histogram of column variable
             visualization.vis_utils.plot_histogram(nphist,
@@ -180,7 +175,7 @@ class DfSummary(Link):
         # add nan histogram to summary
         nan_hist = nan_counts, all_columns
         self.process_nan_histogram(nan_hist, len(data.index))
-            
+
         # write report file
         with open('{}/report.tex'.format(self.results_path), 'w') as report_file:
             report_file.write(
@@ -190,20 +185,20 @@ class DfSummary(Link):
 
         return StatusCode.Success
 
-
     def process_nan_histogram(self, nphist, n_data):
-        """ process nans histogram
+        """Process nans histogram
 
         Add nans histogram to pdf list
 
         :param nphist: numpy-style input histogram, consisting of comma-separaged bin_entries, bin_edges
         :param int n_data: number of entries in the processed data set
         """
+
         var_label = 'NaN count'
         x_label = 'Column name'
         y_label = self.hist_y_label if self.hist_y_label else None
         hist_file_name = 'hist_NaNs.pdf'
-        pdf_file_name  = '{0:s}/{1:s}'.format(self.results_path, hist_file_name)
+        pdf_file_name = '{0:s}/{1:s}'.format(self.results_path, hist_file_name)
         visualization.vis_utils.plot_histogram(nphist,
                                                x_label=x_label,
                                                y_label=y_label,

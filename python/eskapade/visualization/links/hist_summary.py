@@ -227,7 +227,7 @@ class HistSummary(Link):
             return
         try:
             nphist = hist.xy_ranges_grid()
-        except:
+        except BaseException:
             raise RuntimeError('Cannot extract binning and values from input histogram')
 
         # calc some basic histogram statistics
@@ -239,7 +239,7 @@ class HistSummary(Link):
             for i in range(xnum):
                 for j in range(ynum):
                     sum_entries += grid[i, j]
-        except:
+        except BaseException:
             pass
         sum_entries = int(sum_entries)
 
@@ -252,7 +252,7 @@ class HistSummary(Link):
         try:
             xlab = name.split(':')[0]
             ylab = name.split(':')[1]
-        except:
+        except BaseException:
             xlab = 'unknown x'
             ylab = 'unknown y'
         hist_file_name = 'hist_{}.pdf'.format(name.replace(':', '_vs_'))
