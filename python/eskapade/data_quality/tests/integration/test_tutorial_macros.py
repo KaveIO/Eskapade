@@ -1,11 +1,8 @@
-import os
 import pandas as pd
 import numpy as np
-import ROOT
 
 from eskapade.tests.integration.test_tutorial_macros import TutorialMacrosTest
-from eskapade.core import persistence
-from eskapade import ProcessManager, ConfigObject, DataStore
+from eskapade import ProcessManager, DataStore
 
 
 class DataQualityTutorialMacrosTest(TutorialMacrosTest):
@@ -58,9 +55,8 @@ class DataQualityTutorialMacrosTest(TutorialMacrosTest):
         self.assertListEqual(ds['vrh_fix2']['B'].values.tolist()[2:3], [3])
         self.assertListEqual(ds['vrh_fix2']['C'].values.tolist(), ['1.0', '2.0', 'bal', np.nan, np.nan])
 
-        self.assertListEqual(
-            ds['vrh_fix3']['A'].values.tolist(),
-            ['True', 'False', 'not_a_bool', 'not_a_bool', 'not_a_bool'])
+        self.assertListEqual(ds['vrh_fix3']['A'].values.tolist(),
+                             ['True', 'False', 'not_a_bool', 'not_a_bool', 'not_a_bool'])
         self.assertListEqual(ds['vrh_fix3']['B'].values.tolist(), ['foo', 'bar', '3', 'not_a_str', 'not_a_str'])
         self.assertListEqual(ds['vrh_fix3']['C'].values.tolist()[:2], [1.0, 2.0])
         self.assertListEqual(ds['vrh_fix3']['D'].values.tolist()[:3], [1.0, 2.0, 3.0])

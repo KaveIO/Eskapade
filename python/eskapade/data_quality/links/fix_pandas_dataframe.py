@@ -20,57 +20,74 @@ import re
 import string
 import copy
 from collections import Counter
+#import fastnumbers
 
 from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.data_quality.dq_helper import check_nan, convert, CONF_FUNCS
-
-#import fastnumbers
+from eskapade.data_quality.dq_helper import check_nan, convert, CONV_FUNCS
 
 
 class FixPandasDataFrame(Link):
-    """Link for fixing dirty pandas dataframe with inconsistent datatypes
+    """Fix dirty Pandas dataframe with inconsistent datatypes
 
-    Default settings perform the following clean-up steps on an input dataframe:
+    Default settings perform the following clean-up steps on an input
+    dataframe:
 
-    - Fix all column names. Eg. remove punctuation and strange characters, and convert spaces to underscores.
-    - Check for various possible nans in the dataset, then make all nans consistent by turning them into numpy.nan (= float)
-    - Per column, assess dynamically the most consistent datatype (ignoring all nans in that column). Eg. bool, int, float, datetime64, string.
-    - Per column, make the data types of all rows consistent, by using the identified (or imposed) data type (by default ignoring all nans)
+    - Fix all column names.  E.g. remove punctuation and strange characters,
+      and convert spaces to underscores.
+    - Check for various possible nans in the dataset, then make all nans
+      consistent by turning them into numpy.nan (= float)
+    - Per column, assess dynamically the most consistent datatype (ignoring
+      all nans in that column).  E.g. bool, int, float, datetime64, string.
+    - Per column, make the data types of all rows consistent, by using the
+      identified (or imposed) data type (by default ignoring all nans)
 
-    Boolean columns with contamination get converted to string columns by default. Optionally, they can be converted to integer columns as well.
+    Boolean columns with contamination get converted to string columns by
+    default.  Optionally, they can be converted to integer columns as well.
 
-    The FixPandasDataFrame link can be used in a dataframe loop, in which case any data type assessed per column in the first dataframe iteration
+    The FixPandasDataFrame link can be used in a dataframe loop, in which
+    case any data type assessed per column in the first dataframe iteration
     will be used for the next dataframes as well.
 
-    The default settings should work pretty well in many circumstances, by can be configured pretty flexibly. Optionally:
-    - Instead of dynamically assessed, the data type can also be imposed per column.
-    - All nans in a column can be converted to a value consistent with the data type of that column. Eg. for integer columns, nan -> -999
-    - An alternative nan can be set per column and datatype.
-    - Modifications can be applied inplace, ie. directly to the input dataframe.
+    The default settings should work pretty well in many circumstances, by
+    can be configured pretty flexibly.  Optionally:
+
+    - Instead of dynamically assessed, the data type can also be imposed per column
+    - All nans in a column can be converted to a value consistent with the
+      data type of that column.  E.g. for integer columns, nan -> -999
+    - An alternative nan can be set per column and datatype
+    - Modifications can be applied inplace, i.e. directly to the input dataframe
     """
 
     def __init__(self, **kwargs):
-        """Store and do basic check on the attributes of link FixPandasDataFrame
+        """Initialize FixPandasDataFrame instance
 
         :param str name: name of link
         :param str read_key: key of input data to read from data store
-        :param bool copy_columns_from_df: if true, copy all columns from the dataframe. Default is true.
-        :param list original_columns: original (unfixed) column names to pick up from input data. Required if copy_columns_from_df is set to false.
-        :param list contaminated_columns: (original) columns that are known to have mistakes and that should be fixed. Optional.
-        :param bool fix_column_names: if true, fix column names. Default is true.
-        :param bool strip_hive_prefix: if true, strip table-name (hive) prefix from column names, eg table.bla -> bla. Default is false.
-        :param bool convert_inconsistent_dtypes: fix column datatypes in case of data type inconsistencies in rows. Default is true.
-        :param dict var_dtype: dict forcing columns to certain datatypes. Eg. {'A': int}. Optional.
-        :param dict var_convert_inconsistent_dtypes: dict allowing one to overwrite if certain columns their datatypes should be fixed. Eg. {'A': False}. Optional.
+        :param bool copy_columns_from_df: if true, copy all columns from the dataframe (default is true)
+        :param list original_columns: original (unfixed) column names to pick up from input data
+                                      (required if copy_columns_from_df is set to false)
+        :param list contaminated_columns: (original) columns that are known to have mistakes and that
+                                          should be fixed (optional)
+        :param bool fix_column_names: if true, fix column names (default is true)
+        :param bool strip_hive_prefix: if true, strip table-name (hive) prefix from column names,
+                                       e.g. table.bla -> bla (default is false)
+        :param bool convert_inconsistent_dtypes: fix column datatypes in case of data type inconsistencies in rows
+                                                 (default is true)
+        :param dict var_dtype: dict forcing columns to certain datatypes, e.g. {'A': int} (optional)
+        :param dict var_convert_inconsistent_dtypes: dict allowing one to overwrite if certain columns
+                                                     datatypes should be fixed, e.g. {'A': False} (optional)
         :param dict var_convert_func: dict with datatype conversion functions for certain columns
-        :param check_nan_func: boolean return function to check for nans in columns. Default is None, in which case a standard checker function gets picked up.
-        :param bool convert_inconsistent_nans: if true, convert all nans to data type consistent with rest of column. Default is false.
-        :param dict var_convert_inconsistent_nans: dict allowing one to overwrite if certain columns their nans should be fixed. Eg. {'A': False}. Optional.
-        :param dict var_nan: dict with nans for certain columns. Optional
-        :param dict nan_dtype_map: dictionary of nans for given data types. Eg. { int: -999 } 
-        :param nan_default: default nan value to which all nans found get converted. Default is numpy.nan
-        :param list var_bool_to_int: convert boolean column to int. Default is conversion of boolean to string.
-        :param bool inplace: replace original columns. Overwrites store_key to read_key. Default is False.
+        :param check_nan_func: boolean return function to check for nans in columns.
+                               (default is None, in which case a standard checker function gets picked up)
+        :param bool convert_inconsistent_nans: if true, convert all nans to data type consistent with rest of column
+                                               (default is false)
+        :param dict var_convert_inconsistent_nans: dict allowing one to overwrite if certain column
+                                                   nans should be fixed, e.g. {'A': False} (optional)
+        :param dict var_nan: dict with nans for certain columns (optional)
+        :param dict nan_dtype_map: dictionary of nans for given data types, e.g. { int: -999 }
+        :param nan_default: default nan value to which all nans found get converted (default is numpy.nan)
+        :param list var_bool_to_int: convert boolean column to int (default is conversion of boolean to string)
+        :param bool inplace: replace original columns; overwrites store_key to read_key (default is False)
         :param str store_key: key of output data to store in data store
         """
 
@@ -125,7 +142,7 @@ class FixPandasDataFrame(Link):
             self.nan_dtype_map[np.bool_] = self.nan_dtype_map[bool]
 
     def initialize(self):
-        """Initialize and (further) check the assigned attributes of FixPandasDataFrame"""
+        """Initialize FixPandasDataFrame"""
 
         self.check_arg_types(read_key=str, store_key=str)
         self.check_arg_types(recurse=True, allow_none=True, original_columns=str)
@@ -133,7 +150,7 @@ class FixPandasDataFrame(Link):
 
         if self.read_key == self.store_key:
             self.inplace = True
-            self.log().info('store_key equals read_key. inplace has been set to True')
+            self.log().info('store_key equals read_key; inplace has been set to "True"')
 
         if self.inplace:
             self.store_key = self.read_key
@@ -153,15 +170,17 @@ class FixPandasDataFrame(Link):
                 if dt is np.str_ or dt is np.object_:
                     dt = str
                 self.var_dtype[k] = dt
-            except:
-                raise TypeError('unknown assigned datatype to variable <%s>.' % k)
+            except BaseException:
+                raise TypeError('unknown assigned datatype to variable "%s"' % k)
 
         return StatusCode.Success
 
     def execute(self):
-        """ Fixing the pandas dataframe consists of four steps:
+        """Execute FixPandasDataFrame
 
-        - Fix all column names. Eg. remove punctuation and strange characters, and convert spaces to underscores.
+        Fixing the Pandas dataframe consists of four steps:
+
+        - Fix all column names. E.g. remove punctuation and strange characters, and convert spaces to underscores.
         - Check existing nans in that dataset, and make all nans consistent, for easy conversion later on.
         - Assess most consistent datatype for each column (ignoring all nans)
         - Make data types in each row consistent (by default ignoring all nans)
@@ -173,7 +192,7 @@ class FixPandasDataFrame(Link):
 
         # basic checks on contensts of the data frame
         if self.read_key not in ds:
-            raise KeyError('Key "%s" not in DataStore' % self.read_key)
+            raise KeyError('key "%s" not in DataStore' % self.read_key)
         df = ds[self.read_key]
         if not isinstance(df, pd.DataFrame):
             raise TypeError('retrieved object not of type pandas DataFrame')
@@ -185,9 +204,9 @@ class FixPandasDataFrame(Link):
             self.original_columns = df.columns.tolist()
         # check not empty
         if self.original_columns:
-            self.log().info('Original columns to be processed:\n%s' % str(self.original_columns))
+            self.log().info('Original columns to be processed:\n%s', str(self.original_columns))
         else:
-            self.log().warning('Original columns have not been set. Nothing to do.')
+            self.log().warning('Original columns have not been set; nothing to do')
             return StatusCode.Recoverable
 
         # check presence and data types of requested columns
@@ -220,7 +239,8 @@ class FixPandasDataFrame(Link):
                 new_col = regex.sub('_', new_col)
                 # keep only alphanumeric and _
                 new_col = re.sub('[^A-Za-z0-9_]+', '', new_col)
-                assert len(new_col), 'column name <%s> empty after cleaning' % col
+                if not new_col:
+                    raise ValueError('column name "%s" empty after cleaning' % col)
                 # replace column names
                 all_columns[i] = new_col
                 self.fixed_columns[self.fixed_columns.index(col)] = new_col
@@ -232,7 +252,7 @@ class FixPandasDataFrame(Link):
                     if col in vd:
                         vd[new_col] = vd.pop(col)
             df_.columns = all_columns
-            self.log().info('Fixed column names are:\n%s' % str(self.fixed_columns))
+            self.log().info('Fixed column names are:\n%s', str(self.fixed_columns))
 
         # --- Next: fix datatypes - all rows in a column get consistent datatype, except for nans
 
@@ -258,7 +278,7 @@ class FixPandasDataFrame(Link):
             is_nan[col] = df_[col].apply(check_nan_func)
             n_nan = is_nan[col].values.sum()
             if n_nan:
-                self.log().info('Column <%s> contains %d NaNs out of %d' % (col, n_nan, n_df))
+                self.log().info('Column "%s" contains %d NaNs out of %d', col, n_nan, n_df)
             dt = self._df_orig_dtype[col]
             # np.nan is a float, so for non-floats nan is considered contamination by pandas
             if n_nan and dt is not np.float64:
@@ -296,28 +316,29 @@ class FixPandasDataFrame(Link):
             if col not in self.var_dtype:
                 self.var_dtype[col] = prefered_dtype
             if len(dtype_cnt) > 1:
-                self.log().warning('For col <%s> found multiple types: %s' % (col, str(dtype_cnt)))
-                self.log().warning('For col <%s> picked %s. Will try convert the other type(s). If wrong, fix correct type with: var_dtype.' % (col, prefered_dtype))
+                self.log().warning('For col "%s" found multiple types: %s', col, str(dtype_cnt))
+                self.log().warning('For col "%s" picked type "%s"; if incorrect, fix type with: var_dtype',
+                                   col, prefered_dtype)
                 if col not in self.contaminated_columns:
                     self.contaminated_columns.append(col)
 
-        self.log().info('Consider setting:\nlink.var_dtype = %s' % str(self.var_dtype))
+        self.log().info('Consider setting:\nlink.var_dtype = %s', str(self.var_dtype))
 
-        self.log().info('Fixing contamination in columns:\n%s' % str(self.contaminated_columns))
+        self.log().info('Fixing contamination in columns:\n%s', str(self.contaminated_columns))
 
         # 4. fix contamination in each column
         for col in self.contaminated_columns:
             dt = self.var_dtype[col]
-            self.log().info('Converting rows in column <%s> to type: %s' % (col, dt))
+            self.log().info('Converting rows in column "%s" to type "%s"', col, dt)
             # pick conversion function of choice
             if col in self.var_convert_func:
                 fnc = self.var_convert_func[col]
             elif col in self.var_bool_to_int:
                 fnc = bool_to_int
-            elif dt in CONF_FUNCS:
-                fnc = CONF_FUNCS[dt]
+            elif dt in CONV_FUNCS:
+                fnc = CONV_FUNCS[dt]
             else:
-                raise Exception('Dont know how to convert column <%s>' % col)
+                raise RuntimeError('Do not know how to convert column "%s"' % col)
             # convert inconsistent dtypes?
             convert_inconsistent_dtypes = self.var_convert_inconsistent_dtypes[
                 col] if col in self.var_convert_inconsistent_dtypes else self.convert_inconsistent_dtypes
@@ -332,9 +353,8 @@ class FixPandasDataFrame(Link):
                     rdt = dt if col not in self.var_bool_to_int else np.int64
                     if not isinstance(self.var_nan[col], rdt):
                         fnc_kw['nan'] = self.nan_dtype_map[rdt]
-                        self.log().warning(
-                            'Chosen nan for col %s not of type %s. Reverting to default nan: %s' %
-                            (col, rdt, self.nan_dtype_map[dt]))
+                        self.log().warning('Chosen nan for col "%s" not of type "%s"; reverting to default nan: "%s"',
+                                           col, rdt, self.nan_dtype_map[dt])
             else:
                 if convert_inconsistent_nans:
                     fnc_kw['nan'] = self.nan_dtype_map[dt]

@@ -1,40 +1,55 @@
+# ********************************************************************************
+# * Project: Eskapade - A Python-based package for data analysis                 *
+# * Module: data_quality.dq_helper                                               *
+# * Created: 2017/04/11                                                          *
+# * Description:                                                                 *
+# *     Data-quality helper functions                                            *
+# *                                                                              *
+# * Authors:                                                                     *
+# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
+# *                                                                              *
+# * Redistribution and use in source and binary forms, with or without           *
+# * modification, are permitted according to the terms listed in the file        *
+# * LICENSE.                                                                     *
+# ********************************************************************************
+
 import pandas as pd
 import numpy as np
-
-global ast
 import ast
 
 
-def check_nan(x):
+def check_nan(val):
     """Check input value for not a number
 
-    :param x: value to be checked for nan
+    :param val: value to be checked for nan
     :returns: true if nan
     :rtype: bool
     """
-    if pd.isnull(x):
+
+    if pd.isnull(val):
         return True
-    if isinstance(x, str):
-        x = x.strip()
-        if not x or x.lower() == 'none' or x.lower() == 'nan':
+    if isinstance(val, str):
+        val = val.strip()
+        if not val or val.lower() == 'none' or val.lower() == 'nan':
             return True
     #from numpy import datetime64
-    # if isinstance(x, datetime64):
-    #    return x == datetime64('NaT')
+    # if isinstance(val, datetime64):
+    #    return val == datetime64('NaT')
     return False
 
 
-def convert(x):
+def convert(val):
     """Convert input to interpreted data type
 
-    :param x: value to be interpreted
+    :param val: value to be interpreted
     :returns: interpreted value
     """
+
     try:
-        return ast.literal_eval(x)
-    except:
+        return ast.literal_eval(val)
+    except BaseException:
         pass
-    return x
+    return val
 
 
 def to_str(val, **kwargs):
@@ -44,10 +59,11 @@ def to_str(val, **kwargs):
     :returns: converted value
     :rtype: str
     """
+
     try:
         if pd.isnull(val):
             return kwargs['nan']
-    except:
+    except BaseException:
         pass
     if isinstance(val, str):
         return val
@@ -58,70 +74,74 @@ def to_str(val, **kwargs):
 
 
 def to_int(val, **kwargs):
-    """ Convert input to int
+    """Convert input to int
 
     :param val: value to be evaluated
     :returns: evaluated value
-    :rtype: np.int64 
+    :rtype: np.int64
     """
+
     try:
         if pd.isnull(val):
             return kwargs['nan']
-    except:
+    except BaseException:
         pass
     if isinstance(val, np.int64) or isinstance(val, int):
         return np.int64(val)
     if kwargs.get('convert_inconsistent_dtypes', True):
         try:
             return np.int64(val)
-        except:
+        except BaseException:
             pass
     return kwargs['nan']
 
 
 def to_float(val, **kwargs):
-    """ Convert input to float
+    """Convert input to float
 
     :param val: value to be evaluated
     :returns: evaluated value
     :rtype: np.float64
     """
+
     try:
         if pd.isnull(val):
             return kwargs['nan']
-    except:
+    except BaseException:
         pass
     if isinstance(val, np.float64) or isinstance(val, float):
         return np.float64(val)
     if kwargs.get('convert_inconsistent_dtypes', True):
         try:
             return np.float64(val)
-        except:
+        except BaseException:
             pass
     return kwargs['nan']
 
 
-def to_date_time(x):
-    """ Convert input to numpy.datetime64
+def to_date_time(val):
+    """Convert input to numpy.datetime64
 
-    :param x: value to be evaluated
+    :param val: value to be evaluated
     :returns: evaluated value
     :rtype: numpy.datetime64
     """
-    return pd.to_datetime(x, errors='coerce')
+
+    return pd.to_datetime(val, errors='coerce')
 
 
 def bool_to_str(val, **kwargs):
-    """ Convert input boolean to str
+    """Convert input boolean to str
 
     :param val: value to be evaluated
     :returns: evaluated value
     :rtype: str
     """
+
     try:
         if pd.isnull(val):
             return kwargs['nan']
-    except:
+    except BaseException:
         pass
     if isinstance(val, np.bool_) or isinstance(val, bool):
         return str(val)
@@ -132,28 +152,29 @@ def bool_to_str(val, **kwargs):
 
 
 def bool_to_int(val):
-    """ Convert input boolean to int
+    """Convert input boolean to int
 
     :param val: value to be evaluated
     :returns: evaluated value
     :rtype: np.int64
     """
+
     try:
         if pd.isnull(val):
             return kwargs['nan']
-    except:
+    except BaseException:
         pass
     if isinstance(val, np.bool_) or isinstance(val, bool):
         return np.int64(val)
     if kwargs.get('convert_inconsistent_dtypes', False):
         try:
             return np.int64(val)
-        except:
+        except BaseException:
             pass
     return kwargs['nan']
 
 
-CONF_FUNCS = {str: to_str,
+CONV_FUNCS = {str: to_str,
               int: to_int,
               np.int64: to_int,
               bool: bool_to_str,
