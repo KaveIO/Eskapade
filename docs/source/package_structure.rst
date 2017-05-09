@@ -9,64 +9,82 @@ Structure
 ---------
 
 When using Eskapade it is important to understand where all components are located. The components can be for
-example Links or utilities that you want to use.
+example links or utilities that you want to use.
 
-The ``$eskapade/python`` folder contains the framework and has the following structure: Every specific subject has is a module
-containing the utilities it needs, the links that are defined for the subject, and the tests.
-There are two exceptions to this: The ``core`` module contains the core of the framework, like the process manager.
-The ``core_ops`` module contains higher level functionality built on top of the core.
+The Eskapade framework is contained in the Python package ``eskapade``,
+which lives in the ``python`` directory.  Every specific subject has its
+subpackage in ``eskapade``, containing the utilities it needs, the links
+that are defined for the subject, and the corresponding tests.
 
-For example:
+The core of the framework is implemented in the ``core`` subpackage.
+This subpackage contains the low-level machinery for running analysis
+algorithms in chains of links.  The ``core_ops`` subpackage contains
+basic links for operating this framework.
 
-The visualization module is in ``/python/eskapade/visualisation`` and contains a link called ``DfSummary`` in the
-``df_summary`` file. This link is located in the ``links`` folder, and uses some tools from ``vis_utils``, the
-visualization utilities, contained in the root of module. The unittests are located in ``tests`` and can be run with
-the unittest framework. An overview of the structure for visualization::
+An example of a typical subpackage is ``eskapade.analysis``, which
+contains basic analysis tools.  Its structure is common to all Eskapade
+subpackages::
 
-  |-python
-     |-eskapade
-        |-visualization
-           |-tests
-           |-links
+   |-eskapade
+      |-analysis
+         |-links
+         |-tests
+            |-integration
 
+The subpackage contains several modules, which contain classes and
+functions to be applied in links.  The ``eskapade.analysis.statistics``
+module, for example, contains code to generate an overview of the
+statistical properties of variables in given input data.
 
-This structure is used for every module.
-Since every Link is a class, it uses the camel case naming convention, while the files in the modules use snake case.
-This can be seen in the way imports work, as seen below.
+Eskapade links are located in the ``links`` directory.  There is a
+separate module for each link, defining the link class instance.  By
+convention, the names of the module and class are both the link name,
+the former in snake case and the latter in camel case.  For example, the
+module ``read_to_df`` defines the link class ``ReadToDf``.
+
+Unit tests are defined in modules in the ``tests`` directory.  Ideally,
+there is a test module for each (link) module in the Eskapade
+subpackage.  Optionally, integration tests are implemented in
+``tests/integration``.  For the ``eskapade.analysis`` package, there is
+the module ``test_tutorial_macros`` with integration tests that run the
+tutorial macros corresponding to this package.
 
 Imports
 -------
 
-Taking the structure into account, it becomes clear how to import functionality into a macro. For importing the core
-objects use:
+Main elements of the Eskapade framework are imported directly from the
+``eskapade`` package.  For example, the run-configuration object and the
+run-process manager are part of the core subpackage, but are imported by
 
 .. code-block:: python
 
   from eskapade import ConfigObject, ProcessManager
 
-And for getting links and other modules, for example, use:
+Links are imported directly from their subpackage:
 
 .. code-block:: python
 
-  from eskapade.visualization import DfSummary
+  from eskapade.analysis import ReadToDf
 
-Now you can call your Link ``DfSummary`` in your macro and add it to the process manager.
+In a macro, you can now instantiate and configure the ``ReadToDf`` link
+and add it to a chain in the process manager.
 
 Results
 -------
 
-Results of a macro are written out by default in the ``$eskapade/results`` folder. Analyses are saved in the results
-folder by their ``$analysis_name`` given in the macro. Every saved analysis has the following underlying folders:
+Results of a macro are written out by default in the ``results``
+directory. The analysis run is persisted in the results directory by the
+``analysis_name`` given in the macro. This directory has the following
+structure:
 
-  * config, containing the configuration of the macro
-  * data, containing input data (or pointers), in-between states that you want to save explicitly, results that
-    such as graphs, and a trained model
+  * ``config``: the configuration macro
+  * ``proc_service_data``: persisted states of run-process services
+  * ``data``: analysis results, such as graphs or a trained model
 
-The subfolders save the files by version of the analysis code that you run, defaulting to: ``v0, v1, v2, ...``
-For example the output of tutorial ``esk304_df_boxplot`` is saved in the folder:
-``./results/esk304_df_boxplot/data/v0/report/``.
-
-Similarly config and other objects are saved in their respective folders.
+The data for each of these elements are stored by the analysis version,
+e.g. ``v0``, ``v1``, ``v2``, etc.  For example, the report produced by
+the tutorial ``esk301_dfsummary_plotter`` is saved in the directory
+``results/esk304_df_boxplot/data/v0/report``.
 
 Debugging
 ---------
