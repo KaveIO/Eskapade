@@ -9,4 +9,3 @@ tabulate
 sortedcontainers
 statsmodels
 histogrammar
-fastnumbers
