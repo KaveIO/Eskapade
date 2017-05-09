@@ -97,3 +97,30 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             self.assertTrue(os.path.exists(path))
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
+
+    def test_esk304(self):
+        settings = ProcessManager().service(ConfigObject)
+        settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
+        settings['macro'] = settings['esRoot'] + '/tutorials/esk304_df_boxplot.py'
+        settings['batchMode'] = True
+
+        status = execution.run_eskapade(settings)
+
+        pm = ProcessManager()
+        settings = ProcessManager().service(ConfigObject)
+        ds = ProcessManager().service(DataStore)
+
+        # data-generation checks
+        self.assertTrue(status.isSuccess())
+        self.assertIn('data', ds)
+        self.assertIsInstance(ds['data'], pd.DataFrame)
+        self.assertEqual(10000, len(ds['data']))
+        self.assertListEqual(sorted(ds['data'].columns), ['var_a', 'var_b', 'var_c'])
+
+        # data-summary checks
+        file_names = ['report_boxplots.tex', 'boxplot_var_a.pdf', 'boxplot_var_c.pdf']
+        for fname in file_names:
+            path = '{0:s}/{1:s}/data/v0/report/{2:s}'.format(settings['resultsDir'], settings['analysisName'], fname)
+            self.assertTrue(os.path.exists(path))
+            statinfo = os.stat(path)
+            self.assertTrue(statinfo.st_size > 0)
