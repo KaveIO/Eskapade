@@ -16,7 +16,6 @@
 
 import numpy as np
 import pandas as pd
-import random
 
 from eskapade import Link, StatusCode, ProcessManager, DataStore
 
@@ -67,12 +66,12 @@ class BasicGenerator(Link):
             mu = conf.get('mean', 0.)
             sigma = conf.get('std', 1.)
             dtype = conf.get('dtype', float)
-            choice = conf.get('choice', ['a','b','c'])
-            p = conf.get('p', None)  # pdf for the list passed in choice
+            choice = conf.get('choice', ['a', 'b', 'c'])
+            choice_prob = conf.get('choice_prob', None)
 
             # generate
             if dtype == str:
-                data[col] = np.random.choice(choice, size=self.size, p=p)
+                data[col] = np.random.choice(choice, size=self.size, p=choice_prob)
             else:
                 data[col] = np.random.normal(loc=mu, scale=sigma, size=self.size).astype(dtype)
 
