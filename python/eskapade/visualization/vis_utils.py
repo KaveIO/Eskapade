@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
+log = logging.getLogger(__name__)
 
-def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False,
-                   pdf_file_name=''):
+
+def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False, pdf_file_name='', top=20):
     """Create and plot histogram of column values
 
     :param hist: input numpy histogram = values, bin_edges
@@ -27,9 +28,8 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False,
     try:
         hist_values = hist[0]
         hist_bins = hist[1]
-    except:
-        raise Exception(
-            'Cannot extract binning and values from input histogram')
+    except BaseException:
+        raise ValueError('Cannot extract binning and values from input histogram')
 
     assert hist_values is not None and len(
         hist_values), 'Histogram bin values have not been set.'
@@ -124,9 +124,8 @@ def plot_2d_histogram(hist, x_lim, y_lim, title, x_label, y_label, pdf_file_name
         x_ranges = hist[0]
         y_ranges = hist[1]
         grid = hist[2]
-    except:
-        raise Exception(
-            'Cannot extract ranges and grid from input histogram')
+    except BaseException:
+        raise ValueError('Cannot extract ranges and grid from input histogram')
 
     ax = plt.gca()
     ax.pcolormesh(x_ranges, y_ranges, grid)
@@ -146,7 +145,9 @@ def plot_2d_histogram(hist, x_lim, y_lim, title, x_label, y_label, pdf_file_name
 
 
 def delete_smallstat(df, group_col, statlim=400):
-    """Function to make a new DataFrame that removes all groups of group_col that have less than statlim entries.
+    """Remove low-statistics groups from data frame
+
+    Function to make a new DataFrame that removes all groups of group_col that have less than statlim entries.
 
     :param df: pandas DataFrame
     :param str group_col: name of the column to group on
@@ -179,8 +180,10 @@ def delete_smallstat(df, group_col, statlim=400):
 
 
 def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, ylim_low=0, rot=90, statlim=400,
-        label_dict=None, title_add='', top=20):
-    """ Function that plots the boxplot of the column df[result_col] in groups of cause_col. This means that
+             label_dict=None, title_add='', top=20):
+    """Make box plot
+
+    Function that plots the boxplot of the column df[result_col] in groups of cause_col. This means that
     the DataFrame is grouped-by on the cause column and then the distribution per group is plotted in a boxplot
     using the standard pandas functionality.
     Boxplots with less than statlim (default=400 ) entries in it are automatically removed.
@@ -202,8 +205,7 @@ def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, 
     if len(df[cause_col].unique()) > top:
         top_x = df[cause_col].value_counts()[:top].index
         df = df[df[cause_col].isin(top_x)]
-        logging.warning('The number of categories of column {0} is too large, boxplot is not '
-                        'generated'.format(cause_col))
+        log.warning('The number of categories of column "%s" is too large, boxplot is not generated', cause_col)
 
     # Build a figure
     fig = plt.figure(figsize=(8, 6))
@@ -217,13 +219,13 @@ def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, 
     # If columns do not have a pretty name in label_dict, make the label the column name
     try:
         xlabel = label_dict[cause_col]
-    except:
+    except BaseException:
         xlabel = cause_col
     ax1.set_xlabel(xlabel, fontsize=20)
 
     try:
         title_label = label_dict[result_col] + title_add
-    except:
+    except BaseException:
         title_label = result_col + title_add
     ax1.set_title(title_label, fontsize=20)
 
@@ -246,5 +248,5 @@ def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, 
     weights = ['bold', 'semibold']
     for tick, label in zip(range(num_boxes), ax1.get_xticklabels()):
         k = tick % 2
-        ax1.text(pos[tick], ylim_high - (ylim_high*0.05), upper_labels[tick],
-                 horizontalalignment='center', size='larger', weight=weights[k])
+        ax1.text(pos[tick], ylim_high - (ylim_high * 0.05), upper_labels[tick], horizontalalignment='center',
+                 size='larger', weight=weights[k])

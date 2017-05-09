@@ -35,7 +35,7 @@ msg = r"""
 
 The plots and latex files produced by link df_summary can be found in dir:
 %s
-""" % (settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/report/')
+""" % persistence.io_path('results_data', settings.io_conf(), 'report')
 log.info(msg)
 
 COLUMNS = ['var_a', 'var_b', 'var_c']
@@ -73,8 +73,7 @@ boxplot = visualization.DfBoxplot(name='Create_stats_overview',
                                   var_units=VAR_UNITS,
                                   column='var_b',
                                   cause_columns=['var_a', 'var_c'],
-                                  results_path=settings['resultsDir'] + '/' + settings['analysisName'] + \
-                                               '/data/v0/report/')
+                                  results_path=persistence.io_path('results_data', settings.io_conf(), 'report'))
 proc_mgr.get_chain('BoxPlot').add_link(boxplot)
 
 #########################################################################################

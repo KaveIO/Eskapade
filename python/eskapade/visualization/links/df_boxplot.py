@@ -60,7 +60,7 @@ class DfBoxplot(Link):
         self.pages = []
 
     def initialize(self):
-        """Inititialize DfSummary link"""
+        """Inititialize DfBoxplot link"""
 
         # check input arguments
         self.check_arg_types(read_key=str)

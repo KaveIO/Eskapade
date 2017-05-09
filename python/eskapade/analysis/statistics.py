@@ -53,12 +53,12 @@ class ArrayStats(LoggingMixin):
         # check if column is iterable
         try:
             iter(self.col)
-        except:
+        except TypeError:
             raise TypeError('Specified data object is not iterable')
         if self.weights is not None:
             try:
                 iter(self.weights)
-            except:
+            except TypeError:
                 raise TypeError('Specified weights object is not iterable')
 
         # check sizes of data and weights
@@ -212,9 +212,10 @@ class ArrayStats(LoggingMixin):
 
     def get_latex_table(self, get_stats=None, latex=True):
         """Get LaTeX code string for table of stats values
+
         :param list get_stats: List of statistics that you want to filter on. (default None (all stats))
-        Available stats are: 'count', 'filled', 'distinct', 'mean', 'std', 'min', 'max', 'p05', 'p16', 'p50',
-        'p84', 'p95', 'p99'
+                               Available stats are: 'count', 'filled', 'distinct', 'mean', 'std', 'min', 'max',
+                               'p05', 'p16', 'p50', 'p84', 'p95', 'p99'
         :param bool latex: LaTeX output or list output (default True)
         :returns str: LaTeX code snippet
         """
@@ -322,12 +323,13 @@ class ArrayStats(LoggingMixin):
 
         return self.hist
 
-class GroupByStats(ArrayStats):
-    """
 
-    """
+class GroupByStats(ArrayStats):
+    """Create summary of an array in groups"""
+
     def __init__(self, data, col_name, groupby=None, weights=None, unit='', label=''):
-        """
+        """Initialize for a single column in data frame
+
         :param data: Input array
         :type data: iterable
         :type data: pandas Dataframe
@@ -341,6 +343,7 @@ class GroupByStats(ArrayStats):
         :param groupby: column name
         :raises: TypeError
         """
+
         if groupby:
             assert groupby in data.columns, 'The groupby column is not in your DataFrame'
             group = data.groupby(by=groupby)
@@ -351,9 +354,11 @@ class GroupByStats(ArrayStats):
 
     def get_latex_table(self, get_stats=None):
         """Get LaTeX code string for group-by table of stats values
+
         :param list get_stats: same as ArrayStats.get_latex_table get_stats key word.
         :returns str: LaTeX code snippet
         """
+
         # Explicitly strip the tables of their LaTeX headers and footers, concatenate the strings with a group-header
         # and reattach the LaTeX header and footer so that it parses to proper LaTeX.
         self.table = []
@@ -365,6 +370,7 @@ class GroupByStats(ArrayStats):
             self.log().warning('The table is longer than 25 rows, the latex file will overflow.')
 
         return tabulate.tabulate(self.table, tablefmt='latex')
+
 
 def get_col_props(var_type):
     """Get column properties
