@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
       name='Eskapade',
-      version='0.4',
+      version='0.5',
       description='Eskapade modular analytics',
       author='KPMG',
       url='http://eskapade.kave.io',
