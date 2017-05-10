@@ -4,11 +4,38 @@ import mock
 from ..definitions import (LOG_LEVELS, CONFIG_VARS, CONFIG_TYPES, CONFIG_DEFAULTS, USER_OPTS, USER_OPTS_CONF_KEYS,
                            CONFIG_OPTS_SETTERS, RandomSeeds, set_opt_var, set_log_level_opt, set_begin_end_chain_opt,
                            set_single_chain_opt, set_seeds, set_custom_user_vars)
-from ..process_services import ProcessService, ConfigObject
+from ..process_services import ProcessServiceMeta, ProcessService, ConfigObject, DataStore
+
+
+class ProcessServiceMetaTest(unittest.TestCase):
+    """Tests for process-service base class type"""
+
+    def test_str(self):
+        """Test process-service type-to-string conversion"""
+
+        ps_meta = mock.Mock(name='ProcessServiceMeta_instance')
+        ps_meta.__module__ = 'ps_meta_module'
+        ps_meta.__name__ = 'ps_meta_name'
+        ps_meta_str = ProcessServiceMeta.__str__(ps_meta)
+        self.assertEqual(ps_meta_str, 'ps_meta_module.ps_meta_name',
+                         'unexpected string conversion for process-service meta class')
 
 
 class ProcessServiceTest(unittest.TestCase):
     """Tests for process-service base class"""
+
+    def test_persist(self):
+        """Test default value of process-service persist flag"""
+
+        self.assertFalse(ProcessService._persist, 'unexpected default value for process-service persist flag')
+
+    def test_str(self):
+        """Test process-service instance-to-string conversion"""
+
+        ps = mock.Mock(name='ProcessService_instance')
+        ps_str = ProcessService.__str__(ps)
+        self.assertEqual(ps_str, '{0:s} ({1:s})'.format(str(type(ps)), hex(id(ps))),
+                         'unexpected string conversion for process-service')
 
     @mock.patch('eskapade.core.process_services.ProcessService.__init__')
     def test_create(self, mock_init):
@@ -21,9 +48,83 @@ class ProcessServiceTest(unittest.TestCase):
         mock_init.assert_called_with(ps)
         self.assertIs(ps_, ps)
 
+    @mock.patch('os.path.isfile')
+    @mock.patch('pickle.load')
+    @mock.patch('eskapade.core.process_services.open')
+    def test_import_from_file(self, mock_open, mock_load, mock_isfile):
+        """Test process-service file import"""
+
+        # set return values
+        mock_isfile.return_value = True
+        mock_file = mock.MagicMock(name='service_file')
+        mock_file.__enter__.return_value = mock_file
+        mock_open.return_value = mock_file
+
+        # create mock process-service class and instance
+        mock_log = mock.Mock(name='log_function')
+        ps_cls = type('ps_cls', (), {'persist': True, 'log': lambda: mock_log})
+        ps = mock.Mock(name='ProcessService_instance')
+        ps.__class__ = ps_cls
+
+        # test normal import
+        mock_load.return_value = ps
+        ps_ = ProcessService.import_from_file.__func__(ps_cls, 'mock_file_path')
+        self.assertIs(ps_, ps, 'unexpected process-service instance returned')
+        mock_open.assert_called_once_with('mock_file_path', 'rb')
+        mock_load.assert_called_once_with(mock_file)
+        mock_open.reset_mock()
+        mock_load.reset_mock()
+
+        # test importing instance of incorrect type
+        mock_load.return_value = None
+        with self.assertRaises(TypeError):
+            ProcessService.import_from_file.__func__(ps_cls, 'mock_file_path')
+        mock_open.reset_mock()
+        mock_load.reset_mock()
+
+        # test import with non-persisting service
+        ps_cls.persist = False
+        ps_ = ProcessService.import_from_file.__func__(ps_cls, 'mock_file_path')
+        self.assertIs(ps_, None, 'unexpected return value for non-persisting service')
+
+    @mock.patch('pickle.dump')
+    @mock.patch('eskapade.core.process_services.open')
+    @mock.patch('eskapade.core.process_services.type')
+    def test_persist_in_file(self, mock_type, mock_open, mock_dump):
+        """Test process-service file persistence"""
+
+        # set return values
+        mock_file = mock.MagicMock(name='service_file')
+        mock_file.__enter__.return_value = mock_file
+        mock_open.return_value = mock_file
+
+        # create mock process-service class and instance
+        ps_cls = type('ps_cls', (), {'persist': True})
+        ps = mock.Mock(name='ProcessService_instance')
+        ps.__class__ = ps_cls
+        mock_type.side_effect = lambda a: ps_cls if a is ps else type(a)
+
+        # test normal export
+        ProcessService.persist_in_file(ps, 'mock_file_path')
+        mock_open.assert_called_once_with('mock_file_path', 'wb')
+        mock_dump.assert_called_once_with(ps, mock_file)
+        mock_open.reset_mock()
+        mock_dump.reset_mock()
+
+        # test export with non-persisting service
+        ps_cls.persist = False
+        ProcessService.persist_in_file(ps, 'mock_file_path')
+        mock_open.assert_not_called()
+        mock_dump.assert_not_called()
+
 
 class ConfigObjectTest(unittest.TestCase):
     """Tests for configuration object"""
+
+    def test_persist(self):
+        """Test value of config-object persist flag"""
+
+        self.assertTrue(ConfigObject._persist, 'unexpected value for config-object persist flag')
 
     @mock.patch.dict('eskapade.core.definitions.CONFIG_DEFAULTS', clear=True)
     @mock.patch.dict('eskapade.core.definitions.CONFIG_VARS', clear=True)
@@ -53,7 +154,6 @@ class ConfigObjectTest(unittest.TestCase):
                             resultsDir='es_path/results', dataDir='es_path/data', macrosDir='es_path/tutorials',
                             templatesDir='es_path/templates')
         self.assertDictEqual(settings, exp_settings, 'unexpected resulting settings dictionary')
-
 
     def test_random_seeds(self):
         """Test container class for random seeds"""
@@ -93,7 +193,6 @@ class ConfigObjectTest(unittest.TestCase):
         # test setting non-integer value
         with self.assertRaises(TypeError):
             RandomSeeds.__setitem__(mock_seeds, 'foo', 'fortytwo')
-
 
     @mock.patch.dict('eskapade.core.definitions.USER_OPTS', clear=True)
     @mock.patch.dict('eskapade.core.definitions.CONFIG_OPTS_SETTERS', clear=True)
@@ -303,3 +402,12 @@ class ConfigObjectTest(unittest.TestCase):
         for opt_key in args.keys():
             with self.assertRaises(RuntimeError, msg='no error for malformed key-value pair in "{}"'.format(opt_key)):
                 set_custom_user_vars(opt_key, settings, args)
+
+
+class DataStoreTest(unittest.TestCase):
+    """Tests for data store"""
+
+    def test_persist(self):
+        """Test value of data-store persist flag"""
+
+        self.assertTrue(DataStore._persist, 'unexpected value for data-store persist flag')
