@@ -17,8 +17,12 @@
 # **********************************************************************************
 
 import pandas as pd
-from pandas import DataFrame
 import copy
+from pandas import DataFrame
+try:
+    from pandas.types.dtypes import CategoricalDtypeType
+except ImportError:
+    from pandas.core.dtypes.dtypes import CategoricalDtypeType
 
 from eskapade import ProcessManager, Link, StatusCode, DataStore
 
@@ -132,7 +136,7 @@ class RecordFactorizer(Link):
             if c in self.columns:
                 continue
             dt = df[c].dtype
-            if issubclass(dt.type, pd.types.dtypes.CategoricalDtypeType) and self.convert_all_categories:
+            if issubclass(dt.type, CategoricalDtypeType) and self.convert_all_categories:
                 self.columns.append(c)
             elif dt == 'bool' and self.convert_all_booleans:
                 self.columns.append(c)
