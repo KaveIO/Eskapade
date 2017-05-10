@@ -150,15 +150,15 @@ class FixPandasDataFrame(Link):
 
         if self.read_key == self.store_key:
             self.inplace = True
-            self.log().info('store_key equals read_key; inplace has been set to "True"')
+            self.log().debug('store_key equals read_key; inplace has been set to "True"')
 
         if self.inplace:
             self.store_key = self.read_key
-            self.log().info('store_key has been set to read_key "%s"', self.store_key)
+            self.log().debug('store_key has been set to read_key "%s"', self.store_key)
 
         if not self.store_key:
             self.store_key = self.read_key + '_fix'
-            self.log().info('store_key has been set to "%s"', self.store_key)
+            self.log().debug('store_key has been set to "%s"', self.store_key)
 
         # check data types
         for k in self.var_dtype.keys():
@@ -204,7 +204,7 @@ class FixPandasDataFrame(Link):
             self.original_columns = df.columns.tolist()
         # check not empty
         if self.original_columns:
-            self.log().info('Original columns to be processed:\n%s', str(self.original_columns))
+            self.log().debug('Original columns to be processed:\n%s', str(self.original_columns))
         else:
             self.log().warning('Original columns have not been set; nothing to do')
             return StatusCode.Recoverable
@@ -252,7 +252,7 @@ class FixPandasDataFrame(Link):
                     if col in vd:
                         vd[new_col] = vd.pop(col)
             df_.columns = all_columns
-            self.log().info('Fixed column names are:\n%s', str(self.fixed_columns))
+            self.log().debug('Fixed column names are:\n%s', str(self.fixed_columns))
 
         # --- Next: fix datatypes - all rows in a column get consistent datatype, except for nans
 
@@ -278,7 +278,7 @@ class FixPandasDataFrame(Link):
             is_nan[col] = df_[col].apply(check_nan_func)
             n_nan = is_nan[col].values.sum()
             if n_nan:
-                self.log().info('Column "%s" contains %d NaNs out of %d', col, n_nan, n_df)
+                self.log().debug('Column "%s" contains %d NaNs out of %d', col, n_nan, n_df)
             dt = self._df_orig_dtype[col]
             # np.nan is a float, so for non-floats nan is considered contamination by pandas
             if n_nan and dt is not np.float64:
@@ -312,24 +312,23 @@ class FixPandasDataFrame(Link):
                     ndt = str
                 mc = dtype_cnt.pop(dtp)
                 dtype_cnt[ndt] += mc
-            prefered_dtype = dtype_cnt.most_common()[0][0]
+            prefered_dtype = determine_preferred_dtype(dtype_cnt)
             if col not in self.var_dtype:
                 self.var_dtype[col] = prefered_dtype
             if len(dtype_cnt) > 1:
-                self.log().warning('For col "%s" found multiple types: %s', col, str(dtype_cnt))
-                self.log().warning('For col "%s" picked type "%s"; if incorrect, fix type with: var_dtype',
-                                   col, prefered_dtype)
+                self.log().warning('Found multiple types for column "%s"', col)
+                self.log().debug('Picked type "%s" for column "%s" (counts: %s)', prefered_dtype, col, str(dtype_cnt))
                 if col not in self.contaminated_columns:
                     self.contaminated_columns.append(col)
 
-        self.log().info('Consider setting:\nlink.var_dtype = %s', str(self.var_dtype))
-
-        self.log().info('Fixing contamination in columns:\n%s', str(self.contaminated_columns))
+        self.log().debug('Consider setting link.var_dtype = %s', str(self.var_dtype))
+        self.log().info('Fixing contamination in columns %s',
+                        ', '.join('"{}"'.format(c) for c in self.contaminated_columns))
 
         # 4. fix contamination in each column
         for col in self.contaminated_columns:
             dt = self.var_dtype[col]
-            self.log().info('Converting rows in column "%s" to type "%s"', col, dt)
+            self.log().debug('Converting rows in column "%s" to type "%s"', col, dt)
             # pick conversion function of choice
             if col in self.var_convert_func:
                 fnc = self.var_convert_func[col]
@@ -367,3 +366,17 @@ class FixPandasDataFrame(Link):
         ds[self.store_key] = df_
 
         return StatusCode.Success
+
+
+def determine_preferred_dtype(dtype_cnt):
+    """Determine preferred column data type"""
+
+    # get sorted type counts for column
+    type_cnts = dtype_cnt.most_common()
+    if not type_cnts:
+        return None
+
+    # determine preferred type from types with the highest count
+    type_order = {str: '0', np.float64: '1', np.int64: '2', np.bool_: '3'}
+    return sorted((cnt[0] for cnt in type_cnts if cnt[1] == type_cnts[0][1]),
+                   key=lambda t: type_order.get(t, t.__name__))[0]
