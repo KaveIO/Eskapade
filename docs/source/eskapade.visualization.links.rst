@@ -4,6 +4,14 @@ eskapade.visualization.links package
 Submodules
 ----------
 
+eskapade.visualization.links.correlation_summary module
+-------------------------------------------------------
+
+.. automodule:: eskapade.visualization.links.correlation_summary
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 eskapade.visualization.links.df_boxplot module
 ----------------------------------------------
 
