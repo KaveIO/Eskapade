@@ -48,7 +48,7 @@ class DataQualityTutorialMacrosTest(TutorialMacrosTest):
         self.assertListEqual(ds['vrh_fix1']['C'].values.tolist()[:2], [1.0, 2.0])
         self.assertListEqual(ds['vrh_fix1']['D'].values.tolist()[:3], [1.0, 2.0, 3.0])
         self.assertListEqual(ds['vrh_fix1']['E'].values.tolist()[:2], [1, 2])
-        self.assertListEqual(ds['vrh_fix1']['F'].values.tolist()[:2], [1.0, 2.5])
+        self.assertListEqual(ds['vrh_fix1']['F'].values.tolist()[:3], ['1', '2.5', 'bar'])
         self.assertListEqual(ds['vrh_fix1']['G'].values.tolist(), ['a', 'b', 'c', 'd', np.nan])
         self.assertListEqual(ds['vrh_fix1']['H'].values.tolist()[2:5], [1.0, 2.0, 3.0])
 
@@ -61,6 +61,6 @@ class DataQualityTutorialMacrosTest(TutorialMacrosTest):
         self.assertListEqual(ds['vrh_fix3']['C'].values.tolist()[:2], [1.0, 2.0])
         self.assertListEqual(ds['vrh_fix3']['D'].values.tolist()[:3], [1.0, 2.0, 3.0])
         self.assertListEqual(ds['vrh_fix3']['E'].values.tolist(), [1, 2, -999, -999, -999])
-        self.assertListEqual(ds['vrh_fix3']['F'].values.tolist()[:2], [1.0, 2.5])
+        self.assertListEqual(ds['vrh_fix3']['F'].values.tolist(), ['1', '2.5', 'bar', 'not_a_str', 'not_a_str'])
         self.assertListEqual(ds['vrh_fix3']['G'].values.tolist(), ['a', 'b', 'c', 'd', 'GREPME'])
         self.assertListEqual(ds['vrh_fix3']['H'].values.tolist(), [-999, -999, 1, 2, 3])

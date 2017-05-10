@@ -312,7 +312,7 @@ class FixPandasDataFrame(Link):
                     ndt = str
                 mc = dtype_cnt.pop(dtp)
                 dtype_cnt[ndt] += mc
-            prefered_dtype = dtype_cnt.most_common()[0][0]
+            prefered_dtype = determine_preferred_dtype(dtype_cnt)
             if col not in self.var_dtype:
                 self.var_dtype[col] = prefered_dtype
             if len(dtype_cnt) > 1:
@@ -367,3 +367,17 @@ class FixPandasDataFrame(Link):
         ds[self.store_key] = df_
 
         return StatusCode.Success
+
+
+def determine_preferred_dtype(dtype_cnt):
+    """Determine preferred column data type"""
+
+    # get sorted type counts for column
+    type_cnts = dtype_cnt.most_common()
+    if not type_cnts:
+        return None
+
+    # determine preferred type from types with the highest count
+    type_order = {str: '0', np.float64: '1', np.int64: '2', np.bool_: '3'}
+    return sorted((cnt[0] for cnt in type_cnts if cnt[1] == type_cnts[0][1]),
+                   key=lambda t: type_order.get(t, t.__name__))[0]
