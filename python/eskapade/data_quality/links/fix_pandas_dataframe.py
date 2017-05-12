@@ -89,6 +89,7 @@ class FixPandasDataFrame(Link):
         :param list var_bool_to_int: convert boolean column to int (default is conversion of boolean to string)
         :param bool inplace: replace original columns; overwrites store_key to read_key (default is False)
         :param str store_key: key of output data to store in data store
+        :param bool drop_dup_rec: if true, drop duplicate records from data frame after other fixes (default is false)
         """
 
         # initialize Link, pass name from kwargs
@@ -115,7 +116,8 @@ class FixPandasDataFrame(Link):
                              inplace=False,
                              store_key='',
                              nan_dtype_map={},
-                             nan_default=np.nan)
+                             nan_default=np.nan,
+                             drop_dup_rec=False)
 
         # check residual kwargs. exit if any present.
         self.check_extra_kwargs(kwargs)
@@ -361,6 +363,10 @@ class FixPandasDataFrame(Link):
                     fnc_kw['nan'] = self.nan_default
             # apply dtype fix here
             df_[col] = df_[col].apply(fnc, **fnc_kw)
+
+        if self.drop_dup_rec:
+            # drop duplicate records
+            df_.drop_duplicates(inplace=True)
 
         # storage
         ds[self.store_key] = df_
