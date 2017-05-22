@@ -655,3 +655,47 @@ def rds_to_df(rds, branch_names=[], index_name=''):
     df = tree_to_df(tree, branch_names=branch_names, index_name=index_name, drop_roofit_labels=True)
     del tree
     return df
+
+
+def rdh_to_rds(rdh):
+    """Convert a roodatahist to a roodataset
+
+    :param ROOT.RooDataHist rdh: An existing ROOT RooDataHist to be converted to a ROOT.RooDataSet
+    :returns: ROOT RooDataSet
+    :rtype: ROOT.RooDataSet
+    """
+
+    if rdh is None:
+        return None
+
+    if not isinstance(rdh, ROOT.RooDataHist):
+        raise TypeError('input object not of type RooDataHist, but: %s' % (type(rdh)))
+    assert rdh.numEntries() > 0, 'RooDataHist "%s" is empty.' % rdh.GetName()
+
+    # create corresponding list of roofit observables
+    obs_set = rdh.get()
+
+    obsw_set = ROOT.RooArgSet('obsw_set')
+    num_entries = ROOT.RooRealVar('num_entries', 'num_entries', 0)
+    weight = ROOT.RooRealVar('weight', 'weight', 0)
+    weight_error = ROOT.RooRealVar('weight_error', 'weight_error', 0)
+
+    # roodataset will get weight variable
+    obsw_set.add(obs_set)
+    obsw_set.add(num_entries)
+    obsw_set.add(weight_error)
+    obsw_set.add(weight)
+
+    # create roodataset, make sure it can be easily converted to a tree later on.
+    ROOT.RooAbsData.setDefaultStorageType(ROOT.RooAbsData.Tree)
+    rds = ROOT.RooDataSet('rds_' + rdh.GetName(), rdh.GetTitle(), obsw_set, weight.GetName())
+    ROOT.SetOwnership(rds, False)
+
+    for i in range(rdh.numEntries()):
+        rdh.get(i)  # this call updates obs_set
+        num_entries.setVal(rdh.weight())
+        weight_error.setVal(rdh.weightError())
+        weight.setVal(rdh.weight())
+        rds.add(obsw_set,rdh.weight())
+
+    return rds
