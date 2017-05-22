@@ -215,12 +215,13 @@ class RooDataHistFiller(Link):
             n_vars = len(self.columns) - len(map_to_original)
             assert n_total_bins_in_vars >= 0, 'total number of bins in vars is negative'
             assert n_vars >= 0, 'number of roorealvars is negative'
-            n_max_bins = int(math.pow(n_total_bins_in_vars, 1 / n_vars))
-            if n_max_bins < 1:
-                n_max_bins = 1
-            elif n_max_bins > int(self.n_max_total_bins):
-                n_max_bins = int(self.n_max_total_bins)
-            self.log().debug('Max number of variable bins set to: %d', n_max_bins)
+            if n_vars >= 1:
+                n_max_bins = int(math.pow(n_total_bins_in_vars, 1 / n_vars))
+                if n_max_bins < 1:
+                    n_max_bins = 1
+                elif n_max_bins > int(self.n_max_total_bins):
+                    n_max_bins = int(self.n_max_total_bins)
+                self.log().debug('Max number of variable bins set to: %d', n_max_bins)
 
         # 3b. instantiate roodatahist, to be filled up below.
         #     secondly, fix the roofit variable set
@@ -248,7 +249,7 @@ class RooDataHistFiller(Link):
                     rv.setMin(min_val)
                 if name in self.var_max_value:
                     max_val = self.var_max_value[name]
-                    rv.setMin(max_val)
+                    rv.setMax(max_val)
         else:
             assert isinstance(self._varset, ROOT.RooArgSet) and len(self._varset), 'varset is not a filled rooargset'
         if not self._rdh:
