@@ -118,7 +118,7 @@ if settings['make_plot']:
     ch.add_link(hf)
 
     # --- make a nice summary report of the created histograms
-    hs = visualization.HistSummary(name='HistogramSummary', read_key=hf.store_key)
+    hs = visualization.DfSummary(name='HistogramSummary', read_key=hf.store_key)
     ch.add_link(hs)
 
     pds = core_ops.PrintDs()
