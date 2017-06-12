@@ -101,6 +101,7 @@ Appendices
    :maxdepth: 2
 
    mac_os
+   spark
 
 API
 ---
