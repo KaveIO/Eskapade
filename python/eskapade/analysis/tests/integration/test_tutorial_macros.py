@@ -1,6 +1,6 @@
 import os
 
-from eskapade.tests.integration.test_tutorial_macros import TutorialMacrosTest
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 from eskapade.core import execution, definitions
 from eskapade import ProcessManager, ConfigObject, DataStore
 
