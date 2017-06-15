@@ -408,15 +408,15 @@ Stand-alone
       - Under 'Project: eskapade' / 'Project Interpreter':
           - The correct Python version (currently 3.5.2 of Anaconda, use the interpreter of your conda environment)
       - Under 'Build, Execution & Deployment' / 'Console' / 'Python Console':
-          - The correct Python version (currently 2.7.x of Anaconda, use the interpreter of your conda environment)
+          - The correct Python version (currently 3.5.2 of Anaconda, use the interpreter of your conda environment)
   * Run/Debug Configuration:
       - Under 'Python' add new configuration
-      - Script: ``run_eskapade.py``
+      - Script: ``scripts/run_eskapade.py``
       - Script parameters: ``-w ../tutorials/tutorial_1.py``
-      - Working directory: ``$ESKAPADE/scripts``
+      - Working directory: ``$ESKAPADE``
       - Python interpreter: check if it is the correct Python version (currently 3.5.2 of Anaconda, corresponding to
         your conda environment)
-      - Environment variables: should contain those in ``source.sh``
+      - Environment variables: should contain those defined in ``$ESKAPADE/setup.sh``.
 
 You should now be able to press the 'play button' to run Eskapade with the specified parameters.
 
