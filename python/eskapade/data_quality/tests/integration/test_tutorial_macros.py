@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from eskapade.tests.integration.test_tutorial_macros import TutorialMacrosTest
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 from eskapade import ProcessManager, DataStore
 
 

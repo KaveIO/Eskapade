@@ -3,7 +3,7 @@ import pandas as pd
 
 import ROOT
 
-from eskapade.tests.integration.test_tutorial_macros import TutorialMacrosTest
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 from eskapade.core import persistence
 from eskapade import ProcessManager, ConfigObject, DataStore
 from eskapade.root_analysis import RooFitManager
