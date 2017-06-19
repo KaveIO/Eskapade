@@ -129,8 +129,8 @@ pds.keys = ['n_sum_rc']
 procMgr.get_chain('Overview').add_link(pds)
 
 # --- make a nice summary report of the created histograms
-hist_summary = visualization.HistSummary(name='HistogramSummary', \
-                                         read_key=vc.store_key_hists)
+hist_summary = visualization.DfSummary(name='HistogramSummary',
+                                       read_key=vc.store_key_hists)
 procMgr.get_chain('Overview').add_link(hist_summary)
 
 #########################################################################################
