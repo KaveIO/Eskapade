@@ -29,7 +29,7 @@ NUMERIC_SUBSTR = [np.dtype('int'), np.dtype('float'), np.dtype('double')]
 STRING_SUBSTR = [np.dtype('str'), np.dtype('object'), np.dtype('bool')]
 
 # timestamps are converted to nanoseconds (int)
-TIME_SUBSTR = [np.dtype('datetime64[ns]'), np.datetime64]
+TIME_SUBSTR = [np.dtype('datetime64[ns]'), np.datetime64, np.dtype('<M8')]
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 
@@ -224,6 +224,16 @@ class HistogramFillerBase(Link):
 
         return all_columns
 
+    def get_data_type(self, df, col):
+        """Get data type of dataframe column
+
+        :param df: input data frame
+        :param str col: column
+        """
+        if col not in df.columns:
+            raise KeyError('column "{0:s}" not in input dataframe'.format(col))
+        return df[col].dtype
+
     def categorize_columns(self, df):
         """Categorize columns of dataframe by data type
 
@@ -236,7 +246,7 @@ class HistogramFillerBase(Link):
             for col in c:
                 if col not in df.columns:
                     raise KeyError('column "{0:s}" not in dataframe "{1:s}"'.format(col, self.read_key))
-                dt = df[col].dtype
+                dt = self.get_data_type(df, col)
                 if col not in self.var_dtype:
                     self.var_dtype[col] = dt.type
                     if (self.var_dtype[col] is np.string_) or (self.var_dtype[col] is np.object_):
@@ -308,7 +318,12 @@ def to_ns(x):
 
     if pd.isnull(x):
         return 0
-    return pd.to_datetime(x).value
+    try:
+        return pd.to_datetime(x).value
+    except:
+        if hasattr(x, '__str__'):
+            return pd.to_datetime(str(x)).value
+    return 0
 
 
 def to_str(val):
