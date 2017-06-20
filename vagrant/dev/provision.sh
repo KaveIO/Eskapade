@@ -13,6 +13,8 @@ KTBDIR="/opt/KaveToolbox"
 ANADIR="/opt/anaconda"
 SPARKRELEASE="2.1.0"
 SPARKDIR="/opt/spark"
+HGRRELEASE="2.11"
+HGRJARVERSION="1.0.4"
 ROOTRELEASE="6.08.06"
 ROOTDIR="/opt/root"
 PYCHARMRELEASE="2016.3.2"
@@ -96,6 +98,14 @@ wget -q "http://archive.apache.org/dist/spark/spark-${SPARKRELEASE}/spark-${SPAR
 tar -xzf "spark-${SPARKRELEASE}.tgz" --no-same-owner -C "${SPARKDIR}"
 cd "${SPARKDIR}/pro"
 build/mvn -DskipTests clean package &> "${LOGDIR}/install-spark.log"
+
+# install Histogrammar fixes for Spark
+log "installing Histogrammar fixes and JARs for Spark"
+cd "${TMPDIR}"
+cp /vagrant/histogrammar/*.py "${ANADIR}/pro/lib/python3.5/site-packages/histogrammar/primitives"/
+wget -q "https://s3-eu-west-1.amazonaws.com/kpmg-eskapade-share/dependencies/histogrammar_${HGRRELEASE}-${HGRJARVERSION}.jar"
+wget -q "https://s3-eu-west-1.amazonaws.com/kpmg-eskapade-share/dependencies/histogrammar-sparksql_${HGRRELEASE}-${HGRJARVERSION}.jar"
+cp histogrammar*.jar "${ANADIR}/pro/lib/python3.5/site-packages/histogrammar"/
 
 # setup ROOT environment
 sed -e "s|ROOTSYS_VAR|${ROOTDIR}/pro|g" /vagrant/root/root_env.sh >> "${KTBDIR}/pro/scripts/KaveEnv.sh"
