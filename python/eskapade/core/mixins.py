@@ -127,11 +127,23 @@ class ArgumentsMixin(object):
         """Check if set of arguments has iterators"""
 
         self.check_required_args(*arg_names)
-        if allow_none and attr is None:
-            return
         for arg_name in arg_names:
+            attr = getattr(self, arg_name)
+            if allow_none and attr is None:
+                continue
             if not hasattr(getattr(self, arg_name), '__iter__'):
                 raise TypeError('argument "%s" of %s is not iterable' % (arg_name, str(self)))
+
+    def check_arg_callable(self, *arg_names, allow_none=False):
+        """Check if set of arguments has iterators"""
+
+        self.check_required_args(*arg_names)
+        for arg_name in arg_names:
+            attr = getattr(self, arg_name)
+            if allow_none and attr is None:
+                continue
+            if not callable(getattr(self, arg_name)):
+                raise TypeError('argument "%s" of %s is not callable' % (arg_name, str(self)))
 
 
 class LoggingMixin(object):
