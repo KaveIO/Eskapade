@@ -52,6 +52,7 @@ class HistogramFillerBase(Link):
         :param str store_key: key of output data to store histograms in data store
         :param list columns: colums to pick up from input data. (default is all columns)
         :param dict bin_specs: dictionaries used for rebinning numeric or timestamp columns
+
         Example bin_specs dictionary is:
 
         >>> bin_specs = {'x': {'bin_width': 1, 'bin_offset': 0},
@@ -62,6 +63,7 @@ class HistogramFillerBase(Link):
         :param bool store_at_finalize: Store histograms in datastore at finalize(), not at
                                        execute(). Useful when looping over datasets. Default is False.
         :param drop_keys dict: dictionary used for dropping specific keys from bins dictionaries of histograms
+
         Example drop_keys dictionary is:
 
         >>> drop_keys = {'x': [1,4,8,19],

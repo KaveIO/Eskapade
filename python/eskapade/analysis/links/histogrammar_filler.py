@@ -66,6 +66,7 @@ class HistogrammarFiller(HistogramFillerBase):
         :param bool store_at_finalize: Store histograms in datastore at finalize(), not at
                                        execute(). Useful when looping over datasets. Default is False.
         :param drop_keys dict: dictionary used for dropping specific keys from bins dictionaries of histograms
+
         Example drop_keys dictionary is:
 
         >>> drop_keys = {'x': [1, 4, 8, 19],
