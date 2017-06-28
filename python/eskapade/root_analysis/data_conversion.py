@@ -449,11 +449,12 @@ def tree_to_df(tree, branch_names=[], index_name='', drop_roofit_labels=False):
     return df
 
 
-def rds_to_tree(rds, tree_name=''):
+def rds_to_tree(rds, tree_name='', ignore_lost_records=False):
     """Convert a RooDataSet to a TTree
 
     :param ROOT.RooDataSet rds: an existing ROOT RooDataSet to be converted to a ROOT TTree
     :param str tree_name: new name of the tree. (optional)
+    :param bool ignore_lost_records: if true, tree is allowed to loose records in conversion
     :returns: a root tree
     :rtype: ROOT.TTree
     """
@@ -473,10 +474,11 @@ def rds_to_tree(rds, tree_name=''):
         del new_rds
 
     # basic check of contents
-    n_tree = tree.GetEntries()
-    n_rds = rds.numEntries()
-    if n_tree != n_rds:
-        raise AssertionError('records have been lost: tree "{0:d}" vs rds "{1:d}"'.format(n_tree, n_rds))
+    if not ignore_lost_records:
+        n_tree = tree.GetEntries()
+        n_rds = rds.numEntries()
+        if n_tree != n_rds:
+            raise AssertionError('records have been lost: tree "{0:d}" vs rds "{1:d}"'.format(n_tree, n_rds))
 
     if len(tree_name):
         tree.SetName(tree_name)
@@ -638,20 +640,61 @@ def df_to_rds(df, rf_varset=None, category_vars={}, name='', store_index=True):
     return rds, varset, map_to_factorized, map_to_original
 
 
-def rds_to_df(rds, branch_names=[], index_name=''):
+def rds_to_df(rds, branch_names=[], index_name='', ignore_lost_records=False):
     """Convert a roodataset to a pandas DataFrame
 
     :param ROOT.RooDataSet rds: An existing ROOT RooDataSet to be converted to a pandas DataFrame
     :param list branch_names: input list of branch to be converted dataframe columns. If empty, pick all branches.
     :param str index_name: roofit observable that will be interpreted as dataframe index.
                            If empty, pick first branch name starting with '__index__'.
+    :param bool ignore_lost_records: if true, dataframe is allowed to loose records in conversion
     :returns: dataframe
     :rtype: pandas.DataFrame
     """
 
     if rds is None:
         return None
-    tree = rds_to_tree(rds)
+    tree = rds_to_tree(rds, ignore_lost_records=ignore_lost_records)
     df = tree_to_df(tree, branch_names=branch_names, index_name=index_name, drop_roofit_labels=True)
     del tree
     return df
+
+
+def rds_to_rdh(rds, rf_varset=None, columns=[], binning_name=''):
+    """Convert a roodataset to a roodatahist
+
+    :param ROOT.RooDataSet rds: An existing ROOT RooDataSet to be converted to a pandas DataFrame.
+    :param ROOT.RooArgSet rf_varset: roofit variables used in roodatahist constructor.
+    :param list columns: list of columns to create roodatahist for. alternative to rf_varset.
+    :param str binning_name: name of binning configuration, used in roodatahist constructor.
+    :returns: roodatahist of selected columns.
+    :rtype: ROOT.RooDataHist
+    """
+
+    if not isinstance(rds, ROOT.RooDataSet):
+        raise AssertionError('Input object not of type RooDataSet.')
+    if rds.numEntries()==0:
+        raise AssertionError('Input dataset is not filled.')
+
+    if rf_varset is not None:
+        if not (isinstance(rf_varset, ROOT.RooArgSet) and len(rf_varset) > 0):
+            raise AssertionError('rf_varset is not a filled RooArgSet')
+        columns = [arg.GetName() for arg in rf_varset]
+    assert len(columns) > 0, 'columns list is empty'
+
+    varset = rds.get(0)
+    for col in columns:
+        if not varset.find(col):
+            raise AssertionError('column %s not found in input dataset' % col)
+
+    if not rf_varset:
+        rf_varset = ROOT.RooArgSet()
+        for col in columns:
+            rf_varset.add(varset.find(col))
+
+    # create and fill roofit histogram
+    rdh_name = 'rdh_' + rds.GetName()
+    rdh = ROOT.RooDataHist(rdh_name, rdh_name, rf_varset, binning_name)
+    rdh.add(rds)
+
+    return rdh
