@@ -81,7 +81,7 @@ ch2.add_link(refact)
 
 # --- print contents of the datastore
 pds = core_ops.PrintDs(name='printer3')
-pds.keys = ['test1', 'test1_refact']
+pds.keys = ['test1', 'test1_fact', 'test1_refact']
 ch2.add_link(pds)
 
 #########################################################################################
