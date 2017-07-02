@@ -15,6 +15,7 @@
 
 import pandas as pd
 import numpy as np
+import fnmatch
 
 import ROOT
 
@@ -163,8 +164,15 @@ class ConvertDataFrame2RooDataSet(Link):
         # 1d. check all columns
         if not self.columns:
             self.columns = df.columns.tolist()
+        # match all columns/pattern in self.columns to df.columns
+        matched_columns = []
+        for c in self.columns:
+            match_c = fnmatch.filter(df.columns, c)
+            if not match_c:
+                raise AssertionError('column or pattern "%s" not in data frame' % (c, self.read_key))
+            matched_columns += match_c
+        self.columns = matched_columns
         for col in self.columns[:]:
-            assert col in df.columns, 'column "%s" not in dataframe "%s"' % (col, self.read_key)
             dt = df[col].dtype.type
             # keep categorical observables -- convert these to roocategories in conversion
             if issubclass(dt, pd.types.dtypes.CategoricalDtypeType):
