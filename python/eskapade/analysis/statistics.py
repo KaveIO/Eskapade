@@ -278,6 +278,12 @@ class ArrayStats(LoggingMixin):
                     var_min = 0.
                 elif var_max < 0. and var_max > -0.2 * (var_max - var_min):
                     var_max = 0.
+                if np.isnan(var_min):
+                    var_min = bin_edges[0]
+                assert not np.isnan(var_min)
+                if np.isnan(var_max):
+                    var_max = bin_edges[-1]
+                assert not np.isnan(var_max)
 
             if col_props['is_ts']:
                 # np.histogram cannot deal with timestamps, so convert to ints and convert them back below.
