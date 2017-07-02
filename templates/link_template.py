@@ -42,14 +42,20 @@ class LINKTEMPLATE(Link):
         #self.kwargs = kwargs
 
     def initialize(self):
-        """Initialize LINKTEMPLATE"""
+        """Initialize LINKTEMPLATE
 
-        # --- any initialization code for this link follows here
+        :returns: status code of initialization
+        :rtype: StatusCode
+        """
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute LINKTEMPLATE"""
+        """Execute LINKTEMPLATE
+
+        :returns: status code of execution
+        :rtype: StatusCode
+        """
 
         proc_mgr = ProcessManager()
         settings = proc_mgr.service(ConfigObject)
@@ -62,7 +68,11 @@ class LINKTEMPLATE(Link):
         return StatusCode.Success
 
     def finalize(self):
-        """Finalize LINKTEMPLATE"""
+        """Finalize LINKTEMPLATE
+
+        :returns: status code of finalization
+        :rtype: StatusCode
+        """
 
         # --- any code to finalize the link follows here
 
