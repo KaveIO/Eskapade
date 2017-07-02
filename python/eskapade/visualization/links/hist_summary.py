@@ -18,6 +18,8 @@ import pandas as pd
 import numpy as np
 import tabulate
 
+from collections import OrderedDict
+
 from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 from eskapade import core, visualization
 from eskapade.analysis import statistics
@@ -49,8 +51,9 @@ class HistSummary(Link):
         :param list hist_keys: histograms keys pick up from input histogram dict to make & plot summaries for
         :param dict var_labels: dict of column names with a label per column
         :param dict var_units: dict of column names with a unit per column
-        :param dict var_bins: dict of column names with the number of bins per column. Default per column is 30.
-        :param str hist_y_label: y-axis label to plot for all columns. Default is 'Bin Counts'.
+        :param dict var_bins: dict of column names with the number of bins per column. Default per column is 30
+        :param str hist_y_label: y-axis label to plot for all columns. Default is 'Bin Counts'
+        :param str pages_key: data store key of existing report pages
         """
 
         # initialize Link, pass name from kwargs
@@ -60,11 +63,12 @@ class HistSummary(Link):
         self._process_kwargs(kwargs,
                              read_key='',
                              results_path='',
-                             hist_keys=None,
+                             hist_keys=[],
                              var_labels={},
                              var_units={},
                              var_bins={},
-                             hist_y_label='Bin counts')
+                             hist_y_label='Bin counts',
+                             pages_key='')
         self.check_extra_kwargs(kwargs)
 
         # initialize attributes
@@ -78,10 +82,9 @@ class HistSummary(Link):
         """
 
         # check input arguments
-        self.check_arg_types(read_key=str)
+        self.check_arg_types(read_key=str, pages_key=str)
         self.check_arg_types(recurse=True, allow_none=True, hist_keys=str,
                              var_labels=str, var_units=str)
-        self.check_arg_vals('read_key')
 
         # get I/O configuration
         io_conf = ProcessManager().service(ConfigObject).io_conf()
@@ -121,17 +124,24 @@ class HistSummary(Link):
         :rtype: StatusCode
         """
 
+        ds = ProcessManager().service(DataStore)
+
         # fetch and check input data frame
-        hist_dict = ProcessManager().service(DataStore).get(self.read_key, None)
+        hist_dict = ds.get(self.read_key, {})
         if not isinstance(hist_dict, dict):
             self.log().critical('no histograms "%s" found in data store for %s', self.read_key, str(self))
             raise RuntimeError('no input data found for %s' % str(self))
 
-        if self.hist_keys is None:
+        if not self.hist_keys:
             self.hist_keys = hist_dict.keys()
+        if not isinstance(hist_dict, OrderedDict):
+            self.hist_keys = sorted(self.hist_keys)
 
         # create report page for histogram
-        self.pages = []
+        if self.pages_key:
+            self.pages = ds.get(self.pages_key, [])
+            assert isinstance(self.pages, list), 'Pages key %s does not refer to a list' % self.pages_key
+
         for name in self.hist_keys:
             # histogram name
             self.log().info('processing histogram "%s"', name)
@@ -147,6 +157,15 @@ class HistSummary(Link):
                 self.process_1d_histogram(name, hist)
             elif hist.n_dim == 2:
                 self.process_2d_histogram(name, hist)
+
+        # storage
+        if self.pages_key:
+            ds[self.pages_key] = self.pages
+
+        return StatusCode.Success
+
+    def finalize(self):
+        """Finalize HistSummary"""
 
         # write out accumulated histogram statistics into report file
         with open('{}/report.tex'.format(self.results_path), 'w') as report_file:
@@ -199,7 +218,7 @@ class HistSummary(Link):
         # determine histogram properties for plotting below
         x_label = stats.get_x_label()
         y_label = self.hist_y_label if self.hist_y_label else None
-        hist_file_name = 'hist_{}.pdf'.format(name)
+        hist_file_name = 'hist_{}.pdf'.format(name.replace(' ', '_'))
         pdf_file_name = '{0:s}/{1:s}'.format(self.results_path, hist_file_name)
 
         # matplotlib plot of histogram
@@ -255,7 +274,7 @@ class HistSummary(Link):
         except BaseException:
             xlab = 'unknown x'
             ylab = 'unknown y'
-        hist_file_name = 'hist_{}.pdf'.format(name.replace(':', '_vs_'))
+        hist_file_name = 'hist_{}.pdf'.format(name.replace(':', '_vs_').replace(' ', '_'))
         pdf_file_name = '{0:s}/{1:s}'.format(self.results_path, hist_file_name)
 
         # plot the 2d histogram

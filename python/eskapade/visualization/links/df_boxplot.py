@@ -46,6 +46,7 @@ class DfBoxplot(Link):
         :param list statistics: a list of strings of the statistics you want to generate for the boxplot
                the full list is taken from statistics.ArrayStats.get_latex_table
                defaults to: ['count', 'mean', 'min', 'max']
+        :param str pages_key: data store key of existing report pages
         """
 
         # initialize Link
@@ -53,7 +54,7 @@ class DfBoxplot(Link):
 
         # process keyword arguments
         self._process_kwargs(kwargs, read_key='', results_path='', column=None, cause_columns=None,
-                             var_labels={}, var_units={}, statistics=['count', 'mean', 'min', 'max'])
+                             var_labels={}, var_units={}, statistics=['count', 'mean', 'min', 'max'], pages_key='')
         self.check_extra_kwargs(kwargs)
 
         # initialize attributes
@@ -63,7 +64,7 @@ class DfBoxplot(Link):
         """Inititialize DfBoxplot link"""
 
         # check input arguments
-        self.check_arg_types(read_key=str)
+        self.check_arg_types(read_key=str, pages_key=str)
         self.check_arg_types(recurse=True, allow_none=True, column=str, cause_columns=list, statistics=list)
         self.check_arg_vals('read_key')
 
@@ -104,19 +105,18 @@ class DfBoxplot(Link):
         * store plot
         """
 
-        # import matplotlib here to prevent import before setting backend in
-        # core.execution.run_eskapade
-        import matplotlib.pyplot as plt
-        from matplotlib.backends.backend_pdf import PdfPages
-
         # fetch and check input data frame
         data = ProcessManager().service(DataStore).get(self.read_key, None)
         if not isinstance(data, pd.DataFrame):
             self.log().critical('No Pandas data frame "%s" found in data store for %s', self.read_key, str(self))
             raise RuntimeError('no input data found for %s' % str(self))
 
-        # create report page for each variable in data frame
-        self.pages = []
+        # fetch any existing report pages
+        if self.pages_key:
+            self.pages = ds.get(self.pages_key, [])
+            assert isinstance(self.pages, list), 'Pages key %s does not refer to a list' % self.pages_key
+
+        # create report page for each plot
         for col in self.cause_columns:
             # output column name
             self.log().debug('processing cause column "%s"', col)
@@ -134,31 +134,30 @@ class DfBoxplot(Link):
             stats = statistics.GroupByStats(data, self.column, groupby=col, unit=self.var_units.get(self.column, ''),
                                             label=var_label)
 
-            # 3. plot histogram of column variable
-            visualization.vis_utils.box_plot(data, col, self.column)
-
-            # 4. store plot
+            # 3. plot and store histogram of column variable
             box_file_name = 'boxplot_{}.pdf'.format(col)
-            pdf_file = PdfPages(
-                '{0:s}/{1:s}'.format(self.results_path, box_file_name))
-            plt.savefig(
-                pdf_file,
-                format='pdf',
-                bbox_inches='tight',
-                pad_inches=0)
-            plt.close()
-            pdf_file.close()
+            pdf_file_name = '{0:s}/{1:s}'.format(self.results_path, box_file_name)
+            visualization.vis_utils.box_plot(data, col, self.column, pdf_file_name=pdf_file_name)
 
-            # 5. create overview table of column variable with a group-by applied by GroupByStats
+            # 4. create overview table of column variable with a group-by applied by GroupByStats
             stats_table = stats.get_latex_table(get_stats=self.statistics)
 
-            # create page string
+            # 5. create page string
             self.pages.append(self.page_template.replace('VAR_LABEL', var_label)
                                                 .replace('VAR_STATS_TABLE', stats_table)
                                                 .replace('VAR_HISTOGRAM_PATH', box_file_name))
 
+        # storage
+        if self.pages_key:
+            ds[self.pages_key] = self.pages
+
+        return StatusCode.Success
+
+    def finalize(self):
+        """Finalize DfBoxplot"""
+
         # write report file from the strings in self.pages
-        with open('{}/report_boxplots.tex'.format(self.results_path), 'w') as report_file:
+        with open('{}/report.tex'.format(self.results_path), 'w') as report_file:
             report_file.write(self.report_template.replace('INPUT_PAGES', ''.join(self.pages)))
 
         return StatusCode.Success

@@ -47,6 +47,7 @@ class DfSummary(Link):
         :param dict var_units: dict of column names with a unit per column
         :param dict var_bins: dict of column names with the number of bins per column. Default per column is 30.
         :param str hist_y_label: y-axis label to plot for all columns. Default is 'Bin Counts'.
+        :param str pages_key: data store key of existing report pages
         """
 
         # initialize Link
@@ -55,7 +56,7 @@ class DfSummary(Link):
         # process keyword arguments
         self._process_kwargs(kwargs, read_key='', results_path='', columns=None,
                              var_labels={}, var_units={}, var_bins={},
-                             hist_y_label='Bin counts')
+                             hist_y_label='Bin counts', pages_key='')
         self.check_extra_kwargs(kwargs)
 
         # initialize attributes
@@ -65,7 +66,7 @@ class DfSummary(Link):
         """Inititialize DfSummary link"""
 
         # check input arguments
-        self.check_arg_types(read_key=str)
+        self.check_arg_types(read_key=str, pages_key=str)
         self.check_arg_types(recurse=True, allow_none=True, columns=str,
                              var_labels=str, var_units=str)
         self.check_arg_vals('read_key')
@@ -119,8 +120,11 @@ class DfSummary(Link):
             self.log().critical('No Pandas data frame "%s" found in data store for %s', self.read_key, str(self))
             raise RuntimeError('no input data found for %s' % str(self))
 
-        # create report page for each variable in data frame
-        self.pages = []
+        # create report page for histogram
+        if self.pages_key:
+            self.pages = ProcessManager().service(DataStore).get(self.pages_key, [])
+            assert isinstance(self.pages, list), 'Pages key %s does not refer to a list' % self.pages_key
+
         nan_counts = []
         all_columns = sorted((data if self.columns is None else self).columns.tolist())
         for col in all_columns[:]:
@@ -175,6 +179,16 @@ class DfSummary(Link):
         # add nan histogram to summary
         nan_hist = nan_counts, all_columns
         self.process_nan_histogram(nan_hist, len(data.index))
+
+        # storage
+        if self.pages_key:
+            ds = ProcessManager().service(DataStore)
+            ds[self.pages_key] = self.pages
+
+        return StatusCode.Success
+
+    def finalize(self):
+        """Finalize DfSummary"""
 
         # write report file
         with open('{}/report.tex'.format(self.results_path), 'w') as report_file:
