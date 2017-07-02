@@ -31,9 +31,9 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIn('n_correlated_data', ds)
         self.assertEqual(500, ds['n_correlated_data'])
         self.assertIn('n_rdh_x1', ds)
-        self.assertEqual(100, ds['n_rdh_x1'])
+        self.assertEqual(40, ds['n_rdh_x1'])
         self.assertIn('n_rds_x2_vs_x3', ds)
-        self.assertEqual(114, ds['n_rds_x2_vs_x3'])
+        self.assertEqual(23, ds['n_rds_x2_vs_x3'])
 
         # roofit objects check
         self.assertIn('hpdf', ds)
