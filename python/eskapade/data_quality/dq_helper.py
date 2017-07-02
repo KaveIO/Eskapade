@@ -16,6 +16,25 @@
 import pandas as pd
 import numpy as np
 import ast
+import re
+
+
+def cleanup_string(col):
+    """Cleanup input string
+
+    :param col: string to be cleaned up
+    :returns: cleaned up string
+    :rtype: str
+    """
+    if not isinstance(col, str):
+        return col
+    # strip
+    new_col = col.strip()
+    # replace empty spaces
+    new_col = new_col.replace(' ', '_')
+    # keep only alphanumeric and _
+    new_col = re.sub('[^A-Za-z0-9_]+', '', new_col)
+    return new_col
 
 
 def check_nan(val):
