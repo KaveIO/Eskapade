@@ -303,3 +303,25 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue(os.path.exists(plot_path))
         statinfo = os.stat(plot_path)
         self.assertGreater(statinfo.st_size, 0)
+
+    def test_esk410(self):
+        """Test Esk-410: Hypothesis test of categorical observables """
+
+        # run Eskapade
+        self.run_eskapade('esk410_testing_correlations_between_categories.py')
+        proc_mgr = ProcessManager()
+        ds = proc_mgr.service(DataStore)
+
+        # report checks
+        self.assertIn('report_pages', ds)
+        self.assertIsInstance(ds['report_pages'], list)
+        self.assertEqual(12, len(ds['report_pages']))
+
+        # data-summary checks
+        settings = ProcessManager().service(ConfigObject)
+        file_names = ['report.tex']
+        for fname in file_names:
+            path = '{0:s}/{1:s}/data/v0/report/{2:s}'.format(settings['resultsDir'], settings['analysisName'], fname)
+            self.assertTrue(os.path.exists(path))
+            statinfo = os.stat(path)
+            self.assertTrue(statinfo.st_size > 0)
