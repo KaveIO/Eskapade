@@ -23,6 +23,7 @@ try:
     from pandas.types.dtypes import CategoricalDtypeType
 except ImportError:
     from pandas.core.dtypes.dtypes import CategoricalDtypeType
+import fnmatch
 
 from eskapade import ProcessManager, Link, StatusCode, DataStore
 
@@ -128,9 +129,14 @@ class RecordFactorizer(Link):
             raise TypeError('retrieved object not of type pandas DataFrame')
         if len(df.index) == 0:
             raise AssertionError('dataframe "%s" is empty' % self.read_key)
+        # match all columns/pattern in self.columns to df.columns
+        matched_columns = []
         for c in self.columns:
-            if c not in df.columns:
-                raise AssertionError('column "%s" not present in input data frame' % c)
+            match_c = fnmatch.filter(df.columns, c)
+            if not match_c:
+                raise AssertionError('column or pattern "%s" not present in input data frame' % c)
+            matched_columns += match_c
+        self.columns = matched_columns
         # convert booleans and categorical observables?
         for c in df.columns:
             if c in self.columns:
