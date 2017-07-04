@@ -61,9 +61,6 @@ class ConvertDataFrame2RooDataSet(Link):
                                        map_to_factorized is a dict of dicts, one dict for each column. (optional)
         :param str sk_map_to_original: store key of dictiorary to map factorized columns to original.
                                        Default is 'key' + '_' + store_key + '_to_original'. (optional)
-        :param dict var_number_of_bins: number of bins for histogram of certain variable (optional)
-        :param dict var_min_value: min value for histogram of certain variable (optional)
-        :param dict var_max_value: max value for histogram of certain variable (optional)
         :param int n_max_total_bins: max number of bins in roodatahist. Default is 1e6.
         :param bool store_index: If true, copy df's index to rds. Default is true.
         :param str create_keys_pdf: if set, create keys pdf from rds with this name and add
@@ -86,9 +83,6 @@ class ConvertDataFrame2RooDataSet(Link):
                              rm_original=False,
                              map_to_factorized={},
                              sk_map_to_original='',
-                             var_number_of_bins={},
-                             var_min_value={},
-                             var_max_value={},
                              n_max_total_bins=1e6,
                              store_index=True,
                              create_keys_pdf='')
