@@ -1,8 +1,8 @@
-================
-Jupyter Tutorial
-================
+=========================
+Tutorial Jupyter Notebook
+=========================
 
-This section contains materials on how to use Eskapade in Jupyter notebooks. There are additional side notes on how certain
+This section contains materials on how to use Eskapade in Jupyter Notebooks. There are additional side notes on how certain
 aspects work and where to find parts of the code. For more in depth explanations, try the `API-docs <code.html>`_.
 
 

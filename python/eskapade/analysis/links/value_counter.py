@@ -70,6 +70,7 @@ class ValueCounter(HistogramFillerBase):
         :param bool drop_inconsistent_key_types: cleanup histograms and/or ValueCount objects by removing alls
                bins/keys with inconsistent datatypes. By default compare with data types in var_dtype dictionary.
         :param drop_keys dict: dictionary used for dropping specific keys from created value_counts dictionaries
+
         Example drop_keys dictionary is:
 
         >>> drop_keys = {'x': [1, 4, 8, 19],

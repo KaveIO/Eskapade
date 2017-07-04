@@ -1,27 +1,28 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : Tutorial_1                                                         
-# * Created: 2017/02/18                                                            *
-# * Description:                                                                   *
-# *      Macro illustrates basic setup of chains and links,
-# *      by showing: how to open and run over a dataset, 
-# *      apply transformations to it, and plot the results.
-# *      
-# * Authors:                                                                       *
-# *      KPMG Big Data team.
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+# ********************************************************************************
+# * Project: Eskapade - A python-based package for data analysis                 *
+# * Macro  : Tutorial_1                                                          *
+# * Created: 2017/02/18                                                          *
+# * Description:                                                                 *
+# *     Macro illustrates basic setup of chains and links,                       *
+# *     by showing: how to open and run over a dataset,                          *
+# *     apply transformations to it, and plot the results.                       *
+# *                                                                              *
+# * Authors:                                                                     *
+# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
+# *                                                                              *
+# * Redistribution and use in source and binary forms, with or without           *
+# * modification, are permitted according to the terms listed in the file        *
+# * LICENSE.                                                                     *
+# ********************************************************************************
 
 import logging
 log = logging.getLogger('macro.Tutorial_1')
+import pandas as pd
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis, visualization
-import pandas as pd
-import os
+from eskapade import analysis, visualization
+from eskapade.core import persistence
+
 
 #########################################################################################
 
@@ -33,18 +34,22 @@ $ wget -P $ESKAPADE/data/ https://statweb.stanford.edu/~tibs/ElemStatLearn/datas
 """
 log.info(msg)
 
+
 #########################################################################################
 # --- minimal analysis information
+
 proc_mgr = ProcessManager()
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'Tutorial_1'
 
-#########################################################################################
-# --- Analysis values, settings, helper functions, configuration flags.
 
-DATA_FILE_PATH = os.environ['ESKAPADE'] + '/data/LAozone.data'
+#########################################################################################
+# --- analysis values, settings, helper functions, configuration flags.
+
+DATA_FILE_PATH = persistence.io_path('data', settings.io_conf(), 'LAozone.data')
 VAR_LABELS = dict(doy='Day of year', date='Date', vis='Visibility', vis_km='Visibility')
 VAR_UNITS = dict(vis='mi', vis_km='km')
+
 
 def comp_date(day):
     """Get date/time from day of year"""
@@ -52,10 +57,12 @@ def comp_date(day):
     import pandas as pd
     return pd.Timestamp('1976-01-01') + pd.Timedelta('{:d}D'.format(day - 1))
 
+
 def mi_to_km(dist):
     """Convert miles to kilometres"""
 
     return dist * 1.60934
+
 
 conv_funcs = [{'func': comp_date, 'colin': 'doy', 'colout': 'date'},
               {'func': mi_to_km, 'colin': 'vis', 'colout': 'vis_km'},
@@ -88,8 +95,8 @@ proc_mgr.add_chain('Summary')
 
 
 #########################################################################################
-# --- Exercises
-# 
+# --- exercises
+#
 # 1.
 # Run the macro and take a look at the output.
 
