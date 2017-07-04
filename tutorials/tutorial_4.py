@@ -1,35 +1,32 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : Tutorial_4                                                            *
-# * Created: 2017/06/14                                                            *
-# * Description:                                                                   *
-# *      Macro illustrates basic setup of chains and links with Apache Spark,      *
-# *      by showing: how to open and run over a dataset,                           *
-# *      apply transformations to it, and plot the results.                        *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team.                                                       *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+# ********************************************************************************
+# * Project: Eskapade - A python-based package for data analysis                 *
+# * Macro  : Tutorial_4                                                          *
+# * Created: 2017/06/14                                                          *
+# * Description:                                                                 *
+# *     Macro illustrates basic setup of chains and links with Apache Spark,     *
+# *     by showing: how to open and run over a dataset,                          *
+# *     apply transformations to it, and plot the results.                       *
+# *                                                                              *
+# * Authors:                                                                     *
+# *     KPMG Big Data team.                                                      *
+# *                                                                              *
+# * Redistribution and use in source and binary forms, with or without           *
+# * modification, are permitted according to the terms listed in the file        *
+# * LICENSE.                                                                     *
+# ********************************************************************************
 
 import logging
 log = logging.getLogger('macro.Tutorial_4')
-
-from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis, visualization
 import pandas as pd
-import os
-
-# --- Spark specific imports
-import pyspark
 
 from pyspark.sql.functions import udf
 from pyspark.sql.types import FloatType, TimestampType
+
+from eskapade import ConfigObject, ProcessManager
 from analytics_engine.spark_analysis import SparkManager
+from eskapade import visualization
 from analytics_engine import spark_analysis
+from eskapade.core import persistence
 
 
 #########################################################################################
@@ -42,29 +39,34 @@ $ wget -P $ESKAPADE/data/ https://statweb.stanford.edu/~tibs/ElemStatLearn/datas
 """
 log.info(msg)
 
+
 #########################################################################################
 # --- minimal analysis information
 proc_mgr = ProcessManager()
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'Tutorial_4'
 
+
 #########################################################################################
-# --- Setup Spark
+# --- setup Spark
 
 proc_mgr.service(SparkManager).spark_session
 
-#########################################################################################
-# --- Analysis values, settings, helper functions, configuration flags.
 
-DATA_FILE_PATH = os.environ['ESKAPADE'] + '/data/LAozone.data'
+#########################################################################################
+# --- analysis values, settings, helper functions, configuration flags.
+
+DATA_FILE_PATH = persistence.io_path('data', settings.io_conf(), 'LAozone.data')
 VAR_LABELS = dict(doy='Day of year', date='Date', vis='Visibility', vis_km='Visibility')
 VAR_UNITS = dict(vis='mi', vis_km='km')
+
 
 def comp_date(day):
     """Get date/time from day of year"""
 
     import pandas as pd
     return pd.Timestamp('1976-01-01') + pd.Timedelta('{:d}D'.format(day - 1))
+
 
 def mi_to_km(dist):
     """Convert miles to kilometres"""
@@ -83,7 +85,6 @@ proc_mgr.add_chain('Data')
 #proc_mgr.get_chain('Data').add_link(reader)
 
 ## add conversion functions to "Data" chain
-# FIXME: needs to be updated (old-style readKey/storeKey)
 #transform = spark_analysis.SparkWithColumn()
 #proc_mgr.get_chain('Data').add_link(transform)
 
@@ -101,8 +102,8 @@ proc_mgr.add_chain('Summary')
 
 
 #########################################################################################
-# --- Exercises
-# 
+# --- exercises
+#
 # 1.
 # Adapt the reader link such that it reads in the LAozone.data CSV with the SparkReader.
 # Hint: see the example macro tutorials/esk602_read_csv_to_spark_df.py.
@@ -120,7 +121,7 @@ proc_mgr.add_chain('Summary')
 # Hint: uncomment the DfSummary link to produce output in the ./results directory.
 
 # 4.
-# Create a new link 'SparkDfPrinter' in the 'Summary' chain that 
+# Create a new link 'SparkDfPrinter' in the 'Summary' chain that
 # takes a Spark dataframe from the DataStore and shows 42 rows.
 # Hint: use make_link.sh python/eskapade/spark_analysis SparkDfPrinter.
 
