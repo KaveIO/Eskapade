@@ -17,13 +17,15 @@
 import os
 import uuid
 import copy
+import tabulate
+import re
 
 import ROOT
 from ROOT import RooFit
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade import core
-from eskapade.root_analysis import RooFitManager
+from eskapade import core, ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade.root_analysis import RooFitManager, roofit_utils
+from eskapade.core import persistence
 
 
 class WsUtils(Link):
@@ -53,6 +55,7 @@ class WsUtils(Link):
         :param list factory: list of commands passed to workspace factory at execute()
         :param list apply: list of functions to pass workspace through at execute()
         :param str results_path: output path of plot (optional)
+        :param str pages_key: data store key of existing report pages
         """
 
         # initialize Link, pass name from kwargs
@@ -67,17 +70,23 @@ class WsUtils(Link):
                              rm_from_ws=[],
                              factory=[],
                              apply=[],
-                             results_path='')
+                             results_path='',
+                             pages_key='')
 
         # check residual kwargs. exit if any present.
         self.check_extra_kwargs(kwargs)
 
+        # initialize attributes
         self._simulate = []
         self._fit = []
         self._plot = []
+        self.pages = []
 
     def initialize(self):
         """Initialize WsUtils"""
+
+        # check input arguments
+        self.check_arg_types(pages_key=str)
 
         if isinstance(self.copy_into_ws, str):
             self.copy_into_ws = [self.copy_into_ws]
@@ -86,6 +95,17 @@ class WsUtils(Link):
         if isinstance(self.copy_into_ds, str):
             self.copy_into_ds = [self.copy_into_ds]
         assert isinstance(self.copy_into_ds, list), 'copy_into_ds needs to be a string or list of strings.'
+
+        # get I/O configuration
+        io_conf = ProcessManager().service(ConfigObject).io_conf()
+
+        # read report templates
+        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
+            self.report_template = templ_file.read()
+        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
+            self.page_template = templ_file.read()
+        with open(persistence.io_path('templates', io_conf, 'df_summary_table_page.tex')) as templ_file:
+            self.table_template = templ_file.read()
 
         # get path to results directory
         if not self.results_path:
@@ -125,6 +145,14 @@ class WsUtils(Link):
         ds = proc_mgr.service(DataStore)
         ws = proc_mgr.service(RooFitManager).ws
 
+        # --- open existing report pages
+        if self.pages_key:
+            self.pages = ds.get(self.pages_key, [])
+            if not isinstance(self.pages, list):
+                raise TypeError('pages key "{}" does not refer to a list'.format(self.pages_key))
+            elif len(self.pages) > 0:
+                self.log().debug('Retrieved %d report pages under key "%s"', len(self.pages), self.pages_key)
+
         # --- put objects from the datastore into the workspace
         #     by doing this here, the object can be picked up by the factory
         for key in self.copy_into_ws:
@@ -133,7 +161,7 @@ class WsUtils(Link):
                 ws[key] = ds[key]
                 if self.rm_original:
                     del ds[key]
-            except:
+            except BaseException:
                 raise RuntimeError('could not import object "%s" into rooworkspace' % key)
 
         # --- workspace factory commands
@@ -173,7 +201,7 @@ class WsUtils(Link):
                 ds[key] = ws[key].Clone()
                 if self.rm_original:
                     self.rm_from_ws.append(key)
-            except:
+            except BaseException:
                 raise RuntimeError('could not import object "%s" from workspace into ds' % key)
 
         # --- deletion
@@ -182,8 +210,29 @@ class WsUtils(Link):
             try:
                 ws.cd()
                 ROOT.gDirectory.Delete("%s;*" % key)
-            except:
+            except BaseException:
                 self.log().warning('Could not remove "%s" from workspace. Pass', key)
+
+        # storage
+        if self.pages_key:
+            ds[self.pages_key] = self.pages
+            self.log().debug('%d report pages stored under key: %s', len(self.pages), self.pages_key)
+
+        return StatusCode.Success
+
+    def finalize(self):
+        """Finalize WsUtils"""
+
+        # write report file
+        if len(self.pages) == 0:
+            return StatusCode.Success
+        report_name = 'report_fit'
+        if self.pages_key:
+            report_name = re.sub('[^A-Za-z0-9_]+', '', self.pages_key)
+        report_file_name = '{0}/{1}.tex'.format(self.results_path, report_name)
+        with open(report_file_name, 'w') as report_file:
+            report_file.write(self.report_template.replace('INPUT_PAGES', ''.join(self.pages)))
+        self.log().debug('%s length: %d pages', report_name, len(self.pages))
 
         return StatusCode.Success
 
@@ -339,12 +388,61 @@ class WsUtils(Link):
             self.log().error('Failed to fit data "%s" with pdf "%s"', thedata.GetName(), thepdf.GetName())
             raise exc
 
+        # turn fit_result into latex report
+        self._add_fit_result_to_report(fit_result)
+
         # storage
         if into_ws:
             ws.put(fit_result)
         else:
             ds[key] = fit_result
         self.log().debug('Fit result stored under key: %s', key)
+
+    def _add_fit_result_to_report(self, fit_result):
+        """Turn fit_result into latex report
+
+        :param ROOT.RooFitResult fit_result: fit result
+        """
+
+        if not isinstance(fit_result, ROOT.RooFitResult):
+            raise AssertionError('input fit result object not of type RooFitResult')
+
+        fit_result_name = re.sub('[^A-Za-z0-9_]+', '', fit_result.GetName())
+
+        # process correlation matrix from fit result
+        corr_label = 'correlation matrix of ' + fit_result_name
+        n_pars = fit_result.floatParsFinal().getSize()
+        cov_qual = fit_result.covQual()
+        fit_status = fit_result.status()
+        min_nll = fit_result.minNll()
+        table = []
+        table.append(('number pars', '{:d}'.format(n_pars)))
+        table.append(('cov.qual (ok=3)', '{:d}'.format(cov_qual)))
+        table.append(('status (ok=0)', '{:d}'.format(fit_status)))
+        table.append(('nll', '{:f}'.format(min_nll)))
+        corr_table = tabulate.tabulate(table, tablefmt='latex')
+        corr_file_name = ROOT.Eskapade.PlotCorrelationMatrix(fit_result, self.results_path)
+        self.pages.append(self.page_template.replace('VAR_LABEL', corr_label).replace('VAR_STATS_TABLE', corr_table)
+                          .replace('VAR_HISTOGRAM_PATH', corr_file_name))
+
+        # table of floating fit parameters
+        fp_final = fit_result.floatParsFinal()
+        if fp_final.getSize() > 0:
+            fp_label = 'floating fit parameters of ' + fit_result_name
+            fp_file_name = self.results_path + '/floating_pars_' + fit_result_name + '.tex'
+            fp_table = '\input{%s}' % fp_file_name
+            fp_init = fit_result.floatParsInit()
+            fp_final.printLatex(RooFit.Sibling(fp_init), RooFit.OutputFile(fp_file_name))
+            self.pages.append(self.table_template.replace('VAR_LABEL', fp_label).replace('VAR_STATS_TABLE', fp_table))
+
+        # table of constant fit parameters
+        const_pars = fit_result.constPars()
+        if const_pars.getSize() > 0:
+            cp_label = 'constant fit parameters of ' + fit_result_name
+            cp_file_name = self.results_path + '/const_pars_' + fit_result_name + '.tex'
+            cp_table = '\input{%s}' % cp_file_name
+            const_pars.printLatex(RooFit.OutputFile(cp_file_name))
+            self.pages.append(self.table_template.replace('VAR_LABEL', cp_label).replace('VAR_STATS_TABLE', cp_table))
 
     def add_plot(self, *args, **kwargs):
         """Add plotting task
@@ -360,7 +458,8 @@ class WsUtils(Link):
         self._plot.append((a, kw))
 
     def do_plot(self, ds, ws, obs, data=None, pdf=None, func=None, data_args=(), pdf_args=(), func_args=(),
-                data_kwargs={}, pdf_kwargs={}, func_kwargs={}, key='', into_ws=False, file='', bins=40):
+                data_kwargs={}, pdf_kwargs={}, func_kwargs={}, key='', into_ws=False, output_file=None, bins=40,
+                logy=False, miny=0, plot_range=None):
         """Make a plot of data and/or a pdf, or of a function
 
         Either a dataset, pdf, or function needs to be provided as input for plotting.
@@ -379,8 +478,11 @@ class WsUtils(Link):
         :param str key: key under which to store the plot frame (=RooPlot).
                         If key exists in ds/workspace, plot in the existing frame. (optional)
         :param bool into_ws: if true, store simulated data in workspace, not the datastore
-        :param str file: if set, store plot with this file name (optional)
+        :param str output_file: if set, store plot with this file name (optional)
         :param int bins: number of bins in the plot. default is 40. (optional)
+        :param bool logy: if true, set y-axis to log scale (optional)
+        :param float miny: set minimum value of y-axis to miny value (optional)
+        :param tuple plot_range: specify x-axis plot range as (min, max) (optional)
         """
 
         # basic checks
@@ -439,6 +541,9 @@ class WsUtils(Link):
         func_opts += func_args
 
         # plot on existing RooPlot? If so, retrieve.
+        if not plot_range:
+            plot_range = (theobs.getMin(), theobs.getMax())
+        assert len(plot_range) == 2, 'plot range needs to be a tuple of two floats'
         if key:
             if isinstance(key, ROOT.RooPlot):
                 frame = key
@@ -446,14 +551,16 @@ class WsUtils(Link):
                 assert isinstance(key, str) and len(key), 'key for rooplot needs to be a filled string'
                 frame = ds[key] if key in ds else ws.obj(key)
                 if not frame:
-                    frame = theobs.frame(ROOT.RooFit.Bins(bins))
+                    frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(plot_range[0], plot_range[1]))
         else:
-            frame = theobs.frame(ROOT.RooFit.Bins(bins))
+            frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(plot_range[0], plot_range[1]))
         assert isinstance(frame, ROOT.RooPlot)
 
         # do the plotting on this frame
         c = ROOT.TCanvas()
         c.SetCanvasSize(1200, 800)
+        if logy:
+            c.SetLogy()
         c.cd()
 
         # order of plotting is first data then pdf.
@@ -466,7 +573,10 @@ class WsUtils(Link):
             thefunc.plotOn(frame, *func_opts)
 
         # plot frame
-        frame.Draw()
+        if output_file:
+            if miny != 0:
+                frame.SetMinimum(miny)
+            frame.Draw()
 
         # store rooplot
         if key:
@@ -475,11 +585,23 @@ class WsUtils(Link):
             else:
                 ds[key] = frame
         # store picture as file
-        if file:
+        if output_file:
             # store file in correct output directory
-            file = self.results_path + '/' + file.split('/')[-1]
-            c.SaveAs(file)
+            output_file = self.results_path + '/' + output_file.split('/')[-1]
+            c.SaveAs(output_file)
+            # add plot to latex report
+            self._add_plot_to_report(output_file)
         del c
+
+    def _add_plot_to_report(self, file_path):
+        """Add plot to pdflatex report
+
+        :param str file_path: path of pdf input plot
+        """
+
+        label = os.path.splitext(file_path.split('/')[-1])[0]
+        self.pages.append(self.page_template.replace('VAR_LABEL', label).replace('VAR_STATS_TABLE', '')
+                          .replace('VAR_HISTOGRAM_PATH', file_path))
 
     def _get_roofit_opts_list(self, ds, ws, *args, **kwargs):
         """Return RooFit cmd options for fitting and plotting
@@ -525,7 +647,7 @@ class WsUtils(Link):
                 cmd = getattr(RooFit, o)(*v)
                 # python does not take ownership of cmd
                 ROOT.SetOwnership(cmd, False)
-            except:
+            except BaseException:
                 continue
             opts_list.append(cmd)
         opts_list = (opts_list[0],) if len(opts_list) == 1 else tuple(opts_list)

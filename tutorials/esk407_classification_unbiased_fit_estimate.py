@@ -50,6 +50,9 @@ settings['version'] = 0
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
+# make sure Eskapade RooFit library is loaded
+root_analysis.roofit_utils.load_libesroofit()
+
 # --- generate pdf, simulate, fit, and plot
 ch = proc_mgr.add_chain('WsOps')
 
@@ -65,7 +68,7 @@ wsu.add_simulate(pdf='model', obs='score', num=1000, key='data', into_ws=True)
 wsu.add_plot(obs='score', data='data', pdf='model', key='simplot')
 wsu.add_plot(obs='score', pdf='model',
              pdf_args=(RooFit.Components('low_risk'), RooFit.LineColor(ROOT.kRed), RooFit.LineStyle(ROOT.kDashed)),
-             file='data_with_generator_model.pdf', key='simplot')
+             output_file='data_with_generator_model.pdf', key='simplot')
 ch.add_link(wsu)
 
 # 2. turn data into roofit histograms
@@ -86,8 +89,10 @@ wsu = root_analysis.WsUtils(name = 'TemplateMaker')
 wsu.factory = ["RooHistPdf::high_risk_pdf({score}, high_risk_hist)",
                "RooHistPdf::low_risk_pdf({score}, low_risk_hist)",
                "SUM::hist_model(N_low_risk[1000,0,2000]*low_risk_pdf, N_high_risk[0,0,1000]*high_risk_pdf)"]
-wsu.add_plot(obs='score', data='unbiased_high_risk_testdata', pdf='high_risk_pdf', file='high_risk_data_template.pdf')
-wsu.add_plot(obs='score', data='unbiased_low_risk_testdata', pdf='low_risk_pdf', file='low_risk_data_template.pdf')
+wsu.add_plot(obs='score', data='unbiased_high_risk_testdata', pdf='high_risk_pdf',
+             output_file='high_risk_data_template.pdf')
+wsu.add_plot(obs='score', data='unbiased_low_risk_testdata', pdf='low_risk_pdf',
+             output_file='low_risk_data_template.pdf')
 ch.add_link(wsu)
 
 # 4. fit combined pdf to actual dataset and show results
@@ -100,7 +105,7 @@ wsu.add_plot(obs='score', data='data', pdf='hist_model',
 wsu.add_plot(obs='score', pdf='hist_model', key='data_plot')
 wsu.add_plot(obs='score', pdf='hist_model',
              pdf_args=(RooFit.Components('low_risk_pdf'), RooFit.LineColor(ROOT.kRed), RooFit.LineStyle(ROOT.kDashed)),
-             file='template_fit_to_data.pdf', key='data_plot')
+             output_file='template_fit_to_data.pdf', key='data_plot')
 ch.add_link(wsu)
 
 # 5. Print overview
