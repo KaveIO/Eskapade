@@ -50,6 +50,9 @@ settings['summary'] = True
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
+# make sure Eskapade RooFit library is loaded
+root_analysis.roofit_utils.load_libesroofit()
+
 if settings['generate_fit_plot']:
     # --- generate pdf, simulate, fit, and plot
     ch = proc_mgr.add_chain('WsOps')

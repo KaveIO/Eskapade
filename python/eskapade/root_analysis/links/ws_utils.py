@@ -28,10 +28,6 @@ from eskapade.root_analysis import RooFitManager, roofit_utils
 from eskapade.core import persistence
 
 
-# make sure Eskapade RooFit library is loaded
-roofit_utils.load_libesroofit()
-
-
 class WsUtils(Link):
     """Apply standard operations to object in the RooFit workspace
 

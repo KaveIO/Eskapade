@@ -23,9 +23,6 @@ import ROOT
 from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 from eskapade.root_analysis import RooFitManager, data_conversion, roofit_utils
 
-# make sure Eskapade RooFit library is loaded
-roofit_utils.load_libesroofit()
-
 
 class RooFitPercentileBinning(Link):
     """Evaluate percentile binning for given variable set"""
