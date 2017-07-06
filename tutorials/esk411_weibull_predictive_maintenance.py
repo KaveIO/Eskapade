@@ -135,29 +135,29 @@ if settings['fit_plot']:
         RooFit.Components('wb3'), RooFit.LineColor(ROOT.kGreen), RooFit.LineStyle(ROOT.kDashed)))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot1',
                  pdf_args=(RooFit.Components('wb2'), RooFit.LineColor(ROOT.kAzure), RooFit.LineStyle(ROOT.kDashed)),
-                 file='fit_of_time_difference_full_range.pdf', logy=True, miny=1)
+                 output_file='fit_of_time_difference_full_range.pdf', logy=True, miny=1)
     ch.add_link(wsu)
 
     wsu = root_analysis.WsUtils(name='plotter2', pages_key='weibull_fit_report')
-    wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot2', bins=100, range=(0, 3e6))
+    wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot2', bins=100, plot_range=(0, 3e6))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot2', pdf_args=(
         RooFit.Components('wb1'), RooFit.LineColor(ROOT.kRed), RooFit.LineStyle(ROOT.kDashed)))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot2', pdf_args=(
         RooFit.Components('wb3'), RooFit.LineColor(ROOT.kGreen), RooFit.LineStyle(ROOT.kDashed)))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot2',
                  pdf_args=(RooFit.Components('wb2'), RooFit.LineColor(ROOT.kAzure), RooFit.LineStyle(ROOT.kDashed)),
-                 file='fit_of_time_difference_medium_range.pdf', logy=True, miny=10)
+                 output_file='fit_of_time_difference_medium_range.pdf', logy=True, miny=10)
     ch.add_link(wsu)
 
     wsu = root_analysis.WsUtils(name='plotter3', pages_key='weibull_fit_report')
-    wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot3', bins=100, range=(0, 20000))
+    wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot3', bins=100, plot_range=(0, 20000))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot3', pdf_args=(
         RooFit.Components('wb1'), RooFit.LineColor(ROOT.kRed), RooFit.LineStyle(ROOT.kDashed)))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot3', pdf_args=(
         RooFit.Components('wb3'), RooFit.LineColor(ROOT.kGreen), RooFit.LineStyle(ROOT.kDashed)))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot3',
                  pdf_args=(RooFit.Components('wb2'), RooFit.LineColor(ROOT.kAzure), RooFit.LineStyle(ROOT.kDashed)),
-                 file='fit_of_time_difference_short_range.pdf', logy=True, miny=100)
+                 output_file='fit_of_time_difference_short_range.pdf', logy=True, miny=100)
     ch.add_link(wsu)
 
 if settings['summary']:

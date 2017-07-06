@@ -462,8 +462,8 @@ class WsUtils(Link):
         self._plot.append((a, kw))
 
     def do_plot(self, ds, ws, obs, data=None, pdf=None, func=None, data_args=(), pdf_args=(), func_args=(),
-                data_kwargs={}, pdf_kwargs={}, func_kwargs={}, key='', into_ws=False, file=None, bins=40,
-                logy=False, miny=0, range=None):
+                data_kwargs={}, pdf_kwargs={}, func_kwargs={}, key='', into_ws=False, output_file=None, bins=40,
+                logy=False, miny=0, plot_range=None):
         """Make a plot of data and/or a pdf, or of a function
 
         Either a dataset, pdf, or function needs to be provided as input for plotting.
@@ -482,11 +482,11 @@ class WsUtils(Link):
         :param str key: key under which to store the plot frame (=RooPlot).
                         If key exists in ds/workspace, plot in the existing frame. (optional)
         :param bool into_ws: if true, store simulated data in workspace, not the datastore
-        :param str file: if set, store plot with this file name (optional)
+        :param str output_file: if set, store plot with this file name (optional)
         :param int bins: number of bins in the plot. default is 40. (optional)
         :param bool logy: if true, set y-axis to log scale (optional)
         :param float miny: set minimum value of y-axis to miny value (optional)
-        :param tuple range: specify x-axis plot range as (min, max) (optional)
+        :param tuple plot_range: specify x-axis plot range as (min, max) (optional)
         """
 
         # basic checks
@@ -545,9 +545,9 @@ class WsUtils(Link):
         func_opts += func_args
 
         # plot on existing RooPlot? If so, retrieve.
-        if not range:
-            range = (theobs.getMin(), theobs.getMax())
-        assert len(range) == 2, 'range needs to be a tuple of two floats'
+        if not plot_range:
+            plot_range = (theobs.getMin(), theobs.getMax())
+        assert len(plot_range) == 2, 'plot range needs to be a tuple of two floats'
         if key:
             if isinstance(key, ROOT.RooPlot):
                 frame = key
@@ -555,9 +555,9 @@ class WsUtils(Link):
                 assert isinstance(key, str) and len(key), 'key for rooplot needs to be a filled string'
                 frame = ds[key] if key in ds else ws.obj(key)
                 if not frame:
-                    frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(range[0], range[1]))
+                    frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(plot_range[0], plot_range[1]))
         else:
-            frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(range[0], range[1]))
+            frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(plot_range[0], plot_range[1]))
         assert isinstance(frame, ROOT.RooPlot)
 
         # do the plotting on this frame
@@ -577,7 +577,7 @@ class WsUtils(Link):
             thefunc.plotOn(frame, *func_opts)
 
         # plot frame
-        if file:
+        if output_file:
             if miny != 0:
                 frame.SetMinimum(miny)
             frame.Draw()
@@ -589,12 +589,12 @@ class WsUtils(Link):
             else:
                 ds[key] = frame
         # store picture as file
-        if file:
+        if output_file:
             # store file in correct output directory
-            file = self.results_path + '/' + file.split('/')[-1]
-            c.SaveAs(file)
+            output_file = self.results_path + '/' + output_file.split('/')[-1]
+            c.SaveAs(output_file)
             # add plot to latex report
-            self._add_plot_to_report(file)
+            self._add_plot_to_report(output_file)
         del c
 
     def _add_plot_to_report(self, file_path):
