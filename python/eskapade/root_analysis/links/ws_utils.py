@@ -31,6 +31,7 @@ from eskapade.core import persistence
 # make sure Eskapade RooFit library is loaded
 roofit_utils.load_libesroofit()
 
+
 class WsUtils(Link):
     """Apply standard operations to object in the RooFit workspace
 
@@ -154,7 +155,7 @@ class WsUtils(Link):
             if not isinstance(self.pages, list):
                 raise TypeError('pages key "{}" does not refer to a list'.format(self.pages_key))
             elif len(self.pages) > 0:
-                self.log().debug('retrieved %d report pages under key: %s' % (len(self.pages), self.pages_key))
+                self.log().debug('Retrieved %d report pages under key "%s"', len(self.pages), self.pages_key)
 
         # --- put objects from the datastore into the workspace
         #     by doing this here, the object can be picked up by the factory
@@ -164,7 +165,7 @@ class WsUtils(Link):
                 ws[key] = ds[key]
                 if self.rm_original:
                     del ds[key]
-            except:
+            except BaseException:
                 raise RuntimeError('could not import object "%s" into rooworkspace' % key)
 
         # --- workspace factory commands
@@ -204,7 +205,7 @@ class WsUtils(Link):
                 ds[key] = ws[key].Clone()
                 if self.rm_original:
                     self.rm_from_ws.append(key)
-            except:
+            except BaseException:
                 raise RuntimeError('could not import object "%s" from workspace into ds' % key)
 
         # --- deletion
@@ -213,13 +214,13 @@ class WsUtils(Link):
             try:
                 ws.cd()
                 ROOT.gDirectory.Delete("%s;*" % key)
-            except:
+            except BaseException:
                 self.log().warning('Could not remove "%s" from workspace. Pass', key)
 
         # storage
         if self.pages_key:
             ds[self.pages_key] = self.pages
-            self.log().debug('%d report pages stored under key: %s' % (len(self.pages), self.pages_key))
+            self.log().debug('%d report pages stored under key: %s', len(self.pages), self.pages_key)
 
         return StatusCode.Success
 
@@ -235,7 +236,7 @@ class WsUtils(Link):
         report_file_name = '{0}/{1}.tex'.format(self.results_path, report_name)
         with open(report_file_name, 'w') as report_file:
             report_file.write(self.report_template.replace('INPUT_PAGES', ''.join(self.pages)))
-        self.log().debug('%s length: %d pages' % (report_name, len(self.pages)))
+        self.log().debug('%s length: %d pages', report_name, len(self.pages))
 
         return StatusCode.Success
 
@@ -401,15 +402,14 @@ class WsUtils(Link):
             ds[key] = fit_result
         self.log().debug('Fit result stored under key: %s', key)
 
-
     def _add_fit_result_to_report(self, fit_result):
         """Turn fit_result into latex report
 
-        :param ROOT.RooFitResult: roofit fit result
+        :param ROOT.RooFitResult fit_result: fit result
         """
 
         if not isinstance(fit_result, ROOT.RooFitResult):
-            raise AssertionError('Input fit result object not of type RooFitResult.')
+            raise AssertionError('input fit result object not of type RooFitResult')
 
         fit_result_name = re.sub('[^A-Za-z0-9_]+', '', fit_result.GetName())
 
@@ -435,7 +435,7 @@ class WsUtils(Link):
             fp_label = 'floating fit parameters of ' + fit_result_name
             fp_file_name = self.results_path + '/floating_pars_' + fit_result_name + '.tex'
             fp_table = '\input{%s}' % fp_file_name
-            fp_init  = fit_result.floatParsInit()
+            fp_init = fit_result.floatParsInit()
             fp_final.printLatex(RooFit.Sibling(fp_init), RooFit.OutputFile(fp_file_name))
             self.pages.append(self.table_template.replace('VAR_LABEL', fp_label).replace('VAR_STATS_TABLE', fp_table))
 
@@ -447,7 +447,6 @@ class WsUtils(Link):
             cp_table = '\input{%s}' % cp_file_name
             const_pars.printLatex(RooFit.OutputFile(cp_file_name))
             self.pages.append(self.table_template.replace('VAR_LABEL', cp_label).replace('VAR_STATS_TABLE', cp_table))
-
 
     def add_plot(self, *args, **kwargs):
         """Add plotting task
@@ -463,7 +462,8 @@ class WsUtils(Link):
         self._plot.append((a, kw))
 
     def do_plot(self, ds, ws, obs, data=None, pdf=None, func=None, data_args=(), pdf_args=(), func_args=(),
-                data_kwargs={}, pdf_kwargs={}, func_kwargs={}, key='', into_ws=False, file='', bins=40, logy=False, miny=0, range=()):
+                data_kwargs={}, pdf_kwargs={}, func_kwargs={}, key='', into_ws=False, file=None, bins=40,
+                logy=False, miny=0, range=None):
         """Make a plot of data and/or a pdf, or of a function
 
         Either a dataset, pdf, or function needs to be provided as input for plotting.
@@ -486,7 +486,7 @@ class WsUtils(Link):
         :param int bins: number of bins in the plot. default is 40. (optional)
         :param bool logy: if true, set y-axis to log scale (optional)
         :param float miny: set minimum value of y-axis to miny value (optional)
-        :param tuple range: specify x-axis plot range as (min,max) (optional)
+        :param tuple range: specify x-axis plot range as (min, max) (optional)
         """
 
         # basic checks
@@ -546,8 +546,8 @@ class WsUtils(Link):
 
         # plot on existing RooPlot? If so, retrieve.
         if not range:
-            range=(theobs.getMin(),theobs.getMax())
-        assert len(range)==2, 'range needs to be a tuple of two floats'
+            range = (theobs.getMin(), theobs.getMax())
+        assert len(range) == 2, 'range needs to be a tuple of two floats'
         if key:
             if isinstance(key, ROOT.RooPlot):
                 frame = key
@@ -555,9 +555,9 @@ class WsUtils(Link):
                 assert isinstance(key, str) and len(key), 'key for rooplot needs to be a filled string'
                 frame = ds[key] if key in ds else ws.obj(key)
                 if not frame:
-                    frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(range[0],range[1]))
+                    frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(range[0], range[1]))
         else:
-            frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(range[0],range[1]))
+            frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(range[0], range[1]))
         assert isinstance(frame, ROOT.RooPlot)
 
         # do the plotting on this frame
@@ -578,7 +578,7 @@ class WsUtils(Link):
 
         # plot frame
         if file:
-            if miny!=0:
+            if miny != 0:
                 frame.SetMinimum(miny)
             frame.Draw()
 
@@ -602,10 +602,10 @@ class WsUtils(Link):
 
         :param str file_path: path of pdf input plot
         """
+
         label = os.path.splitext(file_path.split('/')[-1])[0]
         self.pages.append(self.page_template.replace('VAR_LABEL', label).replace('VAR_STATS_TABLE', '')
                           .replace('VAR_HISTOGRAM_PATH', file_path))
-        return
 
     def _get_roofit_opts_list(self, ds, ws, *args, **kwargs):
         """Return RooFit cmd options for fitting and plotting
@@ -651,7 +651,7 @@ class WsUtils(Link):
                 cmd = getattr(RooFit, o)(*v)
                 # python does not take ownership of cmd
                 ROOT.SetOwnership(cmd, False)
-            except:
+            except BaseException:
                 continue
             opts_list.append(cmd)
         opts_list = (opts_list[0],) if len(opts_list) == 1 else tuple(opts_list)

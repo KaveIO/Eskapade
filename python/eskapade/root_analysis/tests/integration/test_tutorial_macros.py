@@ -320,10 +320,10 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIn('binnedData', ds)
         self.assertIsInstance(ds['binnedData'], ROOT.RooDataHist)
         mdata = ds['binnedData']
-        self.assertFalse(not mdata)
+        self.assertTrue(mdata)
         self.assertEqual(300, mdata.numEntries())
         mpdf = ws.pdf('sum3pdf')
-        self.assertFalse(not mpdf)
+        self.assertTrue(mpdf)
 
         # successful fit result
         fit_result = ds['fit_result']
@@ -331,20 +331,21 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(3, fit_result.covQual())
 
         n1 = ws.var('N1')
-        self.assertFalse(not n1)
-        self.assertTrue(n1.getVal() > 2e5)
+        self.assertTrue(n1)
+        self.assertGreater(n1.getVal(), 2.e5)
         n2 = ws.var('N2')
-        self.assertFalse(not n2)
-        self.assertTrue(n2.getVal() > 4e5)
+        self.assertTrue(n2)
+        self.assertGreater(n2.getVal(), 4.e5)
         n3 = ws.var('N3')
-        self.assertFalse(not n3)
-        self.assertTrue(n3.getVal() > 5e4)
+        self.assertTrue(n3)
+        self.assertGreater(n3.getVal(), 5.e4)
 
         # data-summary checks
         io_conf = ProcessManager().service(ConfigObject).io_conf()
-        file_names = ['weibull_fit_report.tex','correlation_matrix_fit_result.pdf','floating_pars_fit_result.tex','fit_of_time_difference_medium_range.pdf']
+        file_names = ['weibull_fit_report.tex', 'correlation_matrix_fit_result.pdf', 'floating_pars_fit_result.tex',
+                      'fit_of_time_difference_medium_range.pdf']
         for fname in file_names:
             path = persistence.io_path('results_data', io_conf, 'report/{}'.format(fname))
             self.assertTrue(os.path.exists(path))
             statinfo = os.stat(path)
-            self.assertTrue(statinfo.st_size > 0)
+            self.assertGreater(statinfo.st_size, 0)

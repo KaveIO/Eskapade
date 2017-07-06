@@ -1,6 +1,7 @@
 __all__ = ['RootHistFiller', 'WsUtils', 'ConvertDataFrame2RooDataSet', 'ConvertRooDataSet2DataFrame', 'PrintWs',
-           'RooDataHistFiller', 'ConvertRootHist2RooDataHist', 'ConvertRootHist2RooDataSet', 'ConvertRooDataSet2RooDataHist',
-           'AddPropagatedErrorToRooDataSet', 'TruncExpGen', 'TruncExpFit', 'ReadFromRootFile', 'RooFitPercentileBinning']
+           'RooDataHistFiller', 'ConvertRootHist2RooDataHist', 'ConvertRootHist2RooDataSet',
+           'ConvertRooDataSet2RooDataHist', 'AddPropagatedErrorToRooDataSet', 'TruncExpGen', 'TruncExpFit',
+           'ReadFromRootFile', 'RooFitPercentileBinning']
 from .ws_utils import WsUtils
 from .print_ws import PrintWs
 from .root_hist_filler import RootHistFiller

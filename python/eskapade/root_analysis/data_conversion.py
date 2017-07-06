@@ -432,7 +432,7 @@ def tree_to_df(tree, branch_names=[], index_name='', drop_roofit_labels=False):
         try:
             df[index_name] = df[index_name].astype(np.int32)
             df.set_index(index_name, inplace=True)
-        except:
+        except BaseException:
             pass
 
     # 4. convert names of roocategories back to normal column names
@@ -555,9 +555,8 @@ def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}
                 # Get string of datatype with
                 dtype_str = tree.GetBranch(bn).GetLeaf(bn).GetTypeName()
                 var_specs[bn] = (dtype_str, bmin, bmax)
-            except:
-                # roodataset only accepts numeric or boolian observables,
-                # so skipping non-numeric branches
+            except BaseException:
+                # roodataset only accepts numeric or boolian observables; skipping non-numeric branches
                 pass
 
     # 3a. construct corresponding roocategories, needed for roodataset
@@ -660,32 +659,33 @@ def rds_to_df(rds, branch_names=[], index_name='', ignore_lost_records=False):
     return df
 
 
-def rds_to_rdh(rds, rf_varset=None, columns=[], binning_name=''):
-    """Convert a roodataset to a roodatahist
+def rds_to_rdh(rds, rf_varset=None, columns=None, binning_name=''):
+    """Convert a RooDataSet to a RooDataHist
 
-    :param ROOT.RooDataSet rds: An existing ROOT RooDataSet to be converted to a pandas DataFrame.
-    :param ROOT.RooArgSet rf_varset: roofit variables used in roodatahist constructor.
-    :param list columns: list of columns to create roodatahist for. alternative to rf_varset.
-    :param str binning_name: name of binning configuration, used in roodatahist constructor.
-    :returns: roodatahist of selected columns.
+    :param ROOT.RooDataSet rds: An existing ROOT RooDataSet to be converted to a pandas DataFrame
+    :param ROOT.RooArgSet rf_varset: roofit variables used in RooDataHist constructor
+    :param iterable columns: list of columns to create RooDataHist for (alternative to rf_varset)
+    :param str binning_name: name of binning configuration, used in RooDataHist constructor
+    :returns: RooDataHist of selected columns
     :rtype: ROOT.RooDataHist
     """
 
     if not isinstance(rds, ROOT.RooDataSet):
-        raise AssertionError('Input object not of type RooDataSet.')
-    if rds.numEntries()==0:
-        raise AssertionError('Input dataset is not filled.')
+        raise AssertionError('input object not of type RooDataSet')
+    if rds.numEntries() == 0:
+        raise AssertionError('input dataset is not filled')
 
     if rf_varset is not None:
         if not (isinstance(rf_varset, ROOT.RooArgSet) and len(rf_varset) > 0):
             raise AssertionError('rf_varset is not a filled RooArgSet')
         columns = [arg.GetName() for arg in rf_varset]
-    assert len(columns) > 0, 'columns list is empty'
+    if not columns:
+        raise AssertionError('columns list is empty')
 
     varset = rds.get(0)
     for col in columns:
         if not varset.find(col):
-            raise AssertionError('column %s not found in input dataset' % col)
+            raise AssertionError('column "{}" not found in input dataset'.format(col))
 
     if not rf_varset:
         rf_varset = ROOT.RooArgSet()

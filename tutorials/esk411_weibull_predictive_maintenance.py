@@ -1,22 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk411_weibull_predictive_maintenance                          *
-# * Created: 2017/03/27                                                            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *
-# * Description:
-# *
-# * Macro illustrates how to fit several Weibull distributions to a falling
-# * time difference distribution, indicating times between maintenance.
-# *
-# * Licence:
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+# ********************************************************************************
+# * Project: Eskapade - A python-based package for data analysis                 *
+# * Macro  : esk411_weibull_predictive_maintenance                               *
+# * Created: 2017/03/27                                                          *
+# *                                                                              *
+# * Description:                                                                 *
+# *     Macro illustrates how to fit several Weibull distributions to a falling  *
+# *     time difference distribution, indicating times between maintenance.      *
+# *                                                                              *
+# * Authors:                                                                     *
+# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
+# *                                                                              *
+# * Licence:                                                                     *
+# *     Redistribution and use in source and binary forms, with or without       *
+# *     modification, are permitted according to the terms listed in the file    *
+# *     LICENSE.                                                                 *
+# ********************************************************************************
 
 import logging
 log = logging.getLogger('macro.esk411_weibull_predictive_maintenance')
@@ -26,12 +24,14 @@ from ROOT import RooFit
 
 from eskapade import ConfigObject, ProcessManager
 from eskapade import core_ops, visualization, root_analysis
+from eskapade.core import persistence
 from eskapade.root_analysis import roofit_utils
 
 # make sure Eskapade RooFit library is loaded
 roofit_utils.load_libesroofit()
 
 log.debug('Now parsing configuration file esk411_weibull_predictive_maintenance')
+
 
 #########################################################################################
 # --- minimal analysis information
@@ -42,6 +42,7 @@ settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'esk411_weibull_predictive_maintenance'
 settings['version'] = 0
 
+
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
 
@@ -49,11 +50,11 @@ msg = r"""
 
 The plots and latex report produced by link WsUtils can be found in dir:
 %s
-""" % (settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/report/')
+""" % (persistence.io_path('results_data', settings.io_conf(), 'report'))
 log.info(msg)
 
 settings['generate'] = True
-#settings['read_data'] = not settings['generate'] 
+#settings['read_data'] = not settings['generate']
 settings['model'] = True
 settings['process'] = True
 settings['fit_plot'] = True
@@ -61,6 +62,7 @@ settings['summary'] = True
 
 fitpdf = 'sum3pdf'
 n_percentile_bins = 300
+
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
@@ -128,9 +130,9 @@ if settings['fit_plot']:
     wsu = root_analysis.WsUtils(name='plotter1', pages_key='weibull_fit_report')
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot1', bins=100)
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot1', pdf_args=(
-        RooFit.Components('wb1'), RooFit.LineColor(ROOT.kRed),    RooFit.LineStyle(ROOT.kDashed)))
+        RooFit.Components('wb1'), RooFit.LineColor(ROOT.kRed), RooFit.LineStyle(ROOT.kDashed)))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot1', pdf_args=(
-        RooFit.Components('wb3'), RooFit.LineColor(ROOT.kGreen),  RooFit.LineStyle(ROOT.kDashed)))
+        RooFit.Components('wb3'), RooFit.LineColor(ROOT.kGreen), RooFit.LineStyle(ROOT.kDashed)))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot1',
                  pdf_args=(RooFit.Components('wb2'), RooFit.LineColor(ROOT.kAzure), RooFit.LineStyle(ROOT.kDashed)),
                  file='fit_of_time_difference_full_range.pdf', logy=True, miny=1)
@@ -139,9 +141,9 @@ if settings['fit_plot']:
     wsu = root_analysis.WsUtils(name='plotter2', pages_key='weibull_fit_report')
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot2', bins=100, range=(0, 3e6))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot2', pdf_args=(
-        RooFit.Components('wb1'), RooFit.LineColor(ROOT.kRed),    RooFit.LineStyle(ROOT.kDashed)))
+        RooFit.Components('wb1'), RooFit.LineColor(ROOT.kRed), RooFit.LineStyle(ROOT.kDashed)))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot2', pdf_args=(
-        RooFit.Components('wb3'), RooFit.LineColor(ROOT.kGreen),  RooFit.LineStyle(ROOT.kDashed)))
+        RooFit.Components('wb3'), RooFit.LineColor(ROOT.kGreen), RooFit.LineStyle(ROOT.kDashed)))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot2',
                  pdf_args=(RooFit.Components('wb2'), RooFit.LineColor(ROOT.kAzure), RooFit.LineStyle(ROOT.kDashed)),
                  file='fit_of_time_difference_medium_range.pdf', logy=True, miny=10)
@@ -150,9 +152,9 @@ if settings['fit_plot']:
     wsu = root_analysis.WsUtils(name='plotter3', pages_key='weibull_fit_report')
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot3', bins=100, range=(0, 20000))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot3', pdf_args=(
-        RooFit.Components('wb1'), RooFit.LineColor(ROOT.kRed),    RooFit.LineStyle(ROOT.kDashed)))
+        RooFit.Components('wb1'), RooFit.LineColor(ROOT.kRed), RooFit.LineStyle(ROOT.kDashed)))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot3', pdf_args=(
-        RooFit.Components('wb3'), RooFit.LineColor(ROOT.kGreen),  RooFit.LineStyle(ROOT.kDashed)))
+        RooFit.Components('wb3'), RooFit.LineColor(ROOT.kGreen), RooFit.LineStyle(ROOT.kDashed)))
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot3',
                  pdf_args=(RooFit.Components('wb2'), RooFit.LineColor(ROOT.kAzure), RooFit.LineStyle(ROOT.kDashed)),
                  file='fit_of_time_difference_short_range.pdf', logy=True, miny=100)
@@ -166,5 +168,6 @@ if settings['summary']:
     ch.add_link(pws)
 
 #########################################################################################
+
 
 log.debug('Done parsing configuration file esk411_weibull_predictive_maintenance')
