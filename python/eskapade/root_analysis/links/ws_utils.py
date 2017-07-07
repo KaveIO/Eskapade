@@ -124,6 +124,10 @@ class WsUtils(Link):
             self.log().debug('Making output directory %s', self.results_path)
             os.makedirs(self.results_path)
 
+        # make sure Eskapade RooFit library is loaded for fitting (for plotting correlation matrix)
+        if self._fit:
+            roofit_utils.load_libesroofit()
+
         return StatusCode.Success
 
     def execute(self):

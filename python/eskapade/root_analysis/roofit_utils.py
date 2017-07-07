@@ -20,7 +20,8 @@ from ROOT import RooFit
 
 import eskapade.utils
 
-CUSTOM_ROOFIT_CLASSES = ('RooComplementCoef', 'RooTruncExponential')
+CUSTOM_ROOFIT_OBJECTS = ('RooComplementCoef', 'RooNonCentralBinning', 'RooTruncExponential', 'RooWeibull',
+                         ('Eskapade', 'PlotCorrelationMatrix'))
 ROOFIT_LOG_LEVELS = {'DEBUG': 0, 'INFO': 1, 'WARN': 3, 'WARNING': 3, 'ERROR': 4, 'FATAL': 5, 'CRITICAL': 5, 'OFF': 5,
                      logging.DEBUG: 0, logging.INFO: 1, logging.WARNING: 3, logging.ERROR: 4, logging.CRITICAL: 5,
                      logging.FATAL: 5, logging.OFF: 5}
@@ -50,14 +51,18 @@ def load_libesroofit():
 
     # load library
     if ROOT.gSystem.Load('libesroofit') != 0:
-        raise RuntimeError('Failed to load Eskapade RooFit library')
+        raise RuntimeError('failed to load Eskapade RooFit library')
 
     # check if all classes are loaded
     try:
-        for cls_name in CUSTOM_ROOFIT_CLASSES:
-            cls = getattr(ROOT, cls_name)
+        for obj_spec in CUSTOM_ROOFIT_OBJECTS:
+            if isinstance(obj_spec, str):
+                obj_spec = obj_spec.split('.')
+            obj = ROOT
+            for spec_comp in obj_spec:
+                obj = getattr(obj, spec_comp)
     except AttributeError as exc:
-        raise RuntimeError('could not load all custom RooFit classes: "{}"'.format(str(exc)))
+        raise RuntimeError('could not load all custom RooFit objects: "{}"'.format(str(exc)))
 
 
 _roo_cmd_args = []

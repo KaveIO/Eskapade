@@ -26,11 +26,12 @@ from eskapade.root_analysis import roofit_utils
 class RooFitModel:
     """Base class for RooFit models"""
 
-    def __init__(self, ws, name=''):
+    def __init__(self, ws, name='', load_libesroofit=False):
         """Initialize model instance
 
         :param ROOT.RooWorkspace ws: RooFit workspace
         :param str name: name of model
+        :param bool load_libesroofit: load Eskapade RooFit library upon initialization (default is False)
         """
 
         # check workspace
@@ -42,6 +43,10 @@ class RooFitModel:
         self._ws = ws
         self._is_built = False
         self._pdf_name = None
+
+        if load_libesroofit:
+            # load Eskapade RooFit library
+            roofit_utils.load_libesroofit()
 
     @property
     def name(self):
@@ -91,11 +96,8 @@ class TruncExponential(RooFitModel):
         :param list fracs: list of exponential-fraction parameters: [(name0, value0), ...]
         """
 
-        # load Eskapade RooFit library
-        roofit_utils.load_libesroofit()
-
         # initialize RooFitModel instance
-        super(TruncExponential, self).__init__(ws, name)
+        super(TruncExponential, self).__init__(ws, name=name, load_libesroofit=True)
         self._pdf_name = self.name
 
         # set attributes

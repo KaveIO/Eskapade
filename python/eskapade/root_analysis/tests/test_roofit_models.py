@@ -1,6 +1,7 @@
 import unittest
 import mock
 import functools
+import itertools
 
 import ROOT
 
@@ -10,19 +11,34 @@ from ..roofit_models import RooFitModel, TruncExponential
 class RooFitModelTest(unittest.TestCase):
     """Tests for RooFit-model base class"""
 
-    def test_init(self):
+    @mock.patch('eskapade.root_analysis.roofit_utils.load_libesroofit')
+    def test_init(self, mock_load_lib):
         """Test initialization of RooFit model"""
 
         # test normal initialization
-        for name in ('', 'my_name'):
+        for name, load_lib in itertools.product(('', 'my_name'), (False, True)):
+            # call init method
             mock_model = mock.Mock(name='mock_roofit_model', spec=RooFitModel)
             mock_ws = mock.Mock(name='mock_rooworkspace', spec=ROOT.RooWorkspace)
-            RooFitModel.__init__(mock_model, mock_ws, name=name)
-            self.assertIsInstance(mock_model._name, str, 'model name is not a string')
-            self.assertGreater(len(mock_model._name), 0, 'no model name set')
+            RooFitModel.__init__(mock_model, mock_ws, name=name, load_libesroofit=load_lib)
+
+            # check name
+            self.assertIsInstance(mock_model._name, str, 'model name is not a string with name "{}"'.format(name))
+            self.assertTrue(bool(mock_model._name), 'no model name set with name "{}"'.format(name))
+            if name:
+                self.assertEqual(mock_model._name, name, 'incorrect name set')
+
+            # check other attributes
             self.assertIs(mock_model._ws, mock_ws, 'incorrect workspace set')
             self.assertFalse(bool(mock_model._is_built), 'incorrect value for "is_built" attribute set')
             self.assertFalse(bool(mock_model._pdf_name), 'incorrect value for "pdf_name" attribute set')
+
+            # test library loading
+            if load_lib:
+                mock_load_lib.assert_called_once_with()
+            else:
+                mock_load_lib.assert_not_called()
+            mock_load_lib.reset_mock()
 
         # test initialization with workspace of wrong type
         mock_model = mock.Mock(name='mock_roofit_model', spec=RooFitModel)
@@ -35,9 +51,8 @@ class TruncExponentialTest(unittest.TestCase):
     """Tests for truncated-exponential RooFit model"""
 
     @mock.patch('eskapade.root_analysis.roofit_models.RooFitModel.__init__')
-    @mock.patch('eskapade.root_analysis.roofit_utils.load_libesroofit')
     @mock.patch('eskapade.root_analysis.roofit_models.super')
-    def test_init(self, mock_super, mock_load_lib, mock_init):
+    def test_init(self, mock_super, mock_init):
         """Test initialization of truncated-exponential RooFit model"""
 
         # create mock objects for testing
@@ -57,8 +72,7 @@ class TruncExponentialTest(unittest.TestCase):
         for vals, vals_ in zip(par_vals, par_vals_):
             TruncExponential.__init__(mock_trunc_exp, mock_ws, name='my_trunc_exp', **vals)
             mock_super.assert_any_call(TruncExponential, mock_trunc_exp)
-            mock_init.assert_called_once_with(mock_trunc_exp, mock_ws, 'my_trunc_exp')
-            mock_load_lib.assert_called_once_with()
+            mock_init.assert_called_once_with(mock_trunc_exp, mock_ws, name='my_trunc_exp', load_libesroofit=True)
             self.assertEqual(mock_trunc_exp._pdf_name, 'my_trunc_exp', 'incorrect PDF name')
             self.assertTupleEqual(mock_trunc_exp._var_range, vals_['var_range'], 'incorrect value for "var_range"')
             self.assertTupleEqual(mock_trunc_exp._var, vals_['var'], 'incorrect value for "var"')
@@ -67,7 +81,6 @@ class TruncExponentialTest(unittest.TestCase):
             self.assertListEqual(mock_trunc_exp._fracs, vals_['fracs'], 'incorrect value for "fracs"')
             mock_super.reset_mock()
             mock_init.reset_mock()
-            mock_load_lib.reset_mock()
 
     def test_build_model(self):
         """Test building truncated-exponential RooFit model"""

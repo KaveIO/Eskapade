@@ -49,6 +49,9 @@ class RooFitPercentileBinning(Link):
         self.check_arg_types(read_key=str, binning_name=str)
         self.check_arg_vals('read_key', 'binning_name', 'var_number_of_bins')
 
+        # make sure Eskapade RooFit library is loaded for the RooNonCentralBinning class
+        roofit_utils.load_libesroofit()
+
         return StatusCode.Success
 
     def execute(self):
