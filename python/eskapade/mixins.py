@@ -1,25 +1,26 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Classes: ArgumentsMixin, LoggingMixin                                          *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *          Base classes of Link                                                  *
-# *          ArgumentsMixin: allows attributes to be accessed as dict items.       *
-# *          LoggingMixin: logger functionality for the class.                     *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+# ********************************************************************************
+# * Project: Eskapade - A python-based package for data analysis                 *
+# * Classes: ArgumentsMixin, LoggingMixin, TimerMixin                            *
+# * Created: 2016/11/08                                                          *
+# * Description:                                                                 *
+# *     Mixin classes:                                                           *
+# *     * ArgumentsMixin: processes/checks arguments and sets them as attributes *
+# *     * LoggingMixin:   logging functionality                                  *
+# *     * TimerMixin:     keeps track of execution time                          *
+# *                                                                              *
+# * Authors:                                                                     *
+# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
+# *                                                                              *
+# * Redistribution and use in source and binary forms, with or without           *
+# * modification, are permitted according to the terms listed in the file        *
+# * LICENSE.                                                                     *
+# ********************************************************************************
 
 import logging
 import timeit
 
 
-class ArgumentsMixin(object):
+class ArgumentsMixin:
     """Mixin base class for argument parsing
 
     Class allows attributes to be accessed as dict items.  Plus several
@@ -146,7 +147,7 @@ class ArgumentsMixin(object):
                 raise TypeError('argument "%s" of %s is not callable' % (arg_name, str(self)))
 
 
-class LoggingMixin(object):
+class LoggingMixin:
     """Mixin base class for logging"""
 
     @classmethod
@@ -166,7 +167,7 @@ class LoggingMixin(object):
             cls.log().error('logging level of "%s" unchanged: got invalid value "%s"', cls.log().name, level)
 
 
-class TimerMixin(object):
+class TimerMixin:
     """Mixin base class for timing"""
 
     def __init__(self):

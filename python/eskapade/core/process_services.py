@@ -20,7 +20,7 @@ import re
 import eskapade.utils
 from . import persistence
 from .definitions import LOG_LEVELS, CONFIG_VARS, CONFIG_DEFAULTS, USER_OPTS, CONFIG_OPTS_SETTERS
-from .mixins import LoggingMixin
+from eskapade.mixins import LoggingMixin
 
 
 class ProcessServiceMeta(type):
