@@ -11,7 +11,7 @@ In this tutorial we will basically redo Tutorial 1 but use Spark instead of Pand
 
 .. note::
 
-  To get familiar with Spark in Eskapade you can follow the exercies in ``tutorials/tutorial_4.py``.
+  To get familiar with Spark in Eskapade you can follow the exercises in ``tutorials/tutorial_4.py``.
 
 
 Running the tutorial macro
