@@ -59,6 +59,11 @@ and more.
 Release notes
 =============
 
+Version 0.6
+-----------
+
+Release 0.6 (July 2017) includes Spark. 
+
 Version 0.5
 -----------
 
@@ -90,6 +95,7 @@ Contents
    installation
    tutorial
    tutorial_jupyter
+   tutorial_roofit
    package_structure
    command_line_arguments
    contributing
