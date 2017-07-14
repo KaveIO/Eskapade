@@ -74,7 +74,7 @@ wsu.add_plot(obs='score', data='data', pdf='model', key='simplot')
 wsu.add_plot(obs='score', pdf='model', \
              pdf_args=(RooFit.Components('low_risk'), RooFit.LineColor(ROOT.kRed), \
                        RooFit.LineStyle(ROOT.kDashed)),
-             file='data_with_generator_model.pdf', key='simplot')
+             output_file='data_with_generator_model.pdf', key='simplot')
 ch.add_link(wsu)
 
 ch = proc_mgr.add_chain('SignalPValue')
@@ -86,7 +86,7 @@ wsu.add_plot(obs='score', func='high_risk_pvalue',
              func_args=(RooFit.MoveToBack(),),
              func_kwargs={'VisualizeError': ('fit_result')},
              key='ratio_plot')
-wsu.add_plot(obs='score', func='high_risk_pvalue', file='high_risk_probability.pdf', key='ratio_plot')
+wsu.add_plot(obs='score', func='high_risk_pvalue', output_file='high_risk_probability.pdf', key='ratio_plot')
 ch.add_link(wsu)
 
 # 3. calculate p-values and uncertainties thereon

@@ -561,7 +561,7 @@ class UncorrelationHypothesisTester(Link):
             c = [c]
         n = ':'.join(c)
         if len(c) > 1 and n in self.var_ignore_categories and len(self.var_ignore_categories[n]) == len(c):
-            i_c = self.var_ignore_categories[c][idx]
+            i_c = self.var_ignore_categories[n][idx]
         elif c[idx] in self.var_ignore_categories:
             i_c = self.var_ignore_categories[c[idx]]
         else:

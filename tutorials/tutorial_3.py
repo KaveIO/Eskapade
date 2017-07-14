@@ -193,7 +193,7 @@ ch.add_link(wsu)
 wsu = root_analysis.WsUtils(name = 'plotter')
 wsu.pages_key='report_pages'
 wsu.add_plot(obs='y', data='simdata', pdf='testpdf', pdf_kwargs={'VisualizeError': 'fit_result', 'MoveToBack': ()}, key='simdata_plot')
-wsu.add_plot(obs='y', pdf='testpdf', file='fit_of_simdata.pdf', key='simdata_plot')
+wsu.add_plot(obs='y', pdf='testpdf', output_file='fit_of_simdata.pdf', key='simdata_plot')
 ch.add_link(wsu)
 
 #########################################################################################

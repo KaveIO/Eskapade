@@ -6,10 +6,8 @@ from eskapade.core import execution, definitions, persistence
 from eskapade import ProcessManager, ConfigObject
 
 
-class TutorialMacrosTest(unittest.TestCase):
-    """Integration tests based on tutorial macros"""
-
-    maxDiff = None
+class IntegrationTest(unittest.TestCase):
+    """Base class for Eskapade integration tests"""
 
     def setUp(self):
         """Set up test"""
@@ -17,7 +15,7 @@ class TutorialMacrosTest(unittest.TestCase):
         execution.reset_eskapade()
         proc_mgr = ProcessManager()
         settings = proc_mgr.service(ConfigObject)
-        settings['analysisName'] = 'TutorialMacrosTest'
+        settings['analysisName'] = self.__class__.__name__
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
         settings['batchMode'] = True
 
@@ -31,6 +29,12 @@ class TutorialMacrosTest(unittest.TestCase):
 
         # reset run process
         execution.reset_eskapade()
+
+
+class TutorialMacrosTest(IntegrationTest):
+    """Integration tests based on tutorial macros"""
+
+    maxDiff = None
 
     def run_eskapade(self, macro, return_status=definitions.StatusCode.Success):
         """Run Eskapade"""

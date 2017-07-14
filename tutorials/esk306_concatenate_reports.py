@@ -75,7 +75,7 @@ hf.columns = [
 hf._unit_bin_specs = {'bin_width': 0.2, 'bin_offset': 0.0}
 ch.add_link(hf)
 
-hs = visualization.HistSummary(name='HistogramSummary1', read_key=hf.store_key, pages_key='report_pages')
+hs = visualization.DfSummary(name='HistogramSummary1', read_key=hf.store_key, pages_key='report_pages')
 ch.add_link(hs)
 
 # --- 3. make visualizations of correlations

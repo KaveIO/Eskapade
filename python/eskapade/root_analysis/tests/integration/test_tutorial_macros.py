@@ -3,7 +3,7 @@ import pandas as pd
 
 import ROOT
 
-from eskapade.tests.integration.test_tutorial_macros import TutorialMacrosTest
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 from eskapade.core import persistence
 from eskapade import ProcessManager, ConfigObject, DataStore
 from eskapade.root_analysis import RooFitManager
@@ -325,3 +325,88 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
             self.assertTrue(os.path.exists(path))
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
+
+    def test_esk411(self):
+        """Test Esk-411: Predictive maintenance Weibull fit"""
+
+        # run Eskapade
+        self.run_eskapade('esk411_weibull_predictive_maintenance.py')
+        ds = ProcessManager().service(DataStore)
+        ws = ProcessManager().service(RooFitManager).ws
+
+        # roofit objects check in datastore
+        self.assertIn('fit_result', ds)
+        self.assertIsInstance(ds['fit_result'], ROOT.RooFitResult)
+
+        # roofit objects check in workspace
+        self.assertIn('binnedData', ds)
+        self.assertIsInstance(ds['binnedData'], ROOT.RooDataHist)
+        mdata = ds['binnedData']
+        self.assertTrue(mdata)
+        self.assertEqual(300, mdata.numEntries())
+        mpdf = ws.pdf('sum3pdf')
+        self.assertTrue(mpdf)
+
+        # successful fit result
+        fit_result = ds['fit_result']
+        self.assertEqual(0, fit_result.status())
+        self.assertEqual(3, fit_result.covQual())
+
+        n1 = ws.var('N1')
+        self.assertTrue(n1)
+        self.assertGreater(n1.getVal(), 2.e5)
+        n2 = ws.var('N2')
+        self.assertTrue(n2)
+        self.assertGreater(n2.getVal(), 4.e5)
+        n3 = ws.var('N3')
+        self.assertTrue(n3)
+        self.assertGreater(n3.getVal(), 5.e4)
+
+        # data-summary checks
+        io_conf = ProcessManager().service(ConfigObject).io_conf()
+        file_names = ['weibull_fit_report.tex', 'correlation_matrix_fit_result.pdf', 'floating_pars_fit_result.tex',
+                      'fit_of_time_difference_medium_range.pdf']
+        for fname in file_names:
+            path = persistence.io_path('results_data', io_conf, 'report/{}'.format(fname))
+            self.assertTrue(os.path.exists(path))
+            statinfo = os.stat(path)
+            self.assertGreater(statinfo.st_size, 0)
+
+    def test_tutorial3(self):
+        """Test Tutorial 3: Workspace create PDF, simulate, fit, plot"""
+
+        # turn on creation and loading of MyPdfV3
+        settings = ProcessManager().service(ConfigObject)
+        settings['onthefly'] = True
+        
+        # run Eskapade
+        self.run_eskapade('tutorial_3.py')
+
+        # check existence of class MyPdfV3
+        import ROOT
+        cl = ROOT.TClass.GetClass('MyPdfV3')
+        self.assertTrue(not not cl)
+
+        ds = ProcessManager().service(DataStore)
+        ws = ProcessManager().service(RooFitManager).ws
+
+        # roofit objects check in datastore
+        self.assertIn('fit_result', ds)
+        self.assertIsInstance(ds['fit_result'], ROOT.RooFitResult)
+
+        # successful fit result
+        fit_result = ds['fit_result']
+        self.assertEqual(0, fit_result.status())
+        self.assertEqual(3, fit_result.covQual())
+
+        # data-generation checks
+        self.assertIn('simdata', ds)
+        self.assertIsInstance(ds['simdata'], ROOT.RooDataSet)
+        self.assertEqual(400, ds['simdata'].numEntries())
+
+        self.assertIn('simdata_plot', ds)
+        self.assertIsInstance(ds['simdata_plot'], ROOT.RooPlot)
+
+        # roofit objects check in workspace
+        self.assertIn('testpdf', ws)
+

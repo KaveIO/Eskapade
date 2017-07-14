@@ -11,17 +11,18 @@ class LoadLibesroofitTest(unittest.TestCase):
 
     @mock.patch('ROOT.gSystem.GetLibraries')
     @mock.patch('ROOT.gSystem.Load')
-    @mock.patch('eskapade.root_analysis.roofit_utils.CUSTOM_ROOFIT_CLASSES')
+    @mock.patch('eskapade.root_analysis.roofit_utils.CUSTOM_ROOFIT_OBJECTS')
     @mock.patch('eskapade.root_analysis.roofit_utils.log')
     @mock.patch('eskapade.utils.build_cxx_library')
-    def test_load_libesroofit(self, mock_build_cxx_library, mock_log, mock_classes, mock_load, mock_get_libraries):
+    def test_load_libesroofit(self, mock_build_cxx_library, mock_log, mock_objects, mock_load, mock_get_libraries):
         """Test loading Eskapade RooFit library"""
 
-        # set custom class attribute
+        # set custom object attributes
         ROOT.MyCustomClass = mock.Mock(name='MyCustomClass')
+        ROOT.MyCustomNamespace = mock.Mock(name='MyCustomNamespace')
 
         # test normal build/load
-        mock_classes.__iter__ = lambda s: iter(('MyCustomClass',))
+        mock_objects.__iter__ = lambda s: iter(('MyCustomClass', ('MyCustomNamespace', 'MyCustomFunction')))
         mock_load.return_value = 0
         mock_get_libraries.return_value = 'lib/libmylib.so'
         load_libesroofit()
@@ -48,7 +49,7 @@ class LoadLibesroofitTest(unittest.TestCase):
         mock_load.reset_mock()
 
         # test missing custom class
-        mock_classes.__iter__ = lambda s: iter(('NoSuchClass',))
+        mock_objects.__iter__ = lambda s: iter(('NoSuchClass',))
         with self.assertRaises(RuntimeError):
             load_libesroofit()
 

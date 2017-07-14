@@ -136,9 +136,9 @@ ch.add_link(hypotest)
 
 # --- 4. print contents of the datastore
 proc_mgr.add_chain('Overview')
-hist_summary = visualization.HistSummary(name='HistogramSummary',
-                                         read_key=hypotest.hist_dict_key,
-                                         pages_key=hypotest.pages_key)
+hist_summary = visualization.DfSummary(name='HistogramSummary',
+                                       read_key=hypotest.hist_dict_key,
+                                       pages_key=hypotest.pages_key)
 proc_mgr.get_chain('Overview').add_link(hist_summary)
 
 #########################################################################################

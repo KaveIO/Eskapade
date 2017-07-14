@@ -66,9 +66,6 @@ settings['version'] = 0
 ###############################################################################
 # --- create voucher redeem model
 
-# make sure Eskapade RooFit library is loaded
-roofit_utils.load_libesroofit()
-
 # create model if it is not read from persisted services of first chain
 if not settings.get('beginWithChain'):
     rfm = proc_mgr.service(RooFitManager)

@@ -3,7 +3,7 @@ import sys
 import os
 import importlib
 
-from eskapade.tests.integration.test_tutorial_macros import TutorialMacrosTest
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 import eskapade.utils
 from eskapade.core import execution, definitions, persistence
 from eskapade import ProcessManager, ConfigObject, DataStore

@@ -117,7 +117,7 @@ ch.add_link(pds)
 ch = proc_mgr.add_chain('WsOps')
 wsu = root_analysis.WsUtils()
 wsu.add_simulate(pdf='hpdf_Ndim', obs='rdh_vars', num=10000, key='simdata')
-wsu.add_plot(obs='age', data='simdata', pdf='hpdf_Ndim', file='test.pdf',
+wsu.add_plot(obs='age', data='simdata', pdf='hpdf_Ndim', output_file='test.pdf',
              pdf_kwargs={'ProjWData': ('rdh_cats','simdata')})
 ch.add_link(wsu)
 

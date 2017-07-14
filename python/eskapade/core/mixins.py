@@ -86,13 +86,24 @@ class ArgumentsMixin(object):
             if not hasattr(self, arg_name):
                 raise AttributeError('argument "%s" not set for %s' % (arg_name, str(self)))
 
-    def check_arg_vals(self, *arg_names):
+    def check_arg_vals(self, *arg_names, allow_none=False):
         """Check if set of arguments exists as attributes and values"""
 
         self.check_required_args(*arg_names)
         for arg_name in arg_names:
-            if not getattr(self, arg_name):
+            attr = getattr(self, arg_name)
+            if not (allow_none and attr is None) and not bool(attr):
                 raise ValueError('argument "%s" of %s has no value' % (arg_name, str(self)))
+
+    def check_arg_opts(self, allow_none=False, **name_vals):
+        """Check if argument values are in set of options"""
+
+        self.check_required_args(*tuple(name_vals.keys()))
+        for arg_name, arg_opts in name_vals.items():
+            attr = getattr(self, arg_name)
+            if not (allow_none and attr is None) and attr not in arg_opts:
+                raise ValueError('invalid value for argument "%s" of %s: "%s" (options are %s)'
+                                 % (arg_name, str(self), str(attr), str(tuple(arg_opts))))
 
     def check_arg_types(self, recurse=False, allow_none=False, **name_type):
         """Check if set of arguments has correct types"""
@@ -108,17 +119,31 @@ class ArgumentsMixin(object):
                     raise TypeError('type of (element of) argument "%s" of %s is "%s" ("%s" required)'
                                     % (a_name, str(self), type(attr).__name__, a_type.__name__))
 
-        self.check_required_args(*list(name_type.keys()))
+        self.check_required_args(*tuple(name_type.keys()))
         for arg_name, arg_type in name_type.items():
             check_attr(self, getattr(self, arg_name), arg_name, arg_type)
 
-    def check_arg_iters(self, *arg_names):
+    def check_arg_iters(self, *arg_names, allow_none=False):
         """Check if set of arguments has iterators"""
 
         self.check_required_args(*arg_names)
         for arg_name in arg_names:
+            attr = getattr(self, arg_name)
+            if allow_none and attr is None:
+                continue
             if not hasattr(getattr(self, arg_name), '__iter__'):
                 raise TypeError('argument "%s" of %s is not iterable' % (arg_name, str(self)))
+
+    def check_arg_callable(self, *arg_names, allow_none=False):
+        """Check if set of arguments has iterators"""
+
+        self.check_required_args(*arg_names)
+        for arg_name in arg_names:
+            attr = getattr(self, arg_name)
+            if allow_none and attr is None:
+                continue
+            if not callable(getattr(self, arg_name)):
+                raise TypeError('argument "%s" of %s is not callable' % (arg_name, str(self)))
 
 
 class LoggingMixin(object):

@@ -86,7 +86,7 @@ if settings['generate_fit_plot']:
     #           store the resulting plot in the file 'fit_of_simdata.pdf'
     wsu = root_analysis.WsUtils(name = 'plotter')
     wsu.add_plot(obs='x', data='simdata', pdf='model', pdf_kwargs={'VisualizeError': 'fit_result', 'MoveToBack': ()}, key='simdata_plot')
-    wsu.add_plot(obs='x', pdf='model', file='fit_of_simdata.pdf', key='simdata_plot')
+    wsu.add_plot(obs='x', pdf='model', output_file='fit_of_simdata.pdf', key='simdata_plot')
     ch.add_link(wsu)
 
     # --- 5. convert simulated data to dataframe

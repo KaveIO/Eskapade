@@ -61,12 +61,13 @@ def to_date(x):
     try:
         ts = pd.Timestamp(x.split()[0])
         return ts
-    except:
+    except BaseException:
         pass
     return x
 
 #########################################################################################
 # --- now set up the chains and links, based on configuration flags
+
 
 procMgr = ProcessManager()
 
@@ -130,8 +131,8 @@ if settings['do_plotting']:
     ch.add_link(pds)
 
     # --- make a nice summary report of the created histograms
-    hist_summary = visualization.HistSummary(name='HistogramSummary',
-                                             read_key=hf.store_key)
+    hist_summary = visualization.DfSummary(name='HistogramSummary',
+                                           read_key=hf.store_key)
     ch.add_link(hist_summary)
 
 #########################################################################################

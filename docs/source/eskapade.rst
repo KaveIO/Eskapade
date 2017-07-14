@@ -25,6 +25,14 @@ eskapade.exceptions module
     :undoc-members:
     :show-inheritance:
 
+eskapade.helpers module
+-----------------------
+
+.. automodule:: eskapade.helpers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 eskapade.utils module
 ---------------------
 

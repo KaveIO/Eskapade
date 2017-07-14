@@ -96,6 +96,7 @@ Contents
    tutorial
    tutorial_jupyter
    tutorial_roofit
+   tutorial_spark
    package_structure
    command_line_arguments
    contributing
@@ -107,6 +108,7 @@ Appendices
    :maxdepth: 2
 
    mac_os
+   spark
 
 API
 ---

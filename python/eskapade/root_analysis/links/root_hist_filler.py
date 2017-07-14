@@ -1,17 +1,17 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : RootHistFiller                                                        *
-# * Created: 2017/02/25                                                            *
-# * Description:                                                                   *
-# *      Algorithm to create ROOT histograms from colums in pandas dataframe       *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+# ********************************************************************************
+# * Project: Eskapade - A python-based package for data analysis                 *
+# * Class  : RootHistFiller                                                      *
+# * Created: 2017/02/25                                                          *
+# * Description:                                                                 *
+# *      Algorithm to create ROOT histograms from colums in pandas dataframe     *
+# *                                                                              *
+# * Authors:                                                                     *
+# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
+# *                                                                              *
+# * Redistribution and use in source and binary forms, with or without           *
+# * modification, are permitted according to the terms listed in the file        *
+# * LICENSE.                                                                     *
+# ********************************************************************************
 
 import numpy as np
 
@@ -20,9 +20,11 @@ from ROOT import TH1
 import root_numpy
 
 from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade.analysis import histogram_filling as hf
+from eskapade.analysis.histogram_filling import HistogramFillerBase
 
 
-class RootHistFiller(Link):
+class RootHistFiller(HistogramFillerBase):
     """Create ROOT histograms from colums in Pandas dataframe
 
     Histograms can be up to 3 dimensions. The data type for the histogram
@@ -54,7 +56,11 @@ class RootHistFiller(Link):
         """
 
         # initialize Link, pass name from kwargs
-        Link.__init__(self, kwargs.pop('name', 'RootHistFiller'))
+        if 'name' not in kwargs:
+            kwargs['name'] = 'RootHistFiller'
+        if not kwargs.get('store_key', None):
+            kwargs['store_key'] = 'hist'
+        HistogramFillerBase.__init__(self, **kwargs)
 
         # process and register all relevant kwargs. kwargs are added as attributes of the link.
         # second arg is default value for an attribute. key is popped from kwargs.
@@ -67,13 +73,10 @@ class RootHistFiller(Link):
                              var_number_of_bins={},
                              var_min_value={},
                              var_max_value={},
-                             var_dtype={},
-                             weight='')
+                             weight=None)
 
         # check residual kwargs. exit if any present.
         self.check_extra_kwargs(kwargs)
-
-        self.hists = {}
 
         self._default_min = 0.
         self._default_max = 1.
@@ -89,6 +92,8 @@ class RootHistFiller(Link):
         self.check_arg_types(recurse=True, allow_none=True, columns=str, pair_up_columns=str)
         self.check_arg_vals('read_key', 'store_key')
 
+        status = HistogramFillerBase.initialize(self)
+
         # pair up any columns and add to self.colums
         if len(self.pair_up_columns):
             assert len(self.pair_up_columns) >= 2, 'pair_up_columns needs at least two column entries.'
@@ -100,67 +105,45 @@ class RootHistFiller(Link):
         # check that columns are set correctly.
         # supports 1d 2d and 3d histograms
         for i, c in enumerate(self.columns):
-            if isinstance(c, str):
-                self.columns[i] = [c]
-            if not isinstance(self.columns[i], list):
-                raise TypeError('columns "%s" needs to be a string or list of strings' % self.columns[i])
-            assert len(self.columns[i]) <= 3, 'dimension needs to be 1,2, or 3, not "%d"' % len(self.columns[i])
-
-        # check for supported data types
-        for k in self.var_dtype.keys():
-            try:
-                dt = np.dtype(self.var_dtype[k]).type
-                if dt is np.string_ or dt is np.object_:
-                    dt = str
-                self.var_dtype[k] = dt
-            except:
-                raise TypeError('unknown assigned datatype to variable "%s".' % k)
-            assert self._dtype_check(dt), 'column "%s" is of incorrect data type "%s"' % (k, dt)
+            assert len(self.columns[i]) <= 3, 'dimension needs to be 1, 2, or 3, not "%d"' % len(self.columns[i])
 
         # check weight variable
-        if self.weight:
-            assert len(self.weight), 'weight needs to be a filled string'
+        if self.weight and not isinstance(self.weight, str):
+            raise TypeError('weight argument needs to be a string')
 
-        # construct the empty histograms.
-        # filled in execute()
-        for c in self.columns:
-            name = ':'.join(c)
-            self.hists[name] = self._construct_hist(c)
+        return status
 
-        return StatusCode.Success
+    def categorize_columns(self, df):
+        """Categorize columns of dataframe by data type
 
-    def execute(self):
-        """Execute RootHistFiller"""
+        :param df: input (pandas) data frame
+        """
 
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
-
-        df = ds[self.read_key]
-
-        # check presence and data types of requested columns
-        for c in self.columns:
-            for col in c:
-                assert col in df.columns, 'column "%s" not in dataframe "%s"' % (col, self.read_key)
-                dt = df[col].dtype.type
-                if dt is np.string_ or dt is np.object_:
-                    dt = str
-                assert self._dtype_check(dt), 'column "%s" is of incorrect data type "%s"; not supported' % (col, dt)
-                self.var_dtype[col] = dt
+        # check presence and data type of requested columns
+        # sort columns into numerical, timestamp and category based
+        HistogramFillerBase.categorize_columns(self, df)
 
         # verify weight
-        if self.weight:
-            assert self.weight in df.columns, 'weight "%s" not in dataframe "%s"' % (self.weight, self.read_key)
+        if self.weight and self.weight not in df.columns:
+            raise KeyError('weight "{0:s}" not in dataframe "{1:s}"'.format(self.weight, self.read_key))
 
+    def fill_histogram(self, idf, columns):
+        """Fill input histogram with column(s) of input dataframe
+
+        :param idf: input data frame used for filling histogram
+        :param list columns: histogram column(s)
+        """
+
+        name = ':'.join(columns)
+        if name not in self._hists:
+            # create an (empty) histogram of right type
+            self._hists[name] = self.construct_empty_hist(columns)
+        hist = self._hists[name]
         # fill the histograms here
         # include weights if present
-        w = df[self.weight].values if self.weight else None
-        for c in self.columns:
-            n = ':'.join(c)
-            root_numpy.fill_hist(self.hists[n], df[c if len(c) > 1 else c[0]].values, w)
-
-        ds[self.store_key] = self.hists
-
-        return StatusCode.Success
+        w = idf[self.weight].values if self.weight else None
+        root_numpy.fill_hist(hist, idf[columns if len(columns) > 1 else columns[0]].values, w)
+        self._hists[name] = hist
 
     def _title(self, columns):
         n = ':'.join(columns)
@@ -212,15 +195,6 @@ class RootHistFiller(Link):
         # fall back on default
         return self._default_max
 
-    def _dtype_check(self, dt):
-        dt = np.dtype(dt)
-        check = dt == np.dtype(float) or dt == np.dtype(int) or \
-            dt == np.dtype('short') or dt == np.dtype('byte') or dt == np.dtype(bool)
-        # or dt==np.dtype(str)
-        if not check:
-            self.log().warning('Data type "%s" should be: float, int, bool', dt)
-        return check
-
     def _dtype(self, c):
         n = ':'.join(c)
         if n in self.var_dtype:
@@ -229,6 +203,8 @@ class RootHistFiller(Link):
         elif any(self.var_dtype[col] == np.dtype(float) for col in c if col in self.var_dtype):
             return np.dtype(float)
         elif any(self.var_dtype[col] == np.dtype(int) for col in c if col in self.var_dtype):
+            return np.dtype(int)
+        elif any(self.var_dtype[col] == np.datetime64 for col in c if col in self.var_dtype):
             return np.dtype(int)
         elif any(self.var_dtype[col] == np.dtype('short') for col in c if col in self.var_dtype):
             return np.dtype('short')
@@ -248,12 +224,21 @@ class RootHistFiller(Link):
             return False
         return True
 
-    def _construct_hist(self, c):
-        n = ':'.join(c)
-        n_dims = len(c)
+    def construct_empty_hist(self, columns):
+        """Create an (empty) histogram of right type
+
+        Create a multi-dim histogram by iterating through the columns.
+
+        :param list columns: histogram columns
+        :returns: created ROOT histogram
+        :rtype: ROOT.TH1
+        """
+
+        name = ':'.join(columns)
+        n_dims = len(columns)
 
         HISTCLASS = None
-        dt = self._dtype(c)
+        dt = self._dtype(columns)
 
         if n_dims == 1:
             if dt == np.dtype(float):
@@ -264,8 +249,8 @@ class RootHistFiller(Link):
                 HISTCLASS = ROOT.TH1S
             if dt == np.dtype('byte') or dt == np.dtype(bool):
                 HISTCLASS = ROOT.TH1C
-            hist = HISTCLASS(n, self._title(c),
-                             self._n_bins(c, 0), self._min(c, 0), self._max(c, 0))
+            hist = HISTCLASS(name, self._title(columns),
+                             self._n_bins(columns, 0), self._min(columns, 0), self._max(columns, 0))
         elif n_dims == 2:
             if dt == np.dtype(float):
                 HISTCLASS = ROOT.TH2F
@@ -275,9 +260,9 @@ class RootHistFiller(Link):
                 HISTCLASS = ROOT.TH2S
             if dt == np.dtype('byte') or dt == np.dtype(bool):
                 HISTCLASS = ROOT.TH2C
-            hist = HISTCLASS(n, self._title(c),
-                             self._n_bins(c, 0), self._min(c, 0), self._max(c, 0),
-                             self._n_bins(c, 1), self._min(c, 1), self._max(c, 1))
+            hist = HISTCLASS(name, self._title(columns),
+                             self._n_bins(columns, 0), self._min(columns, 0), self._max(columns, 0),
+                             self._n_bins(columns, 1), self._min(columns, 1), self._max(columns, 1))
         elif n_dims == 3:
             if dt == np.dtype(float):
                 HISTCLASS = ROOT.TH3F
@@ -287,16 +272,16 @@ class RootHistFiller(Link):
                 HISTCLASS = ROOT.TH3S
             if dt == np.dtype('byte') or dt == np.dtype(bool):
                 HISTCLASS = ROOT.TH3C
-            hist = HISTCLASS(n, self._title(c),
-                             self._n_bins(c, 0), self._min(c, 0), self._max(c, 0),
-                             self._n_bins(c, 1), self._min(c, 1), self._max(c, 1),
-                             self._n_bins(c, 2), self._min(c, 2), self._max(c, 2))
+            hist = HISTCLASS(name, self._title(columns),
+                             self._n_bins(columns, 0), self._min(columns, 0), self._max(columns, 0),
+                             self._n_bins(columns, 1), self._min(columns, 1), self._max(columns, 1),
+                             self._n_bins(columns, 2), self._min(columns, 2), self._max(columns, 2))
         else:
             raise RuntimeError('number of dimensions not supported: %d' % n_dims)
         for i in range(n_dims):
-            if self._extend_axis(c, i):
+            if self._extend_axis(columns, i):
                 hist.SetCanExtend(ROOT.TH1.kAllAxes)
-                # Bug cannot extend y axis
+                # Bug cannot extend individual y axis ?
                 # https://sft.its.cern.ch/jira/browse/ROOT-7389
                 # if i == 0:
                 #     hist.SetCanExtend(ROOT.TH1.kXaxis)
@@ -305,12 +290,16 @@ class RootHistFiller(Link):
                 # if i == 2:
                 #     hist.SetCanExtend(ROOT.TH1.kZaxis)
         # store column names in axes
-        for i, col in enumerate(c):
+        for i, col in enumerate(columns):
             if i == 0:
                 hist.GetXaxis().SetName(col)
             if i == 1:
                 hist.GetYaxis().SetName(col)
             if i == 2:
                 hist.GetZaxis().SetName(col)
+
+        # FIXME stick data types to histogram
+        dta = [self.var_dtype[col] for col in columns]
+        hist.datatype = dta[0] if len(columns) == 1 else dta
 
         return hist

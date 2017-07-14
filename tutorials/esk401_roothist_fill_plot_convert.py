@@ -8,9 +8,9 @@
 # *
 # * Description:
 # *
-# * This macro illustrates how to fill 1-3 dimensional root histograms from a 
-# * pandas dataframe. In turn, these histogram are: 2) plotted, 
-# * 3) converted to a roofit histogram (roodatahist), and 4) converted to a 
+# * This macro illustrates how to fill 1-3 dimensional root histograms from a
+# * pandas dataframe. In turn, these histogram are: 2) plotted,
+# * 3) converted to a roofit histogram (roodatahist), and 4) converted to a
 # * roofit dataset (roodataset).
 # *                                         :                                      *
 # * Licence:
@@ -82,7 +82,7 @@ if settings['make_plot']:
     ch = proc_mgr.add_chain('Plotting')
 
     # --- 2. make a nice summary report of the created histograms
-    hs = visualization.HistSummary(name='HistogramSummary', read_key=hf.store_key)
+    hs = visualization.DfSummary(name='HistogramSummary', read_key=hf.store_key)
     ch.add_link(hs)
 
 if settings['convert_to_rdh']:

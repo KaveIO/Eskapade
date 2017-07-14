@@ -88,10 +88,10 @@ if settings['generate']:
     ch = proc_mgr.add_chain('WsOps')
     wsu = root_analysis.WsUtils()
     wsu.add_simulate(pdf='keys_Ndim', obs='keys_varset', num=5000, key='simdata', into_ws=True)
-    wsu.add_plot(obs='x2', data='simdata', file='x2_simdata.pdf')
-    wsu.add_plot(obs='x3', data='simdata', file='x3_simdata.pdf')
+    wsu.add_plot(obs='x2', data='simdata', output_file='x2_simdata.pdf')
+    wsu.add_plot(obs='x3', data='simdata', output_file='x3_simdata.pdf')
     if settings['high_num_dims']:
-        wsu.add_plot(obs='x4', data='simdata', file='x4_simdata.pdf')
+        wsu.add_plot(obs='x4', data='simdata', output_file='x4_simdata.pdf')
     wsu.copy_into_ds = ['simdata']
     ch.add_link(wsu)
 
@@ -118,7 +118,7 @@ if settings['make_plot']:
     ch.add_link(hf)
 
     # --- make a nice summary report of the created histograms
-    hs = visualization.HistSummary(name='HistogramSummary', read_key=hf.store_key)
+    hs = visualization.DfSummary(name='HistogramSummary', read_key=hf.store_key)
     ch.add_link(hs)
 
     pds = core_ops.PrintDs()
