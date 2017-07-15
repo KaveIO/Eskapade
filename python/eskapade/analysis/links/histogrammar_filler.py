@@ -151,9 +151,9 @@ class HistogrammarFiller(HistogramFillerBase):
 
         @property
         def n_bins(self):
-            if hasattr(self, num):
+            if hasattr(self, 'num'):
                 return self.num
-            elif hasattr(size, size):
+            elif hasattr(self, 'size'):
                 return self.size
             else:
                 raise RuntimeError('Cannot retrieve number of bins from hgr hist')
