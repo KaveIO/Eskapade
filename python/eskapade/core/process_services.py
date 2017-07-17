@@ -196,7 +196,7 @@ class ConfigObject(ProcessService, dict):
         # initialize file I/O paths with repository directories with repo root from environment
         self['esRoot'] = eskapade.utils.get_dir_path('es_root')
         root_path = self['esRoot'] + ('/' if self['esRoot'] and self['esRoot'][-1] != '/' else '')
-        for subdir in ['results', 'data', 'templates']:
+        for subdir in ['config', 'results', 'data', 'templates']:
             self['{}Dir'.format(subdir)] = root_path + subdir
         self['macrosDir'] = root_path + 'tutorials'
 
@@ -207,7 +207,8 @@ class ConfigObject(ProcessService, dict):
         :rtype: dict
         """
 
-        return dict([(key + '_dir', self[key + 'Dir']) for key in ['results', 'data', 'macros', 'templates']])
+        return dict([(key + '_dir', self[key + 'Dir'])
+                     for key in ['config', 'results', 'data', 'macros', 'templates']])
 
     def io_conf(self):
         """Get I/O configuration

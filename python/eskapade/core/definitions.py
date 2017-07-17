@@ -172,6 +172,7 @@ CONFIG_VARS['run'] = ['analysisName', 'version', 'macro', 'batchMode', 'interact
 CONFIG_VARS['chains'] = ['beginWithChain', 'endWithChain', 'storeResultsEachChain', 'storeResultsOneChain',
                          'doNotStoreResults']
 CONFIG_VARS['file_io'] = ['esRoot', 'resultsDir', 'dataDir', 'macrosDir', 'templatesDir']
+CONFIG_VARS['config'] = ['sparkCfgFile']
 CONFIG_VARS['db_io'] = ['all_mongo_collections']
 CONFIG_VARS['rand_gen'] = ['seeds']
 CONFIG_TYPES = dict(version=int, batchMode=bool, interactive=bool, storeResultsEachChain=bool, doNotStoreResults=bool,
@@ -180,7 +181,7 @@ CONFIG_DEFAULTS = dict(version=0, batchMode=True, interactive=False, logLevel=lo
                        logFormat='%(asctime)s %(levelname)s [%(module)s]: %(message)s',
                        doCodeProfiling=None, storeResultsEachChain=False, doNotStoreResults=False, esRoot='',
                        resultsDir='results', dataDir='data', macrosDir='tutorials', templatesDir='templates',
-                       seeds=RandomSeeds())
+                       sparkCfgFile='spark.cfg', seeds=RandomSeeds())
 
 # user options in command-line arguments
 USER_OPTS = collections.OrderedDict()
@@ -188,6 +189,7 @@ USER_OPTS['run'] = ['analysis_name', 'analysis_version', 'batch_mode', 'interact
                     'unpickle_config', 'profile', 'conf_var']
 USER_OPTS['chains'] = ['begin_with', 'end_with', 'single_chain', 'store_all', 'store_one', 'store_none']
 USER_OPTS['file_io'] = ['results_dir', 'data_dir', 'macros_dir', 'templates_dir']
+USER_OPTS['config'] = ['spark_cfg_file']
 USER_OPTS['rand_gen'] = ['seed']
 USER_OPTS_SHORT = dict(analysis_name='n', analysis_version='v', interactive='i', log_level='L', conf_var='c',
                        begin_with='b', end_with='e', single_chain='s')
@@ -234,13 +236,16 @@ USER_OPTS_KWARGS = dict(analysis_name=dict(help='set name of analysis in run',
                                         metavar='MACROS_DIR'),
                         templates_dir=dict(help='set directory path for template files',
                                            metavar='TEMPLATES_DIR'),
+                        spark_cfg_file=dict(help='set path of Spark configuration file',
+                                            metavar='SPARK_CONFIG_FILE'),
                         seed=dict(help='set seed for random-number generation',
                                   action='append',
                                   metavar='KEY=SEED'))
 USER_OPTS_CONF_KEYS = dict(analysis_name='analysisName', analysis_version='analysisVersion', batch_mode='batchMode',
                            log_level='logLevel', log_format='logFormat', profile='doCodeProfiling',
                            begin_with='beginWithChain', end_with='endWithChain', store_all='storeResultsEachChain',
-                           store_one='storeResultsOneChain', store_none='doNotStoreResults', seed='seeds')
+                           store_one='storeResultsOneChain', store_none='doNotStoreResults',
+                           spark_cfg_file='sparkCfgFile', seed='seeds')
 
 
 def set_opt_var(opt_key, settings, args):
