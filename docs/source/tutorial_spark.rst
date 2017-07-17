@@ -158,3 +158,38 @@ Spark examples
 ~~~~~~~~~~~~~~
 
 Example Eskapade macros using Spark can be found in the ``tutorials`` directory, see ``esk601_spark_configuration.py`` and further.
+
+
+Spark Streaming
+---------------
+
+Eskapade supports the use of Spark Streaming as demonstrated in the word count example ``tutorials/esk610_spark_streaming_wordcount.py``. The data is processed in (near) real-time as micro batches of RDD's, so-called discretized streaming, where the stream originates from either new incoming files or network connection. As with regulard Spark queries, various transformations can be defined and applied in subsequent Eskapade links.
+
+For details on Spark Streaming, see also https://spark.apache.org/docs/latest/streaming-programming-guide.html.
+
+File stream
+~~~~~~~~~~~
+
+The word count example using the file stream method can be run by executing in two different terminals:
+
+.. code-block:: bash 
+
+  terminal 1 $ for ((i=0; i<=100; i++)); do echo "Hello world" > /tmp/dummy_$(printf %05d ${i}); sleep 0.1; done
+  terminal 2 $ run_eskapade -c stream_type='tcp' $ESKAPADE/tutorials/esk610_spark_streaming.py
+
+Where bash ``for``-loop will create a new file containing ``Hello world`` in the /tmp directory every 0.1 second. Spark Streaming will pick up and process these files and in ``terminal 2`` a word count of the processed data will by dispayed. Output is stored in ``$ESKAPADE/results/esk610_spark_streaming/data/v0/dstream/wordcount``.
+
+
+TCP stream
+~~~~~~~~~~
+
+The word count example using the TCP stream method can be run by executing in two different terminals:
+
+.. code-block:: bash 
+
+  terminal 1 $ nc -lk 9999
+  terminal 2 $ run_eskapade -c stream_type='tcp' $ESKAPADE/tutorials/esk610_spark_streaming.py
+
+Where ``nc`` (netcat) will stream data to port 9999 and Spark Streaming will listen to this port and process incoming data. In ``terminal 1`` random words can be type (followed by enter) and in ``terminal 2`` a word count of the processed data will by dispayed. Output is stored in ``$ESKAPADE/results/esk610_spark_streaming/data/v0/dstream/wordcount``.
+
+
