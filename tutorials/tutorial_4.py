@@ -50,7 +50,7 @@ settings['analysisName'] = 'Tutorial_4'
 #########################################################################################
 # --- setup Spark
 
-proc_mgr.service(SparkManager).spark_session
+proc_mgr.service(SparkManager).get_or_create_session()
 
 
 #########################################################################################
