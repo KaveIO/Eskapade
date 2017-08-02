@@ -47,7 +47,7 @@ To pull in the environment for running Eskapade (but excluding the Eskapade repo
 
 .. code-block:: bash
 
-  docker pull kave/eskapade-env:0.5
+  docker pull kave/eskapade-env:0.6
 
 Downloading this docker image can take a minute or two.
 
@@ -59,9 +59,9 @@ To start up the Eskapade docker environment, with access to the Eskapade reposit
 
 .. code-block:: bash
 
-  docker run -it --name es-ktb -p 8888:8888 -v /path/to/your/local/eskapade:/opt/eskapade kave/eskapade-env:0.5 bash
+  docker run -it --name es-ktb -p 8888:8888 -v /path/to/your/local/eskapade:/opt/eskapade kave/eskapade-env:0.6 bash
 
-This command will start up a bash shell in the docker ``kave/eskapade-env:0.5`` image, and opens port 8888.
+This command will start up a bash shell in the docker ``kave/eskapade-env:0.6`` image, and opens port 8888.
 The Eskapade setup file will be automatically sourced.
 
 The option ``-v /path/to/your/local/eskapade:/opt/eskapade`` mounts the local directory ``/path/to/your/local/eskapade``
@@ -92,7 +92,7 @@ Consider adding a permanent alias to your local ``~/.bashrc`` or ``~/.bash_profi
 
 .. code-block:: bash
 
-  alias eskapade_docker='docker run -it --name es-ktb -p 8888:8888 -v /path/to/local/eskapade:/opt/eskapade kave/eskapade-env:0.5 bash'
+  alias eskapade_docker='docker run -it --name es-ktb -p 8888:8888 -v /path/to/local/eskapade:/opt/eskapade kave/eskapade-env:0.6 bash'
 
 So the next time, in a fresh shell, you can simply run the command ``eskapade_docker``.
 
