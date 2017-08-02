@@ -59,6 +59,25 @@ and more.
 Release notes
 =============
 
+Version 0.6
+-----------
+
+The primary feature of version 0.6 (July 2017) is the inclusion of Spark, but this version
+also includes several other new features and analyses.
+
+We include multiple Spark links and 10 Spark examples on:
+
+* The configuration of spark, reading, writing and converting spark dataframes, applying functions and queries to dataframes,
+  filling histograms and (very useful!) applying arbitrary functions (e.g. pandas) to groupby calls.
+
+In addition we hade added:
+
+* A ROOT analysis for studying and quantifying between sets of (non-)categorical and observables.
+  This is useful for finding outliers in arbitrary datasets (e.g. surveys), and we include a tutorial of how to do this.
+* A ROOT analysis on predictive maintenance that decomposes a distribution of time difference between malfunctions
+  by fitting this multiple Weibull distributions.
+* New flexible features to create and chain analysis reports with several analysis and visualization links.
+
 Version 0.5
 -----------
 
