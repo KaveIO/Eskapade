@@ -1,25 +1,28 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Classes: ArgumentsMixin, LoggingMixin                                          *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *          Base classes of Link                                                  *
-# *          ArgumentsMixin: allows attributes to be accessed as dict items.       *
-# *          LoggingMixin: logger functionality for the class.                     *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+# ********************************************************************************
+# * Project: Eskapade - A python-based package for data analysis                 *
+# * Classes: ArgumentsMixin, LoggingMixin, TimerMixin                            *
+# * Created: 2016/11/08                                                          *
+# * Description:                                                                 *
+# *     Mixin classes:                                                           *
+# *     * ArgumentsMixin: processes/checks arguments and sets them as attributes *
+# *     * LoggingMixin:   logging functionality                                  *
+# *     * TimerMixin:     keeps track of execution time                          *
+# *     * ConfigMixin:    reads and handles settings from configuration files    *
+# *                                                                              *
+# * Authors:                                                                     *
+# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
+# *                                                                              *
+# * Redistribution and use in source and binary forms, with or without           *
+# * modification, are permitted according to the terms listed in the file        *
+# * LICENSE.                                                                     *
+# ********************************************************************************
 
 import logging
 import timeit
+import configparser
 
 
-class ArgumentsMixin(object):
+class ArgumentsMixin:
     """Mixin base class for argument parsing
 
     Class allows attributes to be accessed as dict items.  Plus several
@@ -146,7 +149,7 @@ class ArgumentsMixin(object):
                 raise TypeError('argument "%s" of %s is not callable' % (arg_name, str(self)))
 
 
-class LoggingMixin(object):
+class LoggingMixin:
     """Mixin base class for logging"""
 
     @classmethod
@@ -166,7 +169,7 @@ class LoggingMixin(object):
             cls.log().error('logging level of "%s" unchanged: got invalid value "%s"', cls.log().name, level)
 
 
-class TimerMixin(object):
+class TimerMixin:
     """Mixin base class for timing"""
 
     def __init__(self):
@@ -216,3 +219,67 @@ class TimerMixin(object):
         """
 
         return self._total_time
+
+
+class ConfigMixin:
+    """Mixin base class for configuration settings"""
+
+    def __init__(self, config_path=None):
+        """Initialize config settings
+
+        :param str config_path: path of configuration file
+        """
+
+        self._config_path = str(config_path) if config_path else ''
+        self._config = None
+
+    @property
+    def config_path(self):
+        """Path of configuration file"""
+
+        return self._config_path
+
+    @config_path.setter
+    def config_path(self, path):
+        """Set path of configuration file
+
+        :param str path: path to be set
+        :raises ValueError: if path is not a string or has no value
+        """
+
+        path = str(path) if path else ''
+        if not path:
+            raise ValueError('no value specified for config-file path')
+        self._config_path = path
+
+    def get_config(self, config_path=None):
+        """Get settings from configuration file
+
+        Read and return the configuration settings from a configuration file.
+        If the path of this file is not specified as an argument, the value of
+        the "config_path" property is used.  If the file has already been read,
+        return previous settings.
+
+        :param str config_path: path of configuration file
+        :returns: configuration settings read from file
+        :rtype: configparser.ConfigParser
+        :raises RuntimeError: if config_path is not set
+        """
+
+        if not self._config:
+            # set config-path attribute
+            if config_path:
+                self.config_path = config_path
+            elif not self.config_path:
+                raise RuntimeError('no configuration-file path set')
+
+            # read configuration file
+            self._config = configparser.ConfigParser()
+            self._config.read(self.config_path)
+
+        return self._config
+
+    def reset_config(self):
+        """Remove previously read settings"""
+
+        self._config = None

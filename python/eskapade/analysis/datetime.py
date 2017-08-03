@@ -1,6 +1,6 @@
 import pandas as pd
 
-from eskapade.core.mixins import ArgumentsMixin, LoggingMixin
+from eskapade.mixins import ArgumentsMixin, LoggingMixin
 
 ################
 # time periods #

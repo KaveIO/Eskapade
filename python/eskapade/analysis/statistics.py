@@ -5,7 +5,7 @@ import operator
 from statsmodels.stats.weightstats import DescrStatsW
 from collections import Counter
 from eskapade.analysis.histogram import BinningUtil
-from eskapade.core.mixins import LoggingMixin
+from eskapade.mixins import LoggingMixin
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 

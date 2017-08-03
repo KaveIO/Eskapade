@@ -17,7 +17,7 @@ import os
 
 from eskapade.core.definitions import StatusCode
 from eskapade.core import persistence
-from eskapade.core.mixins import LoggingMixin, ArgumentsMixin, TimerMixin
+from eskapade.mixins import LoggingMixin, ArgumentsMixin, TimerMixin
 
 
 class Link(ArgumentsMixin, LoggingMixin, TimerMixin):

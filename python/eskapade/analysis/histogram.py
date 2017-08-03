@@ -4,7 +4,7 @@ import random
 from collections import Counter
 from sortedcontainers import SortedDict
 
-from eskapade.core.mixins import ArgumentsMixin, LoggingMixin
+from eskapade.mixins import ArgumentsMixin, LoggingMixin
 
 
 def _check_num_vals(cnts_iter):

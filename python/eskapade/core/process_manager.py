@@ -20,10 +20,10 @@ import os
 import glob
 
 from . import persistence
-from .mixins import LoggingMixin, TimerMixin
 from .definitions import StatusCode
 from .process_services import ProcessService, ConfigObject
 from .run_elements import Chain
+from eskapade.mixins import LoggingMixin, TimerMixin
 
 
 class ProcessManager(LoggingMixin, TimerMixin):
