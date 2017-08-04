@@ -3,7 +3,7 @@ RooFit Tutorial
 ===============
 
 This section provides a tutorial on how to use RooFit in Eskapade. RooFit is an advanced fitting library in ROOT, which is great
-for modelling all sorts of data sets. 
+for modelling all sorts of data sets.
 ROOT (and RooFit) works 'out of the box' in the Eskapade docker/vagrant image.
 
 Tutorial 3: using RooFit
@@ -36,7 +36,7 @@ Start an interactive python session and type:
    import ROOT
    ROOT.RooClassFactory.makePdf("MyPdfV2","x,A,B","","A*fabs(x)+pow(x-B,2)")
 
-This command creates a RooFit skeleton probability density function class named ``MyPdfV2``, 
+This command creates a RooFit skeleton probability density function class named ``MyPdfV2``,
 with the variable ``x, a, b`` and the given formula expression.
 
 Also type:
@@ -61,7 +61,7 @@ Now open the file ``MyPdfV3.cxx``. This also contains the method ``analyticalInt
 for the analytical integral over x that we provided.
 
 If no analytical integral has been provided, as in ``MyPdfV2``, RooFit will try to try to compute the integral
-itself. (Of course this is a costly operation.) If you wish, since we know the analytical integral for ``MyPdfV2``, 
+itself. (Of course this is a costly operation.) If you wish, since we know the analytical integral for ``MyPdfV2``,
 go ahead and edit ``MyPdfV2.cxx`` to add the expression of the analytical integral to the class.
 
 As another example of a simple pdf class, take a look at the expressions in the file:
@@ -99,7 +99,7 @@ We are now able to open the Eskapade roofit library, so we can use these classes
 In fact, this last snippet of code is used in the tutorial macro right below.
 
 
-   
+
 Running the tutorial macro
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -156,7 +156,7 @@ For details on rooworkspace factory see this `RooWorkspace tutorial <https://roo
 
    ch = proc_mgr.add_chain('WsOps')
 
-   # --- instantiate a pdf 
+   # --- instantiate a pdf
    wsu = root_analysis.WsUtils(name = 'modeller')
    wsu.factory = ["MyPdfV3::testpdf(y[-10,10],A[10,0,100],B[2,-10,10])"]
    ch.add_link(wsu)
@@ -210,7 +210,7 @@ Finally, the last version of the link ``WsUtils`` is used to plot the result of 
    wsu.add_plot(obs='y', pdf='testpdf', file='fit_of_simdata.pdf', key='simdata_plot')
    ch.add_link(wsu)
 
-This link is configured to do two things. 
+This link is configured to do two things.
 First it plots the observable ``y`` of the the dataset ``simdata`` and then plots the fitted uncertainy band of the pdf ``testpdf`` on top of this.
 The plot is stored in the datastore under the key ``simdata_plot``.
 Then it plots the fitted pdf ``testpdf`` without uncertainty band on top of the same frame ``simdata_plot``.
@@ -234,7 +234,7 @@ The fit report can be found at:
 
 Take a look at the resulting fit report: ``report.pdf``.
 It contains pages summarizing: the status and quality of the fit (including the correlation matrix),
-summary tables of the floating and fixed parameters in the fit, as well as the plot we have produced. 
+summary tables of the floating and fixed parameters in the fit, as well as the plot we have produced.
 
 
 
