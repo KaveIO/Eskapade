@@ -60,8 +60,10 @@ class DfSummary(Link):
         Link.__init__(self, kwargs.pop('name', 'df_summary'))
 
         # process keyword arguments
-        self._process_kwargs(kwargs, read_key='', results_path='', columns=[], hist_keys=[], var_labels={},
-                             var_units={}, var_bins={}, hist_y_label='Bin counts', pages_key='')
+        self._process_kwargs(kwargs, read_key='', results_path='', columns=[],
+                             hist_keys=[],
+                             var_labels={}, var_units={}, var_bins={},
+                             hist_y_label='Bin counts', pages_key='')
         self.check_extra_kwargs(kwargs)
 
         # initialize attributes
@@ -74,6 +76,7 @@ class DfSummary(Link):
         # check input arguments
         self.check_arg_types(read_key=str, pages_key=str)
         self.check_arg_types(recurse=True, allow_none=True, columns=str, hist_keys=str, var_labels=str, var_units=str)
+        self.check_arg_vals('read_key')
 
         # get I/O configuration
         io_conf = ProcessManager().service(ConfigObject).io_conf()
@@ -129,15 +132,14 @@ class DfSummary(Link):
         else:
             self.assert_data_type(data)
 
-        # determine all possible columns, used for comparison below
-        all_columns = self.get_all_columns(data)
-
         # create report page for histogram
         if self.pages_key:
             self.pages = ds.get(self.pages_key, [])
             if not isinstance(self.pages, list):
                 raise TypeError('pages key "{}" does not refer to a list'.format(self.pages_key))
 
+        # determine all possible columns, used for comparison below
+        all_columns = self.get_all_columns(data)
         if not self.columns:
             self.columns = all_columns
 
@@ -158,6 +160,16 @@ class DfSummary(Link):
 
         # storage
         if self.pages_key:
+            ds[self.pages_key] = self.pages
+
+        return StatusCode.Success
+
+    def finalize(self):
+        """Finalize DfSummary"""
+
+        # storage
+        if self.pages_key:
+            ds = ProcessManager().service(DataStore)
             ds[self.pages_key] = self.pages
 
         return StatusCode.Success

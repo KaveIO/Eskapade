@@ -23,7 +23,7 @@ from collections import Counter
 #import fastnumbers
 
 from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.data_quality.dq_helper import check_nan, convert, CONV_FUNCS
+from eskapade.data_quality.dq_helper import check_nan, convert, cleanup_string, CONV_FUNCS
 
 
 class FixPandasDataFrame(Link):
@@ -90,6 +90,9 @@ class FixPandasDataFrame(Link):
         :param bool inplace: replace original columns; overwrites store_key to read_key (default is False)
         :param str store_key: key of output data to store in data store
         :param bool drop_dup_rec: if true, drop duplicate records from data frame after other fixes (default is false)
+        :param bool strip_string_columns: if true, apply strip command to string columns (default is true)
+        :param list cleanup_string_columns: boolean or list. apply cleaning-up to list of selected or all string columns. 
+                                            More aggressive than strip. Default is empty (= false).
         """
 
         # initialize Link, pass name from kwargs
@@ -117,7 +120,9 @@ class FixPandasDataFrame(Link):
                              store_key='',
                              nan_dtype_map={},
                              nan_default=np.nan,
-                             drop_dup_rec=False)
+                             drop_dup_rec=False,
+                             strip_string_columns=True,
+                             cleanup_string_columns=[])
 
         # check residual kwargs. exit if any present.
         self.check_extra_kwargs(kwargs)
@@ -149,6 +154,9 @@ class FixPandasDataFrame(Link):
         self.check_arg_types(read_key=str, store_key=str)
         self.check_arg_types(recurse=True, allow_none=True, original_columns=str)
         self.check_arg_vals('read_key')
+
+        if not isinstance(self.cleanup_string_columns, list) and not isinstance(self.cleanup_string_columns, bool):
+            raise AssertionError('cleanup_string_columns should be a list of column names or boolean.')
 
         if self.read_key == self.store_key:
             self.inplace = True
@@ -216,6 +224,10 @@ class FixPandasDataFrame(Link):
             if col not in df.columns:
                 raise AssertionError('column "%s" not present in input data frame' % (col, self.read_key))
 
+        # set string columns to clean up
+        if isinstance(self.cleanup_string_columns, bool):
+            self.cleanup_string_columns = copy.copy(self.original_columns) if self.cleanup_string_columns else []
+
         # before we starting fixing, make a copy of the dataframe
         df_ = df if self.inplace else df.copy()
 
@@ -246,6 +258,8 @@ class FixPandasDataFrame(Link):
                 # replace column names
                 all_columns[i] = new_col
                 self.fixed_columns[self.fixed_columns.index(col)] = new_col
+                if col in self.cleanup_string_columns:
+                    self.cleanup_string_columns[self.cleanup_string_columns.index(col)] = new_col
                 if col in self.var_bool_to_int:
                     self.var_bool_to_int[self.var_bool_to_int.index(col)] = new_col
                 if col in self.contaminated_columns:
@@ -368,6 +382,22 @@ class FixPandasDataFrame(Link):
             # drop duplicate records
             df_.drop_duplicates(inplace=True)
 
+        # cleaning up of string columns (1/2)
+        if self.strip_string_columns:
+            # strip string based columns
+            for col, dt in self.var_dtype.items():
+                if dt != str and dt != np.str_:
+                    continue
+                df_[col] = df_[col].str.strip()
+
+        # cleaning up of string columns (2/2)
+        if self.cleanup_string_columns:
+            # strip string based columns
+            for col, dt in self.var_dtype.items():
+                if dt != str and dt != np.str_:
+                    continue
+                df_[col] = df_[col].apply(cleanup_string)
+
         # storage
         ds[self.store_key] = df_
 
@@ -385,4 +415,4 @@ def determine_preferred_dtype(dtype_cnt):
     # determine preferred type from types with the highest count
     type_order = {str: '0', np.float64: '1', np.int64: '2', np.bool_: '3'}
     return sorted((cnt[0] for cnt in type_cnts if cnt[1] == type_cnts[0][1]),
-                   key=lambda t: type_order.get(t, t.__name__))[0]
+                  key=lambda t: type_order.get(t, t.__name__))[0]

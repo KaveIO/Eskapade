@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import logging
-import matplotlib.pyplot as plt
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
@@ -17,6 +16,7 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False, pdf_fi
     :param bool is_num: True if observable to plot is numeric
     :param bool is_ts: True if observable to plot is a timestamp
     :param str pdf_file_name: if set, will store the plot in a pdf file
+    :param int top: only print the top 20 characters of x-labels and y-labels. (default is 20)
     """
     # import matplotlib here to prevent import before setting backend in
     # core.execution.run_eskapade
@@ -179,8 +179,9 @@ def delete_smallstat(df, group_col, statlim=400):
     return df_small, i
 
 
-def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, ylim_low=0, rot=90, statlim=400,
-             label_dict=None, title_add='', top=20):
+def box_plot(
+        df, cause_col, result_col='cost', pdf_file_name='', ylim_quant=0.95, ylim_high=None, ylim_low=0, rot=90,
+        statlim=400, label_dict=None, title_add='', top=20):
     """Make box plot
 
     Function that plots the boxplot of the column df[result_col] in groups of cause_col. This means that
@@ -191,6 +192,7 @@ def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, 
     :param df: pandas DataFrame
     :param str cause_col: name of the column to group on. This can technically be a number, but that is uncommon.
     :param str result_col: column to do the boxplot on
+    :param str pdf_file_name: if set, will store the plot in a pdf file
     :param float ylim_quant: the quantile of the y upper limit
     :param float ylim_high: when defined, this limit is used, when not defined, defaults to None and ylim_high is
            determined by ylim_quant
@@ -199,11 +201,17 @@ def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, 
     :param int statlim: the number of entries that a group is required to have in order to be plotted
     :param dict label_dict: dictionary with labels for the columns, usage example: label_dict={'col_x': 'Time'}
     :param str title_add: string that is added to the automatic title (the y column name)
+    :param int top: only print the top 20 characters of x-labels and y-labels. (default is 20)
     """
+
+    # import matplotlib here to prevent import before setting backend in
+    # core.execution.run_eskapade
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_pdf import PdfPages
 
     # Check the number of categories in the cause_col, if this is too large, only plot the top 20.
     if len(df[cause_col].unique()) > top:
-        top_x = df[cause_col].value_counts()[:top].index
+        to_px = df[cause_col].value_counts()[:top].index
         df = df[df[cause_col].isin(top_x)]
         log.warning('The number of categories of column "%s" is too large, boxplot is not generated', cause_col)
 
@@ -250,3 +258,110 @@ def box_plot(df, cause_col, result_col='cost', ylim_quant=0.95, ylim_high=None, 
         k = tick % 2
         ax1.text(pos[tick], ylim_high - (ylim_high * 0.05), upper_labels[tick], horizontalalignment='center',
                  size='larger', weight=weights[k])
+
+    # 4. store plot
+    if pdf_file_name:
+        pdf_file = PdfPages(pdf_file_name)
+        plt.savefig(
+            pdf_file,
+            format='pdf',
+            bbox_inches='tight',
+            pad_inches=0)
+        plt.close()
+        pdf_file.close()
+
+
+def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
+                            title='correlation', vmin=-1, vmax=1, color_map='RdYlGn', x_label='', y_label='', top=20,
+                            matrix_numbers=None, print_both_numbers=True):
+    """Create and plot correlation matrix
+
+    :param matrix_colors: input correlation matrix
+    :param list x_labels: Labels for histogram x-axis bins
+    :param list y_labels: Labels for histogram y-axis bins
+    :param str pdf_file_name: if set, will store the plot in a pdf file
+    :param str title: if set, title of the plot
+    :param float vmin: minimum value of color legend (default is -1)
+    :param float vmax: maximum value of color legend (default is +1)
+    :param str x_label: Label for histogram x-axis
+    :param str y_label: Label for histogram y-axis
+    :param str color_map: color map passed to matplotlib pcolormesh. (default is 'RdYlGn')
+    :param int top: only print the top 20 characters of x-labels and y-labels. (default is 20)
+    :param matrix_numbers: input matrix used for plotting numbers. (default it matrix_colors)
+    """
+    # basic matrix checks
+    assert matrix_colors.shape[0] == len(y_labels), 'matrix_colors shape inconsistent with number of y-labels'
+    assert matrix_colors.shape[1] == len(x_labels), 'matrix_colors shape inconsistent with number of x-labels'
+    if matrix_numbers is None:
+        matrix_numbers = matrix_colors
+        print_both_numbers = False  # only one set of numbers possible
+    else:
+        assert matrix_numbers.shape[0] == len(y_labels), 'matrix_numbers shape inconsistent with number of y-labels'
+        assert matrix_numbers.shape[1] == len(x_labels), 'matrix_numbers shape inconsistent with number of x-labels'
+
+    # import matplotlib here to prevent import before setting backend in
+    # core.execution.run_eskapade
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_pdf import PdfPages
+    from matplotlib import colors
+
+    fig, ax = plt.subplots(figsize=(7, 5))
+    # cmap = 'RdYlGn' #'YlGn'
+    norm = colors.Normalize(vmin=vmin, vmax=vmax)
+    img = ax.pcolormesh(matrix_colors, cmap=color_map, edgecolor='w', linewidth=1, norm=norm)
+
+    # set x-axis properties
+    def tick(lab):
+        if isinstance(lab, float) or isinstance(lab, int):
+            lab = 'NaN' if np.isnan(lab) else '{0:.1e}'.format(lab)
+        lab = str(lab)
+        if len(lab) > top:
+            lab = lab[:17] + '...'
+        return lab
+
+    # reduce default fontsizes in case too many labels?
+    nlabs = max(len(y_labels), len(x_labels))
+    fontsize_factor = 1
+    if nlabs >= 10:
+        fontsize_factor = 0.6
+    if nlabs >= 20:
+        fontsize_factor = 0.3
+
+    # make plot look pretty
+    ax.set_title(title, fontsize=14 * fontsize_factor)
+    ax.set_yticks(np.arange(len(y_labels)) + 0.5)
+    ax.set_xticks(np.arange(len(x_labels)) + 0.5)
+    ax.set_yticklabels([tick(lab) for lab in y_labels], rotation='horizontal', fontsize=10 * fontsize_factor)
+    ax.set_xticklabels([tick(lab) for lab in x_labels], rotation='vertical', fontsize=10 * fontsize_factor)
+    if x_label:
+        ax.set_xlabel(x_label, fontsize=12 * fontsize_factor)
+    if y_label:
+        ax.set_ylabel(y_label, fontsize=12 * fontsize_factor)
+
+    fig.colorbar(img)
+
+    # annotate with correlation values
+    numbers_set = [matrix_numbers] if not print_both_numbers else [matrix_numbers, matrix_colors]
+    for i, xlab in enumerate(x_labels):
+        for j, ylab in enumerate(y_labels):
+            point_color = float(matrix_colors[j][i])
+            white_cond = (point_color < 0.7 * vmin) or (point_color >= 0.7 * vmax) or np.isnan(point_color)
+            y_offset = 0.5
+            for m, matrix in enumerate(numbers_set):
+                if print_both_numbers:
+                    if m == 0:
+                        y_offset = 0.7
+                    elif m == 1:
+                        y_offset = 0.25
+                point = float(matrix[j][i])
+                label = 'NaN' if np.isnan(point) else '{0:.2f}'.format(point)
+                color = 'w' if white_cond else 'k'
+                ax.annotate(label, xy=(i + 0.5, j + y_offset), color=color, horizontalalignment='center',
+                            verticalalignment='center', fontsize=10 * fontsize_factor)
+
+    # save plot in file
+    if pdf_file_name:
+        pdf_file = PdfPages(pdf_file_name)
+        plt.savefig(pdf_file, format='pdf', bbox_inches='tight', pad_inches=0)
+        plt.close()
+        pdf_file.close()

@@ -33,7 +33,6 @@ lines (or similar):
 Congratulations, you have just successfully run Eskapade!
 
 
-
 Internal workings
 ~~~~~~~~~~~~~~~~~
 
@@ -75,22 +74,36 @@ below. For example, we can make another link, ``link2`` and change the default `
 
 Rerunning results in us greeting the famous singer/songwriter.
 
-This is generally how the framework works. The steps it takes are the following:
+There are many ways to run your macro and control the flow of your analysis. You can read more on this in
+the `Short introduction to the Framework`_ subsection below.
+
+Intermezzo: Architecture
+------------------------
+
+The architecture of Eskapade can be summarized in this picture:
+
+.. image:: ../../images/eskapade_architecture.png
+
+The example we just discuscced generally shows how the framework works.
+The steps it takes are the following:
+
   - run_eskapade.py runs the macro file,
   - Macros (python file) contain Chains,
   - Chains (python object) contains Links,
   - Links (python class) contain analysis code.
 
-And these chains are run in the order of 'registering' them in the ProcessManager. The ProcessManager is the ultimate
-object that executes all the code in your macro.
+The chains are run in the order of 'registering' them in the ``ProcessManager``.
 
-There are many ways to run your macro and control the flow of your analysis. You can read more on this in
-the `Short introduction to the Framework`_ subsection below.
+The ``ProcessManager`` is the ultimate object that executes all the code in your macro.
+It also keeps track of the configuration of Eskapade, and of the objects in the ``data store`` that are passable between links.
+
+The components of the architecture of Eskapade are also explained in further detail in the following sections.
+
 
 Advanced macros
 ---------------
 
-Now that we know the basics of Eskapade we can go on to a more advanced macro, containing an actual analysis.
+Now that we know the basics of Eskapade we can go on to more advanced macros, containing an actual analysis.
 
 Tutorial 1: transforming data
 -----------------------------
@@ -99,7 +112,7 @@ Before we get started, we have to fetch some data, on your command line, type:
 
 .. code-block:: bash
 
-  $ wget -P $ESKAPADE/data/ https://statweb.stanford.edu/~tibs/ElemStatLearn/datasets/LAozone.data
+  $ wget -P $ESKAPADE/data/ https://s3-eu-west-1.amazonaws.com/kpmg-eskapade-share/data/LAozone.data
 
 To run the macro type on your CLI:
 
@@ -304,19 +317,34 @@ Links that are in the release. Every subpackage contains links in its ``links/``
 
 The name of every link indicates its basic function. If you want to know explicitly you can read the
 `API-docs <eskapade_index.html>`_.
-If that does not help, read and try to understand the example macro's in ``tutorials/``, which show the basic usage
-of most Eskapade functionality. (See also the `Examples <tutorial.html#examples>`_ section below.)
+If that does not help, read and try to understand the example macros in ``tutorials/``, which show the basic usage
+of most Eskapade functionality. (See also the `Examples <tutorial.html#examples>`_ section right below.)
 If still unclear, go into the link's code to find out how it exactly works.
 
 Hopefully you now have enough knowledge to do this tutorial and finally run Eskapade by yourself.
 
-Examples
---------
 
-Eskapade example macros can be found in the ``tutorials`` directory.
-The basic examples are briefly described here.  The full set of example
-macros is much larger.  You are encouraged to run all examples to see
-what Eskapade can do for you!
+All available examples
+----------------------
+
+Many Eskapade example macros can be found in the ``tutorials`` directory.
+You are encouraged to run all examples to see what Eskapade can do for you!
+
+The numbering of the example macros is as follows:
+
+* esk100+: basic macros describing the chains, links, and datastore functionality of Eskapade.
+* esk200+: macros describing links to do basic processing of pandas dataframes.
+* esk300+: visualization macros for making histograms, plots and reports of datasets.
+* esk400+: macros for processing ROOT datasets and performing fits to data using RooFit.
+* esk500+: macros for doing data quality assessment and cleaning.
+* esk600+: macros describing links to do basic processing of data and rdds with spark.
+
+The basic Eskapade macros (esk100+) are briefly described below.
+They explain the basic architecture of Eskapade,
+i.e. how the chains, links, datastore, and process manager interact.
+We invite you go through them!
+
+
 
 Example esk101: Hello World!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

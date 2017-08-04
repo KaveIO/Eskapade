@@ -46,6 +46,7 @@ class RootHistFiller(HistogramFillerBase):
                              Eg. ['x','y', ['y','z'], ['x','y','z']].
                              A list of columns is interpreted as a multi-dimensional histogram.
                              Up to 3 dimensions is allowed.
+        :param list pair_up_columns: required list of column (variables) to pair up for 2-dim histograms
         :param dict var_label: title for histogram of certain variable (optional)
         :param dict var_number_of_bins: number of bins for histogram of certain variable (optional)
         :param dict var_min_value: min value for histogram of certain variable (optional)
@@ -64,6 +65,10 @@ class RootHistFiller(HistogramFillerBase):
         # process and register all relevant kwargs. kwargs are added as attributes of the link.
         # second arg is default value for an attribute. key is popped from kwargs.
         self._process_kwargs(kwargs,
+                             read_key='',
+                             store_key='hist',
+                             columns=[],
+                             pair_up_columns=[],
                              var_label={},
                              var_number_of_bins={},
                              var_min_value={},
@@ -75,15 +80,27 @@ class RootHistFiller(HistogramFillerBase):
 
         self._default_min = 0.
         self._default_max = 1.
-        self._default_n_bins_1d = 100
-        self._default_n_bins_2d = 30
-        self._default_n_bins_3d = 10
+        self._default_n_bins_1d = 40
+        self._default_n_bins_2d = 10
+        self._default_n_bins_3d = 5
         self._default_dtype = np.dtype(float)
 
     def initialize(self):
         """Initialize RootHistFiller"""
 
+        self.check_arg_types(read_key=str, store_key=str)
+        self.check_arg_types(recurse=True, allow_none=True, columns=str, pair_up_columns=str)
+        self.check_arg_vals('read_key', 'store_key')
+
         status = HistogramFillerBase.initialize(self)
+
+        # pair up any columns and add to self.colums
+        if len(self.pair_up_columns):
+            assert len(self.pair_up_columns) >= 2, 'pair_up_columns needs at least two column entries.'
+        self.pair_up_columns = sorted(self.pair_up_columns)
+        for i, c1 in enumerate(self.pair_up_columns):
+            for c2 in self.pair_up_columns[i + 1:]:
+                self.columns.append([c1, c2])
 
         # check that columns are set correctly.
         # supports 1d 2d and 3d histograms
@@ -148,7 +165,7 @@ class RootHistFiller(HistogramFillerBase):
     def _n_bins(self, c, idx):
         n = ':'.join(c)
         if len(c) > 1 and n in self.var_number_of_bins and len(self.var_number_of_bins[n]) == len(c):
-            return self.var_number_of_bins[name][idx]
+            return self.var_number_of_bins[n][idx]
         elif c[idx] in self.var_number_of_bins:
             return self.var_number_of_bins[c[idx]]
         # fall back on defaults
@@ -163,7 +180,7 @@ class RootHistFiller(HistogramFillerBase):
     def _min(self, c, idx):
         n = ':'.join(c)
         if len(c) > 1 and n in self.var_min_value and len(self.var_min_value[n]) == len(c):
-            return self.var_min_value[name][idx]
+            return self.var_min_value[n][idx]
         elif c[idx] in self.var_min_value:
             return self.var_min_value[c[idx]]
         # fall back on default
@@ -172,7 +189,7 @@ class RootHistFiller(HistogramFillerBase):
     def _max(self, c, idx):
         n = ':'.join(c)
         if len(c) > 1 and n in self.var_max_value and len(self.var_max_value[n]) == len(c):
-            return self.var_max_value[name][idx]
+            return self.var_max_value[n][idx]
         elif c[idx] in self.var_max_value:
             return self.var_max_value[c[idx]]
         # fall back on default

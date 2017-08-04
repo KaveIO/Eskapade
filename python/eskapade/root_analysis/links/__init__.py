@@ -1,7 +1,8 @@
 __all__ = ['RootHistFiller', 'WsUtils', 'ConvertDataFrame2RooDataSet', 'ConvertRooDataSet2DataFrame', 'PrintWs',
            'RooDataHistFiller', 'ConvertRootHist2RooDataHist', 'ConvertRootHist2RooDataSet',
            'ConvertRooDataSet2RooDataHist', 'AddPropagatedErrorToRooDataSet', 'TruncExpGen', 'TruncExpFit',
-           'ReadFromRootFile', 'RooFitPercentileBinning']
+           'ReadFromRootFile', 'RooFitPercentileBinning', 'UncorrelationHypothesisTester']
+
 from .ws_utils import WsUtils
 from .print_ws import PrintWs
 from .root_hist_filler import RootHistFiller
@@ -14,5 +15,6 @@ from .convert_root_hist_2_roodataset import ConvertRootHist2RooDataSet
 from .add_propagated_error_to_roodataset import AddPropagatedErrorToRooDataSet
 from .trunc_exp_gen import TruncExpGen
 from .trunc_exp_fit import TruncExpFit
+from .uncorrelation_hypothesis_tester import UncorrelationHypothesisTester
 from .read_from_root_file import ReadFromRootFile
 from .roofit_percentile_binning import RooFitPercentileBinning

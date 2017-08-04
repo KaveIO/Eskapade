@@ -31,9 +31,9 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIn('n_correlated_data', ds)
         self.assertEqual(500, ds['n_correlated_data'])
         self.assertIn('n_rdh_x1', ds)
-        self.assertEqual(100, ds['n_rdh_x1'])
+        self.assertEqual(40, ds['n_rdh_x1'])
         self.assertIn('n_rds_x2_vs_x3', ds)
-        self.assertEqual(114, ds['n_rds_x2_vs_x3'])
+        self.assertEqual(23, ds['n_rds_x2_vs_x3'])
 
         # roofit objects check
         self.assertIn('hpdf', ds)
@@ -304,6 +304,28 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         statinfo = os.stat(plot_path)
         self.assertGreater(statinfo.st_size, 0)
 
+    def test_esk410(self):
+        """Test Esk-410: Hypothesis test of categorical observables """
+
+        # run Eskapade
+        self.run_eskapade('esk410_testing_correlations_between_categories.py')
+        proc_mgr = ProcessManager()
+        ds = proc_mgr.service(DataStore)
+
+        # report checks
+        self.assertIn('report_pages', ds)
+        self.assertIsInstance(ds['report_pages'], list)
+        self.assertEqual(12, len(ds['report_pages']))
+
+        # data-summary checks
+        settings = ProcessManager().service(ConfigObject)
+        file_names = ['report.tex']
+        for fname in file_names:
+            path = '{0:s}/{1:s}/data/v0/report/{2:s}'.format(settings['resultsDir'], settings['analysisName'], fname)
+            self.assertTrue(os.path.exists(path))
+            statinfo = os.stat(path)
+            self.assertTrue(statinfo.st_size > 0)
+
     def test_esk411(self):
         """Test Esk-411: Predictive maintenance Weibull fit"""
 
@@ -349,3 +371,42 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
             self.assertTrue(os.path.exists(path))
             statinfo = os.stat(path)
             self.assertGreater(statinfo.st_size, 0)
+
+    def test_tutorial3(self):
+        """Test Tutorial 3: Workspace create PDF, simulate, fit, plot"""
+
+        # turn on creation and loading of MyPdfV3
+        settings = ProcessManager().service(ConfigObject)
+        settings['onthefly'] = True
+        
+        # run Eskapade
+        self.run_eskapade('tutorial_3.py')
+
+        # check existence of class MyPdfV3
+        import ROOT
+        cl = ROOT.TClass.GetClass('MyPdfV3')
+        self.assertTrue(not not cl)
+
+        ds = ProcessManager().service(DataStore)
+        ws = ProcessManager().service(RooFitManager).ws
+
+        # roofit objects check in datastore
+        self.assertIn('fit_result', ds)
+        self.assertIsInstance(ds['fit_result'], ROOT.RooFitResult)
+
+        # successful fit result
+        fit_result = ds['fit_result']
+        self.assertEqual(0, fit_result.status())
+        self.assertEqual(3, fit_result.covQual())
+
+        # data-generation checks
+        self.assertIn('simdata', ds)
+        self.assertIsInstance(ds['simdata'], ROOT.RooDataSet)
+        self.assertEqual(400, ds['simdata'].numEntries())
+
+        self.assertIn('simdata_plot', ds)
+        self.assertIsInstance(ds['simdata_plot'], ROOT.RooPlot)
+
+        # roofit objects check in workspace
+        self.assertIn('testpdf', ws)
+

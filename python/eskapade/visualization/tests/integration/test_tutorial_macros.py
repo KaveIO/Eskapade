@@ -118,7 +118,7 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
         self.assertListEqual(sorted(ds['data'].columns), ['var_a', 'var_b', 'var_c'])
 
         # data-summary checks
-        file_names = ['report_boxplots.tex', 'boxplot_var_a.pdf', 'boxplot_var_c.pdf']
+        file_names = ['report.tex', 'boxplot_var_a.pdf', 'boxplot_var_c.pdf']
         for fname in file_names:
             path = '{0:s}/{1:s}/data/v0/report/{2:s}'.format(settings['resultsDir'], settings['analysisName'], fname)
             self.assertTrue(os.path.exists(path))
@@ -145,23 +145,52 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
         self.assertIsInstance(ds['input_data'], pd.DataFrame)
         self.assertListEqual(list(ds['input_data'].columns), all_col_names)
 
+        self.assertIn('correlations', ds)
+        self.assertIsInstance(ds['correlations'], list)
+        corr_list = ds['correlations']
+        self.assertEqual(4, len(corr_list))
+
         # correlation matrix checks
         col_names = ['x1', 'x2', 'x3', 'x4', 'x5']
-        correlations = ['pearson', 'kendall', 'spearman', 'correlation_ratio']
 
-        for corr in correlations:
-            ds_key = corr + '_correlations'
-            self.assertIn(ds_key, ds)
-            self.assertIsInstance(ds[ds_key], pd.DataFrame)
-            self.assertListEqual(list(ds[ds_key].columns), col_names)
-            self.assertListEqual(list(ds[ds_key].index), col_names)
+        for corr in corr_list:
+            self.assertIsInstance(corr, pd.DataFrame)
+            #self.assertListEqual(list(corr.columns), col_names)
+            self.assertListEqual(list(corr.index), col_names)
 
         # heatmap pdf checks
         io_conf = settings.io_conf()
         results_path = persistence.io_path('results_data', io_conf, 'report')
 
+        correlations = ['pearson', 'kendall', 'spearman', 'correlation_ratio']
         for corr in correlations:
             path = '{0:s}/correlations_input_data_{1:s}.pdf'.format(results_path, corr)
+            self.assertTrue(os.path.exists(path))
+            statinfo = os.stat(path)
+            self.assertTrue(statinfo.st_size > 0)
+
+    def test_esk306(self):
+        settings = ProcessManager().service(ConfigObject)
+        settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
+        settings['macro'] = settings['esRoot'] + '/tutorials/esk306_concatenate_reports.py'
+        settings['batchMode'] = True
+
+        status = execution.run_eskapade(settings)
+
+        pm = ProcessManager()
+        settings = ProcessManager().service(ConfigObject)
+        ds = ProcessManager().service(DataStore)
+
+        # report checks
+        self.assertTrue(status.isSuccess())
+        self.assertIn('report_pages', ds)
+        self.assertIsInstance(ds['report_pages'], list)
+        self.assertEqual(19, len(ds['report_pages']))
+
+        # data-summary checks
+        file_names = ['report.tex']
+        for fname in file_names:
+            path = '{0:s}/{1:s}/data/v0/report/{2:s}'.format(settings['resultsDir'], settings['analysisName'], fname)
             self.assertTrue(os.path.exists(path))
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)

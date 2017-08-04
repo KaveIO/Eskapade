@@ -58,15 +58,12 @@ reader = analysis.ReadToDf(name='reader',
 
 proc_mgr.get_chain('Data').add_link(reader)
 
-# make visualizations
-for corr in settings['correlations']:
-    corr_link = visualization.CorrelationSummary(name=corr + '_summary',
-                                                 read_key='input_data',
-                                                 write_key=corr + '_correlations',
-                                                 method=corr)
+# make visualizations of correlations
+corr_link = visualization.CorrelationSummary(name='correlation_summary',
+                                             read_key='input_data', store_key='correlations',
+                                             methods=settings['correlations'])
 
-    proc_mgr.get_chain('Summary').add_link(corr_link)
-
+proc_mgr.get_chain('Summary').add_link(corr_link)
 
 #########################################################################################
 

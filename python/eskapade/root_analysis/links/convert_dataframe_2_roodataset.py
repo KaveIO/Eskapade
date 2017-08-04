@@ -15,6 +15,7 @@
 
 import pandas as pd
 import numpy as np
+import fnmatch
 
 import ROOT
 
@@ -60,9 +61,6 @@ class ConvertDataFrame2RooDataSet(Link):
                                        map_to_factorized is a dict of dicts, one dict for each column. (optional)
         :param str sk_map_to_original: store key of dictiorary to map factorized columns to original.
                                        Default is 'key' + '_' + store_key + '_to_original'. (optional)
-        :param dict var_number_of_bins: number of bins for histogram of certain variable (optional)
-        :param dict var_min_value: min value for histogram of certain variable (optional)
-        :param dict var_max_value: max value for histogram of certain variable (optional)
         :param int n_max_total_bins: max number of bins in roodatahist. Default is 1e6.
         :param bool store_index: If true, copy df's index to rds. Default is true.
         :param str create_keys_pdf: if set, create keys pdf from rds with this name and add
@@ -85,9 +83,6 @@ class ConvertDataFrame2RooDataSet(Link):
                              rm_original=False,
                              map_to_factorized={},
                              sk_map_to_original='',
-                             var_number_of_bins={},
-                             var_min_value={},
-                             var_max_value={},
                              n_max_total_bins=1e6,
                              store_index=True,
                              create_keys_pdf='')
@@ -163,8 +158,15 @@ class ConvertDataFrame2RooDataSet(Link):
         # 1d. check all columns
         if not self.columns:
             self.columns = df.columns.tolist()
+        # match all columns/pattern in self.columns to df.columns
+        matched_columns = []
+        for c in self.columns:
+            match_c = fnmatch.filter(df.columns, c)
+            if not match_c:
+                raise AssertionError('column or pattern "%s" not in data frame' % (c, self.read_key))
+            matched_columns += match_c
+        self.columns = matched_columns
         for col in self.columns[:]:
-            assert col in df.columns, 'column "%s" not in dataframe "%s"' % (col, self.read_key)
             dt = df[col].dtype.type
             # keep categorical observables -- convert these to roocategories in conversion
             if issubclass(dt, pd.types.dtypes.CategoricalDtypeType):
