@@ -33,27 +33,27 @@ import eskapade.root_analysis.decorators
 from eskapade.core import persistence
 
 class UncorrelationHypothesisTester(Link):
-    """Link to test for correlations between categorical observables. 
+    """Link to test for correlations between categorical observables.
 
     Test of correlation between categorical observables taking into account the effects
     of low statistics. The test is performed on two levels.
 
     Significance test: tests correlation between observables.
-    This test calculates the (significance of the) p-value of the hypothesis that 
-    the observables in the input dataset are not correlated. A detailed discription 
+    This test calculates the (significance of the) p-value of the hypothesis that
+    the observables in the input dataset are not correlated. A detailed discription
     of the method can be found in ABCDutils.h
 
     Residuals test: tests correlation between values of observables.
-    This test calculates the normalized residuals (pull values) for each bin in the 
-    dataset, under the hypothesis of no correlation. A detailed discription of the method 
-    can be found in ABCDutils.h 
+    This test calculates the normalized residuals (pull values) for each bin in the
+    dataset, under the hypothesis of no correlation. A detailed discription of the method
+    can be found in ABCDutils.h
 
     Both tests compare the measured frequency per bin with the expected frequency per bin. The
     expected frequency is calculated on the assumption of no correlation. A detailed description
-    of the calculation of the expected frequency can be found in RooABCDHistPDF.cxx. 
+    of the calculation of the expected frequency can be found in RooABCDHistPDF.cxx.
 
-    Two reports are generated containing the results of the above tests. The long report 
-    (report.tex) contains all the results. The short report (report_client.tex) contains only 
+    Two reports are generated containing the results of the above tests. The long report
+    (report.tex) contains all the results. The short report (report_client.tex) contains only
     the most non-correlating measurements. The results are also saved in the DataStore.
     """
 
@@ -67,7 +67,7 @@ class UncorrelationHypothesisTester(Link):
         :param list y_columns: list of columns to be paired with left pair columns (left x right).
         :param bool inproduct: if true, take inproduct of x_columns and y_columns. (default is false)
         :param list combinations: list of column combinations from dataset to test.
-        :param float z_threshold: significance threshold (in s.d.) for selecting outliers for tables in report. 
+        :param float z_threshold: significance threshold (in s.d.) for selecting outliers for tables in report.
                                   Default is 3 s.d..
         :param bool verbose_plots: if true, print both number of entries and significance in correlation plots
         :param dict map_to_original: dictiorary or key to dictionary to map back factorized columns to original.
@@ -534,7 +534,7 @@ class UncorrelationHypothesisTester(Link):
 
     def _n_bins(self, c, idx=0):
         """ determine number of bins for continues variables
-        
+
         :param list c: list of variables, or string variable
         :param int idx: index of the variable in c for which to return number of bins
         :return: number of bins
@@ -550,13 +550,13 @@ class UncorrelationHypothesisTester(Link):
         return self.default_number_of_bins
 
     def _ignore_categories(self, c, idx=0):
-        """ determine list of categories to ignore 
-        
+        """ determine list of categories to ignore
+
         :param list c: list of variables, or string variable
         :param int idx: index of the variable in c, for which to return categories to ignore
         :return: list of categories to ignore
         """
-        
+
         if isinstance(c, str):
             c = [c]
         n = ':'.join(c)
@@ -572,12 +572,13 @@ class UncorrelationHypothesisTester(Link):
         return i_c
 
     def _format_df(self, df, key):
-        """ bring dataframe in format for overview table  
-        
+        """ bring dataframe in format for overview table
+
         :param pandas.dataframe df: dataframe to be reformatted
         :param string key: column names of observables
         :return: reformatted dataframe
         """
+
         # rename answer-columns
         questions = key.split(':')
         answers = ['answer_%d' % i for i in range(len(questions))]
@@ -592,13 +593,15 @@ class UncorrelationHypothesisTester(Link):
 @jit(cache=True)
 def extract_matrix(df, x_col, y_col, v_col='normResid'):
     """ Extract matrix from dataframe
-    
+
     :param pd.DataFrame df: dataframe from which to extract matrix
     :param str x_col: column name first observable
     :param str y_col: column name second observable
     :param str v_col: column name values
     :return: matrix, categories of first observable, categories of second observable
     """
+
+    # basic checks
     assert isinstance(df, pd.DataFrame), 'df needs to be a pandas data frame.'
     assert len(df.index) > 0, 'df needs to be a filled data frame.'
     assert isinstance(x_col, str) and len(x_col), 'x_col needs to be a filled string.'
@@ -628,8 +631,8 @@ def extract_matrix(df, x_col, y_col, v_col='normResid'):
 def latex_residuals_table(df, keep_cols=[], absZ_threshold=3., n_rows=20, normResidCol='normResid'):
     """ Create Latex table from dataframe
 
-    Create Latex table from dataframe. Options are available to select columns and rows. 
-    
+    Create Latex table from dataframe. Options are available to select columns and rows.
+
     :param pandas.DataFrame df: pandas dataframe from which latex table will be created
     :param list keep_cols: selection on columns. List of columns for which table will be created (optional)
     :param float absZ_threshold: selection on rows. Create only if value in normResidCol >= threshold (optional)
@@ -638,10 +641,13 @@ def latex_residuals_table(df, keep_cols=[], absZ_threshold=3., n_rows=20, normRe
                              is applied to this column (optional)
     :return: table in string format
     """
+
+    # basic checks
     assert isinstance(df, pd.DataFrame), 'df needs to be a pandas data frame.'
     assert normResidCol in df.columns, 'Column %s not present in data frame' % normResidCol
     if not keep_cols:
         keep_cols = df.columns
+
     # make selection
     df_ = df.copy(deep=False)
     df_['absZ'] = abs(df_[normResidCol])
@@ -649,6 +655,7 @@ def latex_residuals_table(df, keep_cols=[], absZ_threshold=3., n_rows=20, normRe
     sel = df_[df_.absZ >= absZ_threshold][keep_cols][:n_rows]
     if len(sel.index) == 0:
         return None
+
     # convert selection to latex str
     import io
     f = io.StringIO()

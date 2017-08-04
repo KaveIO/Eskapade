@@ -49,7 +49,7 @@ Start an interactive python session and type:
 >>> import ROOT
 >>> ROOT.RooClassFactory.makePdf("MyPdfV2","x,A,B","","A*fabs(x)+pow(x-B,2)")
 
-This command creates a RooFit skeleton probability density function class named MyPdfV2, 
+This command creates a RooFit skeleton probability density function class named MyPdfV2,
 with the variable x,a,b and the given formula expression.
 
 Also type:
@@ -71,7 +71,7 @@ Now open the file MyPdfV3.cxx. This also contains the method analyticalIntegral(
 for the analytical integral over x that we provided.
 
 If no analytical integral has been provided, as in MyPdfV2, RooFit will try to try to compute the integral
-itself. (Of course this is a costly operation.) If you wish, since we know the analytical integral for MyPdfV2, 
+itself. (Of course this is a costly operation.) If you wish, since we know the analytical integral for MyPdfV2,
 go ahead and edit MyPdfV2.cxx to add the expression of the analytical integral to the class.
 
 As another example of a simple pdf class, take a look at the expressions in the file:
@@ -144,7 +144,7 @@ if not cl:
     sys.exit(1)
 else:
     log.info('Successfully found ROOT class %s' % pdf_name)
-    
+
 #########################################################################################
 
 msg = r"""

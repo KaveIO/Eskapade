@@ -55,7 +55,7 @@ namespace Eskapade {
     // in data that deviate from your most simple hypothesis (of no correlation).
     // The normalized residuals are obtained by predicting the number of entries for each bin, including an
     // uncertainty on each prediction, using as hypothesis that all observables in obsSet are uncorrelated.
-    // Each bin prediction is independent of the number of entries observed in that bin. 
+    // Each bin prediction is independent of the number of entries observed in that bin.
     //
     // This function first creates a pdf of type RooABCDHistPdf (with setting doABCD = true) from
     // dataHist, and uses that pdf to make a prediction (including uncertainty) for the number of entries in each bin.
@@ -74,7 +74,7 @@ namespace Eskapade {
                                Int_t nEvt, Bool_t doABCD=kFALSE, Bool_t noParams=kTRUE);
 
     // Helper function of 2.
-    // Function to calculate the error on a given RooABCDHistPdf for each row in the input 
+    // Function to calculate the error on a given RooABCDHistPdf for each row in the input
     // RooDataSet (data), and add this error as a new column to this dataset (with name errName).
     // obsSet are the observables needed to evaluate the function func.
     // If addPdfVal is true, the function values are stored as a new column as well.
@@ -103,7 +103,7 @@ namespace Eskapade {
     // Useful for constraint fits, where the RooParamHistPdf or RooABCDHistPdf is built from a MC sample and
     // should be allowed to vary within the MC uncertainties.
     // This function makes a product of RooPoisson pdfs, where each Poisson constrains a bin of the input (MC)
-    // dataset of the RooParamHistPdf pdf. 
+    // dataset of the RooParamHistPdf pdf.
     RooAbsPdf* MakePoissonConstraint(const char* name, RooArgList& storeList, const RooParamHistPdf& pdf);
     // Same as above, but binList and nominal data are already taken from the RooParamHistPdf.
     RooAbsPdf* MakePoissonConstraint(const char* name, RooArgList& storeList, const RooArgList& binList,

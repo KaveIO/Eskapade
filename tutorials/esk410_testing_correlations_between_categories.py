@@ -98,13 +98,13 @@ hypotest.verbose_plots = True
 hypotest.z_threshold = 3.0
 
 ## Choose one out of a, b, c
-# a. run test for all combinations of columns 
+# a. run test for all combinations of columns
 hypotest.columns = df2rds.columns
 # b. run test for pairs of observables from two lists
 # Make one by one combinations between x and y columns if inproduct = True, otherwise
 # make all possible combination.
-#hypotest.y_columns = ['Obs_A*'] # ['Obs_A1','Obs_A2', .. ,'Obs_An'] 
-#hypotest.x_columns = ['Obs_B*'] # ['Obs_B1','Obs_B2', .. ,'Obs_Bn'] 
+#hypotest.y_columns = ['Obs_A*'] # ['Obs_A1','Obs_A2', .. ,'Obs_An']
+#hypotest.x_columns = ['Obs_B*'] # ['Obs_B1','Obs_B2', .. ,'Obs_Bn']
 #hypotest.inproduct = True
 # c. Specify exactly for what combinations to run the test
 #hypotest.combinations = [['Obs_A1','Obs_B1','Obs_A2'], ['Obs_A2','Obs_B2']]
@@ -123,7 +123,7 @@ hypotest.sk_residuals_map = 'residuals'
 hypotest.sk_residuals_overview = 'residuals_overview'
 
 # Advanced settings
-# Specify what categories to ignore. 
+# Specify what categories to ignore.
 # hypotest.ignore_categories = ['None','Not_familair_with','NoFruit']
 # hypotest.var_ignore_categories = ['obs1':'None','obs2':'Not_familiar_with','obs1:obs2':['None','pear']]
 # Hypothesis tester is also applicable to continues variables once they are categorised;
