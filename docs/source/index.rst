@@ -11,6 +11,8 @@ Eskapade: Modular Analytics
 
 **Version**: |version|
 
+**Release**: |release|
+
 **Date**: |today|
 
 **Web page:** http://eskapade.kave.io
