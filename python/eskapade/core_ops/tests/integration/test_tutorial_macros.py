@@ -1,7 +1,7 @@
-import mock
 import sys
 import os
 import importlib
+import unittest.mock as mock
 
 from eskapade.tests.integration.test_bases import TutorialMacrosTest
 import eskapade.utils

@@ -13,7 +13,7 @@ class ApplyFuncToDfTest(unittest.TestCase, TestCaseObservable):
 
     def setUp(self):
         observers = [MockDataStoreObserver()]
-        super(ApplyFuncToDfTest, self).set_up_observers(observers)
+        super().set_up_observers(observers)
 
     def test_execute(self):
         from eskapade import ProcessManager, DataStore

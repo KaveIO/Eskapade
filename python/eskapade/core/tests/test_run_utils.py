@@ -1,5 +1,5 @@
 import unittest
-import mock
+import unittest.mock as mock
 
 from ..definitions import USER_OPTS, USER_OPTS_SHORT, USER_OPTS_KWARGS
 from ..run_utils import create_arg_parser

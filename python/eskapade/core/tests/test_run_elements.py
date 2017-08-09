@@ -1,9 +1,8 @@
 import unittest
-import mock
+import unittest.mock as mock
 
 from ..definitions import StatusCode
 from ..run_elements import Chain, Link
-from ..process_manager import ProcessManager
 from .. import execution
 
 

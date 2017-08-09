@@ -1,38 +1,35 @@
-#!/usr/bin/env python3
-
 # **************************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                       *
-# * Script  : run_eskapade.py                                                          *
 # * Created : 2015-09-16                                                               *
 # *                                                                                    *
 # * Description:                                                                       *
-# *      Top-level control script for all commands/run-conditions                      *
+# *      Collection of eskapade entry points                                           *
 # *                                                                                    *
 # * Authors:                                                                           *
-# *      Eskapade group                                                                *
+# *      KPMG Big Data team, Amstelveen, The Netherlands                               *
 # *                                                                                    *
 # * Redistribution and use in source and binary forms, with or without                 *
 # * modification, are permitted according to the terms listed in the file              *
 # * LICENSE.                                                                           *
 # **************************************************************************************
 
-import os
-import logging
-import IPython
-import pandas as pd
 
-from eskapade import core, ProcessManager, ConfigObject, DataStore
-from eskapade.core.run_utils import create_arg_parser
-
-
-def main():
+def eskapade_run():
     """Run Eskapade
 
-    Top-level control function for an Eskapade run started from the
+    Top-level entry point for an Eskapade run started from the
     command line.  Arguments specified by the user are parsed and
     converted to settings in the configuration object.  Optionally, an
     interactive IPython session is started when the run is finished.
     """
+    import logging
+    import IPython
+    import pandas as pd
+
+    from eskapade import core, ProcessManager, ConfigObject, DataStore
+    from eskapade.core.run_utils import create_arg_parser
+
+    log = logging.getLogger(__name__)
 
     # create parser for command-line arguments
     parser = create_arg_parser()
@@ -69,9 +66,41 @@ def main():
         pd.set_option('display.max_columns', 50)
 
         # start interactive session
-        log = logging.getLogger(__name__)
         log.info("Continuing interactive session ... press Ctrl+d to exit.\n")
         IPython.embed()
 
-if __name__ == "__main__":
-    main()
+
+def eskapade_trial():
+    """Run Eskapade tests.
+
+    We will keep this here until we've completed switch to pytest or nose and tox.
+    We could also keep it, but I don't like the fact that packages etc. are
+    hard coded. Gotta come up with
+    a better solution.
+    """
+    import unittest
+    import argparse
+    import logging
+
+    log = logging.getLogger(__name__)
+
+    # parse arguments
+    parser = argparse.ArgumentParser('eskapade_trial')
+    parser.add_argument('start_dir', nargs='?', help='Folder in which to search for tests')
+    parser.add_argument('type',
+                        nargs='?',
+                        choices=('unit', 'integration'),
+                        default='unit',
+                        help='Type of test to run (default "unit")')
+    args = parser.parse_args()
+
+    log.info('Running {arg} tests\n'.format(arg=args.type))
+
+    # create test suite
+    suite = unittest.TestSuite()
+    loader = unittest.TestLoader()
+    tests_mods = loader.discover(args.start_dir)
+    log.info("Going to run {n_tc} test cases".format(n_tc=tests_mods.countTestCases()))
+    suite.addTests(tests_mods)
+    # run tests
+    unittest.TextTestRunner(verbosity=4).run(suite)

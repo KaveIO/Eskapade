@@ -98,7 +98,7 @@ def get_env_var(key):
 
 
 def get_dir_path(key):
-    """Function to retrieve Eskapade specific directrory path
+    """Function to retrieve Eskapade specific directory path
 
     :param str key: Eskapade specific project directory key
     :return: directory path
@@ -110,7 +110,7 @@ def get_dir_path(key):
 
 
 def get_file_path(key):
-    """Function to retrieve Eskapade specific directrory file path
+    """Function to retrieve Eskapade specific directory file path
 
     :param str key: Eskapade specific project file key
     :return: file path

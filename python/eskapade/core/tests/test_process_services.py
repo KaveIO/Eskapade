@@ -1,5 +1,5 @@
 import unittest
-import mock
+import unittest.mock as mock
 
 from ..definitions import (LOG_LEVELS, CONFIG_VARS, CONFIG_TYPES, CONFIG_DEFAULTS, USER_OPTS, USER_OPTS_CONF_KEYS,
                            CONFIG_OPTS_SETTERS, RandomSeeds, set_opt_var, set_log_level_opt, set_begin_end_chain_opt,

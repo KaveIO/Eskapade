@@ -29,6 +29,13 @@ lib
 data/*
 results/*
 
+# Build and package stuff
+build
+dist
+.cache
+.eggs
+Eskapade.egg-info
+
 # documentation
 *.rst
 !docs/README.rst
@@ -43,4 +50,4 @@ results/*
 !README.rst
 !python/eskapade/README.rst
 !vagrant/README.rst
-docs/build/*
+

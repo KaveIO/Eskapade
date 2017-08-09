@@ -1,5 +1,5 @@
 import unittest
-import mock
+import unittest.mock as mock
 
 from ..helpers import apply_transform_funcs, process_transform_funcs
 

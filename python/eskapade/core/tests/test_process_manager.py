@@ -1,5 +1,5 @@
 import unittest
-import mock
+import unittest.mock as mock
 
 from ..run_elements import Chain
 from ..process_services import ProcessService, ConfigObject
