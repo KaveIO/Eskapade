@@ -115,7 +115,7 @@ Contents
    tutorial_spark
    package_structure
    command_line_arguments
-   contributing
+   developing
 
 Appendices
 ----------

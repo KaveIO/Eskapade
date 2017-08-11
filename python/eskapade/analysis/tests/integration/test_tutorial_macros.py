@@ -19,7 +19,6 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         settings = ProcessManager().service(ConfigObject)
         ds = ProcessManager().service(DataStore)
 
-
         self.assertTrue(status.isSuccess())
         self.assertTrue('test1' in ds)
         self.assertTrue('test2' in ds)
@@ -44,7 +43,7 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         # check file is non-empty
         statinfo = os.stat(path)
         self.assertTrue(statinfo.st_size > 0)
-        
+
     def test_esk203(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
@@ -73,10 +72,9 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         settings = ProcessManager().service(ConfigObject)
         ds = ProcessManager().service(DataStore)
 
-
         self.assertTrue(status.isSuccess())
         self.assertTrue('outgoing_records' in ds)
-        self.assertTrue(ds['n_outgoing_records']>0)
+        self.assertTrue(ds['n_outgoing_records'] > 0)
         df = ds['outgoing_records']
         self.assertTrue('a' in df.columns)
         self.assertFalse('b' in df.columns)
@@ -93,10 +91,9 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         settings = ProcessManager().service(ConfigObject)
         ds = ProcessManager().service(DataStore)
 
-
         self.assertTrue(status.isSuccess())
         self.assertTrue('outgoing' in ds)
-        self.assertEqual(ds['n_outgoing'],12)
+        self.assertEqual(ds['n_outgoing'], 12)
 
     def test_esk206(self):
         settings = ProcessManager().service(ConfigObject)
@@ -109,12 +106,11 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         settings = ProcessManager().service(ConfigObject)
         ds = ProcessManager().service(DataStore)
 
-
         self.assertTrue(status.isSuccess())
         self.assertTrue('outgoing' in ds)
         df = ds['outgoing']
-        self.assertEqual(len(df.index),4)
-        self.assertEqual(len(df.columns),5)
+        self.assertEqual(len(df.index), 4)
+        self.assertEqual(len(df.columns), 5)
 
     def test_esk207(self):
         settings = ProcessManager().service(ConfigObject)
@@ -132,7 +128,7 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue(status.isSuccess())
         self.assertTrue('vect_test' in ds)
         df = ds['vect_test']
-        self.assertEqual(len(df.index),12)
+        self.assertEqual(len(df.index), 12)
         self.assertListEqual(sorted(df.columns.tolist()), columns)
 
     def test_esk208(self):
@@ -153,8 +149,8 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue('to_original' in ds)
         df1 = ds['test1']
         df2 = ds['test1_refact']
-        self.assertEqual(len(df1.index),12)
-        self.assertEqual(len(df2.index),12)
+        self.assertEqual(len(df1.index), 12)
+        self.assertEqual(len(df2.index), 12)
         self.assertTrue('dummy' in df1.columns)
         self.assertTrue('loc' in df1.columns)
         self.assertTrue('dummy' in df2.columns)
@@ -172,7 +168,6 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         pm = ProcessManager()
         settings = ProcessManager().service(ConfigObject)
         ds = ProcessManager().service(DataStore)
-
 
         self.assertTrue(status.isSuccess())
         self.assertTrue('test2' in ds)

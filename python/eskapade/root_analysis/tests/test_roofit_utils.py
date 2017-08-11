@@ -1,11 +1,15 @@
 import unittest
-import mock
+import unittest.mock as mock
 
-import ROOT
+try:
+    import ROOT
+    from ..roofit_utils import load_libesroofit
 
-from ..roofit_utils import load_libesroofit
+except ImportError:
+    pass
 
 
+@unittest.skip('This guy depends on Roofit!')
 class LoadLibesroofitTest(unittest.TestCase):
     """Tests for loading Eskapade RooFit library"""
 

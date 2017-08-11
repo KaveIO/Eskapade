@@ -1,5 +1,5 @@
 import unittest
-import mock
+import unittest.mock
 import functools
 import itertools
 
@@ -8,6 +8,7 @@ import ROOT
 from ..roofit_models import RooFitModel, TruncExponential
 
 
+@unittest.skip('This guy expects roofit!')
 class RooFitModelTest(unittest.TestCase):
     """Tests for RooFit-model base class"""
 

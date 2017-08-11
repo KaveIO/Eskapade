@@ -44,6 +44,7 @@ Eskapade.egg-info
 !docs/source/tutorial_jupyter.rst
 !docs/source/tutorial_spark.rst
 !docs/source/installation.rst
+!docs/source/developing.rst
 !docs/source/index.rst
 !docs/source/tutorial.rst
 !docs/source/spark.rst
@@ -51,3 +52,4 @@ Eskapade.egg-info
 !python/eskapade/README.rst
 !vagrant/README.rst
 
+results/

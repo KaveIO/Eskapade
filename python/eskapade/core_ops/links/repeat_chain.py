@@ -60,7 +60,7 @@ class RepeatChain(Link):
 
         # search for listenTo key in ConfigObject. if present and true, send signal to repeat current chain.
         for l in self.listenTo:
-            if l in settings and settings[l] == True:
+            if l in settings and settings[l]:
                 self.log().debug('The repeater count is: %d' % (self._counter))
                 self._counter += 1
                 return StatusCode.RepeatChain

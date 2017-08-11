@@ -18,6 +18,8 @@ import os
 import re
 import glob
 import logging
+from pkg_resources import resource_string, resource_filename
+
 from collections import defaultdict
 
 # IO locations
@@ -104,6 +106,10 @@ def io_path(io_type, io_conf, sub_path):
     if os.path.dirname(sub_path):
         create_dir(os.path.dirname(full_path))
 
+    # TODO (janos4276): Hack on top of hack of ...
+    if io_type == 'templates':
+        full_path = resource_filename('eskapade', 'templates/' + sub_path)
+
     return full_path
 
 
@@ -133,7 +139,11 @@ def record_file_number(io_conf, file_name_base, file_name_ext):
 class IoConfig(dict):
     """Configuration object for I/O operations"""
 
-    _conf_items = dict(analysis_name=str, analysis_version=None, results_dir=str, data_dir=str, macros_dir=str,
+    _conf_items = dict(analysis_name=str,
+                       analysis_version=None,
+                       results_dir=str,
+                       data_dir=str,
+                       macros_dir=str,
                        templates_dir=str)
 
     def __init__(self, **input_config):

@@ -106,7 +106,12 @@ def get_dir_path(key):
     """
 
     dir_comps = PROJECT_DIRS[key]
-    return get_env_var(dir_comps[0]) + (('/%s' % dir_comps[1]) if dir_comps[1] else '')
+    if get_env_var(dir_comps[0]):
+        path = get_env_var(dir_comps[0]) + (('/%s' % dir_comps[1]) if dir_comps[1] else '')
+    else:
+        path = os.getcwd() + (('/%s' % dir_comps[1]) if dir_comps[1] else '')
+
+    return path
 
 
 def get_file_path(key):

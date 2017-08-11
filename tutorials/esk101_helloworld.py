@@ -14,10 +14,11 @@
 # **********************************************************************************
 
 import logging
-log = logging.getLogger('macro.esk101_helloworld')
 
 from eskapade import ConfigObject, ProcessManager
 from eskapade import core_ops
+
+log = logging.getLogger('macro.esk101_helloworld')
 
 log.debug('Now parsing configuration file esk101_helloworld')
 
@@ -49,8 +50,6 @@ if settings['do_hello']:
     link.repeat = settings['n_repeat']
     ch.add_link(link)
 
-
 #########################################################################################
 
 log.debug('Done parsing configuration file esk101_helloworld')
-

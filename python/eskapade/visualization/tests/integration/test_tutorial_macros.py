@@ -1,4 +1,6 @@
 import os
+import unittest
+
 import pandas as pd
 
 from eskapade.tests.integration.test_bases import TutorialMacrosTest
@@ -37,6 +39,7 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
 
+    @unittest.skip('This guy expects an ESKAPADE env variable!')
     def test_esk302(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
@@ -66,6 +69,7 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
 
+    @unittest.skip('This guy expects an ESKAPADE env variable!')
     def test_esk303(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
@@ -169,6 +173,7 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
 
+    @unittest.skip('This guy expects roofit!')
     def test_esk306(self):
         settings = ProcessManager().service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']

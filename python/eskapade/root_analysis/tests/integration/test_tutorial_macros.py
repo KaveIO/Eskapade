@@ -1,6 +1,7 @@
 import os
-import pandas as pd
+import unittest
 
+import pandas as pd
 import ROOT
 
 from eskapade.tests.integration.test_bases import TutorialMacrosTest
@@ -378,7 +379,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         # turn on creation and loading of MyPdfV3
         settings = ProcessManager().service(ConfigObject)
         settings['onthefly'] = True
-        
+
         # run Eskapade
         self.run_eskapade('tutorial_3.py')
 
@@ -409,4 +410,3 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         # roofit objects check in workspace
         self.assertIn('testpdf', ws)
-

@@ -1,10 +1,11 @@
 import unittest
-import mock
+import unittest.mock as mock
 
 from ..roofit_manager import RooFitManager
 from ..roofit_models import RooFitModel
 
 
+@unittest.skip('This guy depends on Roofit!')
 class RooFitManagerTest(unittest.TestCase):
     """Tests for RooFit-manager process service"""
 

@@ -12,15 +12,20 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
 import os
 import pickle
 import re
+from collections import defaultdict
+from typing import Any
 
 import eskapade.utils
-from . import persistence
-from .definitions import LOG_LEVELS, CONFIG_VARS, CONFIG_DEFAULTS, USER_OPTS, CONFIG_OPTS_SETTERS
 from eskapade.mixins import LoggingMixin
+from eskapade.core import persistence
+from eskapade.core.definitions import CONFIG_VARS
+from eskapade.core.definitions import CONFIG_DEFAULTS
+from eskapade.core.definitions import USER_OPTS
+from eskapade.core.definitions import CONFIG_OPTS_SETTERS
+from eskapade.core.exceptions import UnknownSetting
 
 
 class ProcessServiceMeta(type):
@@ -28,7 +33,6 @@ class ProcessServiceMeta(type):
 
     def __str__(self):
         """Get printable specification of service"""
-
         return '{0:s}.{1:s}'.format(self.__module__, self.__name__)
 
     @property
@@ -139,7 +143,7 @@ class ProcessService(LoggingMixin, metaclass=ProcessServiceMeta):
             self.log().warning('Caught exception "%s"', str(exc))
 
 
-class ConfigObject(ProcessService, dict):
+class ConfigObject(ProcessService):
     """Configuration settings for Eskapade
 
     The ConfigObject is a dictionary meant for containing global settings of
@@ -183,31 +187,95 @@ class ConfigObject(ProcessService, dict):
 
     def __init__(self):
         """Initialize ConfigObject instance"""
+        self.__settings = defaultdict()
 
-        # initialize settings with default values
-        for sec_keys in CONFIG_VARS.values():
-            for conf_key in sec_keys:
-                self[conf_key] = CONFIG_DEFAULTS.get(conf_key)
+        # Initialize self with default values.
+        for section in CONFIG_VARS.values():
+            for config in section:
+                self.__settings[config] = CONFIG_DEFAULTS.get(config)
 
         # initialize batch-mode setting with display variable from environment
         display = eskapade.utils.get_env_var('display')
-        self['batchMode'] = display is None or not re.search(':\d', display)
+        self.__settings['batchMode'] = display is None or not re.search(':\d', display)
 
         # initialize file I/O paths with repository directories with repo root from environment
-        self['esRoot'] = eskapade.utils.get_dir_path('es_root')
-        root_path = self['esRoot'] + ('/' if self['esRoot'] and self['esRoot'][-1] != '/' else '')
-        for subdir in ['results', 'data', 'templates']:
-            self['{}Dir'.format(subdir)] = root_path + subdir
-        self['macrosDir'] = root_path + 'tutorials'
+        self.__settings['esRoot'] = eskapade.utils.get_dir_path('es_root')
+        root_path = self.__settings['esRoot'] + (
+            '/' if self.__settings['esRoot'] and self.__settings['esRoot'][-1] != '/' else '')
 
-    def io_base_dirs(self):
+        for subdir in ['results', 'data', 'templates']:
+            self.__settings['{}Dir'.format(subdir)] = root_path + subdir
+        self.__settings['macrosDir'] = root_path + 'tutorials'
+
+    def __getitem__(self, setting: str) -> Any:
+        """Get value of setting by name.
+
+        :param setting: The setting to get.
+        :return: The value of setting.
+        :raise: UnknownSetting if it does not exist.
+        """
+        if setting in self.__settings:
+            return self.__settings[setting]
+
+        raise UnknownSetting('Unknown setting {setting}!'.format(setting=setting))
+
+    def __setitem__(self, setting: str, value: Any) -> None:
+        """Set the value of a setting.
+
+        Note this overrides the current value a the setting.
+
+        :param setting:
+        :param value:
+        :return: None
+        """
+        self.__settings[setting] = value
+
+    def __contains__(self, setting):
+        """Is a setting in settings?
+
+        :param setting: The setting to check for.
+        :return: True if setting is present else False.
+        """
+        return setting in self.__settings
+
+    def get(self, setting: str, default: Any = None) -> object:
+        """Get value of setting. If it does not exists return the default value.
+
+        :param setting: The setting to get.
+        :param default: The default value of the setting.
+        :return: The value of the setting or None if it does not exist.
+        """
+        try:
+            return self.__getitem__(setting)
+        except UnknownSetting:
+            return default
+
+    def __copy__(self):
+        """Perform a shallow copy of self.
+
+        :return:
+        """
+        clone = ConfigObject()
+        clone.__settings = self.__settings.copy()
+
+        return clone
+
+    def copy(self):
+        """Perform a shallow copy of self.
+
+        :return:
+        """
+        return self.__copy__()
+
+    def io_base_dirs(self) -> dict:
         """Get configured base directories
 
         :returns: base directories
         :rtype: dict
         """
 
-        return dict([(key + '_dir', self[key + 'Dir']) for key in ['results', 'data', 'macros', 'templates']])
+        return dict([(key + '_dir', self.__getitem__(key + 'Dir'))
+                     for key in ['results', 'data', 'macros', 'templates']])
 
     def io_conf(self):
         """Get I/O configuration
@@ -219,7 +287,8 @@ class ConfigObject(ProcessService, dict):
         :rtype: IoConfig
         """
 
-        return persistence.IoConfig(analysis_name=self['analysisName'], analysis_version=self['version'],
+        return persistence.IoConfig(analysis_name=self['analysisName'],
+                                    analysis_version=self['version'],
                                     **self.io_base_dirs())
 
     def Print(self):
@@ -236,7 +305,7 @@ class ConfigObject(ProcessService, dict):
                 self.log().info('    {{0:<{:d}s}}  {{1:s}}'.format(max_key_len).format(key, str(self.get(key))))
 
         # print additional custom settings
-        add_keys = sorted(set(self.keys()) - set(o for s in CONFIG_VARS.values() for o in s))
+        add_keys = sorted(set(self.__settings.keys()) - set(o for s in CONFIG_VARS.values() for o in s))
         if add_keys:
             self.log().info('  custom:')
             max_key_len = max(len(k) for k in add_keys)
@@ -321,5 +390,8 @@ class DataStore(ProcessService, dict):
 
         max_key_len = max(len(k) for k in self.keys())
         for key in sorted(self.keys()):
-            self.log().info('  {{0:<{:d}s}}  <{{1:s}}.{{2:s}} at {{3:x}}>'.format(max_key_len).format(key,
-                type(self[key]).__module__, type(self[key]).__name__, id(self[key])))
+            self.log().info('  {{0:<{:d}s}}  <{{1:s}}.{{2:s}} at {{3:x}}>'.
+                            format(max_key_len).format(key,
+                                                       type(self[key]).__module__,
+                                                       type(self[key]).__name__,
+                                                       id(self[key])))

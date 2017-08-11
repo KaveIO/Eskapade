@@ -108,6 +108,7 @@ try:
         'release': ('setup.py', FULL_VERSION)
     }
 except ImportError:
+    logger.fatal('Missing Sphinx packages!')
     HAVE_SPHINX = False
 
 
@@ -124,6 +125,7 @@ class PyTest(TestCommand):
 
     def run_tests(self):
         import shlex
+        # We only install this when needed.
         import pytest
         print(self.pytest_args)
         errno = pytest.main(shlex.split(self.pytest_args))
@@ -163,25 +165,25 @@ def setup_package() -> None:
           author='KPMG',
           description='Eskapade modular analytics',
           python_requires='>=3.5',
-          package_dir={NAME.lower(): 'python/' + NAME.lower()},
+          package_dir={'': 'python'},
           packages=find_packages(where='python', exclude=exclude_packages()),
           include_package_data=True,
           package_data={
               NAME.lower(): ['templates/*']
           },
           install_requires=[
-              'numba>=0.34.0',
-              'jupyter>=1.0.0',
-              'matplotlib>=2.0.2',
-              'numpy>=1.13.1',
-              'scipy>=0.19.1',
-              'statsmodels>=0.8.0',
-              'pandas>=0.20.3',
-              'tabulate>=0.7.7',
-              'sortedcontainers>=1.5.7',
-              'histogrammar>=1.0.8',
-              'names>=0.3.0',
-              'fastnumbers>=2.0.1'
+              'numba==0.34.0',
+              'jupyter==1.0.0',
+              'matplotlib==2.0.2',
+              'numpy==1.13.1',
+              'scipy==0.19.1',
+              'statsmodels==0.8.0',
+              'pandas==0.20.3',
+              'tabulate==0.7.7',
+              'sortedcontainers==1.5.7',
+              'histogrammar==1.0.8',
+              'names==0.3.0',
+              'fastnumbers==2.0.1'
           ],
           tests_require=['pytest'],
           cmdclass=CMDCLASS,
@@ -194,6 +196,7 @@ def setup_package() -> None:
           # eskapade_trial: test entry point.
           entry_points={
               'console_scripts': [
+                  'eskapade_ignite = eskapade.entry_points:eskapade_ignite',
                   'eskapade_run = eskapade.entry_points:eskapade_run',
                   'eskapade_trial = eskapade.entry_points:eskapade_trial'
               ]
