@@ -10,7 +10,7 @@ Architecture
 
 The architecture of Eskapade can be summarized in this picture:
 
-.. image:: ../../images/eskapade_architecture.png
+.. image:: ../images/eskapade_architecture.png
 
 The example we just discuscced generally shows how the framework works.
 The steps it takes are the following:

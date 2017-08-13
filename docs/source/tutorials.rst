@@ -231,7 +231,7 @@ Now run the entire macro with the new code and compile the output .tex file. Thi
 If you have pdflatex installed on your machine.
 Now take a look at the output pdf. The final output should look something like this:
 
-.. image:: ../../images/output_tutorial_1.png
+.. image:: ../images/output_tutorial_1.png
 
 Your plot should be quite similar (though it might be different in its make up.)
 
