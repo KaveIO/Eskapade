@@ -286,11 +286,6 @@ See for example the subpackages ``core_ops``, ``analysis`` or ``visualization``.
 In `All available examples`_ we give some tips to find the right Links your analysis, and how to configure them properly.
 
 
-.. toctree::
-   tutorial_jupyter
-   tutorial_roofit
-   tutorial_spark
-
 .. include:: tutorial_jupyter.rst
 .. include:: tutorial_roofit.rst
 .. include:: tutorial_spark.rst
@@ -410,8 +405,5 @@ Example esk202: Write data
 
 Macro 202 reads a DataFrame into the data store and then writes the DataFrame to csv format on the disk.
 
-
-.. toctree::
-   coding
 
 .. include:: coding.rst
