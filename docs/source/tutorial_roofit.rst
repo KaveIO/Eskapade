@@ -1,13 +1,9 @@
-===============
-RooFit Tutorial
-===============
+Tutorial 4: using RooFit
+------------------------
 
 This section provides a tutorial on how to use RooFit in Eskapade. RooFit is an advanced fitting library in ROOT, which is great
 for modelling all sorts of data sets.
 ROOT (and RooFit) works 'out of the box' in the Eskapade docker/vagrant image.
-
-Tutorial 3: using RooFit
-------------------------
 
 In this tutorial we will illustrates how to define a new probability density function (pdf) in RooFit,
 how to compile it, and how to use it in Eskapade to simulate a dataset, fit it, and plot the results.
@@ -103,7 +99,7 @@ In fact, this last snippet of code is used in the tutorial macro right below.
 Running the tutorial macro
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's take a look at the steps in tutorial macro  ``$ESKAPADE/tutorials/tutorial_3.py``.
+Let's take a look at the steps in tutorial macro  ``$ESKAPADE/tutorials/tutorial_4.py``.
 The macro illustrates how do basic statistical data analysis with roofit, by making use of the ``RooWorkspace`` functionality.
 The example shows how to define a pdf, simulate data, fit this data, and then plot the fit result.
 There are 5 sections; they are detailed in the sections below.
@@ -114,9 +110,10 @@ The next step is to run the tutorial macro.
 
   $ cd $ESKAPADE
   $ source setup.sh
-  $ run_eskapade.py tutorials/tutorial_3.py
+  $ run_eskapade.py tutorials/tutorial_4.py
 
 Let's discuss what we are seeing on the screen.
+
 
 Loading the Eskapade ROOT library
 *********************************
@@ -229,7 +226,7 @@ The fit report can be found at:
 
 .. code-block:: bash
 
-  $ cd $ESKAPADE/results/tutorial_3/data/v0/report/
+  $ cd $ESKAPADE/results/tutorial_4/data/v0/report/
   $ pdflatex report.tex
 
 Take a look at the resulting fit report: ``report.pdf``.
@@ -239,7 +236,7 @@ summary tables of the floating and fixed parameters in the fit, as well as the p
 
 
 Other ROOT Examples in Eskapade
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Other example Eskapade macros using ROOT and RooFit can be found in the ``$ESKAPADE/tutorials`` directory,
 e.g. see ``esk401_roothist_fill_plot_convert.py`` and all other 400 numbered macros.

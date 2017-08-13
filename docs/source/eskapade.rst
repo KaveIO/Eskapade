@@ -33,6 +33,14 @@ eskapade.helpers module
     :undoc-members:
     :show-inheritance:
 
+eskapade.mixins module
+----------------------
+
+.. automodule:: eskapade.mixins
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 eskapade.utils module
 ---------------------
 

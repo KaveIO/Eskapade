@@ -1,9 +1,9 @@
-Eskapade on MacOS
-=================
+MacOS
+=====
 
-This installation guide is written using **MacOS Sierra**.
+This Eskapade installation guide is written using **MacOS Sierra**.
 
-To install eskapade on MacOS there are basically four challenges to overcome certain versioning issues:
+To install Eskapade on MacOS there are basically four challenges to overcome certain versioning issues:
 
   * Getting an isolated Python 3.5.2 environment,
   * Getting ROOT 6.08/06 to work with Python 3.5.2 (ROOT conflicts with Anaconda),

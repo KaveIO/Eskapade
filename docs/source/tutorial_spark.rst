@@ -1,17 +1,13 @@
-=====================
-Tutorial Apache Spark 
-=====================
+Tutorial 5: going Spark
+-----------------------
 
 This section provides a tutorial on how to use Apache Spark in Eskapade. Spark works 'out of the box' in the Eskapade docker/vagrant image. For details on how to setup a custom Spark setup, see the `Spark <spark.html>`_ section in the Appendix.
-
-Tutorial 4: going Spark
------------------------
 
 In this tutorial we will basically redo Tutorial 1 but use Spark instead of Pandas for data processing. The following paragraphs describe step-by-step how to run a Spark job, use existing links and write your own links for Spark queries.
 
 .. note::
 
-  To get familiar with Spark in Eskapade you can follow the exercises in ``tutorials/tutorial_4.py``.
+  To get familiar with Spark in Eskapade you can follow the exercises in ``tutorials/tutorial_5.py``.
 
 
 Running the tutorial macro
@@ -22,7 +18,7 @@ The very first step to run the tutorial Spark job is:
 .. code-block:: bash
 
   $ source setup.sh
-  $ run_eskapade.py tutorials/tutorial_4.py
+  $ run_eskapade.py tutorials/tutorial_5.py
 
 Eskapade will start a Spark session, do nothing, and quit - there are no chains/links defined yet. The Spark session is created via the ``SparkManager`` which, like the ``DataStore``, is a singleton that configures and controls Spark sessions centrally. It is activated through the magic line:
 
@@ -117,7 +113,7 @@ The next step is to add the desired functionality to the link. In this case, the
 
         return StatusCode.Success
 
-In order to configure Eskapade to run this link, the link needs to be added to a chain, e.g. ``Summary``, in the ``tutorial/tutorial_4.py`` macro. This should look similar to:
+In order to configure Eskapade to run this link, the link needs to be added to a chain, e.g. ``Summary``, in the ``tutorial/tutorial_5.py`` macro. This should look similar to:
 
 .. code-block:: python
 
@@ -133,7 +129,7 @@ Eskapade should now be ready to finally execute the macro and provide the desire
 
 .. code-block:: bash
 
-  $ run_eskapade.py tutorials/tutorial_4.py 
+  $ run_eskapade.py tutorials/tutorial_5.py 
 
   * * * Welcome to Eskapade * * *
   ...
@@ -158,7 +154,7 @@ Eskapade should now be ready to finally execute the macro and provide the desire
 That's it!
 
 
-Examples
---------
+Spark examples
+~~~~~~~~~~~~~~
 
 Example Eskapade macros using Spark can be found in the ``tutorials`` directory, see ``esk601_spark_configuration.py`` and further.

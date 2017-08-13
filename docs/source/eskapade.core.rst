@@ -27,14 +27,6 @@ eskapade.core.execution module
     :undoc-members:
     :show-inheritance:
 
-eskapade.core.mixins module
----------------------------
-
-.. automodule:: eskapade.core.mixins
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 eskapade.core.persistence module
 --------------------------------
 
