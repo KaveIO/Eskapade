@@ -1,5 +1,5 @@
 import unittest
-import unittest.mock
+import unittest.mock as mock
 import functools
 import itertools
 

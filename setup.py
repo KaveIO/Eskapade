@@ -183,7 +183,8 @@ def setup_package() -> None:
               'sortedcontainers==1.5.7',
               'histogrammar==1.0.8',
               'names==0.3.0',
-              'fastnumbers==2.0.1'
+              'fastnumbers==2.0.1',
+              'root_numpy==4.7.3'
           ],
           tests_require=['pytest'],
           cmdclass=CMDCLASS,

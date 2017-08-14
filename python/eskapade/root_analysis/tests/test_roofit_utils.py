@@ -1,12 +1,8 @@
 import unittest
 import unittest.mock as mock
 
-try:
-    import ROOT
-    from ..roofit_utils import load_libesroofit
-
-except ImportError:
-    pass
+import ROOT
+from ..roofit_utils import load_libesroofit
 
 
 @unittest.skip('This guy depends on Roofit!')
