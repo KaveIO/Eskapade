@@ -2,7 +2,7 @@ Tutorial 4: using RooFit
 ------------------------
 
 This section provides a tutorial on how to use RooFit in Eskapade. RooFit is an advanced fitting library in ROOT, which is great
-for modelling all sorts of data sets.
+for modelling all sorts of data sets. See `this tutorial <https://root.cern.ch/roofit-20-minutes>`_ for a 20 min introduction into RooFit.
 ROOT (and RooFit) works 'out of the box' in the Eskapade docker/vagrant image.
 
 In this tutorial we will illustrates how to define a new probability density function (pdf) in RooFit,
@@ -101,6 +101,7 @@ Running the tutorial macro
 
 Let's take a look at the steps in tutorial macro  ``$ESKAPADE/tutorials/tutorial_4.py``.
 The macro illustrates how do basic statistical data analysis with roofit, by making use of the ``RooWorkspace`` functionality.
+A ``RooWorkspace`` is a persistable container for RooFit projects. A workspace can contain and own variables, p.d.f.s, functions and datasets.
 The example shows how to define a pdf, simulate data, fit this data, and then plot the fit result.
 There are 5 sections; they are detailed in the sections below.
 
@@ -147,7 +148,11 @@ Instantiating a pdf
 
 The link ``WsUtils``, which stands for ``RooWorkspace`` utils, allows us to instantiate a pdf.
 Technically, one defines a model by passing strings to the rooworkspace factory.
-For details on rooworkspace factory see this `RooWorkspace tutorial <https://root.cern.ch/root/html/tutorials/roofit/rf511_wsfactory_basic.C.html>`_ for more details.
+For examples on using the rooworkspace factory see `here <https://root.cern.ch/root/html/tutorials/roofit/rf511_wsfactory_basic.C.html>`_,
+`here <https://root.cern.ch/root/html/tutorials/roofit/rf512_wsfactory_oper.C.html>`_ and
+`here <https://root.cern.ch/root/html/tutorials/roofit/rf513_wsfactory_tools.C.html>`_
+for more details. The entire rooworkspace factory syntax can be
+found `here <https://root.cern.ch/doc/master/RooFactoryWSTool_8cxx_source.html#l00722>`_.
 
 .. code-block:: python
 

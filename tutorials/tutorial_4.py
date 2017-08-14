@@ -7,6 +7,9 @@
 # *      function (pdf) in RooFit, how to compile it, and how to use it in Eskapade to
 # *      simulate a dataset, fit it, and plot the results.
 # *
+# *      For a brief lesson on RooFit, see here:
+# *      https://root.cern.ch/roofit-20-minutes
+# *
 # *      This tutorial shows how to build, compile and load a new pdf model.
 # *
 # *      Many good RooFit tutorials exist. See $ROOTSYS/tutorials/roofit/
@@ -160,8 +163,12 @@ log.info(msg)
 ch = proc_mgr.add_chain('WsOps')
 
 # --- 1. define a model by passing strings to the rooworkspace factory
-#     for details on rooworkspace factory see:
+#     For the workspace factory syntax, see:
+#     https://root.cern.ch/doc/master/RooFactoryWSTool_8cxx_source.html#l00722
+#     For rooworkspace factory examples see:
 #     https://root.cern.ch/root/html/tutorials/roofit/rf511_wsfactory_basic.C.html
+#     https://root.cern.ch/root/html/tutorials/roofit/rf512_wsfactory_oper.C.html
+#     https://root.cern.ch/root/html/tutorials/roofit/rf513_wsfactory_tools.C.html
 #     Here we use the pdf class we just created (MyPdfV3), with observable y and parameter A and B,
 #     with ranges (-10,10), (0,100) and (-10,10) respectively. The starting values of A and B are
 #     10 and 2 respectively.
