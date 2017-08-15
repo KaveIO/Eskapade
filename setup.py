@@ -199,7 +199,8 @@ def setup_package() -> None:
               'console_scripts': [
                   'eskapade_ignite = eskapade.entry_points:eskapade_ignite',
                   'eskapade_run = eskapade.entry_points:eskapade_run',
-                  'eskapade_trial = eskapade.entry_points:eskapade_trial'
+                  'eskapade_trial = eskapade.entry_points:eskapade_trial',
+                  'eskapade_generate_link = eskapade.entry_points:eskapade_generate_link'
               ]
           }
           )

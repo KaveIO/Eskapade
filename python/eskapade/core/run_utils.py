@@ -14,7 +14,9 @@
 
 import argparse
 
-from .definitions import USER_OPTS, USER_OPTS_SHORT, USER_OPTS_KWARGS
+from eskapade.core.definitions import USER_OPTS
+from eskapade.core.definitions import USER_OPTS_SHORT
+from eskapade.core.definitions import USER_OPTS_KWARGS
 
 
 def create_arg_parser():
