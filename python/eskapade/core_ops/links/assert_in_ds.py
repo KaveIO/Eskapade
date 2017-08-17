@@ -13,7 +13,10 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, StatusCode, DataStore, Link
+from eskapade import process_manager
+from eskapade import StatusCode
+from eskapade import DataStore
+from eskapade import Link
 
 
 class AssertInDs(Link):
@@ -41,7 +44,7 @@ class AssertInDs(Link):
     def execute(self):
         """ Execute AssertInDs """
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         for key in self.keySet:
             assert key in ds, 'Key %s not in DataStore.' % key

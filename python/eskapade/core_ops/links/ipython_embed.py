@@ -13,8 +13,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 from IPython import embed
+
+from eskapade import process_manager
+from eskapade import ConfigObject
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import DataStore
+
 
 class IPythonEmbed(Link):
     """Link to start up ipython console
@@ -34,18 +40,16 @@ class IPythonEmbed(Link):
         # check residual kwargs. exit if any present. 
         self.check_extra_kwargs(kwargs)
 
-
     def execute(self):
         """Execute IPythonEmbed"""
 
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
         settings = proc_mgr.service(ConfigObject)
         ds = proc_mgr.service(DataStore)
 
         self.log().info("Starting interactive session ... press Ctrl+d to exit.\n")
         # this function calls the interactive ipython session
-	# in this session ds, settings, and proc_mgr are available
+        # in this session ds, settings, and proc_mgr are available
         embed()
 
         return StatusCode.Success
-

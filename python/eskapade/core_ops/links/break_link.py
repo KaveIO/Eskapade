@@ -13,7 +13,8 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import Link
+from eskapade import StatusCode
 
 
 class Break(Link):

@@ -1,7 +1,7 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : LINKTEMPLATE
-# * Created: DATE
+# * Class  : LINKTEMPLATE                                                          *
+# * Created: DATE                                                                  *
 # * Description:                                                                   *
 # *      Algorithm to do...(fill in one-liner here)                                *
 # *                                                                                *
@@ -13,7 +13,11 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager as proc_mgr
+from eskapade import ConfigObject
+from eskapade import Link
+from eskapade import DataStore
+from eskapade import StatusCode
 
 
 class LINKTEMPLATE(Link):
@@ -39,7 +43,7 @@ class LINKTEMPLATE(Link):
         self.check_extra_kwargs(kwargs)
         # Turn off line above, and on two lines below if you wish to keep these
         # extra kwargs.
-        #self.kwargs = kwargs
+        # self.kwargs = kwargs
 
     def initialize(self):
         """Initialize LINKTEMPLATE
@@ -57,7 +61,6 @@ class LINKTEMPLATE(Link):
         :rtype: StatusCode
         """
 
-        proc_mgr = ProcessManager()
         settings = proc_mgr.service(ConfigObject)
         ds = proc_mgr.service(DataStore)
 

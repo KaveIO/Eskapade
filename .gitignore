@@ -26,7 +26,7 @@ lib
 /**/.vagrant
 
 # data and results directories
-data/*
+python/eskapade/data/*
 results/*
 
 # Build and package stuff

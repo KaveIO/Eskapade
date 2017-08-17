@@ -16,16 +16,22 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import pandas as pd
+import fnmatch
 import copy
+
+import pandas as pd
 from pandas import DataFrame
+
 try:
     from pandas.types.dtypes import CategoricalDtypeType
 except ImportError:
     from pandas.core.dtypes.dtypes import CategoricalDtypeType
-import fnmatch
 
-from eskapade import ProcessManager, Link, StatusCode, DataStore
+
+from eskapade import process_manager
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import DataStore
 
 
 class RecordFactorizer(Link):
@@ -105,7 +111,7 @@ class RecordFactorizer(Link):
             self.sk_map_to_factorized = 'map_' + self.read_key + '_to_factorized'
             self.log().debug('storage key <sk_map_to_factorized> has been set to "%s"', self.sk_map_to_factorized)
 
-        if self.map_to_original and not isinstance(self.map_to_original, str)\
+        if self.map_to_original and not isinstance(self.map_to_original, str) \
                 and not isinstance(self.map_to_original, dict):
             raise TypeError('map_to_original needs to be a dict or string (to fetch a dict from the datastore)')
 
@@ -119,7 +125,7 @@ class RecordFactorizer(Link):
         Alternatively, map transformed columns back to orginal format.
         """
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # basic checks on contensts of the data frame
         if self.read_key not in ds:

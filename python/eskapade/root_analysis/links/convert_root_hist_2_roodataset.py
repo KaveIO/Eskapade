@@ -13,13 +13,9 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import pandas as pd
-import numpy as np
-
 import ROOT
-from ROOT import RooFit
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
 from eskapade.root_analysis import RooFitManager, data_conversion
 
 
@@ -87,7 +83,7 @@ class ConvertRootHist2RooDataSet(Link):
     def execute(self):
         """Execute ConvertRootHist2RooDataSet"""
 
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
         settings = proc_mgr.service(ConfigObject)
         ds = proc_mgr.service(DataStore)
 

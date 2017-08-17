@@ -164,6 +164,8 @@ class ConfigObject(ProcessService):
 
     >>> from eskapade import ProcessManager, ConfigObject
     >>> proc_mgr = ProcessManager()
+    >>> settings = proc_mgr.settings
+    >>> proc_mgr.settings = settings
     >>> settings = proc_mgr.service(ConfigObject)
 
     One can treat the ConfigObject as any other dictionary:
@@ -200,12 +202,9 @@ class ConfigObject(ProcessService):
 
         # initialize file I/O paths with repository directories with repo root from environment
         self.__settings['esRoot'] = eskapade.utils.get_dir_path('es_root')
-        root_path = self.__settings['esRoot'] + (
-            '/' if self.__settings['esRoot'] and self.__settings['esRoot'][-1] != '/' else '')
 
-        for subdir in ['results', 'data', 'templates']:
-            self.__settings['{}Dir'.format(subdir)] = root_path + subdir
-        self.__settings['macrosDir'] = root_path + 'tutorials'
+    def __repr__(self):
+        return repr(self.__settings)
 
     def __getitem__(self, setting: str) -> Any:
         """Get value of setting by name.

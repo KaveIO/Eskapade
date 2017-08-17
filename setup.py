@@ -22,7 +22,7 @@ from setuptools.command.test import test as TestCommand
 NAME = 'Eskapade'
 
 MAJOR = 0
-REVISION = 6
+REVISION = 7
 PATCH = 0
 DEV = True
 
@@ -31,7 +31,7 @@ FULL_VERSION = VERSION
 if DEV:
     FULL_VERSION += '.dev'
 
-CMDCLASS = dict()
+CMD_CLASS = dict()
 COMMAND_OPTIONS = dict()
 
 logging.basicConfig()
@@ -67,6 +67,7 @@ release = {is_release!s}
         version_file.close()
 
 
+# noinspection PyUnresolvedReferences
 def exclude_packages() -> list:
     """
     Determine which packages we would like to install. This depends on whether certain dependencies
@@ -82,8 +83,8 @@ def exclude_packages() -> list:
 
     try:
         import ROOT
-        import RooFit
-        import RooStats
+        import ROOT.RooFit
+        import ROOT.RooStats
     except ImportError:
         logger.fatal('PyROOT and RooFit are missing! Not going to install ROOT analysis modules!')
         # This does not really work. Tests are excluded though.
@@ -101,7 +102,7 @@ try:
 
     cmd_string = 'build_sphinx'
 
-    CMDCLASS[cmd_string] = BuildDoc
+    CMD_CLASS[cmd_string] = BuildDoc
     COMMAND_OPTIONS[cmd_string] = {
         'project': ('setup.py', NAME),
         'version': ('setup.py', VERSION),
@@ -127,12 +128,11 @@ class PyTest(TestCommand):
         import shlex
         # We only install this when needed.
         import pytest
-        print(self.pytest_args)
         errno = pytest.main(shlex.split(self.pytest_args))
         sys.exit(errno)
 
 
-CMDCLASS['test'] = PyTest
+CMD_CLASS['test'] = PyTest
 
 
 def setup_package() -> None:
@@ -158,25 +158,35 @@ def setup_package() -> None:
     """
     write_version_py()
 
+    # from pkg_resources import Requirement, resource_filename
+    # logger.info("Requiremeant = {}".format(resource_filename(Requirement.parse(NAME), 'cxx')))
+
     setup(name=NAME,
           version=VERSION,
           url='http://eskapade.kave.io',
           license='',
           author='KPMG',
+          author_email='eskapade@eskapade',
           description='Eskapade modular analytics',
           python_requires='>=3.5',
           package_dir={'': 'python'},
           packages=find_packages(where='python', exclude=exclude_packages()),
-          include_package_data=True,
+          # Setuptools requires that package data are located inside the package.
+          # This is a feature and not a bug, see
+          # http://setuptools.readthedocs.io/en/latest/setuptools.html#non-package-data-files
           package_data={
-              NAME.lower(): ['templates/*']
+              NAME.lower(): ['templates/*', 'data/*', 'tutorials/*.sh']
           },
+          # We can use data_files to install other stuff to other locations.
+          # data_files=[('./lib/', ['cxx/roofit/roofit.mk'])],
+          include_package_data=True,
           install_requires=[
               'numba==0.34.0',
               'jupyter==1.0.0',
               'matplotlib==2.0.2',
               'numpy==1.13.1',
               'scipy==0.19.1',
+              'scikit-learn==0.19.0',
               'statsmodels==0.8.0',
               'pandas==0.20.3',
               'tabulate==0.7.7',
@@ -184,10 +194,12 @@ def setup_package() -> None:
               'histogrammar==1.0.8',
               'names==0.3.0',
               'fastnumbers==2.0.1',
-              'root_numpy==4.7.3'
+              'root_numpy==4.7.3',
+              'pytest==3.2.1',
+              'pytest-pylint==0.7.1',
           ],
-          tests_require=['pytest'],
-          cmdclass=CMDCLASS,
+          tests_require=['pytest==3.2.1'],
+          cmdclass=CMD_CLASS,
           command_options=COMMAND_OPTIONS,
           # The following 'creates' executable scripts for *nix and Windows.
           # As an added the bonus the Windows scripts will auto-magically

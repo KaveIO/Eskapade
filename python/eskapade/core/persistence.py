@@ -23,11 +23,24 @@ from pkg_resources import resource_string, resource_filename
 from collections import defaultdict
 
 # IO locations
-IO_LOCS = dict(results='results_dir', data='data_dir', macros='macros_dir', input_data='data_dir',
-               records='data_dir', ana_results='results_dir', ana_plots='results_dir', proc_service_data='results_dir',
-               results_data='results_dir', results_ml_data='results_dir', results_config='results_dir',
-               tmva='results_dir', plots='results_dir', templates='templates_dir')
-IO_SUB_DIRS = defaultdict(lambda: '', ana_results='{ana_name:s}', ana_plots='{ana_name:s}/plots',
+IO_LOCS = dict(results='results_dir',
+               data='data_dir',
+               macros='macros_dir',
+               input_data='data_dir',
+               records='data_dir',
+               ana_results='results_dir',
+               ana_plots='results_dir',
+               proc_service_data='results_dir',
+               results_data='results_dir',
+               results_ml_data='results_dir',
+               results_config='results_dir',
+               tmva='results_dir',
+               plots='results_dir',
+               templates='templates_dir')
+
+IO_SUB_DIRS = defaultdict(lambda: '',
+                          ana_results='{ana_name:s}',
+                          ana_plots='{ana_name:s}/plots',
                           proc_service_data='{ana_name:s}/proc_service_data/v{ana_version:s}',
                           results_data='{ana_name:s}/data/v{ana_version:s}',
                           results_ml_data='{ana_name:s}/data/v{ana_version:s}',
@@ -97,18 +110,15 @@ def io_path(io_type, io_conf, sub_path):
 
     # check inputs
     if not isinstance(sub_path, str):
-        log.critical('specified sub path/file name must be a string, but has type "%s"' % type(sub_path).__name__)
-        raise RuntimeError('the sub path/file name in the io_path function must be a string')
+        log.critical('Specified sub path/file name must be a string, but has type "{type!s}"'
+                     .format(type=type(sub_path).__name__))
+        raise TypeError('The sub path/file name in the io_path function must be a string')
     sub_path = repl_whites(sub_path).strip('/')
 
     # construct path
     full_path = io_dir(io_type, io_conf) + '/' + sub_path
     if os.path.dirname(sub_path):
         create_dir(os.path.dirname(full_path))
-
-    # TODO (janos4276): Hack on top of hack of ...
-    if io_type == 'templates':
-        full_path = resource_filename('eskapade', 'templates/' + sub_path)
 
     return full_path
 

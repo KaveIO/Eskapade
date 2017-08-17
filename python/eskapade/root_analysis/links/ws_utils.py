@@ -21,9 +21,19 @@ import tabulate
 import re
 
 import ROOT
-from ROOT import RooFit
 
-from eskapade import core, ProcessManager, ConfigObject, Link, DataStore, StatusCode
+try:
+    from ROOT import RooFit
+except ImportError:
+    import ROOT.RooFit
+
+from eskapade import core
+from eskapade import process_manager
+from eskapade import ConfigObject
+from eskapade import DataStore
+from eskapade import Link
+from eskapade import StatusCode
+
 from eskapade.root_analysis import RooFitManager, roofit_utils
 from eskapade.core import persistence
 
@@ -97,7 +107,7 @@ class WsUtils(Link):
         assert isinstance(self.copy_into_ds, list), 'copy_into_ds needs to be a string or list of strings.'
 
         # get I/O configuration
-        io_conf = ProcessManager().service(ConfigObject).io_conf()
+        io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates
         with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
@@ -110,7 +120,7 @@ class WsUtils(Link):
         # get path to results directory
         if not self.results_path:
             # get I/O configuration
-            io_conf = ProcessManager().service(ConfigObject).io_conf()
+            io_conf = process_manager.service(ConfigObject).io_conf()
             self.results_path = core.persistence.io_path('results_data', io_conf, 'report')
 
         # check if output directory exists
@@ -144,7 +154,7 @@ class WsUtils(Link):
         7. move objects from the workspace to the datastore
         """
 
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
         settings = proc_mgr.service(ConfigObject)
         ds = proc_mgr.service(DataStore)
         ws = proc_mgr.service(RooFitManager).ws

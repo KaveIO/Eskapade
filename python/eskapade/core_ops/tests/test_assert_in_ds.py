@@ -1,4 +1,5 @@
 import unittest
+
 import pandas as pd
 
 from eskapade.tests.observers import MockDataStoreObserver, TestCaseObservable
@@ -11,10 +12,11 @@ class AssertInDsTest(unittest.TestCase, TestCaseObservable):
         super(AssertInDsTest, self).set_up_observers(observers)
 
     def test_execute(self):
-        from eskapade import ProcessManager, DataStore
+        from eskapade import process_manager
+        from eskapade import DataStore
         from eskapade.core_ops.links import AssertInDs
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
         ds['test1'] = pd.DataFrame([1], columns=['data'])
         ds['test2'] = pd.DataFrame([2], columns=['data'])
         ds['test3'] = pd.DataFrame([3], columns=['data'])

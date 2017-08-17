@@ -1,8 +1,8 @@
 import unittest
 import unittest.mock as mock
 
-from ..roofit_manager import RooFitManager
-from ..roofit_models import RooFitModel
+from eskapade.root_analysis.roofit_manager import RooFitManager
+from eskapade.root_analysis.roofit_models import RooFitModel
 
 
 @unittest.skip('This guy depends on Roofit!')

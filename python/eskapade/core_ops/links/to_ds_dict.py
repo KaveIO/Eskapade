@@ -13,7 +13,10 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import StatusCode, ProcessManager, DataStore, Link
+from eskapade import StatusCode
+from eskapade import DataStore
+from eskapade import Link
+from eskapade import process_manager
 
 
 class ToDsDict(Link):
@@ -59,23 +62,24 @@ class ToDsDict(Link):
             if not (isinstance(self.store_key, str) and len(self.store_key)):
                 raise RuntimeError('object storage key has not been set')
 
-        ds = ProcessManager().service(DataStore)
-        return StatusCode.Success if not self.at_initialize else self.dostorage(ds)
+        ds = process_manager.service(DataStore)
+        return StatusCode.Success if not self.at_initialize else self.do_storage(ds)
 
     def execute(self):
         """ Execute ToDsDict """
 
-        ds = ProcessManager().service(DataStore)
-        return StatusCode.Success if not self.at_execute else self.dostorage(ds)
+        ds = process_manager.service(DataStore)
 
-    def dostorage(self, ds):
+        return StatusCode.Success if not self.at_execute else self.do_storage(ds)
+
+    def do_storage(self, ds):
         """ perform storage in datastore 
 
         Function makes a distinction been dicts and any other object.
         """
         # if dict and copydict==true, store all individual items
         if self.copydict and isinstance(self.obj,dict):
-            stats = [(self.store(ds, v, k, force=self.force)).value for k,v in self.obj.items()]
+            stats = [(self.store(ds, v, k, force=self.force)).value for k, v in self.obj.items()]
             return StatusCode(max(stats))
 
         # default: store obj under storekey

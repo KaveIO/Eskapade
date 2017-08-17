@@ -13,14 +13,11 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import numpy as np
 
 import ROOT
-from ROOT import TH1
+import numpy as np
 import root_numpy
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.analysis import histogram_filling as hf
 from eskapade.analysis.histogram_filling import HistogramFillerBase
 
 

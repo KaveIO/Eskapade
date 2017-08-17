@@ -127,7 +127,7 @@ class ConfigObjectTest(unittest.TestCase):
 
         self.assertTrue(ConfigObject._persist, 'unexpected value for config-object persist flag')
 
-    @unittest.skip('This test needs to fixed oe removed!')
+    @unittest.skip('This test needs to fixed or removed!')
     @mock.patch.dict('eskapade.core.definitions.CONFIG_DEFAULTS', clear=True)
     @mock.patch.dict('eskapade.core.definitions.CONFIG_VARS', clear=True)
     @mock.patch('eskapade.utils.get_dir_path')

@@ -16,7 +16,11 @@
 from numpy.random import RandomState
 from pandas import DataFrame
 
-from eskapade import ProcessManager, ConfigObject, StatusCode, DataStore, Link
+from eskapade import process_manager
+from eskapade import ConfigObject
+from eskapade import StatusCode
+from eskapade import DataStore
+from eskapade import Link
 
 
 class AssignRandomClass(Link):
@@ -103,7 +107,7 @@ class AssignRandomClass(Link):
             pass
         
         # there needs to be a random seed set in the configobject
-        settings = ProcessManager().service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
         assert 'seed' in settings, 'random seed not set in ConfigObject.'
 
         return StatusCode.Success
@@ -111,7 +115,7 @@ class AssignRandomClass(Link):
     def execute(self):
         """ Execute AssignRandomClass """
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # basic checks on contensts of the data frame
         assert self.readKey in list(ds.keys()), 'Key %s not in DataStore.' % self.readKey
@@ -144,7 +148,7 @@ class AssignRandomClass(Link):
             self.log().info('Random class <%d> assigned n events <%d>.' % (i, n))
             
         # random reshuffling of dataframe indices
-        settings = ProcessManager().service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
         RNG = RandomState(settings['seed'])
         permute = RNG.permutation(df.index)
 

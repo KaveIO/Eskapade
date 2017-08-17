@@ -13,9 +13,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, StatusCode, DataStore, Link
-import pandas as pd
 import copy
+
+import pandas as pd
+
+from eskapade import process_manager
+from eskapade import StatusCode
+from eskapade import DataStore
+from eskapade import Link
 
 
 class DsToDs(Link):
@@ -36,11 +41,11 @@ class DsToDs(Link):
         :param dict columnsToAdd: if the object is a pandas.DataFrame columns to add to the pandas.DataFrame.
             key = column name, value = column
         """
-        
+
         Link.__init__(self, kwargs.pop('name', 'DsToDs'))
 
         # process keyword arguments
-        self._process_kwargs(kwargs, readKey='', storeKey='', columnsToAdd=None, move = True, copy=False, remove=False)
+        self._process_kwargs(kwargs, readKey='', storeKey='', columnsToAdd=None, move=True, copy=False, remove=False)
         self.check_extra_kwargs(kwargs)
 
         return
@@ -51,13 +56,13 @@ class DsToDs(Link):
         assert isinstance(self.readKey, str) and len(self.readKey) > 0, 'read key not set.'
         if not self.remove:
             assert isinstance(self.storeKey, str) and len(self.storeKey) > 0, 'store key not set.'
-        
+
         return StatusCode.Success
 
     def execute(self):
         """ Execute DsToDs """
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         if self.readKey not in ds:
             self.log().warning('read key <%s> not in DataStore. Return.' % self.readKey)
@@ -65,17 +70,16 @@ class DsToDs(Link):
 
         # if the object is a pandas.DataFrame columns can be added to the dataframe
         df = ds[self.readKey]
-        if isinstance(df,pd.DataFrame) and self.columnsToAdd is not None:
+        if isinstance(df, pd.DataFrame) and self.columnsToAdd is not None:
             for k, v in self.columnsToAdd.items():
                 df[k] = v
-            
+
         # copy, remove, or move item. default is move
         if self.copy:
-            ds[self.storeKey] = copy.deepcopy(ds[self.readKey]) 
+            ds[self.storeKey] = copy.deepcopy(ds[self.readKey])
         elif self.remove:
             ds.pop(self.readKey)
         elif self.move:
             ds[self.storeKey] = ds.pop(self.readKey)
 
         return StatusCode.Success
-

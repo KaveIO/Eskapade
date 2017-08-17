@@ -36,7 +36,10 @@ def eskapade_run():
     import IPython
     import pandas as pd
 
-    from eskapade import core, ProcessManager, ConfigObject, DataStore
+    from eskapade import process_manager as proc_mgr
+    from eskapade import ConfigObject
+    from eskapade import DataStore
+    from eskapade import core
     from eskapade.core.run_utils import create_arg_parser
 
     # create parser for command-line arguments
@@ -65,7 +68,6 @@ def eskapade_run():
     # start interpreter if requested (--interactive on command line)
     if settings.get('interactive'):
         # create process manager, config object, and data store
-        proc_mgr = ProcessManager()
         settings = proc_mgr.service(ConfigObject)
         ds = proc_mgr.service(DataStore)
 
@@ -86,31 +88,15 @@ def eskapade_trial():
     hard coded. Gotta come up with
     a better solution.
     """
-    import unittest
-    import argparse
 
-    # parse arguments
-    parser = argparse.ArgumentParser('eskapade_trial')
-    parser.add_argument('--type',
-                        nargs='?',
-                        choices=('unit', 'integration'),
-                        default='unit',
-                        help='Type of test to run (default "unit")')
-    parser.add_argument('start_dir',
-                        action='store',
-                        help='Folder in which to search for tests')
-    args = parser.parse_args()
+    import sys
+    import pytest
 
-    logging.info('Running {arg} tests\n'.format(arg=args.type))
-
-    # create test suite
-    suite = unittest.TestSuite()
-    loader = unittest.TestLoader()
-    tests_mods = loader.discover(args.start_dir)
-    logging.info("Going to run {n_tc} test cases".format(n_tc=tests_mods.countTestCases()))
-    suite.addTests(tests_mods)
-    # run tests
-    unittest.TextTestRunner(verbosity=4).run(suite)
+    # ['--pylint'] +
+    # -r xs shows extra info on skips and xfails.
+    default_options = ['-rxs']
+    args = sys.argv[1:] + default_options
+    sys.exit(pytest.main(args))
 
 
 def eskapade_generate_link():
@@ -119,7 +105,6 @@ def eskapade_generate_link():
     :return:
     """
 
-    import sys
     import argparse
     import os
     import sys
@@ -141,9 +126,13 @@ def eskapade_generate_link():
 # * modification, are permitted according to the terms listed in the file          *
 # * LICENSE.                                                                       *
 # **********************************************************************************
+/
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-
+from eskapade import process_manager as proc_mgr
+from eskapade import ConfigObject
+from eskapade import Link
+from eskapade import DataStore
+from eskapade import StatusCode
 
 class {link_name!s}(Link):
     \"\"\"Defines the content of link {link_name!s}\"\"\"
@@ -186,7 +175,6 @@ class {link_name!s}(Link):
         :rtype: StatusCode
         \"\"\"
 
-        proc_mgr = ProcessManager()
         settings = proc_mgr.service(ConfigObject)
         ds = proc_mgr.service(DataStore)
 

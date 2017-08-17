@@ -15,7 +15,10 @@
 
 import copy
 import pandas as pd
-from eskapade import ProcessManager, StatusCode, DataStore, Link
+from eskapade import process_manager
+from eskapade import StatusCode
+from eskapade import DataStore
+from eskapade import Link
 
 
 class ApplySelectionToDf(Link):
@@ -48,7 +51,7 @@ class ApplySelectionToDf(Link):
                              querySet=[],
                              selectColumns=[],
                              continueIfFailure=False)
-        
+
         # pass on remaining kwargs to pandas query
         self.kwargs = copy.deepcopy(kwargs)
 
@@ -68,7 +71,7 @@ class ApplySelectionToDf(Link):
             self.storeKey = self.readKey
             pass
         else:
-            assert isinstance(self.storeKey,str) and len(self.storeKey), 'store Key has not been set.'
+            assert isinstance(self.storeKey, str) and len(self.storeKey), 'store Key has not been set.'
 
         if isinstance(self.querySet, str):
             self.querySet = [self.querySet]
@@ -82,10 +85,9 @@ class ApplySelectionToDf(Link):
 
         assert len(self.querySet) or len(self.selectColumns), 'No selections have been provided.'
 
-        self.log().info('kwargs passed on to pandas query function are: %s' % self.kwargs )
-        
-        return StatusCode.Success
+        self.log().info('kwargs passed on to pandas query function are: %s' % self.kwargs)
 
+        return StatusCode.Success
 
     def execute(self):
         """ Execute ApplySelectionToDf
@@ -97,9 +99,10 @@ class ApplySelectionToDf(Link):
         2. Select columns (if provided). 
         """
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
         assert self.readKey in list(ds.keys()), 'Key %s not in DataStore.' % self.readKey
-        assert isinstance(ds[self.readKey],pd.DataFrame), 'Object with key %s is not a pandas DataFrame.' % self.readKey
+        assert isinstance(ds[self.readKey],
+                          pd.DataFrame), 'Object with key %s is not a pandas DataFrame.' % self.readKey
 
         # 1. apply queries to input dataframe.
         #    input dataframe is not overwritten, unless told to do so in kwargs.
@@ -146,7 +149,7 @@ class ApplySelectionToDf(Link):
         assert 'df' in vars(), 'No dataframe available for storage?'
 
         ds[self.storeKey] = df
-        ds['n_'+self.storeKey] = len(df.index)
+        ds['n_' + self.storeKey] = len(df.index)
 
         self.log().info('Stored dataframe with key <%s> and length <%d>.' % (self.storeKey, len(df.index)))
 

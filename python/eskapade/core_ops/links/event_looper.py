@@ -17,7 +17,11 @@
 
 import sys
 import copy
-from eskapade import StatusCode, Link, DataStore, ProcessManager
+
+from eskapade import StatusCode
+from eskapade import Link
+from eskapade import DataStore
+from eskapade import process_manager
 
 
 class EventLooper(Link):
@@ -49,7 +53,7 @@ class EventLooper(Link):
                              sort=False,
                              unique=False,
                              skip_line_beginning_with=['#'])
-        
+
         # process keyword arguments
         self.check_extra_kwargs(kwargs)
 
@@ -60,7 +64,6 @@ class EventLooper(Link):
 
         # collect lines for storage
         self._collect = False
-
 
     def initialize(self):
         """ Perform basic checks of configured attributes
@@ -77,7 +80,7 @@ class EventLooper(Link):
         if self.filename is not None:
             assert isinstance(self.filename, str) and len(self.filename), 'input file name not set properly.'
             try:
-                self._f = open(self.filename,"r")
+                self._f = open(self.filename, "r")
             except IOError:
                 Exception('Cannot open file %s. Exit.' % self.filename)
             # successful, so switch linestream to file.
@@ -85,7 +88,6 @@ class EventLooper(Link):
 
         return StatusCode.Success
 
-        
     def execute(self):
         """Process all incoming lines.
 
@@ -96,17 +98,17 @@ class EventLooper(Link):
 
         # default line stream is set to sys.stdin 
         # print or collect (processed) lines
-        for line in self._linestream: 
+        for line in self._linestream:
             line = line.strip()
             # skip empty and comment lines
-            if len(line)==0: continue
+            if len(line) == 0: continue
             if any(line.startswith(c) for c in self.skip_line_beginning_with):
                 continue
             myline = copy.deepcopy(line)
             for func in self.line_processor_set:
                 myline = func(myline)
             if not self._collect:
-                print (myline)
+                print(myline)
             else:
                 lines.append(myline)
 
@@ -120,12 +122,11 @@ class EventLooper(Link):
         if self.unique:
             lines = list(set(lines))
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
         ds[self.storeKey] = lines
-        ds['n_'+self.storeKey] = len(lines)
+        ds['n_' + self.storeKey] = len(lines)
 
         return StatusCode.Success
-
 
     def finalize(self):
         """Close open file if present
@@ -135,5 +136,5 @@ class EventLooper(Link):
                 self._f.close()
             except:
                 return StatusCode.Recoverable
-                
+
         return StatusCode.Success

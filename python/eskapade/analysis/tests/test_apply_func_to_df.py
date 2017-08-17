@@ -1,4 +1,5 @@
 import unittest
+
 import pandas as pd
 
 from eskapade.tests.observers import MockDataStoreObserver, TestCaseObservable
@@ -16,14 +17,15 @@ class ApplyFuncToDfTest(unittest.TestCase, TestCaseObservable):
         super().set_up_observers(observers)
 
     def test_execute(self):
-        from eskapade import ProcessManager, DataStore
+        from eskapade import process_manager
+        from eskapade import DataStore
         from eskapade.analysis import ApplyFuncToDf
 
         # --- setup a dummy data frame
         df = pd.DataFrame({'a': ['aap','noot','mies'], 'b': [0, 1, 2], 'c': [0, 1, 1], 'd': [1, 'a', None]})
 
         # --- setup datastore
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
         ds['test_input'] = df
 
         # --- setup the link

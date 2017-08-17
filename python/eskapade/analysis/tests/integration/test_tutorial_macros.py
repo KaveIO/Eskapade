@@ -1,23 +1,31 @@
 import os
+from pkg_resources import resource_filename
 
 from eskapade.tests.integration.test_bases import TutorialMacrosTest
-from eskapade.core import execution, definitions
-from eskapade import ProcessManager, ConfigObject, DataStore
+from eskapade.core import execution
+from eskapade.core import definitions
+from eskapade import process_manager
+from eskapade import ConfigObject
+from eskapade import DataStore
 
 
 class AnalysisTutorialMacrosTest(TutorialMacrosTest):
     """Integration tests based on analysis tutorial macros"""
 
     def test_esk201(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk201_readdata.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk201_readdata.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertTrue('test1' in ds)
@@ -26,15 +34,19 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(36, ds['n_test2'])
 
     def test_esk202(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk202_writedata.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk202_writedata.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertEqual(36, ds['n_test'])
@@ -45,15 +57,19 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue(statinfo.st_size > 0)
 
     def test_esk203(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk203_apply_func_to_pandas_df.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk203_apply_func_to_pandas_df.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertTrue('transformed_data' in ds)
@@ -62,15 +78,19 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue('yy' in df.columns)
 
     def test_esk204(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk204_apply_query_to_pandas_df.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk204_apply_query_to_pandas_df.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertTrue('outgoing_records' in ds)
@@ -81,30 +101,38 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue('c' in df.columns)
 
     def test_esk205(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk205_concatenate_pandas_dfs.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk205_concatenate_pandas_dfs.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertTrue('outgoing' in ds)
         self.assertEqual(ds['n_outgoing'], 12)
 
     def test_esk206(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk206_merge_pandas_dfs.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk206_merge_pandas_dfs.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertTrue('outgoing' in ds)
@@ -113,15 +141,19 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(len(df.columns), 5)
 
     def test_esk207(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk207_record_vectorizer.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk207_record_vectorizer.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = process_manager.service(ConfigObject)
+
+        ds = process_manager.service(DataStore)
 
         columns = sorted(['x_1', 'x_3', 'x_5', 'x_4', 'y_9', 'y_8', 'y_7', 'y_6', 'y_5', 'y_4'])
 
@@ -132,15 +164,19 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertListEqual(sorted(df.columns.tolist()), columns)
 
     def test_esk208(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk208_record_factorizer.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk208_record_factorizer.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = process_manager.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertTrue('test1' in ds)
@@ -159,15 +195,19 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertListEqual(df1['loc'].values.tolist(), df2['loc'].values.tolist())
 
     def test_esk209(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk209_read_big_data_itr.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk209_read_big_data_itr.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = process_manager.service(ConfigObject)
+
+        ds = process_manager.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertTrue('test2' in ds)

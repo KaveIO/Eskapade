@@ -13,7 +13,10 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import StatusCode, DataStore, Link, ProcessManager
+from eskapade import StatusCode
+from eskapade import DataStore
+from eskapade import Link
+from eskapade import process_manager
 
 
 class SkipChainIfEmpty(Link):
@@ -29,9 +32,10 @@ class SkipChainIfEmpty(Link):
         Skip to the next Chain if any of the input dataset is empty.
 
         :param str name: name of link
-        :param list collectionSet: datastore keys holding the datasets to be checked. If any of these is empty, the chain is skipped.
-        :param bool skip_chain_when_key_not_in_ds: skip the chain as well if the dataframe is not present in the datastore. When True and if type is 'pandas.DataFrame', sents a SkipChain
-            signal if key not in DataStore
+        :param list collectionSet: datastore keys holding the datasets to be checked. If any of these is empty,
+        the chain is skipped.
+        :param bool skip_chain_when_key_not_in_ds: skip the chain as well if the dataframe is not present in the
+        datastore. When True and if type is 'pandas.DataFrame', sents a SkipChain signal if key not in DataStore
         :param bool checkAtInitialize: perform dataset empty is check at initialize. Default is true.
         :param bool checkAtExecute: perform dataset empty is check at initialize. Default is false.
         """
@@ -49,7 +53,7 @@ class SkipChainIfEmpty(Link):
         """ Initialize SkipChainIfEmpty """
 
         if self.checkAtInitialize:
-            return self.checkCollectionSet()
+            return self.check_collection_set()
 
         return StatusCode.Success
 
@@ -57,35 +61,36 @@ class SkipChainIfEmpty(Link):
         """ Execute SkipChainIfEmpty """
 
         if self.checkAtExecute:
-            return self.checkCollectionSet()
+            return self.check_collection_set()
 
         return StatusCode.Success
 
-    def checkCollectionSet(self):
+    def check_collection_set(self):
         """ 
         Check existence of collection in either mongo or datastore, and check that they are not empty.
     
         Collections need to be both present and not empty.
 
-        - For mongo collections a dedicated filter can be applied before doing the count. 
-        - For pandas dataframes the additional option 'skip_chain_when_key_not_in_ds' exists. Meaning, skip the chain as well if the dataframe is not present in the datastore.
+        - For mongo collections a dedicated filter can be applied before doing the count. - For pandas dataframes the
+        additional option 'skip_chain_when_key_not_in_ds' exists. Meaning, skip the chain as well if the dataframe is
+        not present in the datastore.
         """
 
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
 
         # check if collection names are present in datastore
         ds = proc_mgr.service(DataStore)
         for k in self.collectionSet:
             if k not in list(ds.keys()):
                 if self.skip_chain_when_key_not_in_ds:
-                    self.log().warning('Key <%s> not in DataStore. Sending skip chain signal.' % k)
+                    self.log().warning('Key {key!s} not in DataStore. Sending skip chain signal.'.format(key=key))
                     return StatusCode.SkipChain
                 else:
                     raise Exception('Key <%s> not in DataStore.' % k)
             df = ds[k]
             if len(df.index) == 0:
-                self.log().warning('pandas.DataFrame with datastore key <%s> is empty. Sending skip chain signal.'
-                                   % k)
+                self.log().warning('pandas.DataFrame with datastore key {key!s} is empty. Sending skip chain signal.'
+                                   .format(key=key))
                 return StatusCode.SkipChain
 
         return StatusCode.Success

@@ -14,7 +14,10 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, StatusCode, Link, ConfigObject
+from eskapade import StatusCode
+from eskapade import Link
+from eskapade import ConfigObject
+from eskapade import process_manager
 
 
 class RepeatChain(Link):
@@ -56,7 +59,7 @@ class RepeatChain(Link):
     def execute(self):
         """Execute RepeatChain"""
 
-        settings = ProcessManager().service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
 
         # search for listenTo key in ConfigObject. if present and true, send signal to repeat current chain.
         for l in self.listenTo:

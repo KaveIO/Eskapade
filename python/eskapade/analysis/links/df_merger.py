@@ -14,8 +14,13 @@
 # **********************************************************************************
 
 import copy
+
 import pandas as pd
-from eskapade import ProcessManager, Link, StatusCode, DataStore
+
+from eskapade import process_manager
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import DataStore
 
 
 class DfMerger(Link):
@@ -86,7 +91,7 @@ class DfMerger(Link):
     def execute(self):
         """ Perform merging of input dataframes.
         """
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # Perform basic checks on input collections and provided attributes.
 

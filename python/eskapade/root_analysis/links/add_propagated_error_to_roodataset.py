@@ -19,7 +19,7 @@ import uuid
 
 import ROOT
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
 from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
@@ -73,7 +73,7 @@ class AddPropagatedErrorToRooDataSet(Link):
     def execute(self):
         """Execute AddPropagatedErrorToRooDataSet"""
 
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
         settings = proc_mgr.service(ConfigObject)
         ds = proc_mgr.service(DataStore)
         ws = proc_mgr.service(RooFitManager).ws

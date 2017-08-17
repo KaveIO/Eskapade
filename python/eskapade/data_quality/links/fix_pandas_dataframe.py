@@ -20,9 +20,12 @@ import re
 import string
 import copy
 from collections import Counter
-#import fastnumbers
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager
+from eskapade import ConfigObject
+from eskapade import Link
+from eskapade import DataStore
+from eskapade import StatusCode
 from eskapade.data_quality.dq_helper import check_nan, convert, cleanup_string, CONV_FUNCS
 
 
@@ -196,7 +199,7 @@ class FixPandasDataFrame(Link):
         - Make data types in each row consistent (by default ignoring all nans)
         """
 
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
         settings = proc_mgr.service(ConfigObject)
         ds = proc_mgr.service(DataStore)
 
@@ -273,7 +276,7 @@ class FixPandasDataFrame(Link):
         # --- Next: fix datatypes - all rows in a column get consistent datatype, except for nans
 
         # convert all values to real numbers if possible
-        #df_ = df_.apply(fastnumbers.fast_real)
+        # df_ = df_.apply(fastnumbers.fast_real)
 
         # init - assess data types of columns as earlier assessed by pandas
         for col in self.fixed_columns:
@@ -328,12 +331,12 @@ class FixPandasDataFrame(Link):
                     ndt = str
                 mc = dtype_cnt.pop(dtp)
                 dtype_cnt[ndt] += mc
-            prefered_dtype = determine_preferred_dtype(dtype_cnt)
+            preferred_dtype = determine_preferred_dtype(dtype_cnt)
             if col not in self.var_dtype:
-                self.var_dtype[col] = prefered_dtype
+                self.var_dtype[col] = preferred_dtype
             if len(dtype_cnt) > 1:
-                self.log().warning('Found multiple types for column "%s"', col)
-                self.log().debug('Picked type "%s" for column "%s" (counts: %s)', prefered_dtype, col, str(dtype_cnt))
+                self.log().warning('Found multiple types for column "{col!s}"'.format(col=col))
+                self.log().debug('Picked type "%s" for column "%s" (counts: %s)', preferred_dtype, col, str(dtype_cnt))
                 if col not in self.contaminated_columns:
                     self.contaminated_columns.append(col)
 

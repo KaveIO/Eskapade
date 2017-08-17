@@ -13,7 +13,10 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import StatusCode, DataStore, Link, ProcessManager
+from eskapade import StatusCode
+from eskapade import DataStore
+from eskapade import Link
+from eskapade import process_manager
 
 
 class LinePrinter(Link):
@@ -36,7 +39,6 @@ class LinePrinter(Link):
         # check residual kwargs. exit if any present. 
         self.check_extra_kwargs(kwargs)
 
-
     def initialize(self):
         """Initialize LinePrinter"""
 
@@ -50,13 +52,13 @@ class LinePrinter(Link):
         No output is printed except for lines that are passed on, 
         such that the output lines can be picked up again by another parser.
         """
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         ## --- just print the lines!
         lines = ds[self.readKey]
         assert isinstance(lines, list) and len(lines), 'lines is not a (filled) list.'
 
         for line in lines:
-            print (line)
-            
+            print(line)
+
         return StatusCode.Success

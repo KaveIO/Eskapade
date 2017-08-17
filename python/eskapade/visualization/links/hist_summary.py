@@ -20,7 +20,8 @@ import tabulate
 
 from collections import OrderedDict
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager
+from eskapade import ConfigObject, Link, DataStore, StatusCode
 from eskapade import core, visualization
 from eskapade.analysis import statistics
 
@@ -87,7 +88,7 @@ class HistSummary(Link):
                              var_labels=str, var_units=str)
 
         # get I/O configuration
-        io_conf = ProcessManager().service(ConfigObject).io_conf()
+        io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates
         with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
@@ -124,7 +125,7 @@ class HistSummary(Link):
         :rtype: StatusCode
         """
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # fetch and check input data frame
         hist_dict = ds.get(self.read_key, {})

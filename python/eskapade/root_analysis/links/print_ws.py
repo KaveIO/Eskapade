@@ -13,7 +13,9 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager
+from eskapade import Link
+from eskapade import StatusCode
 from eskapade.root_analysis import RooFitManager
 
 
@@ -35,7 +37,7 @@ class PrintWs(Link):
     def execute(self):
         """Execute PrintWs"""
 
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
         ws = proc_mgr.service(RooFitManager).ws
 
         ws.Print('v')

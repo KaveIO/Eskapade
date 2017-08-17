@@ -13,7 +13,11 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, StatusCode, DataStore, Link, ConfigObject
+from eskapade import process_manager
+from eskapade import StatusCode
+from eskapade import DataStore
+from eskapade import Link
+from eskapade import ConfigObject
 
 
 class DsObjectDeleter(Link):
@@ -57,8 +61,8 @@ class DsObjectDeleter(Link):
     def execute(self):
         """Execute DsObjectDeleter"""
 
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         # used in code testing only
         if settings.get('TESTING'):

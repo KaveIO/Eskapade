@@ -18,9 +18,8 @@ import logging
 import numpy as np
 
 import ROOT
-from ROOT import RooFit
 
-from eskapade import StatusCode, DataStore, Link, ProcessManager, ConfigObject
+from eskapade import StatusCode, DataStore, Link, process_manager, ConfigObject
 from eskapade.core import persistence
 from eskapade.root_analysis import RooFitManager
 from eskapade.root_analysis.roofit_utils import ROO_INF, create_roofit_opts
@@ -69,7 +68,7 @@ class TruncExpFit(Link):
         self.check_arg_vals('read_key', 'model_name')
 
         # create process-manager and service instances
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
         settings = proc_mgr.service(ConfigObject)
         rfm = proc_mgr.service(RooFitManager)
 
@@ -97,7 +96,7 @@ class TruncExpFit(Link):
         """Execute TruncExpFit"""
 
         # get process manager and services
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
         ds = proc_mgr.service(DataStore)
         rfm = proc_mgr.service(RooFitManager)
 

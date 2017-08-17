@@ -16,9 +16,14 @@
 import copy
 import os
 import logging
+
 import pandas as pd
 
-from eskapade import Link, StatusCode, DataStore, ConfigObject, ProcessManager
+from eskapade import process_manager
+from eskapade import ConfigObject
+from eskapade import DataStore
+from eskapade import StatusCode
+from eskapade import Link
 from eskapade.core import persistence
 
 pd_writers = {'csv': pd.DataFrame.to_csv,
@@ -98,7 +103,7 @@ class WriteFromDf(Link):
             for k in self.dictionary.keys():
                 p = self.dictionary[k]
                 if not p.__contains__('/'):
-                    io_conf = ProcessManager().service(ConfigObject).io_conf()
+                    io_conf = process_manager.service(ConfigObject).io_conf()
                     self.dictionary[k] = persistence.io_path('results_data', io_conf, p)
                     self.log().debug('Output filename for key <%s> has been reset to: %s' % (k,self.dictionary[k]))
 
@@ -112,7 +117,7 @@ class WriteFromDf(Link):
         Pick up the dataframe and write to disk.
         """
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # check that all dataframes are present
         assert all(k in list(ds.keys()) for k in list(self.dictionary.keys())), 'key(s) not in DataStore.'
@@ -128,7 +133,7 @@ class WriteFromDf(Link):
             if self.add_counter_to_name:
                 ps = os.path.splitext(path)
                 path = ps[0] + '_' + str(self._counter) + ps[1]
-            writer = pandasWriter(path, self.writer)
+            writer = pandas_writer(path, self.writer)
             folder = os.path.dirname(path)
             self.log().debug('Checking for directory: %s', folder)
             if not os.path.exists(folder):
@@ -140,7 +145,7 @@ class WriteFromDf(Link):
         return StatusCode.Success
 
 
-def pandasWriter(path, writer):
+def pandas_writer(path, writer):
     """ 
     Pick the correct pandas writer.
 

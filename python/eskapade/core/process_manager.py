@@ -19,14 +19,16 @@ import importlib
 import os
 import glob
 
-from . import persistence
-from .definitions import StatusCode
-from .process_services import ProcessService, ConfigObject
-from .run_elements import Chain
-from eskapade.mixins import LoggingMixin, TimerMixin
+from eskapade.core import persistence
+from eskapade.core.definitions import StatusCode
+from eskapade.core.process_services import ProcessService
+from eskapade.core.process_services import ConfigObject
+from eskapade.core.run_elements import Chain
+from eskapade.mixins import LoggingMixin
+from eskapade.mixins import TimerMixin
 
 
-class ProcessManager(LoggingMixin, TimerMixin):
+class _ProcessManager(LoggingMixin, TimerMixin):
     """Eskapade run-process manager
 
     The processManager singleton class forms the core of Eskapade.  It
@@ -34,6 +36,8 @@ class ProcessManager(LoggingMixin, TimerMixin):
     chains.  Chains are added to the processManager (PM) thusly:
 
     >>> proc_mgr = ProcessManager()
+    >>> data_chain = Chain('Data')
+    >>> proc_mgr.run()
     >>> proc_mgr.add_chain('Data')
     >>> proc_mgr.add_chain('MyOverview')
 
@@ -78,7 +82,7 @@ class ProcessManager(LoggingMixin, TimerMixin):
 
         # create and store the singleton instance if not created before
         if not cls._instance:
-            cls._instance = super(ProcessManager, cls).__new__(cls)
+            cls._instance = super(_ProcessManager, cls).__new__(cls)
 
         # return the stored singleton instance
         return cls._instance
@@ -677,3 +681,6 @@ class ProcessManager(LoggingMixin, TimerMixin):
         # re-initialize
         self._initialized = False
         self.__init__()
+
+
+process_manager = _ProcessManager()

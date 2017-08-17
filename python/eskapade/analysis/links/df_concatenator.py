@@ -13,10 +13,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
+import copy
+
 import pandas as pd
 
-from eskapade import ProcessManager, Link, StatusCode, DataStore
-import copy
+from eskapade import process_manager
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import DataStore
 
 
 class DfConcatenator(Link):
@@ -64,7 +68,7 @@ class DfConcatenator(Link):
         Perform concatenation of multiple pandas datadrames.
         """
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # check if all input dataframes exist. if so configured, skip missing inputs, else raise e.
         data = []

@@ -14,11 +14,15 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import pandas as pd
-from pandas import DataFrame
 from functools import reduce
 
-from eskapade import ProcessManager, Link, StatusCode, DataStore
+import pandas as pd
+from pandas import DataFrame
+
+from eskapade import process_manager
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import DataStore
 
 
 class RecordVectorizer(Link):
@@ -80,7 +84,7 @@ class RecordVectorizer(Link):
         Resulting dataset stored as new dataset.
         """
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # basic checks on contensts of the data frame
         if self.read_key not in ds:

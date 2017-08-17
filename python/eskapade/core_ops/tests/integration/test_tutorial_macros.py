@@ -3,11 +3,11 @@ import os
 import importlib
 import unittest
 import unittest.mock as mock
-
+from pkg_resources import resource_filename
 from eskapade.tests.integration.test_bases import TutorialMacrosTest
 import eskapade.utils
 from eskapade.core import execution, definitions, persistence
-from eskapade import ProcessManager, ConfigObject, DataStore
+from eskapade import process_manager, ConfigObject, DataStore
 from eskapade.core_ops import Break
 
 
@@ -15,28 +15,34 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
     """Integration tests based on core-ops tutorial macros"""
 
     def test_esk101(self):
-        settings = ProcessManager().service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk101_helloworld.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk101_helloworld.py'
 
         status = execution.run_eskapade(settings)
 
-        settings = ProcessManager().service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
 
         self.assertTrue(status.isSuccess())
         self.assertTrue(settings['do_hello'])
         self.assertEqual(2, settings['n_repeat'])
 
     def test_esk102(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk102_multiple_chains.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk102_multiple_chains.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertTrue(settings['do_chain0'])
@@ -45,16 +51,19 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(3, len(pm.chains))
 
     def test_esk103(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk103_printdatastore.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk103_printdatastore.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
 
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertEqual('world', ds['hello'])
@@ -63,47 +72,57 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(3, ds['d']['c'])
 
     def test_esk104(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk104_basic_datastore_operations.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk104_basic_datastore_operations.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
 
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertEqual(1, len(ds.keys()))
         self.assertEqual(1, ds['a'])
 
     def test_esk105a(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk105_A_dont_store_results.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk105_A_dont_store_results.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
 
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
-        path = settings['resultsDir'] + '/' + settings['analysisName'] 
+        path = settings['resultsDir'] + '/' + settings['analysisName']
         self.assertFalse(os.path.exists(path))
-        
+
     def test_esk105bc(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk105_B_store_each_chain.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk105_B_store_each_chain.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         # results of all three chains have been persisted 
         self.assertTrue(status.isSuccess())
@@ -114,14 +133,15 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
 
         execution.reset_eskapade()
 
-        settings = ProcessManager().service(ConfigObject)
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk105_C_begin_at_chain3.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk105_C_begin_at_chain3.py'
 
         status = execution.run_eskapade(settings)
 
-        ds = ProcessManager().service(DataStore)
-
+        ds = pm.service(DataStore)
 
         # object from all three chains are present
         self.assertTrue(status.isSuccess())
@@ -134,19 +154,22 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(7, ds['h'][1])
 
     def test_esk106(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk106_cmdline_options.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk106_cmdline_options.py'
 
         # fake a setting from the cmd-line. picked up in the macro
         settings['do_chain0'] = False
-        
+
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
 
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertEqual(1, len(pm.chains))
@@ -161,7 +184,7 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
     def test_esk106_script(self, mock_argv):
         """Test Eskapade run with esk106 macro from script"""
 
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
 
         # get file paths
         settings = proc_mgr.service(ConfigObject)
@@ -226,15 +249,19 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         sys.path += orig_mod_path
 
     def test_esk107(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk107_chain_looper.py'
-        
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk107_chain_looper.py'
+
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         # chain is repeated 10 times, with nothing put in datastore
         self.assertTrue(status.isSuccess())
@@ -242,62 +269,77 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(10, pm.chains[0].links[1].maxcount)
 
     def test_esk108map(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk108_map.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk108_map.py'
         settings['TESTING'] = True
-        
+
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
 
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
-        
+
     def test_esk108reduce(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk108_reduce.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk108_reduce.py'
         settings['TESTING'] = True
-        
+
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertEqual(20, ds['n_products'])
-        
+
     def test_esk109(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk109_debugging_tips.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk109_debugging_tips.py'
 
         # this flag turns off ipython embed link
         settings['TESTING'] = True
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         self.assertTrue(isinstance(pm.chains[0].links[2], Break))
         self.assertTrue(status.isFailure())
 
     def test_esk110(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk110_code_profiling.py'
+        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
+        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
+        settings['macro'] = settings['macrosDir'] + 'esk110_code_profiling.py'
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         self.assertTrue(status.isSuccess())
         self.assertEqual(0, len(pm.chains))

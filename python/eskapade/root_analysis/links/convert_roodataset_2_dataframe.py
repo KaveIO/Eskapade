@@ -13,11 +13,9 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import pandas as pd
-
 import ROOT
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
 from eskapade.root_analysis import RooFitManager, data_conversion
 
 
@@ -67,12 +65,12 @@ class ConvertRooDataSet2DataFrame(Link):
     def execute(self):
         """Execute ConvertRooDataSet2DataFrame"""
 
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
         settings = proc_mgr.service(ConfigObject)
         ds = proc_mgr.service(DataStore)
         ws = proc_mgr.service(RooFitManager).ws
 
-        # basic checks on contensts of the data frame
+        # basic checks on contents of the data frame
         if self.from_ws:
             rds = ws.data(self.read_key)
             assert rds is not None, 'Key %s not in workspace' % self.read_key

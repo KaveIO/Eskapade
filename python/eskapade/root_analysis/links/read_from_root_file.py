@@ -18,7 +18,7 @@ import os
 
 import ROOT
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, Link, DataStore, StatusCode
 from eskapade.root_analysis import RooFitManager
 
 
@@ -67,7 +67,7 @@ class ReadFromRootFile(Link):
     def execute(self):
         """Execute ReadFromRootFile"""
 
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
         ds = proc_mgr.service(DataStore)
         if self.into_ws:
             ws = proc_mgr.service(RooFitManager).ws

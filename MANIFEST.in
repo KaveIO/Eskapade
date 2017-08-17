@@ -1,2 +1,8 @@
-graft templates
+graft cxx
+graft scripts
+
+include NOTICE
+include LICENSE
+
+global-include README.rst
 global-exclude *.py[cod] __pycache__ *.so

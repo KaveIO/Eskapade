@@ -1,1 +1,1 @@
-from .links import *
+from eskapade.analysis.links import *

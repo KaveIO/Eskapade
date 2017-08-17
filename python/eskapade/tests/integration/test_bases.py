@@ -3,7 +3,8 @@ import os
 import shutil
 
 from eskapade.core import execution, definitions, persistence
-from eskapade import ProcessManager, ConfigObject
+from eskapade import process_manager
+from eskapade import ConfigObject
 
 
 class IntegrationTest(unittest.TestCase):
@@ -13,7 +14,7 @@ class IntegrationTest(unittest.TestCase):
         """Set up test"""
 
         execution.reset_eskapade()
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
         settings = proc_mgr.service(ConfigObject)
         settings['analysisName'] = self.__class__.__name__
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
@@ -23,7 +24,7 @@ class IntegrationTest(unittest.TestCase):
         """Tear down test"""
 
         # remove persisted results for this test
-        path = persistence.io_dir('ana_results', ProcessManager().service(ConfigObject).io_conf())
+        path = persistence.io_dir('ana_results', process_manager.service(ConfigObject).io_conf())
         if os.path.exists(path):
             shutil.rmtree(path)
 
@@ -36,11 +37,11 @@ class TutorialMacrosTest(IntegrationTest):
 
     maxDiff = None
 
-    def run_eskapade(self, macro, return_status=definitions.StatusCode.Success):
+    def eskapade_run(self, macro, return_status=definitions.StatusCode.Success):
         """Run Eskapade"""
 
-        proc_mgr = ProcessManager()
+        proc_mgr = process_manager
         settings = proc_mgr.service(ConfigObject)
-        settings['macro'] = persistence.io_path('macros', settings.io_conf(), macro)
+        settings['macro'] = macro
         status = execution.run_eskapade(settings)
         self.assertTrue(status == return_status)

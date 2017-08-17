@@ -3,8 +3,8 @@
 # * Macro  : MACROTEMPLATE                                                         *
 # * Created: DATE                                                                  *
 # * Description:                                                                   *
-# *      Macro to (please fill in short description here) 
-# *      
+# *      Macro to (please fill in short description here)                          *
+# *                                                                                *
 # *                                                                                *
 # * Authors:                                                                       *
 # *      Your name(s) here                                                         *
@@ -15,17 +15,17 @@
 # **********************************************************************************
 
 import logging
-log = logging.getLogger('macro.MACROTEMPLATE')
 
-from eskapade import ConfigObject, ProcessManager
+from eskapade import process_manager as proc_mgr
+from eskapade import ConfigObject
 from eskapade import core_ops, analysis
+
+log = logging.getLogger('macro.MACROTEMPLATE')
 
 log.debug('Now parsing configuration file MACROTEMPLATE')
 
 #########################################################################################
 # --- minimal analysis information
-
-proc_mgr = ProcessManager()
 
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'MACROTEMPLATE'
@@ -34,23 +34,19 @@ settings['version'] = 0
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
 
-# settings['do_hello'] = True
+settings['do_hello'] = True
 # ...
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-# if settings['do_hello']:
-#    ch = proc_mgr.add_chain('Hello')
-#    link = core_ops.HelloWorld(name='HelloWorld')
-#    link.set_log_level(logging.DEBUG)
-#    link.repeat = 2
-#    ch.add_link(link)
-
-
-
+if settings['do_hello']:
+    ch = proc_mgr.add_chain('Hello')
+    link = core_ops.HelloWorld(name='HelloWorld')
+    link.set_log_level(logging.DEBUG)
+    link.repeat = 2
+    ch.add_link(link)
 
 #########################################################################################
 
 log.debug('Done parsing configuration file MACROTEMPLATE')
-

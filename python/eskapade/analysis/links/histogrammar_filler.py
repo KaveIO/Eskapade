@@ -18,10 +18,8 @@
 # ********************************************************************************
 
 import numpy as np
-import pandas as pd
 import histogrammar as hg
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 from eskapade.analysis import histogram_filling as hf
 from eskapade.analysis.histogram_filling import HistogramFillerBase
 

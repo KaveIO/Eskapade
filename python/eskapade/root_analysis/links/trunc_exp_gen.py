@@ -20,7 +20,8 @@ import numpy as np
 import ROOT
 from ROOT import RooFit
 
-from eskapade import StatusCode, DataStore, Link, ProcessManager
+from eskapade import process_manager as proc_mgr
+from eskapade import StatusCode, DataStore, Link
 from eskapade.root_analysis import RooFitManager
 from eskapade.root_analysis.roofit_utils import ROO_INF, create_roofit_opts
 from eskapade.root_analysis.roofit_models import TruncExponential
@@ -68,7 +69,7 @@ class TruncExpGen(Link):
         self.check_arg_vals('store_key', 'max_var_data_key', 'model_name', 'event_frac')
 
         # check if model exists
-        rfm = ProcessManager().service(RooFitManager)
+        rfm = proc_mgr.service(RooFitManager)
         model = rfm.model(self.model_name)
         if not model:
             self.log().warning('Model "{}" does not exist; creating with default values'.format(self.model_name))
@@ -87,7 +88,6 @@ class TruncExpGen(Link):
         """Execute TruncExpGen"""
 
         # get process manager and services
-        proc_mgr = ProcessManager()
         ds = proc_mgr.service(DataStore)
         rfm = proc_mgr.service(RooFitManager)
 

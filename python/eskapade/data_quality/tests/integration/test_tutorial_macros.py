@@ -1,8 +1,10 @@
+from pkg_resources import resource_filename
+
 import pandas as pd
 import numpy as np
 
 from eskapade.tests.integration.test_bases import TutorialMacrosTest
-from eskapade import ProcessManager, DataStore
+from eskapade import process_manager, DataStore
 
 
 class DataQualityTutorialMacrosTest(TutorialMacrosTest):
@@ -12,8 +14,9 @@ class DataQualityTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-501: fixing pandas dataframe"""
 
         # run Eskapade
-        self.run_eskapade('esk501_fix_pandas_dataframe.py')
-        ds = ProcessManager().service(DataStore)
+
+        self.eskapade_run(resource_filename('eskapade', 'tutorials/esk501_fix_pandas_dataframe.py'))
+        ds = process_manager.service(DataStore)
 
         self.assertIn('vrh', ds)
         self.assertIn('vrh_fix1', ds)

@@ -19,10 +19,10 @@ import pstats
 import io
 
 import eskapade.utils
-from .process_manager import ProcessManager
+from eskapade.core.process_manager import process_manager
 from .process_services import ConfigObject
 
-proc_mgr = ProcessManager()
+proc_mgr = process_manager
 
 
 def reset_eskapade(skip_config=False):

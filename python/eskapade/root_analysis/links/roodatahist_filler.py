@@ -18,9 +18,15 @@ import numpy as np
 import math
 
 import ROOT
-from ROOT import RooFit
+try:
+    from ROOT import RooFit
+except ImportError:
+    import ROOT.RooFit as RooFit
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager as proc_mgr
+from eskapade import Link
+from eskapade import DataStore
+from eskapade import StatusCode
 from eskapade.root_analysis import data_conversion
 from eskapade.root_analysis import RooFitManager
 
@@ -157,7 +163,6 @@ class RooDataHistFiller(Link):
            optionally, at the storage stage a pdf can be created of the roodatahist as well.
         """
 
-        proc_mgr = ProcessManager()
         ds = proc_mgr.service(DataStore)
 
         # 1a. basic checks on contensts of the data frame
@@ -285,7 +290,6 @@ class RooDataHistFiller(Link):
     def do_storage(self):
         """Storage of the created RooDataHist object"""
 
-        proc_mgr = ProcessManager()
         ds = proc_mgr.service(DataStore)
 
         # 1. create pdf of dataset as well?
