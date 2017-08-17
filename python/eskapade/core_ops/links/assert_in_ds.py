@@ -13,10 +13,10 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import process_manager
-from eskapade import StatusCode
 from eskapade import DataStore
 from eskapade import Link
+from eskapade import StatusCode
+from eskapade import process_manager
 
 
 class AssertInDs(Link):

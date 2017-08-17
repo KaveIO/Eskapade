@@ -20,10 +20,10 @@
 import numpy as np
 import pandas as pd
 
-from eskapade import process_manager
 from eskapade import DataStore
 from eskapade import Link
 from eskapade import StatusCode
+from eskapade import process_manager
 
 # numeric datatypes get converted to an index, which is then used for value counting
 NUMERIC_SUBSTR = [np.dtype('int'), np.dtype('float'), np.dtype('double')]

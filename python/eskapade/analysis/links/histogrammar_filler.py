@@ -17,8 +17,8 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import numpy as np
 import histogrammar as hg
+import numpy as np
 
 from eskapade.analysis import histogram_filling as hf
 from eskapade.analysis.histogram_filling import HistogramFillerBase

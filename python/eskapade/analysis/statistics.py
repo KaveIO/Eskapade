@@ -1,9 +1,11 @@
+import operator
+from collections import Counter
+
 import numpy as np
 import pandas as pd
 import tabulate
-import operator
 from statsmodels.stats.weightstats import DescrStatsW
-from collections import Counter
+
 from eskapade.analysis.histogram import BinningUtil
 from eskapade.mixins import LoggingMixin
 

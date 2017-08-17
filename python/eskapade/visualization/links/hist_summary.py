@@ -14,15 +14,15 @@
 # **********************************************************************************
 
 import os
-import pandas as pd
-import numpy as np
-import tabulate
-
 from collections import OrderedDict
 
-from eskapade import process_manager
+import numpy as np
+import pandas as pd
+import tabulate
+
 from eskapade import ConfigObject, Link, DataStore, StatusCode
 from eskapade import core, visualization
+from eskapade import process_manager
 from eskapade.analysis import statistics
 
 NUMBER_OF_BINS = 30

@@ -36,12 +36,12 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr
-from eskapade import ConfigObject
-from eskapade import core_ops, visualization, root_analysis
-
 import ROOT
 from ROOT import RooFit
+
+from eskapade import ConfigObject
+from eskapade import core_ops, visualization, root_analysis
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk408_classification_error_propagation_after_fit')
 

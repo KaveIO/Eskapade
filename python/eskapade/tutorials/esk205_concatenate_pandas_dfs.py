@@ -17,9 +17,9 @@ import logging
 
 from pandas import DataFrame
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject, DataStore
 from eskapade import core_ops, analysis
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk205_concatenate_pandas_dfs')
 

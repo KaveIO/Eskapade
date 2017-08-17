@@ -13,10 +13,7 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import os
-
 from eskapade.core.definitions import StatusCode
-from eskapade.core import persistence
 from eskapade.mixins import LoggingMixin, ArgumentsMixin, TimerMixin
 
 

@@ -14,9 +14,9 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import StatusCode
-from eskapade import Link
 from eskapade import ConfigObject
+from eskapade import Link
+from eskapade import StatusCode
 from eskapade import process_manager
 
 

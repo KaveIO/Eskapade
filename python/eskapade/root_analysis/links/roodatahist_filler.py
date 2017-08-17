@@ -13,11 +13,12 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import pandas as pd
-import numpy as np
 import math
 
 import ROOT
+import numpy as np
+import pandas as pd
+
 try:
     from ROOT import RooFit
 except ImportError:
@@ -28,7 +29,7 @@ from eskapade import Link
 from eskapade import DataStore
 from eskapade import StatusCode
 from eskapade.root_analysis import data_conversion
-from eskapade.root_analysis import RooFitManager
+from eskapade.root_analysis.roofit_manager import RooFitManager
 
 N_BINS_DEFAULT = 40
 

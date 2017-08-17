@@ -15,16 +15,16 @@
 # *****************************************************************************
 
 import array
-import numpy as np
 
 import ROOT
+import numpy as np
 from ROOT import RooFit
 
-from eskapade import process_manager as proc_mgr
 from eskapade import StatusCode, DataStore, Link
-from eskapade.root_analysis import RooFitManager
-from eskapade.root_analysis.roofit_utils import ROO_INF, create_roofit_opts
+from eskapade import process_manager as proc_mgr
+from eskapade.root_analysis.roofit_manager import RooFitManager
 from eskapade.root_analysis.roofit_models import TruncExponential
+from eskapade.root_analysis.roofit_utils import create_roofit_opts
 
 EVENT_FRACTION = 0.6
 NUM_DUMMY_BOUNDS = 3

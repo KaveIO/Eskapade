@@ -2,12 +2,11 @@ import os
 import unittest
 
 import pandas as pd
-
 from pkg_resources import resource_filename
 
-from eskapade.tests.integration.test_bases import TutorialMacrosTest
-from eskapade.core import execution, definitions, persistence
 from eskapade import process_manager, ConfigObject, DataStore
+from eskapade.core import execution, definitions, persistence
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 
 
 class VisualizationTutorialMacrosTest(TutorialMacrosTest):

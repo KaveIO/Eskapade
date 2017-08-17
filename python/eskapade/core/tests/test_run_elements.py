@@ -1,9 +1,9 @@
 import unittest
 import unittest.mock as mock
 
+from .. import execution
 from ..definitions import StatusCode
 from ..run_elements import Chain, Link
-from .. import execution
 
 
 def _status_side_effect(link):

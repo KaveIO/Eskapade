@@ -25,5 +25,5 @@ except ImportError:
         raise MissingRooStatsError()
 
 from eskapade.root_analysis import decorators, style
-from eskapade.root_analysis.roofit_manager import RooFitManager
 from eskapade.root_analysis.links import *
+from eskapade.root_analysis.roofit_manager import RooFitManager

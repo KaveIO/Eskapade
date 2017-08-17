@@ -15,15 +15,15 @@
 # *****************************************************************************
 
 import logging
-import numpy as np
 
 import ROOT
+import numpy as np
 
 from eskapade import StatusCode, DataStore, Link, process_manager, ConfigObject
 from eskapade.core import persistence
-from eskapade.root_analysis import RooFitManager
-from eskapade.root_analysis.roofit_utils import ROO_INF, create_roofit_opts
+from eskapade.root_analysis.roofit_manager import RooFitManager
 from eskapade.root_analysis.roofit_models import TruncExponential
+from eskapade.root_analysis.roofit_utils import ROO_INF, create_roofit_opts
 
 
 class TruncExpFit(Link):

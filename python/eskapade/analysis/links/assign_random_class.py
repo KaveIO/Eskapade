@@ -16,11 +16,11 @@
 from numpy.random import RandomState
 from pandas import DataFrame
 
-from eskapade import process_manager
 from eskapade import ConfigObject
-from eskapade import StatusCode
 from eskapade import DataStore
 from eskapade import Link
+from eskapade import StatusCode
+from eskapade import process_manager
 
 
 class AssignRandomClass(Link):

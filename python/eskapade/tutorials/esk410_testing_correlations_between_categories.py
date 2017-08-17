@@ -32,9 +32,9 @@ import logging
 
 from pkg_resources import resource_filename
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
 from eskapade import analysis, root_analysis, visualization
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk410_testing_correlations_between_categories')
 

@@ -17,9 +17,9 @@
 import numpy as np
 import pandas as pd
 
+from eskapade import DataStore
 from eskapade import Link
 from eskapade import StatusCode
-from eskapade import DataStore
 from eskapade import process_manager
 
 

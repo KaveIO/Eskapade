@@ -16,8 +16,8 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import fnmatch
 import copy
+import fnmatch
 
 import pandas as pd
 from pandas import DataFrame

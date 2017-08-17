@@ -16,9 +16,9 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
 from eskapade import analysis, visualization
+from eskapade import process_manager as proc_mgr
 from eskapade.core import persistence
 
 log = logging.getLogger('macro.esk305_correlation_summary')

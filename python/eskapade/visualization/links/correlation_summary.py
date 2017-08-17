@@ -14,14 +14,15 @@
 # **********************************************************************************
 
 import os
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 import tabulate
 from sklearn.feature_selection import mutual_info_regression
 
 from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.core import persistence
 from eskapade import visualization
+from eskapade.core import persistence
 
 ALL_CORRS = ['pearson', 'kendall', 'spearman', 'correlation_ratio']
 LINEAR_CORRS = ['pearson', 'kendall', 'spearman']

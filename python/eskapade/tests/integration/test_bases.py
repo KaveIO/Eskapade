@@ -1,10 +1,10 @@
-import unittest
 import os
 import shutil
+import unittest
 
-from eskapade.core import execution, definitions, persistence
-from eskapade import process_manager
 from eskapade import ConfigObject
+from eskapade import process_manager
+from eskapade.core import execution, definitions, persistence
 
 
 class IntegrationTest(unittest.TestCase):

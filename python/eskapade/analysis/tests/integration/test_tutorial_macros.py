@@ -1,12 +1,13 @@
 import os
+
 from pkg_resources import resource_filename
 
-from eskapade.tests.integration.test_bases import TutorialMacrosTest
-from eskapade.core import execution
-from eskapade.core import definitions
-from eskapade import process_manager
 from eskapade import ConfigObject
 from eskapade import DataStore
+from eskapade import process_manager
+from eskapade.core import definitions
+from eskapade.core import execution
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 
 
 class AnalysisTutorialMacrosTest(TutorialMacrosTest):

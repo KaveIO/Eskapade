@@ -18,8 +18,8 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk105_C_begin_at_chain3')
 

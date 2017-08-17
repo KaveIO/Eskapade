@@ -18,7 +18,8 @@ import uuid
 import ROOT
 
 from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.root_analysis import RooFitManager, data_conversion
+from eskapade.root_analysis import data_conversion
+from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertRooDataSet2RooDataHist(Link):

@@ -13,12 +13,12 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import sys
+import logging
 import os
 import subprocess
-import logging
-import matplotlib
+import sys
 
+import matplotlib
 
 ENV_VARS = dict(es_root='ESKAPADE', wd_root='WORKDIRROOT', spark_args='PYSPARK_SUBMIT_ARGS',
                 docker='DE_DOCKER', display='DISPLAY')

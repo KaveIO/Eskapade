@@ -12,11 +12,11 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import sys
-import logging
 import cProfile
-import pstats
 import io
+import logging
+import pstats
+import sys
 
 import eskapade.utils
 from eskapade.core.process_manager import process_manager

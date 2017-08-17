@@ -21,9 +21,9 @@ import logging
 import ROOT
 from ROOT import RooFit
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
-from eskapade import core_ops, visualization, root_analysis
+from eskapade import process_manager as proc_mgr
+from eskapade import root_analysis
 from eskapade.core import persistence
 from eskapade.root_analysis import roofit_utils
 

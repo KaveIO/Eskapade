@@ -15,7 +15,6 @@
 
 import numpy
 
-import ROOT
 from ROOT import TH1
 from ROOT import TH1C, TH1S, TH1I, TH1F, TH1D
 from ROOT import TH2C, TH2S, TH2I, TH2F, TH2D

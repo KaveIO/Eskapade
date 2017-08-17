@@ -13,11 +13,11 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
-from eskapade import Link
 from eskapade import DataStore
+from eskapade import Link
 from eskapade import StatusCode
+from eskapade import process_manager as proc_mgr
 
 
 class LINKTEMPLATE(Link):

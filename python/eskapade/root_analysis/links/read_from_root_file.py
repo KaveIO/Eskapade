@@ -19,7 +19,7 @@ import os
 import ROOT
 
 from eskapade import process_manager, Link, DataStore, StatusCode
-from eskapade.root_analysis import RooFitManager
+from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ReadFromRootFile(Link):

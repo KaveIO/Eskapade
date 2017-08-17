@@ -15,11 +15,11 @@
 
 from IPython import embed
 
-from eskapade import process_manager
 from eskapade import ConfigObject
+from eskapade import DataStore
 from eskapade import Link
 from eskapade import StatusCode
-from eskapade import DataStore
+from eskapade import process_manager
 
 
 class IPythonEmbed(Link):

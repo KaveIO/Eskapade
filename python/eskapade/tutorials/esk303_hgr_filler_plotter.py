@@ -15,12 +15,12 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import os
 import logging
+import os
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, visualization
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk303_hgr_filler_plotter')
 

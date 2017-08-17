@@ -19,13 +19,13 @@ from collections import defaultdict
 from typing import Any
 
 import eskapade.utils
-from eskapade.mixins import LoggingMixin
 from eskapade.core import persistence
-from eskapade.core.definitions import CONFIG_VARS
 from eskapade.core.definitions import CONFIG_DEFAULTS
-from eskapade.core.definitions import USER_OPTS
 from eskapade.core.definitions import CONFIG_OPTS_SETTERS
+from eskapade.core.definitions import CONFIG_VARS
+from eskapade.core.definitions import USER_OPTS
 from eskapade.core.exceptions import UnknownSetting
+from eskapade.mixins import LoggingMixin
 
 
 class ProcessServiceMeta(type):

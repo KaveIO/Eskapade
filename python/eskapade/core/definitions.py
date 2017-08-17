@@ -17,11 +17,12 @@
 # **********************************************************************************
 
 
-import os
-import collections
 import ast
+import collections
 import logging
+import os
 from enum import Enum
+
 from pkg_resources import resource_filename
 
 # dummy logging level to turn off logging.

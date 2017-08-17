@@ -16,17 +16,17 @@
 
 import copy
 import glob
-import os
 import logging
+import os
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
-from eskapade import process_manager
+from eskapade import ConfigObject
+from eskapade import DataStore
 from eskapade import Link
 from eskapade import StatusCode
-from eskapade import DataStore
-from eskapade import ConfigObject
+from eskapade import process_manager
 
 log = logging.getLogger(__name__)
 

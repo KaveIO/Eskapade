@@ -13,9 +13,9 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import StatusCode
 from eskapade import DataStore
 from eskapade import Link
+from eskapade import StatusCode
 from eskapade import process_manager
 
 

@@ -13,10 +13,10 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import process_manager
 from eskapade import Link
 from eskapade import StatusCode
-from eskapade.root_analysis import RooFitManager
+from eskapade import process_manager
+from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class PrintWs(Link):

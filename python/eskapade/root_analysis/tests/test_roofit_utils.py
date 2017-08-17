@@ -2,6 +2,7 @@ import unittest
 import unittest.mock as mock
 
 import ROOT
+
 from ..roofit_utils import load_libesroofit
 
 

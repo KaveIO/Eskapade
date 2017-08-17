@@ -16,11 +16,11 @@
 import pandas as pd
 from numpy.random import RandomState
 
-from eskapade import process_manager
 from eskapade import ConfigObject
-from eskapade import StatusCode
-from eskapade import Link
 from eskapade import DataStore
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import process_manager
 
 
 class RandomSampleSplitter(Link):

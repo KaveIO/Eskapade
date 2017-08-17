@@ -14,18 +14,19 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import pandas as pd
-import numpy as np
+import copy
 import re
 import string
-import copy
 from collections import Counter
 
-from eskapade import process_manager
+import numpy as np
+import pandas as pd
+
 from eskapade import ConfigObject
-from eskapade import Link
 from eskapade import DataStore
+from eskapade import Link
 from eskapade import StatusCode
+from eskapade import process_manager
 from eskapade.data_quality.dq_helper import check_nan, convert, cleanup_string, CONV_FUNCS
 
 

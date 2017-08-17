@@ -1,10 +1,9 @@
+import numpy as np
+import pandas as pd
 from pkg_resources import resource_filename
 
-import pandas as pd
-import numpy as np
-
-from eskapade.tests.integration.test_bases import TutorialMacrosTest
 from eskapade import process_manager, DataStore
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 
 
 class DataQualityTutorialMacrosTest(TutorialMacrosTest):

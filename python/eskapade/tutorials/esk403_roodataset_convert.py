@@ -23,9 +23,9 @@ import logging
 
 from pkg_resources import resource_filename
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, root_analysis
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk403_roodataset_convert')
 

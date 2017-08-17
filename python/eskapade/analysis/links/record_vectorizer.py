@@ -19,10 +19,10 @@ from functools import reduce
 import pandas as pd
 from pandas import DataFrame
 
-from eskapade import process_manager
+from eskapade import DataStore
 from eskapade import Link
 from eskapade import StatusCode
-from eskapade import DataStore
+from eskapade import process_manager
 
 
 class RecordVectorizer(Link):

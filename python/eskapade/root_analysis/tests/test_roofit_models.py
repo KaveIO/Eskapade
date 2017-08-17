@@ -1,7 +1,7 @@
-import unittest
-import unittest.mock as mock
 import functools
 import itertools
+import unittest
+import unittest.mock as mock
 
 import ROOT
 

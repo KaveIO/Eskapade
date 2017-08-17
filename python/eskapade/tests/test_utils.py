@@ -1,6 +1,6 @@
+import sys
 import unittest
 import unittest.mock as mock
-import sys
 
 from ..utils import set_matplotlib_backend, build_cxx_library
 

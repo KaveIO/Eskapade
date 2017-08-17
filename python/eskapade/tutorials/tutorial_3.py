@@ -22,13 +22,13 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import sys
 import logging
+import sys
 
 import ROOT
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
+from eskapade import process_manager as proc_mgr
 from eskapade import root_analysis
 
 log = logging.getLogger('macro.tutorial_3')

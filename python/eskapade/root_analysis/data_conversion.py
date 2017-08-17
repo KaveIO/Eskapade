@@ -13,12 +13,12 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import numpy as np
-import pandas as pd
-import uuid
 import collections
+import uuid
 
 import ROOT
+import numpy as np
+import pandas as pd
 from root_numpy import array2tree, tree2array
 
 from eskapade.analysis.histogram import Histogram

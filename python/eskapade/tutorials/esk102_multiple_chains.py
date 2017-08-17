@@ -15,9 +15,9 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
 from eskapade import core_ops
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk102_multiple_chains')
 

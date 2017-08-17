@@ -13,14 +13,15 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import pandas as pd
-import numpy as np
 import fnmatch
 
 import ROOT
+import numpy as np
+import pandas as pd
 
 from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.root_analysis import RooFitManager, data_conversion
+from eskapade.root_analysis import data_conversion
+from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertDataFrame2RooDataSet(Link):

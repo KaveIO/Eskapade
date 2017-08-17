@@ -15,14 +15,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
+import glob
 import importlib
 import os
-import glob
 
 from eskapade.core import persistence
 from eskapade.core.definitions import StatusCode
-from eskapade.core.process_services import ProcessService
 from eskapade.core.process_services import ConfigObject
+from eskapade.core.process_services import ProcessService
 from eskapade.core.run_elements import Chain
 from eskapade.mixins import LoggingMixin
 from eskapade.mixins import TimerMixin

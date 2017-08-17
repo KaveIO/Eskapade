@@ -17,16 +17,10 @@
 
 import logging
 
-import pandas as pd
-
-from pyspark.sql.functions import udf
-from pyspark.sql.types import FloatType, TimestampType
-
-from eskapade import process_manager as proc_mgr
-from eskapade import ConfigObject
 from analytics_engine.spark_analysis import SparkManager
-from eskapade import visualization
-from analytics_engine import spark_analysis
+
+from eskapade import ConfigObject
+from eskapade import process_manager as proc_mgr
 from eskapade.core import persistence
 
 log = logging.getLogger('macro.Tutorial_4')

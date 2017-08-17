@@ -30,14 +30,13 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import os
 import logging
 
 from pkg_resources import resource_filename
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, visualization, root_analysis
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk406_simulation_based_on_unbinned_data')
 

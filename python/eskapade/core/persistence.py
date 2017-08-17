@@ -14,12 +14,10 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import os
-import re
 import glob
 import logging
-from pkg_resources import resource_string, resource_filename
-
+import os
+import re
 from collections import defaultdict
 
 # IO locations

@@ -33,14 +33,13 @@
 
 import logging
 
-import numpy as np
 import ROOT
+import numpy as np
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
+from eskapade import process_manager as proc_mgr
 from eskapade.root_analysis import RooFitManager, TruncExpGen, TruncExpFit
 from eskapade.root_analysis.roofit_models import TruncExponential
-
 
 MODEL_NAME = 'voucher_redeem'
 REDEEM_DATA_KEY = 'voucher_redeems'

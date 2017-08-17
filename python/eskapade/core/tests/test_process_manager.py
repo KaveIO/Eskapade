@@ -1,10 +1,10 @@
 import unittest
 import unittest.mock as mock
 
-from eskapade.core.run_elements import Chain
+from eskapade.core.process_manager import process_manager
 from eskapade.core.process_services import ConfigObject
 from eskapade.core.process_services import ProcessService
-from eskapade.core.process_manager import process_manager
+from eskapade.core.run_elements import Chain
 
 
 def _status_side_effect(chain):

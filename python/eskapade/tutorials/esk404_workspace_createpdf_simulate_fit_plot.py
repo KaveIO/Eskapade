@@ -26,9 +26,9 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
 from eskapade import core_ops, visualization, root_analysis
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk404_workspace_createpdf_simulate_fit_plot')
 

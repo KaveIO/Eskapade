@@ -18,12 +18,12 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import os
 import logging
+import os
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
 from eskapade import analysis, visualization
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk306_concatenate_reports')
 

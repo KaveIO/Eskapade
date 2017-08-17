@@ -14,10 +14,9 @@
 # ********************************************************************************
 
 
+import ROOT
 import numpy as np
 import pandas as pd
-
-import ROOT
 from ROOT import RooFit
 
 from eskapade.root_analysis import roofit_utils

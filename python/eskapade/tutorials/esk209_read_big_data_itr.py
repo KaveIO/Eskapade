@@ -16,9 +16,9 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis
+from eskapade import process_manager as proc_mgr
 from eskapade.core import persistence
 
 log = logging.getLogger('macro.esk209_read_big_data_itr')

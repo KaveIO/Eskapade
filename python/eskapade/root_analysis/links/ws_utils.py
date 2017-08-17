@@ -14,13 +14,13 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import os
-import uuid
 import copy
-import tabulate
+import os
 import re
+import uuid
 
 import ROOT
+import tabulate
 
 try:
     from ROOT import RooFit
@@ -34,7 +34,8 @@ from eskapade import DataStore
 from eskapade import Link
 from eskapade import StatusCode
 
-from eskapade.root_analysis import RooFitManager, roofit_utils
+from eskapade.root_analysis.roofit_manager import RooFitManager
+from eskapade.root_analysis import roofit_utils
 from eskapade.core import persistence
 
 

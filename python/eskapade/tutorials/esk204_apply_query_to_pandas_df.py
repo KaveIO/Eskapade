@@ -18,9 +18,9 @@ import logging
 from numpy.random import randn
 from pandas import DataFrame
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject, DataStore
 from eskapade import core_ops, analysis
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk204_apply_query_to_pandas_df')
 

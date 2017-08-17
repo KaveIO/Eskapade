@@ -23,11 +23,11 @@ from collections import Counter
 
 import numpy as np
 
-from eskapade import process_manager
 from eskapade import DataStore
+from eskapade import process_manager
 from eskapade.analysis import histogram_filling as hf
-from eskapade.analysis.histogram_filling import HistogramFillerBase
 from eskapade.analysis.histogram import Histogram, ValueCounts
+from eskapade.analysis.histogram_filling import HistogramFillerBase
 
 
 class ValueCounter(HistogramFillerBase):

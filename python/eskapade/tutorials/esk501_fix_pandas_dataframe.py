@@ -25,9 +25,9 @@
 import logging
 import tempfile
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, data_quality
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk501_fix_pandas_dataframe')
 

@@ -15,8 +15,8 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
+from eskapade import process_manager as proc_mgr
 
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.

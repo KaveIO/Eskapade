@@ -1,14 +1,14 @@
 import os
 import unittest
+
+import ROOT
+import pandas as pd
 from pkg_resources import resource_filename
 
-import pandas as pd
-import ROOT
-
-from eskapade.tests.integration.test_bases import TutorialMacrosTest
-from eskapade.core import persistence
 from eskapade import process_manager, ConfigObject, DataStore
-from eskapade.root_analysis import RooFitManager
+from eskapade.core import persistence
+from eskapade.root_analysis.roofit_manager import RooFitManager
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 
 
 class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):

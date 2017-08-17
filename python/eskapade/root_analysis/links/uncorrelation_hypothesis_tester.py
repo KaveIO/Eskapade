@@ -13,24 +13,23 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import os
-import pandas as pd
-import numpy as np
-import fnmatch
 import copy
-import tabulate
+import fnmatch
+import os
 from collections import OrderedDict
 
+import ROOT
+import numpy as np
+import pandas as pd
+import root_numpy
+import tabulate
 from numba import jit
 
-import ROOT
-import root_numpy
-
 from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.root_analysis import RooFitManager, data_conversion, roofit_utils
-from eskapade.visualization import vis_utils
-
 from eskapade.core import persistence
+from eskapade.root_analysis import data_conversion, roofit_utils
+from eskapade.root_analysis.roofit_manager import RooFitManager
+from eskapade.visualization import vis_utils
 
 
 class UncorrelationHypothesisTester(Link):

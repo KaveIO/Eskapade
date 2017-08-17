@@ -16,7 +16,7 @@
 import ROOT
 
 from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.root_analysis import RooFitManager, data_conversion
+from eskapade.root_analysis import data_conversion
 
 
 class ConvertRootHist2RooDataSet(Link):

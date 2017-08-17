@@ -15,9 +15,9 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr
 from eskapade import ConfigObject
 from eskapade import analysis, visualization
+from eskapade import process_manager as proc_mgr
 
 log = logging.getLogger('macro.esk304_df_boxplot')
 

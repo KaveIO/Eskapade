@@ -1,14 +1,16 @@
-import sys
-import os
 import importlib
+import os
+import sys
 import unittest
 import unittest.mock as mock
+
 from pkg_resources import resource_filename
-from eskapade.tests.integration.test_bases import TutorialMacrosTest
+
 import eskapade.utils
-from eskapade.core import execution, definitions, persistence
 from eskapade import process_manager, ConfigObject, DataStore
+from eskapade.core import execution, definitions, persistence
 from eskapade.core_ops import Break
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 
 
 class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
