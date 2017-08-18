@@ -21,11 +21,11 @@ import logging
 from collections import defaultdict
 
 # IO locations
-IO_LOCS = dict(results='results_dir', data='data_dir', macros='macros_dir', input_data='data_dir',
-               records='data_dir', ana_results='results_dir', ana_plots='results_dir', proc_service_data='results_dir',
-               results_data='results_dir', results_ml_data='results_dir', results_config='results_dir',
-               tmva='results_dir', plots='results_dir', templates='templates_dir')
-IO_SUB_DIRS = defaultdict(lambda: '', ana_results='{ana_name:s}', ana_plots='{ana_name:s}/plots',
+IO_LOCS = dict(config='config_dir', results='results_dir', data='data_dir', macros='macros_dir', input_data='data_dir',
+               config_spark='config_dir', records='data_dir', ana_results='results_dir', ana_plots='results_dir',
+               proc_service_data='results_dir', results_data='results_dir', results_ml_data='results_dir',
+               results_config='results_dir', tmva='results_dir', plots='results_dir', templates='templates_dir')
+IO_SUB_DIRS = defaultdict(lambda: '', config_spark='spark', ana_results='{ana_name:s}', ana_plots='{ana_name:s}/plots',
                           proc_service_data='{ana_name:s}/proc_service_data/v{ana_version:s}',
                           results_data='{ana_name:s}/data/v{ana_version:s}',
                           results_ml_data='{ana_name:s}/data/v{ana_version:s}',
