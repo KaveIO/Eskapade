@@ -53,3 +53,5 @@ Eskapade.egg-info
 !vagrant/README.rst
 
 results/
+*cmake-build-debug
+

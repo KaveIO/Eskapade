@@ -19,6 +19,8 @@ from setuptools import setup
 from setuptools import find_packages
 from setuptools.command.test import test as TestCommand
 
+from setup_cxx import CMakeExtension, CMakeBuild
+
 NAME = 'Eskapade'
 
 MAJOR = 0
@@ -134,6 +136,9 @@ class PyTest(TestCommand):
 
 CMD_CLASS['test'] = PyTest
 
+EXTERNAL_MODULES = [CMakeExtension('eskapade.lib.esroofit', 'cxx/esroofit')]
+CMD_CLASS['build_ext'] = CMakeBuild
+
 
 def setup_package() -> None:
     """
@@ -178,7 +183,7 @@ def setup_package() -> None:
               NAME.lower(): ['templates/*', 'data/*', 'tutorials/*.sh']
           },
           # We can use data_files to install other stuff to other locations.
-          # data_files=[('./lib/', ['cxx/roofit/roofit.mk'])],
+          # data_files=[('./lib/', ['build/'])],
           include_package_data=True,
           install_requires=[
               'numba==0.34.0',
@@ -199,6 +204,7 @@ def setup_package() -> None:
               'pytest-pylint==0.7.1',
           ],
           tests_require=['pytest==3.2.1'],
+          ext_modules=EXTERNAL_MODULES,
           cmdclass=CMD_CLASS,
           command_options=COMMAND_OPTIONS,
           # The following 'creates' executable scripts for *nix and Windows.

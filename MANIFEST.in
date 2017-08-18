@@ -1,6 +1,7 @@
 graft cxx
 graft scripts
 
+include setup_cxx.py
 include NOTICE
 include LICENSE
 
