@@ -133,7 +133,7 @@ class ConvertRootHist2RooDataHist(Link):
         # 1. put object into the workspace
         if self.into_ws:
             try:
-                ws[self.store_key] = rdh
+                ws.put(rdh, ROOT.RooFit.Rename(self.store_key))
                 if self.create_hist_pdf:
                     ws.put(hist_pdf, RooFit.RecycleConflictNodes())
             except:
