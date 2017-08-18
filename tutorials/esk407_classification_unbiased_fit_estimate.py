@@ -68,7 +68,7 @@ wsu.add_plot(obs='score', pdf='model',
              output_file='data_with_generator_model.pdf', key='simplot')
 ch.add_link(wsu)
 
-# 2. turn data into roofit histograms
+# 2a. turn data into roofit histograms
 wsu = root_analysis.WsUtils(name = 'HistMaker')
 def make_histograms(w):
     import ROOT
@@ -79,6 +79,33 @@ def make_histograms(w):
     ws_put(w, high_risk_hist)
     ws_put(w, low_risk_hist)
 wsu.apply = [make_histograms]
+ch.add_link(wsu)
+
+# 2b. classification algorithms often return rather spiky scoring or probability distributions
+#     meaning: non-continuous distributions.
+#     Sometimes the validation samples has records that give a score that does not fit in one of the
+#     peaks of the testing data.
+#     Here we fix the testing histograms to make sure that all bins have a non-zero value (default 0.01 per bin)
+#     this makes sure that we can use these histograms as fit templates to fit validation records that fall
+#     inside those bins.
+wsu = root_analysis.WsUtils(name='TemplateFixer')
+def nonzero_templates(w):
+    import ROOT
+    from eskapade.root_analysis.decorators.roofit import ws_put
+    # fix non-zero bins
+    def nonzero_hist(rdh, minimum_value = 0.01):
+        if rdh.numEntries() == 0: return
+        varset = rdh.get(0)
+        for i in range(rdh.numEntries()):
+            rdh.get(i)
+            weight = rdh.weight()
+            if weight > 0: continue
+            rdh.set(minimum_value, 0)
+    high_risk_hist = w.data('high_risk_hist')
+    low_risk_hist = w.data('low_risk_hist')
+    nonzero_hist(high_risk_hist)
+    nonzero_hist(low_risk_hist)
+wsu.apply = [nonzero_templates]
 ch.add_link(wsu)
 
 # 3. create pdfs out of roofit histograms

@@ -380,7 +380,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         settings['onthefly'] = True
         
         # run Eskapade
-        self.run_eskapade('tutorial_3.py')
+        self.run_eskapade('tutorial_4.py')
 
         # check existence of class MyPdfV3
         import ROOT

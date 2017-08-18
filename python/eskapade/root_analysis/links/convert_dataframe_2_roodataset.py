@@ -187,12 +187,6 @@ class ConvertDataFrame2RooDataSet(Link):
                                                                         name=self.read_key,
                                                                         store_index=self.store_index)
 
-        # create pdf of dataset as well?
-        if self.create_keys_pdf:
-            obs_list = ROOT.RooArgList(obs_vars)
-            keys_name = self.create_keys_pdf
-            keys_pdf = ROOT.RooNDKeysPdf(keys_name, keys_name, obs_list, rds, 'ma')
-
         # 3a. remove original df?
         if self.rm_original:
             del ds[self.read_key]
@@ -200,7 +194,7 @@ class ConvertDataFrame2RooDataSet(Link):
         # 3b. put objects from the datastore into the workspace
         if self.into_ws:
             try:
-                ws[self.store_key] = rds
+                ws.put(rds, ROOT.RooFit.Rename(self.store_key))
                 ws.defineSet(self.store_key_vars, obs_vars)
             except:
                 raise RuntimeError('could not import object "%s" into rooworkspace' % self.read_key)
@@ -209,8 +203,14 @@ class ConvertDataFrame2RooDataSet(Link):
             ds[self.store_key_vars] = obs_vars
             ds[self.store_key] = rds
 
-        # 3d. workspace doesn't like keys pdf, so always keep in ds
+        # create pdf of dataset as well?
         if self.create_keys_pdf:
+            if self.into_ws:
+                # retrieve for consistency
+                obs_vars = ws.set(self.store_key_vars)
+            obs_list = ROOT.RooArgList(obs_vars)
+            keys_name = self.create_keys_pdf
+            keys_pdf = ROOT.RooNDKeysPdf(keys_name, keys_name, obs_list, rds, 'ma')
             ds[keys_name] = keys_pdf
 
         # 3e.

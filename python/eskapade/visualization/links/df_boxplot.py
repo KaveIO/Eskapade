@@ -106,7 +106,8 @@ class DfBoxplot(Link):
         """
 
         # fetch and check input data frame
-        data = ProcessManager().service(DataStore).get(self.read_key, None)
+        ds = ProcessManager().service(DataStore)
+        data = ds.get(self.read_key, None)
         if not isinstance(data, pd.DataFrame):
             self.log().critical('No Pandas data frame "%s" found in data store for %s', self.read_key, str(self))
             raise RuntimeError('no input data found for %s' % str(self))

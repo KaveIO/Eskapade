@@ -55,6 +55,14 @@ def data_set_iter(self):
         yield self.get(it)
 
 
+def ws_setitem(ws, key, value):
+    """Put object in RooWorkspace dict-style"""
+
+    if not isinstance(value, ROOT.TObject):
+        raise AssertionError('Cannot import object with type "%s" into workspace.' % type(value))
+    getattr(ws, 'import')(value, key)
+
+
 # set decorators
 ROOT.RooAbsReal.__float__ = lambda self: self.getVal()
 
@@ -67,7 +75,7 @@ ROOT.RooArgList.__getitem__ = lambda l, i: l.at(i) if isinstance(i, int) else RO
 
 ROOT.RooWorkspace.__contains__ = ws_contains
 ROOT.RooWorkspace.__getitem__ = lambda ws, k: ws.obj(k)
-ROOT.RooWorkspace.__setitem__ = lambda ws, k, v: getattr(ws, 'import')(v, RooFit.RenameVariable(v.GetName(), k))
+ROOT.RooWorkspace.__setitem__ = ws_setitem
 ROOT.RooWorkspace.put = ws_put
 
 ROOT.RooDataSet.__iter__ = data_set_iter
