@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from glob import glob
 
 import ROOT
 
@@ -410,3 +411,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         # roofit objects check in workspace
         self.assertIn('testpdf', ws)
 
+        # cleanup of temporary pdf files
+        rm_files = glob('MyPdfV3.*') + glob('MyPdfV3_cxx*')
+        for rm_file in rm_files:
+            os.remove(rm_file)
