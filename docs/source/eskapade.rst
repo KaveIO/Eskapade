@@ -11,6 +11,7 @@ Subpackages
     eskapade.core_ops
     eskapade.data_quality
     eskapade.root_analysis
+    eskapade.spark_analysis
     eskapade.tests
     eskapade.visualization
 

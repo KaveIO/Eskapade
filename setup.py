@@ -17,6 +17,8 @@ setup(
                 'eskapade.root_analysis',
                 'eskapade.root_analysis.decorators',
                 'eskapade.root_analysis.links',
+                'eskapade.spark_analysis',
+                'eskapade.spark_analysis.links',
                 'eskapade.visualization',
                 'eskapade.visualization.links',
                ],
@@ -27,6 +29,7 @@ setup(
                    'core_ops': 'python/eskapade/core_ops',
                    'data_quality': 'python/eskapade/data_quality',
                    'root_analysis': 'python/eskapade/root_analysis',
+                   'spark_analysis': 'python/eskapade/spark_analysis',
                    'visualization': 'python/eskapade/visualization',
                    }
 )

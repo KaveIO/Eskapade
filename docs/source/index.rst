@@ -112,6 +112,14 @@ Contents
    command_line_arguments
    contributing
 
+API
+---
+
+.. toctree::
+   :maxdepth: 1
+
+   code
+
 Appendices
 ----------
 
@@ -120,14 +128,6 @@ Appendices
 
    mac_os
    spark
-
-API
----
-
-.. toctree::
-   :maxdepth: 1
-
-   code
 
 
 Indices and tables
