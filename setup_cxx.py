@@ -34,9 +34,6 @@ class CMakeBuild(build_ext):
 
         ext_dir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
 
-        print(ext_dir)
-        print(self.get_ext_fullpath(ext.name))
-
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + ext_dir]
         cmake_args += ['-DCMAKE_BUILD_TYPE=' + build_type]
 
@@ -53,4 +50,3 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', ext.source_dir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
-        print()
