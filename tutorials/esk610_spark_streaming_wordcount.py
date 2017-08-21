@@ -46,8 +46,8 @@ import pyspark
 
 from pyspark.streaming import StreamingContext
 from eskapade import ConfigObject, ProcessManager, DataStore
-from analytics_engine.spark_analysis import SparkManager
-from analytics_engine import spark_analysis
+from eskapade.spark_analysis import SparkManager
+from eskapade import spark_analysis
 
 log = logging.getLogger('macro.esk610_spark_streaming')
 log.debug('Now parsing configuration file esk610_spark_streaming')

@@ -17,8 +17,8 @@ log = logging.getLogger('macro.esk608_spark_histogrammar')
 
 from eskapade import ConfigObject, ProcessManager, visualization
 from eskapade.core import persistence
-from analytics_engine import spark_analysis
-from analytics_engine.spark_analysis import SparkManager
+from eskapade import spark_analysis
+from eskapade.spark_analysis import SparkManager
 
 log.debug('Now parsing configuration file esk608_spark_histogrammar')
 

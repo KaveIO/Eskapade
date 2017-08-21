@@ -16,8 +16,8 @@ log = logging.getLogger('macro.esk604_spark_execute_query')
 
 from eskapade import ConfigObject, ProcessManager
 from eskapade.core import persistence
-from analytics_engine.spark_analysis import SparkManager
-from analytics_engine import spark_analysis
+from eskapade.spark_analysis import SparkManager
+from eskapade import spark_analysis
 
 log.debug('Now parsing configuration file esk604_spark_execute_query')
 

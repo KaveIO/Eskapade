@@ -21,8 +21,8 @@ from pyspark.sql import functions
 
 from eskapade import ConfigObject, ProcessManager
 from eskapade.core import persistence
-from analytics_engine.spark_analysis import SparkManager
-from analytics_engine import spark_analysis
+from eskapade.spark_analysis import SparkManager
+from eskapade import spark_analysis
 
 log.debug('Now parsing configuration file esk607_spark_with_column')
 

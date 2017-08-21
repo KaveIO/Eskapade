@@ -18,8 +18,8 @@ import logging
 log = logging.getLogger('macro.esk605_create_spark_df')
 
 from eskapade import ConfigObject, DataStore, ProcessManager
-from analytics_engine.spark_analysis import SparkManager
-from analytics_engine import spark_analysis
+from eskapade.spark_analysis import SparkManager
+from eskapade import spark_analysis
 
 log.debug('Now parsing configuration file esk605_create_spark_df')
 

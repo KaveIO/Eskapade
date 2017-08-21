@@ -15,8 +15,8 @@ log = logging.getLogger('macro.esk602_read_csv_to_spark_df')
 
 from eskapade import ConfigObject, ProcessManager
 from eskapade.core import persistence
-from analytics_engine.spark_analysis import SparkManager
-from analytics_engine import spark_analysis
+from eskapade.spark_analysis import SparkManager
+from eskapade import spark_analysis
 
 log.debug('Now parsing configuration file esk602_read_csv_to_spark_df')
 
