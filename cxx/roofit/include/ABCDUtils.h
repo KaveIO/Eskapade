@@ -104,9 +104,9 @@ namespace Eskapade {
     // should be allowed to vary within the MC uncertainties.
     // This function makes a product of RooPoisson pdfs, where each Poisson constrains a bin of the input (MC)
     // dataset of the RooParamHistPdf pdf.
-    RooAbsPdf* MakePoissonConstraint(const char* name, RooArgList& storeList, const RooParamHistPdf& pdf);
+    RooAbsPdf* MakePoissonConstraint(const char* name, RooArgList& storeVarList, RooArgList& storePdfList, const RooParamHistPdf& pdf);
     // Same as above, but binList and nominal data are already taken from the RooParamHistPdf.
-    RooAbsPdf* MakePoissonConstraint(const char* name, RooArgList& storeList, const RooArgList& binList,
+    RooAbsPdf* MakePoissonConstraint(const char* name, RooArgList& storeVarList, RooArgList& storePdfList, const RooArgList& binList,
                                      const RooDataHist& nomData);
   }
 }
