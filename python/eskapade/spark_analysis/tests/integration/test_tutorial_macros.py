@@ -51,13 +51,15 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         # run Eskapade
         self.run_eskapade('esk601_spark_configuration.py')
 
+        sc = proc_mgr.service(SparkManager).get_session().sparkContext
+
         ## check configuration
-        #self.assertEqual(sc.getConf().get('spark.app.name'), 'esk601_spark_configuration_link',
-        #                 'SparkConf.setAll() not picked up correctly')
-        #self.assertEqual(sc.getConf().get('spark.master'), 'local[42]',
-        #                 'SparkConf.setAll() not picked up correctly')
-        #self.assertEqual(sc.getConf().get('spark.driver.host'), '127.0.0.1',
-        #                 'SparkConf.setAll() not picked up correctly')
+        self.assertEqual(sc.getConf().get('spark.app.name'), 'esk601_spark_configuration_link',
+                         'SparkConf.setAll() not picked up correctly')
+        self.assertEqual(sc.getConf().get('spark.master'), 'local[42]',
+                         'SparkConf.setAll() not picked up correctly')
+        self.assertEqual(sc.getConf().get('spark.driver.host'), '127.0.0.1',
+                         'SparkConf.setAll() not picked up correctly')
 
         # stop spark manager
         proc_mgr.service(SparkManager).finish()
