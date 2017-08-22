@@ -19,7 +19,7 @@ import shutil
 
 import pyspark
 
-from eskapade import Link, StatusCode, ProcessManager, DataStore, ConfigObject
+from eskapade import Link, StatusCode, process_manager, DataStore, ConfigObject
 from eskapade.core import persistence
 
 
@@ -67,7 +67,7 @@ class SparkDataToCsv(Link):
 
         # set default output path
         if not self.output_path:
-            settings = ProcessManager().service(ConfigObject)
+            settings = process_manager.service(ConfigObject)
             self.output_path = persistence.io_path('results_data', settings.io_conf(), '{}_output'.format(self.name))
 
         # parse header argument
@@ -111,7 +111,7 @@ class SparkDataToCsv(Link):
             return StatusCode.Success
 
         # fetch data from data store
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
         if self.read_key not in ds:
             raise KeyError('no data with key "{}" in data store'.format(self.read_key))
         data = ds[self.read_key]

@@ -11,7 +11,7 @@ import sys
 from pyspark.sql.types import StructField, LongType, DoubleType, StringType
 
 from eskapade import utils
-from eskapade import ProcessManager, ConfigObject, DataStore
+from eskapade import process_manager, ConfigObject, DataStore
 from eskapade.core import persistence
 from eskapade.tests.integration.test_bases import TutorialMacrosTest
 
@@ -25,8 +25,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Set up test"""
 
         TutorialMacrosTest.setUp(self)
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
         settings['macrosDir'] = '{0:s}/{1:s}'.format(utils.get_env_var('es_root'), 'tutorials')
         settings['analysisName'] = 'SparkAnalysisTutorialMacrosTest'
 
@@ -34,24 +33,23 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         spark_settings = [('spark.app.name', settings['analysisName']),
                           ('spark.master', 'local[*]'),
                           ('spark.driver.host', 'localhost')]
-        proc_mgr.service(SparkManager).create_session(eskapade_settings=settings, spark_settings=spark_settings)
+        process_manager.service(SparkManager).create_session(eskapade_settings=settings, spark_settings=spark_settings)
 
     def tearDown(self):
         """Tear down test environment"""
 
-        ProcessManager().service(SparkManager).finish()
+        process_manager.service(SparkManager).finish()
 
     def test_esk601(self):
         """Test Esk-601: Configure Spark"""
 
         # ensure no running Spark instance
-        proc_mgr = ProcessManager()
-        proc_mgr.service(SparkManager).finish()
+        process_manager.service(SparkManager).finish()
 
         # run Eskapade
         self.run_eskapade('esk601_spark_configuration.py')
 
-        sc = proc_mgr.service(SparkManager).get_session().sparkContext
+        sc = process_manager.service(SparkManager).get_session().sparkContext
 
         ## check configuration
         self.assertEqual(sc.getConf().get('spark.app.name'), 'esk601_spark_configuration_link',
@@ -62,21 +60,20 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
                          'SparkConf.setAll() not picked up correctly')
 
         # stop spark manager
-        proc_mgr.service(SparkManager).finish()
+        process_manager.service(SparkManager).finish()
 
     def test_esk602(self):
         """Test Esk-602: Read CSV files into a Spark data frame"""
 
         # check if running in local mode
-        sc = ProcessManager().service(SparkManager).get_session().sparkContext
+        sc = process_manager.service(SparkManager).get_session().sparkContext
         self.assertRegexpMatches(
             sc.getConf().get('spark.master', ''),
             'local\[[.*]\]', 'Spark not running in local mode, required for testing with local files')
 
         # run Eskapade
         self.run_eskapade('esk602_read_csv_to_spark_df.py')
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # check data frame
         self.assertIn('spark_df', ds, 'no object with key "spark_df" in data store')
@@ -94,18 +91,17 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-603: Write Spark data to CSV"""
 
         # check if running in local mode
-        sc = ProcessManager().service(SparkManager).get_session().sparkContext
+        sc = process_manager.service(SparkManager).get_session().sparkContext
         self.assertRegexpMatches(
             sc.getConf().get('spark.master', ''),
             'local\[[.*]\]', 'Spark not running in local mode, required for testing with local files')
 
         # run Eskapade
         self.run_eskapade('esk603_write_spark_data_to_csv.py')
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # read output data
-        results_data_path = persistence.io_dir('results_data', proc_mgr.service(ConfigObject).io_conf())
+        results_data_path = persistence.io_dir('results_data', process_manager.service(ConfigObject).io_conf())
         names = []
         headers = []
         contents = []
@@ -136,22 +132,21 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-604: Execute Spark-SQL query"""
 
         # check if running in local mode
-        sc = ProcessManager().service(SparkManager).get_session().sparkContext
+        sc = process_manager.service(SparkManager).get_session().sparkContext
         self.assertRegexpMatches(
             sc.getConf().get('spark.master', ''),
             'local\[[.*]\]', 'Spark not running in local mode, required for testing with local files')
 
         # run Eskapade
         self.run_eskapade('esk604_spark_execute_query.py')
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # check data frame
         self.assertIn('spark_df_sql', ds, 'no object with key "spark_df_sql" in data store')
         self.assertIsInstance(ds['spark_df_sql'], pyspark.sql.DataFrame, '"spark_df_sql" is not a Spark data frame')
         self.assertEqual(ds['spark_df_sql'].count(), 4, 'unexpected number of rows in filtered data frame')
         self.assertListEqual(ds['spark_df_sql'].columns, ['loc', 'sumx', 'sumy'], 'unexpected columns in data frame')
-        self.assertEqual(ds['spark_df_sql'].schema, proc_mgr.get_chain('ApplySQL').get_link('SparkSQL').schema,
+        self.assertEqual(ds['spark_df_sql'].schema, process_manager.get_chain('ApplySQL').get_link('SparkSQL').schema,
                          'schema of data frame does not correspond to schema stored in link')
         self.assertSetEqual(set(tuple(r) for r in ds['spark_df_sql'].collect()),
                             set([('e', 10, 15), ('d', 2, 11), ('b', 6, 16), ('a', 2, 18)]),
@@ -162,8 +157,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         # run Eskapade
         self.run_eskapade('esk605_create_spark_df.py')
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # check created data frames
         cols = (StructField('index', LongType()), StructField('foo', StringType()), StructField('bar', DoubleType()))
@@ -185,8 +179,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         # run Eskapade
         self.run_eskapade('esk606_convert_spark_df.py')
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # define types of stored data sets
         data_types = {'df': pyspark.sql.DataFrame, 'rdd': pyspark.RDD, 'list': list, 'pd': pd.DataFrame}
@@ -219,15 +212,14 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-607: Add column to Spark dataframe"""
 
         # check if running in local mode
-        sc = ProcessManager().service(SparkManager).get_session().sparkContext
+        sc = process_manager.service(SparkManager).get_session().sparkContext
         self.assertRegexpMatches(
             sc.getConf().get('spark.master', ''),
             'local\[[.*]\]', 'Spark not running in local mode, required for testing with local files')
 
         # run Eskapade
         self.run_eskapade('esk607_spark_with_column.py')
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # check data frame
         self.assertIn('new_spark_df', ds, 'no object with key "new_spark_df" in data store')
@@ -247,7 +239,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-608: Execute Spark histogram filling macro"""
 
         # check if required Python and Java libraries are made available to worker nodes
-        sc = ProcessManager().service(SparkManager).get_session().sparkContext
+        sc = process_manager.service(SparkManager).get_session().sparkContext
         self.assertRegexpMatches(
             sc.getConf().get('spark.master', ''),
             'local\[[.*]\]', 'Spark not running in local mode, required for testing with local files')
@@ -264,9 +256,8 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         # run Eskapade
         self.run_eskapade('esk608_spark_histogrammar.py')
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
-        settings = ProcessManager().service(ConfigObject)
+        ds = process_manager.service(DataStore)
+        settings = process_manager.service(ConfigObject)
 
         # check data frame
         self.assertIn('spark_df', ds, 'no object with key "spark_df" in data store')
@@ -295,8 +286,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         # run Eskapade
         self.run_eskapade('esk609_map_df_groups.py')
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # check input data
         for key in ('map_rdd', 'flat_map_rdd'):
@@ -322,7 +312,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
             return
 
         # check if running in local mode
-        sc = ProcessManager().service(SparkManager).get_session().sparkContext
+        sc = process_manager.service(SparkManager).get_session().sparkContext
         self.assertRegexpMatches(
             sc.getConf().get('spark.master', ''),
             'local\[[.*]\]', 'Spark not running in local mode, required for testing with local files')
@@ -334,8 +324,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         # run eskapade
         self.run_eskapade('esk610_spark_streaming_wordcount.py')
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # end file stream
         p.kill()
@@ -349,7 +338,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIsInstance(ds['dstream'], pyspark.streaming.DStream)
 
         # read and check output data
-        results_data_path = persistence.io_dir('results_data', proc_mgr.service(ConfigObject).io_conf())
+        results_data_path = persistence.io_dir('results_data', process_manager.service(ConfigObject).io_conf())
         names = []
         contents = []
         csv_dirs = glob.glob('{}/dstream/wordcount-*.txt'.format(results_data_path))

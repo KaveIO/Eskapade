@@ -3,7 +3,7 @@ import mock
 
 import pyspark
 
-from eskapade import ProcessManager, ConfigObject
+from eskapade import process_manager, ConfigObject
 
 from ..spark_manager import SparkManager
 from ..functions import SPARK_UDFS

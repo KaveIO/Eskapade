@@ -15,7 +15,7 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, StatusCode, DataStore, Link
+from eskapade import process_manager, StatusCode, DataStore, Link
 from eskapade import spark_analysis
 
 OUTPUT_FORMATS = ['df', 'rdd', 'pd']
@@ -69,7 +69,7 @@ class SparkExecuteQuery(Link):
 
         self.log().debug('Applying following SQL-query to object(s) in DataStore: {0:s}'.format(self.query))
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # register all objects in DataStore as SQL temporary views
         for ds_key in ds.keys():
@@ -77,7 +77,7 @@ class SparkExecuteQuery(Link):
             spark_df.createOrReplaceTempView(ds_key)
 
         # get existing SparkSession
-        spark = ProcessManager().service(spark_analysis.SparkManager).get_session()
+        spark = process_manager.service(spark_analysis.SparkManager).get_session()
 
         # apply SQL-query to temporary view(s)
         result = spark.sql(self.query)

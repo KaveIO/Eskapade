@@ -4,7 +4,7 @@ import logging
 import pyspark
 
 import eskapade
-from eskapade import ProcessManager, ConfigObject
+from eskapade import process_manager, ConfigObject
 from eskapade.core import persistence
 from eskapade.mixins import ConfigMixin
 from eskapade.core.process_services import ProcessService

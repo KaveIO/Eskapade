@@ -16,7 +16,7 @@
 
 import pyspark
 
-from eskapade import ProcessManager, ConfigObject, Link, StatusCode
+from eskapade import process_manager, ConfigObject, Link, StatusCode
 from eskapade.spark_analysis import SparkManager
 
 
@@ -52,15 +52,14 @@ class SparkConfigurator(Link):
     def execute(self):
         """Execute SparkConfigurator"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        sm = proc_mgr.service(SparkManager)
+        settings = process_manager.service(ConfigObject)
+        sm = process_manager.service(SparkManager)
 
         # stop running spark session, if any
         sm.finish()
 
         # start a new session
-        spark = proc_mgr.service(SparkManager).create_session(
+        spark = process_manager.service(SparkManager).create_session(
             eskapade_settings=settings, spark_settings=self.spark_settings)
         spark.sparkContext.setLogLevel(self.log_level)
 

@@ -26,7 +26,7 @@ from pyspark.sql.functions import udf
 import histogrammar
 import histogrammar.sparksql
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
 from eskapade.analysis import HistogrammarFiller, histogram_filling as hf
 
 def unit_func(x):

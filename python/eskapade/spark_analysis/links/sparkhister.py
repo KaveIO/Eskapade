@@ -15,7 +15,7 @@
 
 import numpy as np
 
-from eskapade import ProcessManager, StatusCode, DataStore, Link
+from eskapade import process_manager, StatusCode, DataStore, Link
 
 
 class SparkHister(Link):
@@ -55,7 +55,7 @@ class SparkHister(Link):
 
     def execute(self):
         """ Execute SparkHister """
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         spark_df = ds[self.readKey]
 

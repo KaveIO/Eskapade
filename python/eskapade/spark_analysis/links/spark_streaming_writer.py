@@ -16,7 +16,7 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
 from eskapade.spark_analysis import SparkManager
 from pyspark.sql import Row
 
@@ -50,9 +50,8 @@ class SparkStreamingWriter(Link):
     def execute(self):
         """Execute SparkStreamingWriter"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         data = ds[self.read_key]
 
