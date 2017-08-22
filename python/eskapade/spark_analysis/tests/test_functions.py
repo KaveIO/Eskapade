@@ -1,5 +1,5 @@
 import unittest
-import mock
+import unittest.mock as mock
 
 from ..functions import (SPARK_UDFS, is_nan, is_inf, to_date_time, to_timestamp, calc_asym,
                          SPARK_QUERY_FUNCS, spark_sql_func, spark_query_func)
