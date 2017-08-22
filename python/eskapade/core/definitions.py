@@ -193,6 +193,7 @@ CONFIG_VARS['file_io'] = ['esRoot',
                           'dataDir',
                           'macrosDir',
                           'templatesDir',
+                          'configDir',
                           ]
 
 CONFIG_VARS['config'] = ['sparkCfgFile',
@@ -225,6 +226,7 @@ CONFIG_DEFAULTS = dict(version=0,
                        dataDir=os.getcwd() + '/data/',
                        macrosDir=os.getcwd() + '/macros/',
                        templatesDir=resource_filename('eskapade', 'templates') + '/',
+                       configDir=os.getcwd() + '/config/',
                        sparkCfgFile='spark.cfg',
                        seeds=RandomSeeds(),
                        )
