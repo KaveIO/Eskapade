@@ -14,7 +14,7 @@
 # **********************************************************************************
 from pyspark.sql import DataFrame
 
-from eskapade import ProcessManager, StatusCode, DataStore, Link
+from eskapade import process_manager, StatusCode, DataStore, Link
 
 
 class SparkGeneralFuncProcessor(Link):
@@ -66,7 +66,7 @@ class SparkGeneralFuncProcessor(Link):
     def execute(self):
         """Execute SparkToGeneralFuncProcessor"""
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         spark_df = ds[self.readKey]
 

@@ -16,7 +16,7 @@
 # **********************************************************************************
 
 
-from eskapade import ProcessManager, DataStore, Link, StatusCode
+from eskapade import process_manager, DataStore, Link, StatusCode
 
 
 class SparkWithColumn(Link):
@@ -71,7 +71,7 @@ class SparkWithColumn(Link):
         """Execute SparkWithColumn"""
 
         # fetch data frame
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
         spark_df = ds[self.read_key]
 
         # use all columns if columns-select argument was not provided

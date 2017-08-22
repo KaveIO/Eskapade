@@ -5,7 +5,7 @@ from pyspark.sql.functions import udf
 from pyspark.sql.types import StringType
 
 import eskapade
-from eskapade import ConfigObject, ProcessManager
+from eskapade import ConfigObject, process_manager
 from eskapade.data_quality import dq_helper
 from eskapade.tests.integration.test_bases import IntegrationTest
 from ...spark_manager import SparkManager
@@ -17,11 +17,10 @@ class SparkConfigTest(IntegrationTest):
     def test_spark_setup(self):
         """Test if Spark setup is working properly"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
         settings['analysisName'] = 'spark_setup'
 
-        sm = proc_mgr.service(SparkManager)
+        sm = process_manager.service(SparkManager)
         spark = sm.create_session(eskapade_settings=settings)
 
         df = spark.createDataFrame([(0, 'foo'), (1, 'bar')], ['id', 'value'])
@@ -34,11 +33,10 @@ class SparkConfigTest(IntegrationTest):
     def test_udf_functionality(self):
         """Test if Spark setup is working properly for user-defined functions"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
         settings['analysisName'] = 'spark_setup'
 
-        sm = proc_mgr.service(SparkManager)
+        sm = process_manager.service(SparkManager)
         spark = sm.create_session(includeEskapadeModules=True, eskapade_settings=settings)
 
         df = spark.createDataFrame([(0, 'foo'), (1, 'bar')], ['id', 'value'])
@@ -61,7 +59,7 @@ class SparkConfigTest(IntegrationTest):
         the SparkAnalysisTutorialMacrosTest (tutorial esk601).
         """
 
-        sm = ProcessManager().service(SparkManager)
+        sm = process_manager.service(SparkManager)
 
         # create SparkSession
         spark_settings = [('spark.app.name', 'my_spark_session'),

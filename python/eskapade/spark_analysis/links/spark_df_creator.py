@@ -15,7 +15,7 @@
 
 import pyspark
 
-from eskapade import Link, StatusCode, ProcessManager, DataStore
+from eskapade import Link, StatusCode, process_manager, DataStore
 from eskapade.helpers import process_transform_funcs
 from eskapade.spark_analysis import SparkManager, data_conversion
 
@@ -65,8 +65,7 @@ class SparkDfCreator(Link):
         """Execute SparkDfCreator"""
 
         # get process manager and data store
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # fetch data from data store
         if self.read_key not in ds:
@@ -78,7 +77,7 @@ class SparkDfCreator(Link):
         data = ds[self.read_key]
 
         # create data frame
-        spark = proc_mgr.service(SparkManager).get_session()
+        spark = process_manager.service(SparkManager).get_session()
         self.log().debug('Converting data of type "%s" to a Spark data frame', type(data))
         ds[self.store_key] = data_conversion.create_spark_df(spark, data, schema=self.schema,
                                                              process_methods=self._process_methods, **self.kwargs)
