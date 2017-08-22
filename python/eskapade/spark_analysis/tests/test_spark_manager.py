@@ -3,10 +3,8 @@ import unittest.mock as mock
 
 import pyspark
 
-from eskapade import process_manager, ConfigObject
-
-from ..spark_manager import SparkManager
-from ..functions import SPARK_UDFS
+from eskapade.spark_analysis.spark_manager import SparkManager
+from eskapade.spark_analysis.functions import SPARK_UDFS
 
 
 class SparkManagerTest(unittest.TestCase):

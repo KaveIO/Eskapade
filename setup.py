@@ -202,6 +202,7 @@ def setup_package() -> None:
               'names==0.3.0',
               'fastnumbers==2.0.1',
               'root_numpy==4.7.3',
+              'pyspark==2.2.0',
               'pytest==3.2.1',
               'pytest-pylint==0.7.1',
           ],

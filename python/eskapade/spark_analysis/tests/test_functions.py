@@ -1,8 +1,8 @@
 import unittest
 import unittest.mock as mock
 
-from ..functions import (SPARK_UDFS, is_nan, is_inf, to_date_time, to_timestamp, calc_asym,
-                         SPARK_QUERY_FUNCS, spark_sql_func, spark_query_func)
+from eskapade.spark_analysis.functions import (SPARK_UDFS, is_nan, is_inf, to_date_time, to_timestamp, calc_asym,
+                                               SPARK_QUERY_FUNCS, spark_sql_func, spark_query_func)
 
 UDFS = dict(is_nan=dict(func=is_nan, ret_type='BooleanType'),
             is_inf=dict(func=is_inf, ret_type='BooleanType'),

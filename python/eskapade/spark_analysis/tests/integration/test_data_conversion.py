@@ -7,8 +7,8 @@ from pyspark.sql.types import StructField, StructType, LongType, DoubleType, Str
 
 from eskapade import process_manager, ConfigObject
 from eskapade.tests.integration.test_bases import IntegrationTest
-from ...spark_manager import SparkManager
-from ...data_conversion import create_spark_df, df_schema
+from eskapade.spark_analysis.spark_manager import SparkManager
+from eskapade.spark_analysis.data_conversion import create_spark_df, df_schema
 
 
 class DataConversionTest(IntegrationTest):
@@ -39,8 +39,7 @@ class DataConversionTest(IntegrationTest):
         # create input data
         orig_cols = odict([('_1', LongType()), ('_2', StringType()), ('_3', DoubleType())])
         orig_schema = StructType([StructField(*c) for c in orig_cols.items()])
-        data = {}
-        data['rows'] = [(it, 'foo{:d}'.format(it), (it + 1) / 2.) for it in range(100)]  # list of tuples
+        data = {'rows': [(it, 'foo{:d}'.format(it), (it + 1) / 2.) for it in range(100)]}
         data['rdd'] = spark.sparkContext.parallelize(data['rows'])  # RDD
         data['df'] = spark.createDataFrame(data['rdd'], schema=list(orig_cols.keys()))  # Spark data frame
         data['pddf'] = pd.DataFrame(data['rows'], columns=list(orig_cols.keys()))  # Pandas data frame
