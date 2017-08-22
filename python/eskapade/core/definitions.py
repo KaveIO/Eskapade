@@ -195,9 +195,14 @@ CONFIG_VARS['file_io'] = ['esRoot',
                           'templatesDir',
                           ]
 
-CONFIG_VARS['db_io'] = ['all_mongo_collections']
+CONFIG_VARS['config'] = ['sparkCfgFile',
+                         ]
 
-CONFIG_VARS['rand_gen'] = ['seeds']
+CONFIG_VARS['db_io'] = ['all_mongo_collections',
+                        ]
+
+CONFIG_VARS['rand_gen'] = ['seeds',
+                           ]
 
 CONFIG_TYPES = dict(version=int,
                     batchMode=bool,
@@ -220,6 +225,7 @@ CONFIG_DEFAULTS = dict(version=0,
                        dataDir=os.getcwd() + '/data/',
                        macrosDir=os.getcwd() + '/macros/',
                        templatesDir=resource_filename('eskapade', 'templates') + '/',
+                       sparkCfgFile='spark.cfg',
                        seeds=RandomSeeds(),
                        )
 
@@ -249,6 +255,9 @@ USER_OPTS['file_io'] = ['results_dir',
                         'macros_dir',
                         'templates_dir',
                         ]
+
+USER_OPTS['config'] = ['spark_cfg_file',
+                       ]
 
 USER_OPTS['rand_gen'] = ['seed',
                          ]
@@ -306,6 +315,8 @@ USER_OPTS_KWARGS = dict(analysis_name=dict(help='set name of analysis in run',
                                         metavar='MACROS_DIR'),
                         templates_dir=dict(help='set directory path for template files',
                                            metavar='TEMPLATES_DIR'),
+                        spark_cfg_file=dict(help='set path of Spark configuration file',
+                                            metavar='SPARK_CONFIG_FILE'),
                         seed=dict(help='set seed for random-number generation',
                                   action='append',
                                   metavar='KEY=SEED'),
@@ -322,6 +333,7 @@ USER_OPTS_CONF_KEYS = dict(analysis_name='analysisName',
                            store_all='storeResultsEachChain',
                            store_one='storeResultsOneChain',
                            store_none='doNotStoreResults',
+                           spark_cfg_file='sparkCfgFile',
                            seed='seeds',
                            )
 
@@ -334,6 +346,8 @@ def set_opt_var(opt_key, settings, args):
         return
     conf_key = USER_OPTS_CONF_KEYS.get(opt_key, opt_key)
     settings[conf_key] = CONFIG_TYPES.get(conf_key, str)(value)
+
+
 CONFIG_OPTS_SETTERS = collections.defaultdict(lambda: set_opt_var)
 
 
@@ -347,6 +361,8 @@ def set_log_level_opt(opt_key, settings, args):
         raise ValueError('invalid logging level specified: "{}"'.format(str(level)))
 
     settings[USER_OPTS_CONF_KEYS.get(opt_key, opt_key)] = LOG_LEVELS[level]
+
+
 CONFIG_OPTS_SETTERS['log_level'] = set_log_level_opt
 
 
@@ -359,6 +375,8 @@ def set_begin_end_chain_opt(opt_key, settings, args):
     if args.get('single_chain'):
         raise RuntimeError('"begin-with" and "end-with" chain options cannot be combined with "single-chain" option')
     settings[USER_OPTS_CONF_KEYS.get(opt_key, opt_key)] = str(chain)
+
+
 CONFIG_OPTS_SETTERS['begin_with'] = set_begin_end_chain_opt
 CONFIG_OPTS_SETTERS['end_with'] = set_begin_end_chain_opt
 
@@ -371,6 +389,8 @@ def set_single_chain_opt(opt_key, settings, args):
         return
     settings[USER_OPTS_CONF_KEYS['begin_with']] = str(chain)
     settings[USER_OPTS_CONF_KEYS['end_with']] = str(chain)
+
+
 CONFIG_OPTS_SETTERS['single_chain'] = set_single_chain_opt
 
 
@@ -389,6 +409,8 @@ def set_seeds(opt_key, settings, args):
             raise RuntimeError('expected "key=seed" for --seed command-line argument; got "{}"'.format(kv))
         key, value = (kv[:eq_pos].strip().lower(), kv[eq_pos + 1:].strip()) if eq_pos > 0 else ('default', kv.strip())
         seeds[key] = value
+
+
 CONFIG_OPTS_SETTERS['seed'] = set_seeds
 
 
@@ -412,4 +434,6 @@ def set_custom_user_vars(opt_key, settings, args):
             settings[key] = ast.literal_eval(value)
         except:
             settings[key] = value
+
+
 CONFIG_OPTS_SETTERS['conf_var'] = set_custom_user_vars

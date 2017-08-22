@@ -1,15 +1,10 @@
-=========================
-Tutorial Jupyter Notebook
-=========================
+Tutorial 3: Jupyter notebook
+----------------------------
 
 This section contains materials on how to use Eskapade in Jupyter Notebooks. There are additional side notes on how certain
 aspects work and where to find parts of the code. For more in depth explanations, try the `API-docs <code.html>`_.
 
-
-Eskapade in Jupyter notebook
-============================
-
-In this section we will demonstrate how Eskapade can be run and debugged interactively from within a jupyter notebook.
+Next we will demonstrate how Eskapade can be run and debugged interactively from within a jupyter notebook.
 Do not forget to set up the environment before starting the notebook (and in case you use a virtual environment
 activate it):
 
@@ -20,8 +15,9 @@ activate it):
   $ cd some-working-dir
   $ jupyter notebook
 
-Executing Eskapade
-------------------
+
+An Eskapade notebook
+~~~~~~~~~~~~~~~~~~~~
 
 To run Eskapade use the ``make_notebook.sh`` script in ``scripts/`` to create a template notebook. For example:
 
@@ -70,8 +66,6 @@ Make sure to fill out all the necessary parameters for it to run. The macro has 
 settings in this example are needed to be set to a value. The function ``execution.run_eskapade(settings)`` runs
 Eskapade with the settings your specified.
 
-Debugging
----------
 
 To inspect the state of the Eskapade objects (DataStore and Configurations) after the various chains see the
 command line examples below.
@@ -104,8 +98,9 @@ The ``import_from_file`` function imports a pickle file that was written out by 
 This can be used to start from an intermediate state of your Eskapade. For example, you do some operations on your
 DataStore and then save it. At a later time you load this saved DataStore and continue from there.
 
-Tutorial 3: running in a notebook
-=================================
+
+Running in a notebook
+~~~~~~~~~~~~~~~~~~~~~
 
 In this tutorial we will make a notebook and run the macro from `tutorial 1 <tutorial.html#advanced-macro-s>`_. This
 macro shows the basics of Eskapade. Once we have Eskapade running in a terminal, we can run it also in jupyter.
@@ -193,8 +188,9 @@ Note: restarting the jupyter kernel also works, but might take more time because
 necessary code.
 
 
+
 Reading data from a pickle
-==========================
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Continuing with the notebook we are going to load a pickle file that is automatically written away when the engine
 runs. First we must locate the folder where it is saved. By default this is in:
@@ -245,110 +241,3 @@ By importing and calling:
 one can import the saved singleton at the path. The singleton can be any of the above mentioned stores/objects.
 Finally, by default there are soft-links in the results directory at ``results/$MACRO/proc_service_data/$VERSION/latest/``
 that point to the pickles of the associated objects from the last chain in the macro.
-
-
-Writing a new Link using jupyter and notebooks
-==============================================
-
-This section contains a general description on how to use Eskapade in combination with other tools. *This is not part
-of the tutorial.*
-
-Running the framework works best from the command line (in our experience), but running experiments and trying new
-ideas is better left to an interactive environment like jupyter. How can we reconcile the difference in these work
-flows? How can we use them together to get the most out of it?
-
-Well, when using the `data and config import functionality <tutorial_jupyter.html#reading-data-from-a-pickle>`_ of
-Eskapade together with jupyter we can interactively work on our objects and when we are satisfied with the results
-integration into links is straight-forward. The steps to undertake this are *in general* the following:
-
-  1. Import the DataStore and/or ConfigObject. Once you have imported the ConfigObject, run it to generate the output you want to use.
-  2. Grab the data you want from the DataStore using ``ds = DataStore`` and ``data = ds[key]``.
-  3. Now you can apply the operation you want to do on the data, experiment on it and work towards the end result you
-     want to have.
-  4. Create a new link in the appropriate link folder using the make_link script.
-  5. Copy the operations (code) you want to do to the link.
-  6. Add assertions and checks to make sure the Link is safe to run.
-  7. Add the Link to your macro and run it!
-
-These steps are very general and we will now go into steps 5, 6 and 7. Steps 1, 2, 3 and 4 have already been covered
-by various parts of the documentation.
-
-So assuming you wrote some new functionality that you want to add to a Link called YourLink and you have created a new
-Link from the template we are going to describe how you can get your code into the Link and test it.
-
-
-Developing Links in notebooks
-=============================
-
-This subsection starts with a short summary of the workflow for developing Links:
-
-  1. Make your code in a notebook
-  2. Make a new Link
-  3. Port the code into the Link
-  4. Import the Link into your notebook
-  5. Test if the Link has the desired effect.
-  6. Finish the Link code
-  7. Write a unit test (optional but advised if you want to contribute)
-
-We continue with a longer description of the steps above.
-
-When adding the new code to a new link the following conventions are used:
-
-In the ``__init__`` you specify the key word arguments of the Link and their default values, if you want to get an
-object from the DataStore or you want to write an object back into it, use the name ``read_key`` and ``store_key``.
-Other keywords are free to use as you see fit.
-
-In the ``initialize`` function in the Link you define and initialize functions that you want to call when executing the
-code on your objects. If you want to import something, you can do this at the root of the Link, as per PEP8.
-
-In the ``execute`` function you put the actual code in this format:
-
-.. code-block:: python
-
-  settings = ProcessManager().service(ConfigObject)
-  ds = ProcessManager().service(DataStore)
-
-  ## --- your code follows here
-
-Now you can call the objects that contain all the settings and data of the macro in your Link, and in the code below
-you can add your analysis code that calls from the objects and writes back in case that this is necessary. Another
-possibility is writing a file to the disk, for example writing out a plot you made.
-
-If you quickly want to test the Link without running the entire Eskapade framework, you can import it into your
-notebook sessions:
-
-.. code-block:: python
-
-  import eskapade.analysis.links.yourlink
-  from yourlink import YourLink
-  l = YourLink()
-  l.execute()
-
-should run your link. You can also call the other functions. However, ``execute()`` is supposed to contain the bulk of your
-operations, so running that should give you your result. Now you can change the code in your link if it is not how you
-want it to run. The notebook kernel however keeps everything in memory, so you either have to restart the kernel, or
-use
-
-.. code-block:: python
-
-  import imp
-  imp.reload(eskapade.analysis.links.yourlink)
-  from yourlink import YourLink
-  l = YourLink()
-  l.execute()
-
-to reload the link you changed. This is equivalent to the python2 function ``reload(eskapade)``.
-
-Combined with the importing of the other objects it becomes clear that you can run every piece of the framework from
-a notebook. However working like this is only recommended for development purposes, running an entire analysis should
-be done from the command line.
-
-Finally after finishing all the steps you use the function ``finalize()`` to clean up all objects you do not want to
-save.
-
-After testing whether the Link gives the desired result you have to add the proper assertions and other types of checks
-into your Link code to make sure that it does not have use-cases that are improperly defined. It is advised that you
-also write a unit test for the Link, but unless you want it merged into the master, it will not be enforced.
-
-Now you can run Eskapade with your macro from your command line, using the new functionality that you first created
-in a notebook and then ported into a stand-alone Link.

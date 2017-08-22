@@ -3,7 +3,31 @@ Package structure
 =================
 
 Eskapade contains many tools, and to find and use them most efficiently it is necessary to understand how the
-repository is build up. This section discusses the structure of the code and how the framework handles
+repository is build up. This section discusses the structure of the code and how the framework handles subpackages.
+
+Architecture
+------------
+
+The architecture of Eskapade can be summarized in this picture:
+
+.. image:: ../images/eskapade_architecture.png
+
+The example we just discuscced generally shows how the framework works.
+The steps it takes are the following:
+
+  - run_eskapade.py runs the macro file,
+  - Macros (python file) contain Chains,
+  - Chains (python object) contains Links,
+  - Links (python class) contain analysis code.
+
+The chains are run in the order of 'registering' them in the ``ProcessManager``.
+
+The ``ProcessManager`` is the ultimate object that executes all the code in your macro.
+It also keeps track of the configuration of Eskapade, and of the objects in the ``data store`` that are passable between links.
+
+The components of the architecture of Eskapade are explained in further detail in the `Tutorials section <tutorials.html>`_.
+
+
 
 Structure
 ---------
@@ -48,6 +72,19 @@ subpackage.  Optionally, integration tests are implemented in
 ``tests/integration``.  For the ``eskapade.analysis`` package, there is
 the module ``test_tutorial_macros`` with integration tests that run the
 tutorial macros corresponding to this package.
+
+Subpackages
+-----------
+
+Eskapade contains the following list of subpackages:
+
+* ``core`` is the package that contains the core framework of Eskapade.
+* ``core_ops`` contains links pertaining to the core functionality of Eskapade.
+* ``analysis`` contains pandas links and code.
+* ``visualization`` contains visualization code and plotter links.
+* ``root_analysis`` contains ROOT links and code for data generation, fitting, and plotting.
+* ``data_quality`` contains links and code for fixing messy data.
+* ``spark_analysis`` contains spark related analysis links and code.
 
 Imports
 -------

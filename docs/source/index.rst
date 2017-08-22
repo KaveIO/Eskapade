@@ -64,7 +64,7 @@ Release notes
 Version 0.6
 -----------
 
-The primary feature of version 0.6 (July 2017) is the inclusion of Spark, but this version
+The primary feature of version 0.6 (August 2017) is the inclusion of Spark, but this version
 also includes several other new features and analyses.
 
 We include multiple Spark links and 10 Spark examples on:
@@ -109,13 +109,18 @@ Contents
 
    introduction
    installation
-   tutorial
-   tutorial_jupyter
-   tutorial_roofit
-   tutorial_spark
+   tutorials
    package_structure
    command_line_arguments
    developing
+
+API
+---
+
+.. toctree::
+   :maxdepth: 1
+
+   code
 
 Appendices
 ----------
@@ -125,14 +130,6 @@ Appendices
 
    mac_os
    spark
-
-API
----
-
-.. toctree::
-   :maxdepth: 1
-
-   code
 
 
 Indices and tables

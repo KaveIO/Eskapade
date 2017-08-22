@@ -1,5 +1,6 @@
 import os
 import unittest
+from glob import glob
 
 import ROOT
 import pandas as pd
@@ -400,7 +401,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
             self.assertGreater(statinfo.st_size, 0)
 
     @unittest.skip('Can\'t load libesroofit!!')
-    def test_tutorial3(self):
+    def test_tutorial4(self):
         """Test Tutorial 3: Workspace create PDF, simulate, fit, plot"""
 
         # turn on creation and loading of MyPdfV3
@@ -408,8 +409,9 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         settings['onthefly'] = True
 
         # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/tutorial_3.py')
+        macro = resource_filename('eskapade', 'tutorials/tutorial_4.py')
         self.eskapade_run(macro)
+
 
         # check existence of class MyPdfV3
         import ROOT
@@ -438,3 +440,9 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         # roofit objects check in workspace
         self.assertIn('testpdf', ws)
+
+        # cleanup of temporary pdf files
+        rm_files = glob('MyPdfV3.*') + glob('MyPdfV3_cxx*')
+        for rm_file in rm_files:
+            os.remove(rm_file)
+

@@ -1,6 +1,5 @@
 ipython
 matplotlib
-mock
 numpy
 pandas
 sphinx
@@ -9,3 +8,4 @@ tabulate
 sortedcontainers
 statsmodels
 histogrammar
+fastnumbers

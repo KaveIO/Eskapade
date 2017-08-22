@@ -160,7 +160,10 @@ class ConfigObjectTest(unittest.TestCase):
                             resultsDir='es_path/results',
                             dataDir='es_path/data',
                             macrosDir='es_path/tutorials',
-                            templatesDir='es_path/templates')
+                            templatesDir='es_path/templates',
+                            configDir='es_path/config',
+                            )
+
         self.assertDictEqual(settings, exp_settings, 'unexpected resulting settings dictionary')
 
     def test_random_seeds(self):

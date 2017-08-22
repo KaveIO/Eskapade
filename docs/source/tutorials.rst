@@ -1,6 +1,6 @@
-========
-Tutorial
-========
+=========
+Tutorials
+=========
 
 This section contains materials on how to use Eskapade. There are additional side notes on how certain
 aspects work and where to find parts of the code. For more in depth explanations on the functionality of the code-base,
@@ -77,36 +77,11 @@ Rerunning results in us greeting the famous singer/songwriter.
 There are many ways to run your macro and control the flow of your analysis. You can read more on this in
 the `Short introduction to the Framework`_ subsection below.
 
-Intermezzo: Architecture
-------------------------
-
-The architecture of Eskapade can be summarized in this picture:
-
-.. image:: ../../images/eskapade_architecture.png
-
-The example we just discuscced generally shows how the framework works.
-The steps it takes are the following:
-
-  - run_eskapade.py runs the macro file,
-  - Macros (python file) contain Chains,
-  - Chains (python object) contains Links,
-  - Links (python class) contain analysis code.
-
-The chains are run in the order of 'registering' them in the ``ProcessManager``.
-
-The ``ProcessManager`` is the ultimate object that executes all the code in your macro.
-It also keeps track of the configuration of Eskapade, and of the objects in the ``data store`` that are passable between links.
-
-The components of the architecture of Eskapade are also explained in further detail in the following sections.
-
-
-Advanced macros
----------------
-
-Now that we know the basics of Eskapade we can go on to more advanced macros, containing an actual analysis.
 
 Tutorial 1: transforming data
 -----------------------------
+
+Now that we know the basics of Eskapade we can go on to more advanced macros, containing an actual analysis.
 
 Before we get started, we have to fetch some data, on your command line, type:
 
@@ -207,7 +182,7 @@ Add this to the transformation by adding your own code. Once this works you can 
 temperature in degrees Celsius.
 
 Making a Link
--------------
+~~~~~~~~~~~~~
 
 Now we are going to add a new link that we create! To make a new link type the following:
 
@@ -256,7 +231,7 @@ Now run the entire macro with the new code and compile the output .tex file. Thi
 If you have pdflatex installed on your machine.
 Now take a look at the output pdf. The final output should look something like this:
 
-.. image:: ../../images/output_tutorial_1.png
+.. image:: ../images/output_tutorial_1.png
 
 Your plot should be quite similar (though it might be different in its make up.)
 
@@ -268,7 +243,8 @@ By using this work method, links can be easily reused in future projects. Some l
 For example, links used to load data from a json file, book predictive algorithms, predict the training and
 test data set and produce evaluation metrics. If you want to use your own predictive model just go ahead and add your own links!
 
-Tutorial 2: macro from basic Links
+
+Tutorial 2: macro from basic links
 ----------------------------------
 
 In this tutorial we are going to build a macro using existing Links. We start by using templates to make a new macro.
@@ -302,47 +278,54 @@ This tutorial will be quite straight-forward, it has 3 short steps, which is why
 2. In the second chain: Copy the DataFrame you created in the DataStore using the core_ops subpackage.
 3. In the third chain: Delete the entire DataStore using a Link in the core_ops subpackage.
 
-To find the right Links you have to go through the Eskapade code (or documentation!), and to find within it's
-subpackages the proper Links you have to understand the package structure.
-
+To find the right Links you have to go through the Eskapade documentation (or code!), and to find within its subpackages the proper Links you have to understand the package structure.
 Every package is specific for a certain task, such as analysis, core tasks (like the ``ProcessManager``), or data
-quality. Not all packages will be in the first releases, they will be added in the future. However this tutorial only uses
-Links that are in the release. Every subpackage contains links in its ``links/`` subdirectory.
+quality. Every subpackage contains links in its ``links/`` subdirectory.
+See for example the subpackages ``core_ops``, ``analysis`` or ``visualization``.
 
-- The ``core`` package is just core framework functionality, the links for the core are in ``core_ops``.
-- ``analysis`` contains pandas links.
-- ``visualization`` contains plotter links.
+In `All available examples`_ we give some tips to find the right Links your analysis, and how to configure them properly.
 
-(In the near future we will add spark links as well.)
 
+.. include:: tutorial_jupyter.rst
+.. include:: tutorial_roofit.rst
+.. include:: tutorial_spark.rst
+
+
+
+All available examples
+----------------------
+
+Every subpackage of Eskapade contains links in its ``links/`` subdirectory.
+
+* ``core_ops`` contains links pertaining to the core functionality of Eskapade, where the ``core`` package is the core framework of Eskapade.
+* ``analysis`` contains pandas links.
+* ``visualization`` contains plotter links.
+* ``root_analysis`` contains ROOT links for data generation, fitting, and plotting.
+* ``data_quality`` contains links for fixing messy data.
+* ``spark_analysis`` contains spark related analysis links.
+  
 The name of every link indicates its basic function. If you want to know explicitly you can read the
 `API-docs <eskapade_index.html>`_.
 If that does not help, read and try to understand the example macros in ``tutorials/``, which show the basic usage
 of most Eskapade functionality. (See also the `Examples <tutorial.html#examples>`_ section right below.)
 If still unclear, go into the link's code to find out how it exactly works.
 
-Hopefully you now have enough knowledge to do this tutorial and finally run Eskapade by yourself.
-
-
-All available examples
-----------------------
-
 Many Eskapade example macros can be found in the ``tutorials`` directory.
-You are encouraged to run all examples to see what Eskapade can do for you!
+The numbering of the example macros follows the package structure:
 
-The numbering of the example macros is as follows:
-
-* esk100+: basic macros describing the chains, links, and datastore functionality of Eskapade.
-* esk200+: macros describing links to do basic processing of pandas dataframes.
-* esk300+: visualization macros for making histograms, plots and reports of datasets.
-* esk400+: macros for processing ROOT datasets and performing fits to data using RooFit.
-* esk500+: macros for doing data quality assessment and cleaning.
-* esk600+: macros describing links to do basic processing of data and rdds with spark.
+* ``esk100+``: basic macros describing the chains, links, and datastore functionality of Eskapade.
+* ``esk200+``: macros describing links to do basic processing of pandas dataframes.
+* ``esk300+``: visualization macros for making histograms, plots and reports of datasets.
+* ``esk400+``: macros for processing ROOT datasets and performing fits to data using RooFit.
+* ``esk500+``: macros for doing data quality assessment and cleaning.
+* ``esk600+``: macros describing links to do basic processing of data and rdds with spark.
 
 The basic Eskapade macros (esk100+) are briefly described below.
 They explain the basic architecture of Eskapade,
 i.e. how the chains, links, datastore, and process manager interact.
-We invite you go through them!
+
+Hopefully you now have enough knowledge to run and explore Eskapade by yourself.
+You are encouraged to run all examples to see what Eskapade can do for you!
 
 
 
@@ -423,28 +406,4 @@ Example esk202: Write data
 Macro 202 reads a DataFrame into the data store and then writes the DataFrame to csv format on the disk.
 
 
-Eskapade in PyCharm
--------------------
-
-PyCharm is a very handy IDE for debugging Python source code. It can be used to run Eskapade stand-alone
-(i.e. like from the command line) and with an API.
-
-Stand-alone
-  * Install PyCharm on your machine.
-  * Open project and point to the Eskapade source code
-  * Configuration, in 'Preferences', check the following desired values:
-      - Under 'Project: eskapade' / 'Project Interpreter':
-          - The correct Python version (currently 3.5.2 of Anaconda, use the interpreter of your conda environment)
-      - Under 'Build, Execution & Deployment' / 'Console' / 'Python Console':
-          - The correct Python version (currently 3.5.2 of Anaconda, use the interpreter of your conda environment)
-  * Run/Debug Configuration:
-      - Under 'Python' add new configuration
-      - Script: ``scripts/run_eskapade.py``
-      - Script parameters: ``-w ../tutorials/tutorial_1.py``
-      - Working directory: ``$ESKAPADE``
-      - Python interpreter: check if it is the correct Python version (currently 3.5.2 of Anaconda, corresponding to
-        your conda environment)
-      - Environment variables: should contain those defined in ``$ESKAPADE/setup.sh``.
-
-You should now be able to press the 'play button' to run Eskapade with the specified parameters.
-
+.. include:: coding.rst

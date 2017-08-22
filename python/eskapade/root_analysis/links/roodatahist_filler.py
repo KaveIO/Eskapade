@@ -306,7 +306,7 @@ class RooDataHistFiller(Link):
         if self.into_ws:
             ws = proc_mgr.service(RooFitManager).ws
             try:
-                ws[self.store_key] = self._rdh
+                ws.put(self._rdh, ROOT.RooFit.Rename(self.store_key))
                 ws.defineSet(self.store_key_vars, self._varset)
                 ws.defineSet(self.store_key_cats, self._catset)
                 if self.create_hist_pdf:

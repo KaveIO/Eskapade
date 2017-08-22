@@ -109,13 +109,14 @@ class RooFitPercentileBinning(Link):
             # column variable is a RooRealVar
             qs = np.linspace(0, 1, nbins + 1).tolist()
             bin_edges = df[col].quantile(qs)
-            binning = ROOT.RooNonCentralBinning()
+            binning = ROOT.RooNonCentralBinning() if isinstance(data, ROOT.RooDataSet) else ROOT.RooBinning()
             col_var = ws.var(col)
             binning.setRange(col_var.getMin(), col_var.getMax())
             for b in bin_edges.values[1:nbins]:
                 if b > col_var.getMin() and b < col_var.getMax():
                     binning.addBoundary(b)
-            binning.setAverageFromData(data, col_var)
+            if isinstance(data, ROOT.RooDataSet):
+                binning.setAverageFromData(data, col_var)
             col_var.setBinning(binning, self.binning_name)
 
         # cleanup of temporary df

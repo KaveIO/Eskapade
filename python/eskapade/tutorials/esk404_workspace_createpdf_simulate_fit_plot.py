@@ -5,19 +5,22 @@
 # *                                                                                *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *
-# * Description:
-# *
-# * Macro illustrates how do basic statistical data analysis with roofit, 
-# * by making use of the rooworkspace functionality.
-# *
-# * The example shows how to define a pdf, simulate data, fit this data,
-# * and then plot the fit result.
-# * 
-# * The generated data is converted to a dataframe and the contents is plotted
-# * with a default plotter link.
-# *
-# * Licence:
+# *                                                                                *
+# * Description:                                                                   *
+# *                                                                                *
+# * Macro illustrates how do basic statistical data analysis with roofit,          *
+# * by making use of the rooworkspace functionality.                               *
+# *                                                                                *
+# * For a brief lesson on RooFit, see here:                                        *
+# * https://root.cern.ch/roofit-20-minutes                                         *
+# *                                                                                *
+# * The example shows how to define a pdf, simulate data, fit this data,           *
+# * and then plot the fit result.                                                  *
+# *                                                                                *
+# * The generated data is converted to a dataframe and the contents is plotted     *
+# * with a default plotter link.                                                   *
+# *                                                                                *
+# * Licence:                                                                       *
 # *                                                                                *
 # * Redistribution and use in source and binary forms, with or without             *
 # * modification, are permitted according to the terms listed in the file          *
@@ -55,8 +58,12 @@ if settings['generate_fit_plot']:
     ch = proc_mgr.add_chain('WsOps')
 
     # --- 1. define a model by passing strings to the rooworkspace factory
-    #     for details on rooworkspace factory see:
+    #     For the workspace factory syntax, see:
+    #     https://root.cern.ch/doc/master/RooFactoryWSTool_8cxx_source.html#l00722
+    #     For rooworkspace factory examples see:
     #     https://root.cern.ch/root/html/tutorials/roofit/rf511_wsfactory_basic.C.html
+    #     https://root.cern.ch/root/html/tutorials/roofit/rf512_wsfactory_oper.C.html
+    #     https://root.cern.ch/root/html/tutorials/roofit/rf513_wsfactory_tools.C.html
     wsu = root_analysis.WsUtils(name='modeller')
     wsu.factory = ["Gaussian::sig1(x[-10,10],mean[5,0,10],0.5)",
                    "Gaussian::sig2(x,mean,1)",

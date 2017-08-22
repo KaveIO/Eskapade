@@ -28,6 +28,14 @@ eskapade.root_analysis.links.convert_roodataset_2_dataframe module
     :undoc-members:
     :show-inheritance:
 
+eskapade.root_analysis.links.convert_roodataset_2_roodatahist module
+--------------------------------------------------------------------
+
+.. automodule:: eskapade.root_analysis.links.convert_roodataset_2_roodatahist
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 eskapade.root_analysis.links.convert_root_hist_2_roodatahist module
 -------------------------------------------------------------------
 
@@ -52,10 +60,26 @@ eskapade.root_analysis.links.print_ws module
     :undoc-members:
     :show-inheritance:
 
+eskapade.root_analysis.links.read_from_root_file module
+-------------------------------------------------------
+
+.. automodule:: eskapade.root_analysis.links.read_from_root_file
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 eskapade.root_analysis.links.roodatahist_filler module
 ------------------------------------------------------
 
 .. automodule:: eskapade.root_analysis.links.roodatahist_filler
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.root_analysis.links.roofit_percentile_binning module
+-------------------------------------------------------------
+
+.. automodule:: eskapade.root_analysis.links.roofit_percentile_binning
     :members:
     :undoc-members:
     :show-inheritance:
@@ -80,6 +104,14 @@ eskapade.root_analysis.links.trunc_exp_gen module
 -------------------------------------------------
 
 .. automodule:: eskapade.root_analysis.links.trunc_exp_gen
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.root_analysis.links.uncorrelation_hypothesis_tester module
+-------------------------------------------------------------------
+
+.. automodule:: eskapade.root_analysis.links.uncorrelation_hypothesis_tester
     :members:
     :undoc-members:
     :show-inheritance:

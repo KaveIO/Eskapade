@@ -35,11 +35,16 @@ class _ProcessManager(LoggingMixin, TimerMixin):
     performs initialization, execution, and finalizing of the configured
     chains.  Chains are added to the processManager (PM) thusly:
 
-    >>> proc_mgr = ProcessManager()
+    >>> from eskapade import process_manager as proc_mgr
+    >>>
+    >>>
     >>> data_chain = Chain('Data')
-    >>> proc_mgr.run()
+    >>>
     >>> proc_mgr.add_chain('Data')
+    >>>
     >>> proc_mgr.add_chain('MyOverview')
+    >>>
+    >>> proc_mgr.run()
 
     The function:
 

@@ -4,6 +4,9 @@ Apache Spark
 
 Eskapade supports the use of `Apache Spark <https://spark.apache.org>`_ for parallel processing of large data volumes. Jobs can run on a single laptop using Spark libraries as well as on a Spark/Hadoop cluster in combination with YARN. This section describes how to setup and configure Spark for use with Eskapade. For examples on running Spark jobs with Eskapade, see the `Spark tutorial <tutorial_spark.html>`_.
 
+.. note ::
+
+  Eskapade supports both batch and real-time streaming (micro batch) processing with Apache Spark.
 
 Requirements
 ------------

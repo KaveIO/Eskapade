@@ -11,6 +11,7 @@ Subpackages
     eskapade.core_ops
     eskapade.data_quality
     eskapade.root_analysis
+    eskapade.spark_analysis
     eskapade.tests
     eskapade.visualization
 
@@ -29,6 +30,14 @@ eskapade.helpers module
 -----------------------
 
 .. automodule:: eskapade.helpers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.mixins module
+----------------------
+
+.. automodule:: eskapade.mixins
     :members:
     :undoc-members:
     :show-inheritance:
