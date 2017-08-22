@@ -13,12 +13,10 @@ class CMakeExtension(Extension):
 
 
 class CMakeBuild(build_ext):
-    ktb = os.environ.get('KAVETOOLBOX')
-    cmake_cmd = 'cmake'
-    if ktb:
-        out = subprocess.check_output('DetectOSVersion', universal_newlines=True)
-        if 'Centos7' in out:
-            cmake_cmd = 'cmake3'
+    if 'centos-7' in platform.platform():
+        cmake_cmd = 'cmake3'
+    else:
+        cmake_cmd = 'cmake'
 
     def run(self):
         out = ''
