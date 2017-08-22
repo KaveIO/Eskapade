@@ -13,10 +13,17 @@ class CMakeExtension(Extension):
 
 
 class CMakeBuild(build_ext):
+    ktb = os.environ.get('KAVETOOLBOX')
+    cmake_cmd = 'cmake'
+    if ktb:
+        out = subprocess.check_output('DetectOSVersion', universal_newlines=True)
+        if 'Centos7' in out:
+            cmake_cmd = 'cmake3'
+
     def run(self):
         out = ''
         try:
-            out = subprocess.check_output(['cmake', '--version'],
+            out = subprocess.check_output([self.cmake_cmd, '--version'],
                                           stderr=subprocess.STDOUT)
         except OSError:
             raise RuntimeError(out + '\n' +
@@ -47,6 +54,6 @@ class CMakeBuild(build_ext):
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
 
-        subprocess.check_call(['cmake', ext.source_dir] + cmake_args, cwd=self.build_temp, env=env)
-        subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
+        subprocess.check_call([self.cmake_cmd, ext.source_dir] + cmake_args, cwd=self.build_temp, env=env)
+        subprocess.check_call([self.cmake_cmd, '--build', '.'] + build_args, cwd=self.build_temp)
 

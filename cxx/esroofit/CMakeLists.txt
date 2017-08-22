@@ -8,7 +8,7 @@ project(esroofit
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 # Set the C++ standard we're using.
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 11)
 # Set the library output locations
 if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
     set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/${PROJECT_NAME})
@@ -20,13 +20,13 @@ else()
 endif()
 
 # Set CXX compiler flags.
-set(ESROOFIT_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -O2 -Wmissing-field-initializers -Wall -Wpedantic -Wextra")
+set(ESROOFIT_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -Wmissing-field-initializers -Wall -Wpedantic -Wextra")
 # Set to TRUE to turn ROOT configuration debugging.
 set(ROOT_CONFIG_DEBUG FALSE)
 # The version of ROOT that we require.
-set(REQUIRED_ROOT_VERSION 6.10.4)
+set(REQUIRED_ROOT_VERSION 6.08.06)
 # The set of options that ROOT should have been compiled with.
-set(ROOT_OPTIONS cxx14 fftw3 mathmore python python3 roofit soversion thread tmva)
+set(ROOT_OPTIONS cxx11 fftw3 mathmore python roofit soversion thread tmva)
 # The set of components that should be present in ROOT.
 set(ROOT_COMPONENTS Minuit2 PyROOT RooFitCore RooFit TMVA)
 
@@ -65,7 +65,7 @@ if(ROOT_FOUND)
         else(ROOT_${root_option}_FOUND)
             fatal_info("ROOT is not compiled with option \"-D${root_option}=ON\"!")
             fatal_info("Please reconfigure and recompile root with the following CMake flags:")
-            fatal_info("    -Dcxx14=ON -Dfftw3=ON -Dmathmore=ON -Dminuit2=ON -Droofit=ON -Dtmva=ON -Dsoversion=ON -Dthread=ON -Dpython3=ON -DPYTHON_EXECUTABLE=path_to_python3_exe -DPYTHON_INCLUDE_DIR=path_to_python3m_include -DPYTHON_LIBRARY=path_to_python3m_lib")
+            fatal_info("    -Dfftw3=ON -Dmathmore=ON -Dminuit2=ON -Droofit=ON -Dtmva=ON -Dsoversion=ON -Dthread=ON -Dpython=ON -DPYTHON_EXECUTABLE=path_to_python_exe -DPYTHON_INCLUDE_DIR=path_to_python_include -DPYTHON_LIBRARY=path_to_python_lib")
             fatal_info("You may need to install additional third party libraries, see \"https:://root.cern.ch/building-root\" for more info on building ROOT.")
             fatal_abort("Aborting!")
         endif(ROOT_${root_option}_FOUND)
