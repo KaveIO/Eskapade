@@ -16,10 +16,9 @@
 
 import logging
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, resources
 from eskapade import analysis, visualization
 from eskapade import process_manager as proc_mgr
-from eskapade.core import persistence
 
 log = logging.getLogger('macro.esk305_correlation_summary')
 
@@ -35,7 +34,7 @@ settings['version'] = 0
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
 
-settings['input_path'] = persistence.io_path('data', settings.io_conf(), 'correlated_data.sv.gz')
+settings['input_path'] = resources.fixture('correlated_data.sv.gz')
 settings['reader'] = 'csv'
 settings['separator'] = ' '
 settings['correlations'] = ['pearson', 'kendall', 'spearman', 'correlation_ratio']

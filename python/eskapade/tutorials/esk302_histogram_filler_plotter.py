@@ -18,7 +18,7 @@
 import logging
 import os
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, resources
 from eskapade import core_ops, analysis, visualization
 from eskapade import process_manager as proc_mgr
 
@@ -53,8 +53,8 @@ chunk_size = 400
 #########################################################################################
 # --- create dummy example dataset, which is read in below
 
-input_files = [os.environ['ESKAPADE'] + '/data/mock_accounts.csv.gz', \
-               os.environ['ESKAPADE'] + '/data/mock_accounts.csv.gz']
+input_files = [resources.fixture('mock_accounts.csv.gz'),
+               resources.fixture('mock_accounts.csv.gz')]
 
 
 def to_date(x):

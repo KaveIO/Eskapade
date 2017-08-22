@@ -19,9 +19,8 @@
 # **********************************************************************************
 
 import logging
-import os
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, resources
 from eskapade import analysis, visualization
 from eskapade import process_manager as proc_mgr
 
@@ -39,7 +38,7 @@ settings['version'] = 0
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
 
-input_files = [os.environ['ESKAPADE'] + '/data/correlated_data.sv.gz']
+input_files = resources.fixture('correlated_data.sv.gz')
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags

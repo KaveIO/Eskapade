@@ -1,10 +1,8 @@
 import os
-import unittest
 
 import pandas as pd
-from pkg_resources import resource_filename
 
-from eskapade import process_manager, ConfigObject, DataStore
+from eskapade import process_manager, resources, ConfigObject, DataStore
 from eskapade.core import execution, definitions, persistence
 from eskapade.tests.integration.test_bases import TutorialMacrosTest
 
@@ -17,7 +15,7 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
 
         settings = process_manager.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = resource_filename('eskapade', '/tutorials/esk301_dfsummary_plotter.py')
+        settings['macro'] = resources.tutorial('esk301_dfsummary_plotter.py')
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
@@ -43,13 +41,12 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
 
-    @unittest.skip('This guy expects an ESKAPADE env variable!')
     def test_esk302(self):
         pm = process_manager
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk302_histogram_filler_plotter.py'
+        settings['macro'] = resources.tutorial('esk302_histogram_filler_plotter.py')
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
@@ -76,13 +73,12 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
 
-    @unittest.skip('This guy expects an ESKAPADE env variable!')
     def test_esk303(self):
         pm = process_manager
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk303_hgr_filler_plotter.py'
+        settings['macro'] = resources.tutorial('esk303_hgr_filler_plotter.py')
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
@@ -116,7 +112,7 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
 
         settings = process_manager.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = resource_filename('eskapade', '/tutorials/esk304_df_boxplot.py')
+        settings['macro'] = resources.tutorial('esk304_df_boxplot.py')
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
@@ -145,8 +141,8 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = resource_filename('eskapade', '/tutorials/esk305_correlation_summary.py')
-        settings['dataDir'] = resource_filename('eskapade', '/data')
+        settings['macro'] = resources.tutorial('esk305_correlation_summary.py')
+        # settings['dataDir'] = resource_filename('eskapade', '/data')
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
@@ -188,13 +184,12 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
 
-    @unittest.skip('This guy expects roofit!')
     def test_esk306(self):
         pm = process_manager
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk306_concatenate_reports.py'
+        settings['macro'] = resources.tutorial('esk306_concatenate_reports.py')
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)

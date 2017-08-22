@@ -1,10 +1,8 @@
 import os
 
-from pkg_resources import resource_filename
-
 from eskapade import ConfigObject
 from eskapade import DataStore
-from eskapade import process_manager
+from eskapade import process_manager, resources
 from eskapade.core import definitions
 from eskapade.core import execution
 from eskapade.tests.integration.test_bases import TutorialMacrosTest
@@ -18,9 +16,7 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
-        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
-        settings['macro'] = settings['macrosDir'] + 'esk201_readdata.py'
+        settings['macro'] = resources.tutorial('esk201_readdata.py')
 
         status = execution.run_eskapade(settings)
 
@@ -39,9 +35,7 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
-        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
-        settings['macro'] = settings['macrosDir'] + 'esk202_writedata.py'
+        settings['macro'] = resources.tutorial('esk202_writedata.py')
 
         status = execution.run_eskapade(settings)
 
@@ -62,9 +56,7 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
-        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
-        settings['macro'] = settings['macrosDir'] + 'esk203_apply_func_to_pandas_df.py'
+        settings['macro'] = resources.tutorial('esk203_apply_func_to_pandas_df.py')
 
         status = execution.run_eskapade(settings)
 
@@ -83,9 +75,7 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
-        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
-        settings['macro'] = settings['macrosDir'] + 'esk204_apply_query_to_pandas_df.py'
+        settings['macro'] = resources.tutorial('esk204_apply_query_to_pandas_df.py')
 
         status = execution.run_eskapade(settings)
 
@@ -106,9 +96,7 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
-        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
-        settings['macro'] = settings['macrosDir'] + 'esk205_concatenate_pandas_dfs.py'
+        settings['macro'] = resources.tutorial('esk205_concatenate_pandas_dfs.py')
 
         status = execution.run_eskapade(settings)
 
@@ -125,9 +113,7 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
-        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
-        settings['macro'] = settings['macrosDir'] + 'esk206_merge_pandas_dfs.py'
+        settings['macro'] = resources.tutorial('esk206_merge_pandas_dfs.py')
 
         status = execution.run_eskapade(settings)
 
@@ -146,9 +132,7 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
-        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
-        settings['macro'] = settings['macrosDir'] + 'esk207_record_vectorizer.py'
+        settings['macro'] = resources.tutorial('esk207_record_vectorizer.py')
 
         status = execution.run_eskapade(settings)
 
@@ -169,9 +153,7 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
-        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
-        settings['macro'] = settings['macrosDir'] + 'esk208_record_factorizer.py'
+        settings['macro'] = resources.tutorial('esk208_record_factorizer.py')
 
         status = execution.run_eskapade(settings)
 
@@ -200,9 +182,7 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macrosDir'] = resource_filename('eskapade', 'tutorials') + '/'
-        settings['dataDir'] = resource_filename('eskapade', 'data') + '/'
-        settings['macro'] = settings['macrosDir'] + 'esk209_read_big_data_itr.py'
+        settings['macro'] = resources.tutorial('esk209_read_big_data_itr.py')
 
         status = execution.run_eskapade(settings)
 

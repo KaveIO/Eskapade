@@ -15,10 +15,10 @@
 
 import logging
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, resources
 from eskapade import analysis
 from eskapade import process_manager as proc_mgr
-from eskapade.core import persistence
+
 
 log = logging.getLogger('macro.esk202_writedata')
 
@@ -38,7 +38,7 @@ settings['do_writedata'] = True
 
 #########################################################################################
 # --- Set path of data
-data_path = persistence.io_path('data', settings.io_conf(), 'dummy.csv')
+data_path = resources.fixture('dummy.csv')
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
