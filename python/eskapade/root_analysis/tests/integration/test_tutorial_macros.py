@@ -4,9 +4,8 @@ from glob import glob
 
 import ROOT
 import pandas as pd
-from pkg_resources import resource_filename
 
-from eskapade import process_manager, ConfigObject, DataStore
+from eskapade import process_manager, resources, ConfigObject, DataStore
 from eskapade.core import persistence
 from eskapade.root_analysis.roofit_manager import RooFitManager
 from eskapade.tests.integration.test_bases import TutorialMacrosTest
@@ -19,8 +18,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-401: ROOT hist fill, plot, convert"""
 
         # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/esk401_roothist_fill_plot_convert.py')
-        self.eskapade_run(macro)
+        self.eskapade_run(resources.tutorial('esk401_roothist_fill_plot_convert.py'))
         ds = process_manager.service(DataStore)
 
         # histogram checks
@@ -58,14 +56,11 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
 
-    @unittest.skip("Following error is being thrown: AttributeError: module 'pandas.types' has no attribute 'dtypes'. "
-                   "Please investigate!")
     def test_esk402(self):
         """Test Esk-402: RooDataHist fill"""
 
         # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/esk402_roodatahist_fill.py')
-        self.eskapade_run(macro)
+        self.eskapade_run(resources.tutorial('esk402_roodatahist_fill.py'))
         ds = process_manager.service(DataStore)
 
         # data-generation checks
@@ -90,14 +85,11 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIn('rdh_accounts', ds)
         self.assertIsInstance(ds['rdh_accounts'], ROOT.RooDataHist)
 
-    @unittest.skip("Following error is being thrown: AttributeError: module 'pandas.types' has no attribute 'dtypes'. "
-                   "Please investigate!")
     def test_esk403(self):
         """Test Esk-403: RooDataSet convert"""
 
         # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/esk403_roodataset_convert.py')
-        self.eskapade_run(macro)
+        self.eskapade_run(resources.tutorial('esk403_roodataset_convert.py'))
         ds = process_manager.service(DataStore)
 
         # data-generation checks
@@ -136,15 +128,11 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertListEqual(df1['eyeColor'].values.tolist(), df2['eyeColor'].values.tolist())
         self.assertListEqual(df1['favoriteFruit'].values.tolist(), df2['favoriteFruit'].values.tolist())
 
-    @unittest.skip('Cannot find Eskapade roofit library! Remove me once we '
-                   'have figured out how to do it automatically')
     def test_esk404(self):
         """Test Esk-404: Workspace create PDF, simulate, fit, plot"""
 
         # run Eskapade
-        # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/esk404_workspace_createpdf_simulate_fit_plot.py')
-        self.eskapade_run(macro)
+        self.eskapade_run(resources.tutorial('esk404_workspace_createpdf_simulate_fit_plot.py'))
         ds = process_manager.service(DataStore)
         ws = process_manager.service(RooFitManager).ws
 
@@ -171,13 +159,11 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIn('bkg', ws)
         self.assertIn('sig', ws)
 
-    @unittest.skip('There is an pandas dtypes attribute error in roodatahist_filler!')
     def test_esk405(self):
         """Test Esk-405: Simulation based on binned data"""
 
         # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/esk405_simulation_based_on_binned_data.py')
-        self.eskapade_run(macro)
+        self.eskapade_run(resources.tutorial('esk405_simulation_based_on_binned_data.py'))
         ds = process_manager.service(DataStore)
         ws = process_manager.service(RooFitManager).ws
 
@@ -198,12 +184,11 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         mdata = ws.data('rdh_accounts')
         self.assertEqual(650, mdata.sumEntries())
 
-    @unittest.skip('There is an pandas dtypes attribute error in roodatahist_filler!')
     def test_esk406(self):
         """Test Esk-406: Simulation based on unbinned data"""
 
         # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/esk406_simulation_based_on_unbinned_data.py')
+        macro = resources.tutorial('esk406_simulation_based_on_unbinned_data.py')
         self.eskapade_run(macro)
         ds = process_manager.service(DataStore)
 
@@ -229,12 +214,11 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIn('simdata', ds)
         self.assertIsInstance(ds['simdata'], ROOT.RooDataSet)
 
-    @unittest.skip('Can\'t load libesroofit!!')
     def test_esk407(self):
         """Test Esk-407: Classification unbiased fit estimate"""
 
         # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/esk407_classification_unbiased_fit_estimate.py')
+        macro = resources.tutorial('esk407_classification_unbiased_fit_estimate.py')
         self.eskapade_run(macro)
         ds = process_manager.service(DataStore)
         ws = process_manager.service(RooFitManager).ws
@@ -264,13 +248,11 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue(hi_risk.getVal() > 0)
         self.assertTrue(hi_risk.getError() > 0)
 
-    @unittest.skip('Can\'t load libesroofit!!')
     def test_esk408(self):
         """Test Esk-408: Classification error propagation after fit"""
 
         # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/esk408_classification_error_propagation_after_fit.py')
-        self.eskapade_run(macro)
+        self.eskapade_run(resources.tutorial('esk408_classification_error_propagation_after_fit.py'))
         ds = process_manager.service(DataStore)
         ws = process_manager.service(RooFitManager).ws
 
@@ -296,12 +278,11 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue(frac.getVal() > 0)
         self.assertTrue(frac.getError() > 0)
 
-    @unittest.skip('Can\'t load libesroofit!!')
     def test_esk409(self):
         """Test Esk-409: Unredeemed vouchers"""
 
         # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/esk409_unredeemed_vouchers.py')
+        macro = resources.tutorial('esk409_unredeemed_vouchers.py')
         self.eskapade_run(macro)
         proc_mgr = process_manager
         ds = proc_mgr.service(DataStore)
@@ -328,12 +309,11 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         statinfo = os.stat(plot_path)
         self.assertGreater(statinfo.st_size, 0)
 
-    @unittest.skip('Can\'t load libesroofit!!')
     def test_esk410(self):
         """Test Esk-410: Hypothesis test of categorical observables """
 
         # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/esk410_testing_correlations_between_categories.py')
+        macro = resources.tutorial('esk410_testing_correlations_between_categories.py')
         self.eskapade_run(macro)
         proc_mgr = process_manager
         ds = proc_mgr.service(DataStore)
@@ -352,12 +332,11 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
 
-    @unittest.skip('Can\'t load libesroofit!!')
     def test_esk411(self):
         """Test Esk-411: Predictive maintenance Weibull fit"""
 
         # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/esk411_weibull_predictive_maintenance.py')
+        macro = resources.tutorial('esk411_weibull_predictive_maintenance.py')
         self.eskapade_run(macro)
         ds = process_manager.service(DataStore)
         ws = process_manager.service(RooFitManager).ws
@@ -400,7 +379,6 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertGreater(statinfo.st_size, 0)
 
-    @unittest.skip('Can\'t load libesroofit!!')
     def test_tutorial4(self):
         """Test Tutorial 3: Workspace create PDF, simulate, fit, plot"""
 
@@ -409,7 +387,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         settings['onthefly'] = True
 
         # run Eskapade
-        macro = resource_filename('eskapade', 'tutorials/tutorial_4.py')
+        macro = resources.tutorial('tutorial_4.py')
         self.eskapade_run(macro)
 
 

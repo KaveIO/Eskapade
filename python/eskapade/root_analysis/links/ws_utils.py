@@ -20,12 +20,8 @@ import re
 import uuid
 
 import ROOT
+from ROOT import RooFit
 import tabulate
-
-try:
-    from ROOT import RooFit
-except ImportError:
-    import ROOT.RooFit
 
 from eskapade import core
 from eskapade import process_manager

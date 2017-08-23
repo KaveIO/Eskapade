@@ -5,7 +5,7 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 from eskapade.root_analysis.roofit_models import RooFitModel
 
 
-@unittest.skip('This guy depends on Roofit!')
+@unittest.skip('Mock is throwing an Attribute error! Please investigate!')
 class RooFitManagerTest(unittest.TestCase):
     """Tests for RooFit-manager process service"""
 

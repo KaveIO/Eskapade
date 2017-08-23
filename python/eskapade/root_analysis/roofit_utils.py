@@ -18,13 +18,30 @@ import logging
 import ROOT
 from ROOT import RooFit
 
-import eskapade.utils
+from eskapade import resources
 
-CUSTOM_ROOFIT_OBJECTS = ('RooComplementCoef', 'RooNonCentralBinning', 'RooTruncExponential', 'RooWeibull',
+CUSTOM_ROOFIT_OBJECTS = ('RooComplementCoef',
+                         'RooNonCentralBinning',
+                         'RooTruncExponential',
+                         'RooWeibull',
                          ('Eskapade', 'PlotCorrelationMatrix'))
-ROOFIT_LOG_LEVELS = {'DEBUG': 0, 'INFO': 1, 'WARN': 3, 'WARNING': 3, 'ERROR': 4, 'FATAL': 5, 'CRITICAL': 5, 'OFF': 5,
-                     logging.DEBUG: 0, logging.INFO: 1, logging.WARNING: 3, logging.ERROR: 4, logging.CRITICAL: 5,
-                     logging.FATAL: 5, logging.OFF: 5}
+
+ROOFIT_LOG_LEVELS = {'DEBUG': 0,
+                     'INFO': 1,
+                     'WARN': 3,
+                     'WARNING': 3,
+                     'ERROR': 4,
+                     'FATAL': 5,
+                     'CRITICAL': 5,
+                     'OFF': 5,
+                     logging.DEBUG: 0,
+                     logging.INFO: 1,
+                     logging.WARNING: 3,
+                     logging.ERROR: 4,
+                     logging.CRITICAL: 5,
+                     logging.FATAL: 5,
+                     logging.OFF: 5}
+
 ROO_INF = ROOT.RooNumber.infinity()
 
 log = logging.getLogger(__name__)
@@ -42,16 +59,14 @@ def load_libesroofit():
     """Load Eskapade RooFit library"""
 
     # don't rebuild/reload library if already loaded
-    if any(lib.endswith('/libesroofit.so') for lib in ROOT.gSystem.GetLibraries().split()):
+    if any(_.endswith('/libesroofit.so') for _ in ROOT.gSystem.GetLibraries().split()):
         return
-    log.debug('(Re-)building and loading Eskapade RooFit library')
 
-    # (re)build library
-    eskapade.utils.build_cxx_library(lib_key='roofit', accept_existing=True)
+    log.debug('(Re-)loading Eskapade RooFit library')
 
     # load library
-    if ROOT.gSystem.Load('libesroofit') != 0:
-        raise RuntimeError('failed to load Eskapade RooFit library')
+    if ROOT.gSystem.Load(resources.lib('libesroofit.so')) != 0:
+        raise RuntimeError('Failed to load Eskapade RooFit library!')
 
     # check if all classes are loaded
     try:
@@ -61,8 +76,8 @@ def load_libesroofit():
             obj = ROOT
             for spec_comp in obj_spec:
                 obj = getattr(obj, spec_comp)
-    except AttributeError as exc:
-        raise RuntimeError('could not load all custom RooFit objects: "{}"'.format(str(exc)))
+    except AttributeError as e:
+        raise RuntimeError('Could not load all custom RooFit objects: "{exception!s}"'.format(exception=e))
 
 
 _roo_cmd_args = []

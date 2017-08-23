@@ -193,7 +193,7 @@ class RooDataHistFiller(Link):
             assert col in df.columns, 'column "%s" not in dataframe "%s"' % (col, self.read_key)
             dt = df[col].dtype.type
             # keep categorical observables -- convert these to roocategories in conversion to tree
-            if issubclass(dt, pd.types.dtypes.CategoricalDtypeType):
+            if pd.core.common.is_categorical(dt):
                 continue
             # reject all string-based columns
             if (dt is np.string_) or (dt is np.object_):

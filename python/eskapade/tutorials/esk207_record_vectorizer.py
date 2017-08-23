@@ -14,10 +14,10 @@
 
 import logging
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, resources
 from eskapade import core_ops, analysis
 from eskapade import process_manager as proc_mgr
-from eskapade.core import persistence
+
 
 log = logging.getLogger('macro.esk207_record_vectorizer')
 
@@ -34,7 +34,7 @@ settings['version'] = 0
 # --- Analysis values, settings, helper functions, configuration flags.
 
 # --- Set path of data
-data_path = persistence.io_path('data', settings.io_conf(), 'dummy.csv')
+data_path = resources.fixture('dummy.csv')
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
