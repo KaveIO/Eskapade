@@ -17,6 +17,7 @@
 
 #pragma link C++ class RooWeibull+;
 #pragma link C++ class RooNonCentralBinning+;
+#pragma link C++ class RhhNDKeysPdf+;
 
 #pragma link C++ function Eskapade::PoissonObsP(Double_t,Double_t,Double_t);
 #pragma link C++ function Eskapade::PoissonObsMidP(Double_t,Double_t,Double_t);
