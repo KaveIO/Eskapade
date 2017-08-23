@@ -16,18 +16,13 @@
 # ********************************************************************************
 
 import logging
-log = logging.getLogger('macro.Tutorial_5')
-import pandas as pd
 
-from pyspark.sql.functions import udf
-from pyspark.sql.types import FloatType, TimestampType
-
-from eskapade import ConfigObject, ProcessManager
 from analytics_engine.spark_analysis import SparkManager
-from eskapade import visualization
-from analytics_engine import spark_analysis
+
+from eskapade import process_manager as proc_mgr, ConfigObject
 from eskapade.core import persistence
 
+log = logging.getLogger('macro.Tutorial_5')
 
 #########################################################################################
 
@@ -39,19 +34,16 @@ $ wget -P $ESKAPADE/data/ https://statweb.stanford.edu/~tibs/ElemStatLearn/datas
 """
 log.info(msg)
 
-
 #########################################################################################
 # --- minimal analysis information
-proc_mgr = ProcessManager()
+
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'Tutorial_5'
-
 
 #########################################################################################
 # --- setup Spark
 
 proc_mgr.service(SparkManager).get_or_create_session()
-
 
 #########################################################################################
 # --- analysis values, settings, helper functions, configuration flags.
@@ -81,24 +73,24 @@ def mi_to_km(dist):
 proc_mgr.add_chain('Data')
 
 ## add data-frame reader to "Data" chain
-#reader = spark_analysis.SparkDfReader()
-#proc_mgr.get_chain('Data').add_link(reader)
+# reader = spark_analysis.SparkDfReader()
+# proc_mgr.get_chain('Data').add_link(reader)
 
 ## add conversion functions to "Data" chain
-#transform = spark_analysis.SparkWithColumn()
-#proc_mgr.get_chain('Data').add_link(transform)
+# transform = spark_analysis.SparkWithColumn()
+# proc_mgr.get_chain('Data').add_link(transform)
 
 # create second chain
 proc_mgr.add_chain('Summary')
 
 ## fill spark histograms
-#histo = spark_analysis.SparkHistogrammarFiller()
-#proc_mgr.get_chain('Summary').add_link(histo)
+# histo = spark_analysis.SparkHistogrammarFiller()
+# proc_mgr.get_chain('Summary').add_link(histo)
 
 ## add data-frame summary link to "Summary" chain
-#summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=histo.store_key,
+# summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=histo.store_key,
 #                                     var_labels=VAR_LABELS, var_units=VAR_UNITS)
-#proc_mgr.get_chain('Summary').add_link(summarizer)
+# proc_mgr.get_chain('Summary').add_link(summarizer)
 
 
 #########################################################################################

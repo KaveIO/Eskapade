@@ -12,26 +12,20 @@
 # ********************************************************************************
 
 import logging
+
+from eskapade import process_manager as proc_mgr, ConfigObject, DataStore, spark_analysis
+from eskapade.spark_analysis import SparkManager
+
 log = logging.getLogger('macro.esk609_map_df_groups')
 
-import pyspark
-
-from eskapade import ConfigObject, DataStore, ProcessManager
-from eskapade.spark_analysis import SparkManager
-from eskapade import spark_analysis
-
 log.debug('Now parsing configuration file esk609_map_df_groups')
-
 
 ##########################################################################
 # --- minimal analysis information
 
-proc_mgr = ProcessManager()
-
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'esk609_map_df_groups'
 settings['version'] = 0
-
 
 ##########################################################################
 # --- start Spark session
@@ -56,7 +50,6 @@ def add_sum_bar(gr):
 ds = proc_mgr.service(DataStore)
 rows = [(it, 'foo{:d}'.format(it), (it + 1) / 2.) for it in range(100)]
 ds['df'] = spark.createDataFrame(rows, schema=['index', 'foo', 'bar'])
-
 
 ##########################################################################
 # --- now set up the chains and links based on configuration flags
@@ -90,7 +83,6 @@ flmap_lnk = spark_analysis.RddGroupMapper(name='FlatMapper',
                                           result_map=lambda g: g[1],
                                           flatten_output_groups=True)
 chain.add_link(flmap_lnk)
-
 
 ##########################################################################
 

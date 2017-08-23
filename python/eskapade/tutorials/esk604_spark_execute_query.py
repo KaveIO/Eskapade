@@ -12,31 +12,26 @@
 # ********************************************************************************
 
 import logging
-log = logging.getLogger('macro.esk604_spark_execute_query')
 
-from eskapade import ConfigObject, ProcessManager
+from eskapade import process_manager as proc_mgr, ConfigObject, spark_analysis
 from eskapade.core import persistence
 from eskapade.spark_analysis import SparkManager
-from eskapade import spark_analysis
+
+log = logging.getLogger('macro.esk604_spark_execute_query')
 
 log.debug('Now parsing configuration file esk604_spark_execute_query')
 
-
 ##########################################################################
 # Minimal analysis information
-
-proc_mgr = ProcessManager()
 
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'esk604_spark_execute_query'
 settings['version'] = 0
 
-
 ##########################################################################
 # Start Spark session
 
 spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
-
 
 ##########################################################################
 # CSV and dataframe settings
@@ -66,7 +61,6 @@ for index, key in enumerate(STORE_KEYS):
     # add link to chain
     proc_mgr.get_chain('Read').add_link(read_link)
 
-
 # create SQL-query link
 sql_link = spark_analysis.SparkExecuteQuery(name='SparkSQL',
                                             store_key='spark_df_sql')
@@ -79,7 +73,6 @@ sql_link.query = 'SELECT loc, sum(x) as sumx, sum(y) as sumy ' \
 
 # add link to chain
 proc_mgr.add_chain('ApplySQL').add_link(sql_link)
-
 
 ##########################################################################
 

@@ -14,41 +14,34 @@
 
 
 import logging
-log = logging.getLogger('macro.esk607_spark_with_column')
 
-from pyspark.sql import types
-from pyspark.sql import functions
+from pyspark.sql import types, functions
 
-from eskapade import ConfigObject, ProcessManager
+from eskapade import process_manager as proc_mgr, ConfigObject, spark_analysis
 from eskapade.core import persistence
 from eskapade.spark_analysis import SparkManager
-from eskapade import spark_analysis
+
+log = logging.getLogger('macro.esk607_spark_with_column')
 
 log.debug('Now parsing configuration file esk607_spark_with_column')
-
 
 ##########################################################################
 # Minimal analysis information
 
-proc_mgr = ProcessManager()
-
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'esk607_spark_with_column'
 settings['version'] = 0
-
 
 ##########################################################################
 # Start Spark session
 
 spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
 
-
 ##########################################################################
 # CSV and dataframe settings
 
 # NB: local file may not be accessible to worker node in cluster mode
 file_path = ['file:' + persistence.io_path('data', settings.io_conf(), 'dummy1.csv')]
-
 
 ##########################################################################
 # Now set up the chains and links based on configuration flags
@@ -73,7 +66,7 @@ col_link = spark_analysis.SparkWithColumn(name='UdfPower', read_key=read_link.st
 # example using a user-defined function and the 'include'-option
 col_link.col_select = ['x', 'y']
 col_link.col_usage = 'include'
-col_link.func = functions.udf(lambda a, b: float(a)**float(b), returnType=types.DoubleType())   # Power of two columns
+col_link.func = functions.udf(lambda a, b: float(a) ** float(b), returnType=types.DoubleType())  # Power of two columns
 col_link.new_column = 'pow_xy1'
 
 # add link to chain
@@ -85,12 +78,11 @@ col_link = spark_analysis.SparkWithColumn(name='BuiltPower', read_key=col_link.s
 # example using a built-in Spark-function and the 'exclude'-option
 col_link.col_select = ['dummy', 'date', 'loc', 'pow_xy1']
 col_link.col_usage = 'exclude'
-col_link.func = functions.pow    # Power of two columns
+col_link.func = functions.pow  # Power of two columns
 col_link.new_column = 'pow_xy2'
 
 # add link to chain
 proc_mgr.get_chain('AddColumn').add_link(col_link)
-
 
 ##########################################################################
 

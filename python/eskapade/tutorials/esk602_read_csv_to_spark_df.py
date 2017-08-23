@@ -11,31 +11,26 @@
 # ********************************************************************************
 
 import logging
-log = logging.getLogger('macro.esk602_read_csv_to_spark_df')
 
-from eskapade import ConfigObject, ProcessManager
+from eskapade import process_manager as proc_mgr, ConfigObject, spark_analysis
 from eskapade.core import persistence
 from eskapade.spark_analysis import SparkManager
-from eskapade import spark_analysis
+
+log = logging.getLogger('macro.esk602_read_csv_to_spark_df')
 
 log.debug('Now parsing configuration file esk602_read_csv_to_spark_df')
 
-
 ##########################################################################
 # --- minimal analysis information
-
-proc_mgr = ProcessManager()
 
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'esk602_read_csv_to_spark_df'
 settings['version'] = 0
 
-
 ##########################################################################
 # --- start Spark session
 
 spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
-
 
 ##########################################################################
 # --- CSV and data-frame settings
@@ -43,12 +38,12 @@ spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings
 # NB: local file may not be accessible to worker node in cluster mode
 file_paths = ['file:' + persistence.io_path('data', settings.io_conf(), 'dummy1.csv'),
               'file:' + persistence.io_path('data', settings.io_conf(), 'dummy2.csv')]
+
 separator = '|'
 has_header = True
 infer_schema = True
 num_partitions = 5
 columns = ['date', 'loc', 'x', 'y']
-
 
 ##########################################################################
 # --- now set up the chains and links based on configuration flags
@@ -76,7 +71,6 @@ if num_partitions:
 
 # add link to chain
 proc_mgr.add_chain('Read').add_link(read_link)
-
 
 ##########################################################################
 

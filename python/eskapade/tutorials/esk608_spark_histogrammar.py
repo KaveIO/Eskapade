@@ -11,33 +11,26 @@
 # ********************************************************************************
 
 import logging
-import os
-import pyspark
-log = logging.getLogger('macro.esk608_spark_histogrammar')
 
-from eskapade import ConfigObject, ProcessManager, visualization
+from eskapade import process_manager as proc_mgr, ConfigObject, visualization, spark_analysis
 from eskapade.core import persistence
-from eskapade import spark_analysis
 from eskapade.spark_analysis import SparkManager
+
+log = logging.getLogger('macro.esk608_spark_histogrammar')
 
 log.debug('Now parsing configuration file esk608_spark_histogrammar')
 
-
 ##########################################################################
 # --- minimal analysis information
-
-proc_mgr = ProcessManager()
 
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'esk608_spark_histogrammar'
 settings['version'] = 0
 
-
 ##########################################################################
 # --- start Spark session
 
 spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
-
 
 ##########################################################################
 # --- CSV and data-frame settings
@@ -48,7 +41,6 @@ has_header = True
 infer_schema = True
 num_partitions = 4
 columns = ['date', 'loc', 'x', 'y']
-
 
 ##########################################################################
 # --- now set up the chains and links based on configuration flags
@@ -77,9 +69,7 @@ if num_partitions:
 # add link to chain
 proc_mgr.add_chain('Read').add_link(read_link)
 
-
 ch = proc_mgr.add_chain('Output')
-
 
 # fill spark histograms
 hf = spark_analysis.SparkHistogrammarFiller()
@@ -92,12 +82,10 @@ hf.set_log_level(logging.DEBUG)
 hf.columns = ['x', 'y', 'loc', ['x', 'y'], 'date']
 ch.add_link(hf)
 
-
 # make a nice summary report of the created histograms
 hist_summary = visualization.DfSummary(name='HistogramSummary',
                                        read_key=hf.store_key)
 ch.add_link(hist_summary)
-
 
 ###########################################################################
 # --- the end

@@ -12,32 +12,27 @@
 # ********************************************************************************
 
 import logging
-log = logging.getLogger('macro.esk606_convert_spark_df')
 
 import pyspark
 
-from eskapade import ConfigObject, DataStore, ProcessManager
+from eskapade import process_manager as proc_mgr, ConfigObject, DataStore, spark_analysis
 from eskapade.spark_analysis import SparkManager
-from eskapade import spark_analysis
+
+log = logging.getLogger('macro.esk606_convert_spark_df')
 
 log.debug('Now parsing configuration file esk606_convert_spark_df')
 
-
 ##########################################################################
 # --- minimal analysis information
-
-proc_mgr = ProcessManager()
 
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'esk606_convert_spark_df'
 settings['version'] = 0
 
-
 ##########################################################################
 # --- start Spark session
 
 spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
-
 
 ##########################################################################
 # --- input data
@@ -57,11 +52,13 @@ def set_num_parts(df, max_num_parts):
         df = df.repartition(max_num_parts)
     return df
 
+
 # define function to select rows from list
 
 
 def filter_list(list_data, min_index):
     return list(filter(lambda r: r[0] >= min_index, list_data))
+
 
 # define function to select rows in a Pandas data frame
 
@@ -100,7 +97,6 @@ for out_format in process_methods:
 
     # add link to chain
     chain.add_link(lnk)
-
 
 ##########################################################################
 

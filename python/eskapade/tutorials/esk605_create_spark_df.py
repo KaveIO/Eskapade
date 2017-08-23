@@ -11,34 +11,30 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
+import logging
+from collections import OrderedDict as odict
+
 import pandas as pd
 
-from collections import OrderedDict as odict
-import logging
-log = logging.getLogger('macro.esk605_create_spark_df')
-
-from eskapade import ConfigObject, DataStore, ProcessManager
+from eskapade import process_manager as proc_mgr
+from eskapade import ConfigObject, DataStore, spark_analysis
 from eskapade.spark_analysis import SparkManager
-from eskapade import spark_analysis
+
+log = logging.getLogger('macro.esk605_create_spark_df')
 
 log.debug('Now parsing configuration file esk605_create_spark_df')
 
-
 ##########################################################################
 # --- minimal analysis information
-
-proc_mgr = ProcessManager()
 
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'esk605_create_spark_df'
 settings['version'] = 0
 
-
 ##########################################################################
 # --- start Spark session
 
 spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
-
 
 ##########################################################################
 # --- input data
@@ -77,7 +73,6 @@ for ds_key, lnk_schema in zip(('rows', 'rdd', 'df', 'pd'), (list(schema.keys()),
 
     # add link to chain
     chain.add_link(lnk)
-
 
 ##########################################################################
 

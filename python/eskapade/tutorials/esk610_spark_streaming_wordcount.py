@@ -41,26 +41,22 @@
 # ********************************************************************************
 
 import logging
-import os
-import pyspark
 
 from pyspark.streaming import StreamingContext
-from eskapade import ConfigObject, ProcessManager, DataStore
+
+from eskapade import process_manager as proc_mgr, ConfigObject, DataStore, spark_analysis
 from eskapade.spark_analysis import SparkManager
-from eskapade import spark_analysis
 
 log = logging.getLogger('macro.esk610_spark_streaming')
 log.debug('Now parsing configuration file esk610_spark_streaming')
 
-
 ##########################################################################
 # --- minimal analysis information
-
-proc_mgr = ProcessManager()
 
 settings = proc_mgr.service(ConfigObject)
 settings['analysisName'] = 'esk610_spark_streaming'
 settings['version'] = 0
+
 
 # check command line
 
@@ -75,7 +71,6 @@ def checkVar(varName, local_vars=vars(), settings=settings, default=False):
 
 
 stream_type = checkVar('stream_type')
-
 
 ##########################################################################
 # --- start Spark session
@@ -98,7 +93,6 @@ elif stream_type == 'tcp':
 else:
     log.error('unsupported stream_type specified: {}'.format(stream_type))
 
-
 ##########################################################################
 # --- now set up the chains and links based on configuration flags
 
@@ -118,7 +112,6 @@ proc_mgr.get_chain('SparkStreaming').add_link(writer_link)
 # start/stop of Spark Streaming
 control_link = spark_analysis.SparkStreamingController(name='SparkStreamingController', timeout=10)
 proc_mgr.get_chain('SparkStreaming').add_link(control_link)
-
 
 ##########################################################################
 
