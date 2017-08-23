@@ -132,8 +132,8 @@ class TruncExponentialTest(unittest.TestCase):
 
         # test without data integral
         pdf_full, pdf_data = TruncExponential.create_norm(mock_trunc_exp, data=None, range_min=0., range_max=1.)
-        mock_pdf.clone().redirectServers.assert_called_once()
-        mock_pdf.clone().createIntegral.assert_called_once()
+        mock_pdf.clone().redirectServers.assert_called_once_with()
+        mock_pdf.clone().createIntegral.assert_called_once_with()
         self.assertIs(pdf_full, mock_pdf.clone().createIntegral(), 'unexpected full PDF integral')
         self.assertIs(pdf_data, mock_pdf.clone().createIntegral().clone(), 'unexpected data PDF integral')
         mock_constvar.assert_called()
@@ -147,7 +147,7 @@ class TruncExponentialTest(unittest.TestCase):
                          'expected exactly two redirect-server calls on PDF clones')
         self.assertEqual(mock_pdf.clone().createIntegral.call_count, 2,
                          'expected exactly two create-integral calls on PDF clones')
-        mock_dwa.assert_called_once()
+        mock_dwa.assert_called_once_with()
         self.assertIn(mock_pdf.clone().createIntegral(), mock_dwa.call_args[0],
                       'RooDataWeightedAverage not called with integral of PDF clone')
         self.assertIs(pdf_full, mock_pdf.clone().createIntegral(), 'unexpected full PDF integral')

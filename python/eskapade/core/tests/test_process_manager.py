@@ -196,7 +196,7 @@ class ProcessManagerTest(unittest.TestCase):
         settings['beginWithChain'] = '2'
         settings['endWithChain'] = '3'
         status = pm.execute_all()
-        mock_import.assert_called_once()
+        mock_import.assert_called_once_with()
         calls = [mock.call(ch) for ch in pm.chains[1:3]]
         mock_execute.assert_has_calls(calls, any_order=False)
         mock_persist.assert_called()
