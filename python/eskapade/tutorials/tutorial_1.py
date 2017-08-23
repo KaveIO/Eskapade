@@ -20,9 +20,8 @@ import logging
 import pandas as pd
 
 from eskapade import ConfigObject
-from eskapade import analysis
+from eskapade import analysis, resources
 from eskapade import process_manager as proc_mgr
-from eskapade.core import persistence
 
 log = logging.getLogger('macro.Tutorial_1')
 
@@ -45,7 +44,7 @@ settings['analysisName'] = 'Tutorial_1'
 #########################################################################################
 # --- analysis values, settings, helper functions, configuration flags.
 
-DATA_FILE_PATH = persistence.io_path('data', settings.io_conf(), 'LAozone.data')
+DATA_FILE_PATH = resources.fixture('LAozone.data')
 VAR_LABELS = dict(doy='Day of year', date='Date', vis='Visibility', vis_km='Visibility')
 VAR_UNITS = dict(vis='mi', vis_km='km')
 

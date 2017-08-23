@@ -17,8 +17,7 @@ import logging
 
 from pyspark.sql import types, functions
 
-from eskapade import process_manager as proc_mgr, ConfigObject, spark_analysis
-from eskapade.core import persistence
+from eskapade import process_manager as proc_mgr, ConfigObject, resources, spark_analysis
 from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.esk607_spark_with_column')
@@ -41,7 +40,7 @@ spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings
 # CSV and dataframe settings
 
 # NB: local file may not be accessible to worker node in cluster mode
-file_path = ['file:' + persistence.io_path('data', settings.io_conf(), 'dummy1.csv')]
+file_path = ['file:' + resources.fixture('dummy1.csv')]
 
 ##########################################################################
 # Now set up the chains and links based on configuration flags

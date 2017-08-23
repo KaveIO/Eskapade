@@ -12,8 +12,7 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr, ConfigObject, visualization, spark_analysis
-from eskapade.core import persistence
+from eskapade import process_manager as proc_mgr, ConfigObject, visualization, resources, spark_analysis
 from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.esk608_spark_histogrammar')
@@ -35,7 +34,7 @@ spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings
 ##########################################################################
 # --- CSV and data-frame settings
 
-file_paths = ['file:' + persistence.io_path('data', settings.io_conf(), 'dummy.csv')]
+file_paths = ['file:' + resources.fixture('dummy.csv')]
 separator = '|'
 has_header = True
 infer_schema = True

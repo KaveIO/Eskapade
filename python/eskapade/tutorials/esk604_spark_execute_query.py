@@ -13,8 +13,7 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr, ConfigObject, spark_analysis
-from eskapade.core import persistence
+from eskapade import process_manager as proc_mgr, ConfigObject, resources, spark_analysis
 from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.esk604_spark_execute_query')
@@ -37,8 +36,8 @@ spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings
 # CSV and dataframe settings
 
 # NB: local file may not be accessible to worker node in cluster mode
-file_paths = ['file:' + persistence.io_path('data', settings.io_conf(), 'dummy1.csv'),
-              'file:' + persistence.io_path('data', settings.io_conf(), 'dummy2.csv')]
+file_paths = ['file:' + resources.fixture('dummy1.csv'),
+              'file:' + resources.fixture('dummy2.csv')]
 
 # define store_key for all data files to be read in
 STORE_KEYS = ['spark_df1', 'spark_df2']

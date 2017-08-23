@@ -19,8 +19,7 @@ import logging
 
 from analytics_engine.spark_analysis import SparkManager
 
-from eskapade import process_manager as proc_mgr, ConfigObject
-from eskapade.core import persistence
+from eskapade import process_manager as proc_mgr, ConfigObject, resources
 
 log = logging.getLogger('macro.Tutorial_5')
 
@@ -48,7 +47,7 @@ proc_mgr.service(SparkManager).get_or_create_session()
 #########################################################################################
 # --- analysis values, settings, helper functions, configuration flags.
 
-DATA_FILE_PATH = persistence.io_path('data', settings.io_conf(), 'LAozone.data')
+DATA_FILE_PATH = resources.fixture('LAozone.data')
 VAR_LABELS = dict(doy='Day of year', date='Date', vis='Visibility', vis_km='Visibility')
 VAR_UNITS = dict(vis='mi', vis_km='km')
 

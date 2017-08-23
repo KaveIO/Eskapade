@@ -10,8 +10,7 @@ import sys
 
 from pyspark.sql.types import StructField, LongType, DoubleType, StringType
 
-from eskapade import utils
-from eskapade import process_manager, ConfigObject, DataStore
+from eskapade import process_manager, resources, utils, ConfigObject, DataStore
 from eskapade.core import persistence
 from eskapade.tests.integration.test_bases import TutorialMacrosTest
 
@@ -26,7 +25,6 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         TutorialMacrosTest.setUp(self)
         settings = process_manager.service(ConfigObject)
-        settings['macrosDir'] = '{0:s}/{1:s}'.format(utils.get_env_var('es_root'), 'tutorials')
         settings['analysisName'] = 'SparkAnalysisTutorialMacrosTest'
 
         # ensure local testing
@@ -47,7 +45,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         process_manager.service(SparkManager).finish()
 
         # run Eskapade
-        self.run_eskapade('esk601_spark_configuration.py')
+        self.eskapade_run(resources.tutorial('esk601_spark_configuration.py'))
 
         sc = process_manager.service(SparkManager).get_session().sparkContext
 
@@ -72,7 +70,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
             'local\[[.*]\]', 'Spark not running in local mode, required for testing with local files')
 
         # run Eskapade
-        self.run_eskapade('esk602_read_csv_to_spark_df.py')
+        self.eskapade_run(resources.tutorial('esk602_read_csv_to_spark_df.py'))
         ds = process_manager.service(DataStore)
 
         # check data frame
@@ -97,7 +95,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
             'local\[[.*]\]', 'Spark not running in local mode, required for testing with local files')
 
         # run Eskapade
-        self.run_eskapade('esk603_write_spark_data_to_csv.py')
+        self.eskapade_run(resources.tutorial('esk603_write_spark_data_to_csv.py'))
         ds = process_manager.service(DataStore)
 
         # read output data
@@ -138,7 +136,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
             'local\[[.*]\]', 'Spark not running in local mode, required for testing with local files')
 
         # run Eskapade
-        self.run_eskapade('esk604_spark_execute_query.py')
+        self.eskapade_run(resources.tutorial('esk604_spark_execute_query.py'))
         ds = process_manager.service(DataStore)
 
         # check data frame
@@ -156,7 +154,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-605: Create Spark data frame"""
 
         # run Eskapade
-        self.run_eskapade('esk605_create_spark_df.py')
+        self.eskapade_run(resources.tutorial('esk605_create_spark_df.py'))
         ds = process_manager.service(DataStore)
 
         # check created data frames
@@ -178,7 +176,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-606: Convert Spark data frame"""
 
         # run Eskapade
-        self.run_eskapade('esk606_convert_spark_df.py')
+        self.eskapade_run(resources.tutorial('esk606_convert_spark_df.py'))
         ds = process_manager.service(DataStore)
 
         # define types of stored data sets
@@ -218,7 +216,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
             'local\[[.*]\]', 'Spark not running in local mode, required for testing with local files')
 
         # run Eskapade
-        self.run_eskapade('esk607_spark_with_column.py')
+        self.eskapade_run(resources.tutorial('esk607_spark_with_column.py'))
         ds = process_manager.service(DataStore)
 
         # check data frame
@@ -255,7 +253,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
                                      'Eskapade modules missing from spark.files, needed in Spark cluster mode')
 
         # run Eskapade
-        self.run_eskapade('esk608_spark_histogrammar.py')
+        self.eskapade_run(resources.tutorial('esk608_spark_histogrammar.py'))
         ds = process_manager.service(DataStore)
         settings = process_manager.service(ConfigObject)
 
@@ -285,7 +283,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-609: Map data-frame groups"""
 
         # run Eskapade
-        self.run_eskapade('esk609_map_df_groups.py')
+        self.eskapade_run(resources.tutorial('esk609_map_df_groups.py'))
         ds = process_manager.service(DataStore)
 
         # check input data
@@ -323,7 +321,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         # run eskapade
-        self.run_eskapade('esk610_spark_streaming_wordcount.py')
+        self.eskapade_run(resources.tutorial('esk610_spark_streaming_wordcount.py'))
         ds = process_manager.service(DataStore)
 
         # end file stream
