@@ -1,14 +1,14 @@
-from collections import OrderedDict as odict
 import datetime
-import pandas as pd
+from collections import OrderedDict as odict
 
+import pandas as pd
 import pyspark
 from pyspark.sql.types import StructField, StructType, LongType, DoubleType, StringType, TimestampType
 
 from eskapade import process_manager, ConfigObject
-from eskapade.tests.integration.test_bases import IntegrationTest
-from eskapade.spark_analysis.spark_manager import SparkManager
 from eskapade.spark_analysis.data_conversion import create_spark_df, df_schema
+from eskapade.spark_analysis.spark_manager import SparkManager
+from eskapade.tests.integration.test_bases import IntegrationTest
 
 
 class DataConversionTest(IntegrationTest):
