@@ -46,7 +46,7 @@ class RooAbsReal;
 class RooParamHistPdf : public RooHistPdf {
 public:
   RooParamHistPdf(const char *name, const char *title, const RooArgSet& vars, const RooDataHist& dhist,
-                  Int_t intOrder=0, Bool_t noParams=kFALSE);
+                  Int_t intOrder=0, Bool_t noParams=kFALSE, Bool_t relParams=kFALSE);
   RooParamHistPdf(const RooParamHistPdf& other, const char* name=0);
   virtual TObject* clone(const char* newname) const { return new RooParamHistPdf(*this,newname); }
   virtual ~RooParamHistPdf();
@@ -75,6 +75,7 @@ public:
   virtual void setNominalData(const RooDataHist& nomHist, Bool_t updateModifiedData = kTRUE);
 
   inline Bool_t getNoParams() const { return _noParams; }
+  inline Bool_t getRelParams() const { return _relParams; }
   inline Double_t getSumWNorm() const { return _sumWnorm; }
   virtual Double_t getSumW() const;
 
@@ -99,6 +100,7 @@ protected:
   const RooDataHist& _dh; //! do not persist
   mutable FastHist* _dh_mod; //! do not persist
   Bool_t _noParams ;
+  Bool_t _relParams ;
   Double_t _sumWnorm;
 
   Double_t evaluate() const;

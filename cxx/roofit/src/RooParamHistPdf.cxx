@@ -76,7 +76,7 @@ ClassImp(RooParamHistPdf);
 /// for the entire life span of this PDF.
 
 RooParamHistPdf::RooParamHistPdf(const char *name, const char *title, const RooArgSet& vars,
-                                 const RooDataHist& dhist, Int_t intOrder, Bool_t noParams) :
+                                 const RooDataHist& dhist, Int_t intOrder, Bool_t noParams, Bool_t relParams) :
   //RooAbsPdf(name,title),
   RooHistPdf(name,title,vars,dhist,intOrder),
   _p("p","p",this),
@@ -86,6 +86,7 @@ RooParamHistPdf::RooParamHistPdf(const char *name, const char *title, const RooA
   _dh(dhist),
   _dh_mod(0),
   _noParams(noParams),
+  _relParams(relParams),
   _sumWnorm(dhist.sumEntries())
 {
   _dh_mod = new FastHist(_dh);
@@ -99,7 +100,8 @@ RooParamHistPdf::RooParamHistPdf(const char *name, const char *title, const RooA
   }
 
   // keep track of changes in gamma parameters (if any)
-  RooChangeTracker* tracker = new RooChangeTracker("tracker","track gamma parameters", _p, true);
+  const char* tracker_name = Form("%s_tracker",GetName()) ;
+  RooChangeTracker* tracker = new RooChangeTracker(tracker_name, "track gamma parameters", _p, true);
   if (!_noParams)
     tracker->hasChanged(true); // first evaluation always true for new parameters
   _t.add( *tracker );
@@ -127,6 +129,7 @@ RooParamHistPdf::RooParamHistPdf(const RooParamHistPdf& other, const char* name)
   _dh(other._dh),
   _dh_mod(0),
   _noParams(other._noParams),
+  _relParams(other._relParams),
   _sumWnorm(other._sumWnorm)
 {
   if (other._dh_mod!=0) {
@@ -165,7 +168,7 @@ RooParamHistPdf::createBinParameters()
     _dataHist->get(i) ;
     // floating parameters
     const char* vname = Form("%s_gamma_bin_%i",GetName(),i) ;
-    RooRealVar* var = new RooRealVar(vname,vname,1,0,6);
+    RooRealVar* var = new RooRealVar(vname,vname,1);
     var->setConstant(kTRUE) ;
     _p.add(*var) ;
     // c below is the inverse of p
@@ -462,39 +465,46 @@ void RooParamHistPdf::setNominalData(const RooDataHist& nomHist, Bool_t updateMo
     const RooArgSet* x = _dh.get(i);
     nomHist.get(*x);
     Double_t w = nomHist.weight();
-    Double_t we = nomHist.weightError();
-    // update constants
+    //Double_t we = nomHist.weightError();
+    // 1. update constants
     RooRealVar& c = (RooRealVar&)_c[i];
-    c.setVal(w);
-    c.setError(we);
+    c.setError(0);
     c.setConstant();
-    if (w==0) {
+    if (_relParams && (w>0)) {
+      c.setRange(w,w);
+      c.setVal(w);
+    } else {
       // if nobs==0: c becomes relative, and p absolute
+      c.setRange(1,1);
       c.setVal(1);
     }
-    // update floating parameters
+    // 2. update floating parameters
     RooRealVar& p = (RooRealVar&)_p[i];
-    p.setVal(1) ;
     Double_t y(w), ym1, yp1, yerr, yerrm, yerrp;
     RooHistError::instance().getPoissonInterval(y,ym1,yp1,1);
     yerr = (yp1-ym1)/2.;
     yerrm = ym1-y;
     yerrp = yp1-y;
-    if (y>0) {
+    if (_relParams && (w>0)) {
+      p.setVal(1) ;
       yerr /= y;
       yerrm /= y;
       yerrp /= y;
-    } else { // w == 0
-      // if nobs==0: c becomes relative, and p absolute
-      p.setVal(0) ;
+    } else {
+      p.setVal(w);
     }
     Double_t pMin = p.getVal() - 10.*TMath::Abs(yerrm);
     if (pMin<=0) { pMin = 0.; }
     Double_t pMax = p.getVal() + 10.*yerrp;
-    if (pMax>5) { pMax = 6.; }
+    if (_relParams && pMax>6) { pMax = 6.; }
     p.setRange( pMin, pMax );
     p.setAsymError( yerrm, yerrp );
     p.setError( yerr ) ;
+    if (_relParams && (w>0)) {
+      p.setVal(1) ;
+    } else { // absolute parameters or w==0
+      p.setVal(w) ;
+    }
   }
 
   _sumWnorm = this->getSumW();

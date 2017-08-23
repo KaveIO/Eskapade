@@ -107,7 +107,8 @@ Eskapade::ABCD::MakePoissonConstraint(const char* name, RooArgList& storeVarList
                                       const RooParamHistPdf& pdf)
 {
   const RooDataHist& data = pdf.getInitialData();
-  const RooArgList& binList = pdf.binList();
+  Bool_t relParams = pdf.getRelParams();
+  const RooArgList& binList = (relParams ? pdf.binList() : pdf.paramList());
   return Eskapade::ABCD::MakePoissonConstraint(name, storeVarList, storePdfList, binList, data);
 }
 
@@ -125,7 +126,7 @@ Eskapade::ABCD::MakePoissonConstraint(const char* name, RooArgList& storeVarList
     nomData.get(i);
     Double_t w = nomData.weight();
     const char* nnamei = Form("%s_nominal_%d", name, i);
-    RooRealVar* nomi = new RooRealVar(nnamei,nnamei,w);
+    RooRealVar* nomi = new RooRealVar(nnamei,nnamei,w,w,w);
     nomi->setConstant();
     storeVarList.addOwned(*nomi);
     // construct poissons
