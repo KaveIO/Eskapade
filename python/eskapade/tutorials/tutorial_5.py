@@ -17,7 +17,7 @@
 
 import logging
 
-from analytics_engine.spark_analysis import SparkManager
+from eskapade.spark_analysis import SparkManager
 
 from eskapade import process_manager as proc_mgr, ConfigObject, resources
 
