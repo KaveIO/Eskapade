@@ -43,7 +43,7 @@ class RooFitManagerTest(unittest.TestCase):
         # test returning of created workspace
         mock_rfm._ws = None
         ws = RooFitManager.ws.__get__(mock_rfm)
-        mock_roows.assert_called_once()
+        mock_roows.assert_called_once_with()
         mock_set_ownership.assert_called_once_with(created_roows, False)
         self.assertIs(ws, created_roows, 'incorrect workspace set')
         self.assertIs(mock_rfm._ws, created_roows, 'incorrect workspace returned')
