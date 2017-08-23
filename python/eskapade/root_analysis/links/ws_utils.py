@@ -463,7 +463,7 @@ class WsUtils(Link):
 
     def do_plot(self, ds, ws, obs, data=None, pdf=None, func=None, data_args=(), pdf_args=(), func_args=(),
                 data_kwargs={}, pdf_kwargs={}, func_kwargs={}, key='', into_ws=False, output_file=None, bins=40,
-                logy=False, miny=0, plot_range=None):
+                logy=False, miny=0, maxy=None, plot_range=None):
         """Make a plot of data and/or a pdf, or of a function
 
         Either a dataset, pdf, or function needs to be provided as input for plotting.
@@ -486,6 +486,7 @@ class WsUtils(Link):
         :param int bins: number of bins in the plot. default is 40. (optional)
         :param bool logy: if true, set y-axis to log scale (optional)
         :param float miny: set minimum value of y-axis to miny value (optional)
+        :param float maxy: set maximum value of y-axis to maxy value (optional)
         :param tuple plot_range: specify x-axis plot range as (min, max) (optional)
         """
 
@@ -580,6 +581,9 @@ class WsUtils(Link):
         if output_file:
             if miny != 0:
                 frame.SetMinimum(miny)
+            if maxy is not None:
+                assert isinstance(maxy, float) or isinstance(maxy, int), 'maxy needs to be a float.'
+                frame.SetMaximum(maxy)
             frame.Draw()
 
         # store rooplot
