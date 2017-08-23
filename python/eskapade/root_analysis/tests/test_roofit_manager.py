@@ -5,7 +5,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 from eskapade.root_analysis.roofit_models import RooFitModel
 
 
-@unittest.skip('Mock is throwing an Attribute error! Please investigate!')
 class RooFitManagerTest(unittest.TestCase):
     """Tests for RooFit-manager process service"""
 
@@ -43,7 +42,7 @@ class RooFitManagerTest(unittest.TestCase):
         # test returning of created workspace
         mock_rfm._ws = None
         ws = RooFitManager.ws.__get__(mock_rfm)
-        mock_roows.assert_called_once_with()
+        mock_roows.assert_called_once_with('esws', 'Eskapade workspace')
         mock_set_ownership.assert_called_once_with(created_roows, False)
         self.assertIs(ws, created_roows, 'incorrect workspace set')
         self.assertIs(mock_rfm._ws, created_roows, 'incorrect workspace returned')

@@ -2,13 +2,12 @@ import sys
 import unittest
 import unittest.mock as mock
 
-from ..utils import set_matplotlib_backend, build_cxx_library
+from eskapade.utils import set_matplotlib_backend, build_cxx_library
 
 
 class MatplotlibBackendTest(unittest.TestCase):
     """Test for setting Matplotlib backend"""
 
-    @unittest.skip('Skip this until we have figured out why mock is complaining')
     @mock.patch('eskapade.utils.log')
     @mock.patch('eskapade.utils.get_env_var')
     @mock.patch.dict('sys.modules', clear=False)
@@ -87,7 +86,7 @@ class MatplotlibBackendTest(unittest.TestCase):
         set_matplotlib_backend(backend='gtkcairo', batch=True, silent=True)
         mock_interactive.assert_called_once_with(False)
         mock_use.assert_called_once_with('agg')
-        mock_log.warning.assert_called_once_with()
+        mock_log.warning.assert_called_once_with('Set Matplotlib backend to "%s"; non-interactive backend required, but "%s" requested', 'agg', 'gtkcairo')
         mock_interactive.reset_mock()
         mock_use.reset_mock()
         mock_log.reset_mock()
@@ -119,7 +118,7 @@ class MatplotlibBackendTest(unittest.TestCase):
         set_matplotlib_backend(backend='gtkcairo', silent=True)
         mock_interactive.assert_called_once_with(False)
         mock_use.assert_called_once_with('agg')
-        mock_log.warning.assert_called_once_with()
+        mock_log.warning.assert_called_once_with('Set Matplotlib backend to "%s"; non-interactive backend required, but "%s" requested', 'agg', 'gtkcairo')
         mock_interactive.reset_mock()
         mock_use.reset_mock()
         mock_log.reset_mock()
@@ -141,13 +140,12 @@ class MatplotlibBackendTest(unittest.TestCase):
         set_matplotlib_backend(batch=False, silent=True)
         mock_interactive.assert_called_once_with(False)
         mock_use.assert_called_once_with('agg')
-        mock_log.warning.assert_called_once_with()
+        mock_log.warning.assert_called_once_with('Matplotlib cannot be used interactively; no display found')
         mock_interactive.reset_mock()
         mock_use.reset_mock()
         mock_log.reset_mock()
 
 
-@unittest.skip('Skip this until we have figured out why mock is complaining')
 class BuildCxxLibraryTest(unittest.TestCase):
     """Test for calling function to build C++ library"""
 
@@ -224,7 +222,7 @@ class BuildCxxLibraryTest(unittest.TestCase):
         mock_run.assert_called_once_with(['make', '-C', 'make_dir', 'roofit-install'], stdout=mock_pipe,
                                          stderr=mock_pipe, universal_newlines=True)
         mock_isfile.assert_called_once_with('lib_dir/libesroofit.so')
-        mock_log.warning.assert_called_once_with()
+        mock_log.warning.assert_called_once_with('Failed to build library with target "%s"; using existing version', 'roofit-install')
         mock_run.reset_mock()
         mock_isfile.reset_mock()
         mock_log.reset_mock()

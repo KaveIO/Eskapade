@@ -38,8 +38,8 @@ class ProcessManagerTest(unittest.TestCase):
         self.assertTrue(hasattr(pm2, 'custom_attribute'), 'process-manager attributes are reset upon re-creation')
         self.assertEqual(pm2.custom_attribute, 'test_attr', 'process-manager attributes are changed upon re-creation')
 
-    @unittest.skip('We are just mocking the process manager?!?!')
-    @mock.patch('eskapade.core.process_services.ProcessService.create')
+    @unittest.skip('We are just mocking the process manager?!?! This test needs to be rewritten or removed!')
+    @mock.patch('eskapade.core.process_services._ProcessService.create')
     def test_service(self, mock_create):
         pm = mock.Mock(name='process_manager')
 
@@ -121,7 +121,7 @@ class ProcessManagerTest(unittest.TestCase):
         pm.remove_chains()
         self.assertEqual(len(pm.chains), 0)
 
-    @unittest.skip('Skip this until we have figured out why mock is complaining')
+    @unittest.skip('This test needs to be rewritten!')
     @mock.patch('eskapade.core.process_manager.ProcessManager.remove_chains')
     @mock.patch('eskapade.core.process_manager.ProcessManager.remove_all_services')
     def test_reset(self, mock_remove_services, mock_remove_chains):
@@ -160,7 +160,7 @@ class ProcessManagerTest(unittest.TestCase):
         assert mock_print.called
         self.assertIsInstance(status, StatusCode)
 
-    @unittest.skip('Skip this until we have figured out why mock is complaining')
+    @unittest.skip('This test needs to rewritten!')
     @mock.patch('eskapade.core.process_manager.ProcessManager.persist_services')
     @mock.patch('eskapade.core.process_manager.ProcessManager.import_services')
     @mock.patch('eskapade.core.process_manager.ProcessManager.get_chain_idx', side_effect=_chain_idx_side_effect)

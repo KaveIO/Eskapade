@@ -115,7 +115,7 @@ class TruncExponentialTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             TruncExponential.build_model(mock_trunc_exp)
 
-    @unittest.skip('Mock throws an attribute error. Please investigate and fix me!')
+    @unittest.skip('Please investigate and fix or rewrite me!!')
     @mock.patch('ROOT.RooArgSet')
     @mock.patch('ROOT.RooConstVar')
     @mock.patch('ROOT.RooDataWeightedAverage')
@@ -132,11 +132,11 @@ class TruncExponentialTest(unittest.TestCase):
 
         # test without data integral
         pdf_full, pdf_data = TruncExponential.create_norm(mock_trunc_exp, data=None, range_min=0., range_max=1.)
-        mock_pdf.clone().redirectServers.assert_called_once_with()
-        mock_pdf.clone().createIntegral.assert_called_once_with()
+        mock_pdf.clone().redirectServers.assert_called_once_with(mock_arg_set(), True)
+        mock_pdf.clone().createIntegral.assert_called_once_with(mock_trunc_exp.var_set, mock_arg_set())
         self.assertIs(pdf_full, mock_pdf.clone().createIntegral(), 'unexpected full PDF integral')
         self.assertIs(pdf_data, mock_pdf.clone().createIntegral().clone(), 'unexpected data PDF integral')
-        mock_constvar.assert_called()
+        mock_constvar.assert_called_with(mock_trunc_exp.max_var.GetName(), '', 1e+30)
         mock_pdf.reset_mock()
         mock_dwa.reset_mock()
         mock_constvar.reset_mock()
@@ -152,4 +152,4 @@ class TruncExponentialTest(unittest.TestCase):
                       'RooDataWeightedAverage not called with integral of PDF clone')
         self.assertIs(pdf_full, mock_pdf.clone().createIntegral(), 'unexpected full PDF integral')
         self.assertIs(pdf_data, mock_dwa(), 'unexpected data PDF integral')
-        mock_constvar.assert_called()
+        mock_constvar.assert_called_with()

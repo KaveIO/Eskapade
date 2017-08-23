@@ -1,10 +1,10 @@
 import unittest
 import unittest.mock as mock
 
-from ..definitions import (LOG_LEVELS, CONFIG_VARS, CONFIG_TYPES, CONFIG_DEFAULTS, USER_OPTS, USER_OPTS_CONF_KEYS,
+from eskapade.core.definitions import (LOG_LEVELS, CONFIG_VARS, CONFIG_TYPES, CONFIG_DEFAULTS, USER_OPTS, USER_OPTS_CONF_KEYS,
                            CONFIG_OPTS_SETTERS, RandomSeeds, set_opt_var, set_log_level_opt, set_begin_end_chain_opt,
                            set_single_chain_opt, set_seeds, set_custom_user_vars)
-from ..process_services import ProcessServiceMeta, ProcessService, ConfigObject, DataStore
+from eskapade.core.process_services import ProcessServiceMeta, ProcessService, ConfigObject, DataStore
 
 
 class ProcessServiceMetaTest(unittest.TestCase):
@@ -37,15 +37,13 @@ class ProcessServiceTest(unittest.TestCase):
         self.assertEqual(ps_str, '{0:s} ({1:s})'.format(str(type(ps)), hex(id(ps))),
                          'unexpected string conversion for process-service')
 
-    @unittest.skip('Skip this until we have figured out why mock is complaining')
     @mock.patch('eskapade.core.process_services.ProcessService.__init__')
     def test_create(self, mock_init):
         """Test process-service create method"""
-
         ps = mock.Mock(name='ProcessService_instance')
         ps_cls = mock.Mock(name='ProcessService', return_value=ps)
         ps_ = ProcessService.create.__func__(ps_cls)
-        ps_cls.assert_called()
+        ps_cls.assert_called_with()
         mock_init.assert_called_with(ps)
         self.assertIs(ps_, ps)
 
