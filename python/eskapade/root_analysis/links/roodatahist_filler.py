@@ -76,6 +76,7 @@ class RooDataHistFiller(Link):
         :param int n_max_total_bins: max number of bins in roodatahist. Default is 1e6. (optional)
         :param str create_hist_pdf: if filled, create hist pdf from rdh with this name and
                                     add to datastore or workspace. (optional)
+        :param bool create_new_rdh_in_loop: if true, create a new rdh when running in a loop. (optional)
         """
 
         # initialize Link, pass name from kwargs
@@ -99,7 +100,8 @@ class RooDataHistFiller(Link):
                              var_min_value={},
                              var_max_value={},
                              n_max_total_bins=1e6,
-                             create_hist_pdf='')
+                             create_hist_pdf='',
+                             create_new_rdh_in_loop=False)
 
         # check residual kwargs. exit if any present.
         self.check_extra_kwargs(kwargs)
@@ -223,8 +225,7 @@ class RooDataHistFiller(Link):
                     n_max_bins = int(self.n_max_total_bins)
                 self.log().debug('Max number of variable bins set to: %d', n_max_bins)
 
-        # 3b. instantiate roodatahist, to be filled up below.
-        #     secondly, fix the roofit variable set
+        # 3b. fix the roofit variable set
         if not self._varset:
             self._varset = obs
             self._catset = ROOT.RooArgSet()
@@ -252,6 +253,11 @@ class RooDataHistFiller(Link):
                     rv.setMax(max_val)
         else:
             assert isinstance(self._varset, ROOT.RooArgSet) and len(self._varset), 'varset is not a filled rooargset'
+        # 3c. instantiate roodatahist, to be filled up below.
+        if self.create_new_rdh_in_loop:
+            if self._rdh:
+                del self._rdh
+            self._rdh = None
         if not self._rdh:
             name = str(rds.GetName()).replace('rds_', 'rdh_')
             self._rdh = ROOT.RooDataHist(name, name, self._varset)
