@@ -19,7 +19,7 @@ pipeline {
                         if [[ ":$LD_LIBRARY_PATH:" != *"$(dirname $(which python))/../lib:"* ]]; then
                             export LD_LIBRARY_PATH="$(dirname $(which python))/../lib:${LD_LIBRARY_PATH}"
                         fi
-                        tox
+                        tox -r
                     '''
                 }
             }
