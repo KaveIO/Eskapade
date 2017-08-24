@@ -41,6 +41,13 @@ class RooFitManager(ProcessService):
 
         return self._ws
 
+    def delete_workspace(self):
+        """Delete existing workspace"""
+
+        if self._ws:
+            del self._ws
+            self._ws = None
+
     def set_var_vals(self, vals):
         """Set values of workspace variables
 
