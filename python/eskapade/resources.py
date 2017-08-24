@@ -45,7 +45,7 @@ def fixture(name: str) -> str:
     if full_path and full_path.exists():
         return str(full_path)
 
-    raise ValueError('Could not find fixture "{fixture!s}"! Does it exist?')
+    raise FileNotFoundError('Could not find fixture "{fixture!s}"! Does it exist?')
 
 
 def lib(name: str) -> str:
@@ -62,7 +62,7 @@ def lib(name: str) -> str:
     if full_path and full_path.exists():
         return str(full_path)
 
-    raise ValueError('Could not find library "{name!s}"! Does it exist?'.format(name=name))
+    raise FileNotFoundError('Could not find library "{name!s}"! Does it exist?'.format(name=name))
 
 
 def tutorial(name: str) -> str:
@@ -79,4 +79,4 @@ def tutorial(name: str) -> str:
     if full_path and full_path.exists():
         return str(full_path)
 
-    raise ValueError('Could not find tutorial "{name!s}"! Does it exist?'.format(name=name))
+    raise FileNotFoundError('Could not find tutorial "{name!s}"! Does it exist?'.format(name=name))
