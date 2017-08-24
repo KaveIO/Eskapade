@@ -16,6 +16,8 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
+import os
+
 from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 from eskapade.spark_analysis import SparkManager
 from pyspark.sql import Row
@@ -39,11 +41,35 @@ class SparkStreamingWriter(Link):
         Link.__init__(self, kwargs.pop('name', 'SparkStreamingWriter'))
 
         # process keywords
-        self._process_kwargs(kwargs, read_key=None, store_key=None, path=None, suffix=None, repartition=1)
+        self._process_kwargs(kwargs, read_key=None, store_key=None, output_path=None,
+                             mode='error', suffix=None, repartition=1)
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
         """Initialize SparkStreamingWriter"""
+
+        # check output directory, if local
+        if self.output_path.startswith('file:/'):
+            local_output_path = os.path.abspath(self.output_path.replace('file:/', ''))
+            if os.path.exists(self.output_path):
+                # output data already exist
+                if self.mode == 'ignore':
+                    # do not execute link
+                    self.log().debug('Output data already exist; not executing link')
+                    self.do_execution = False
+                    return StatusCode.Success
+                elif self.mode == 'error':
+                    # raise exception
+                    raise RuntimeError('output data already exist')
+
+                # remove output directory
+                if not os.path.isdir(local_output_path):
+                    raise RuntimeError('output path "{}" is not a directory'.format(local_output_path))
+                shutil.rmtree(local_output_path)
+            elif not os.path.exists(os.path.dirname(local_output_path)):
+                # create path up to the last component
+                self.log().debug('Creating output path "%s"', local_output_path)
+                os.makedirs(os.path.dirname(local_output_path))
 
         return StatusCode.Success
 
@@ -58,7 +84,7 @@ class SparkStreamingWriter(Link):
 
         if self.repartition:
             data = data.repartition(self.repartition)
-        data.saveAsTextFiles(self.path, suffix=self.suffix)
+        data.saveAsTextFiles(self.output_path, suffix=self.suffix)
 
         return StatusCode.Success
 

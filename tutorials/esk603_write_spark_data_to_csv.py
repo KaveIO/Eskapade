@@ -41,7 +41,7 @@ spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings
 ##########################################################################
 # --- CSV and data settings
 
-output_dir = persistence.io_dir('results_data', settings.io_conf())
+output_dir = 'file:' + persistence.io_dir('results_data', settings.io_conf())
 num_files = 1
 separator = ','
 write_header = True

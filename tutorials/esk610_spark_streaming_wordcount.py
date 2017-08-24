@@ -21,17 +21,17 @@
 # *                                                                              *
 # *         NB: hostname and port can be adapted in this macro                   *
 # *                                                                              *
-# *     ii) to run locally using file stream, create dummy files in /tmp:
-# *          `$ for i in $(seq -f \"%05g\" 0 100); \
-# *                 do echo "Hello world" > /tmp/eskapade_stream_test/dummy_$i;
-# *                     sleep 0.1; \
-# *             done`
+# *     ii) to run locally using file stream, create dummy files in /tmp:        *
+# *          `$ for i in $(seq -f \"%05g\" 0 100); \                             *
+# *                 do echo "Hello world" > /tmp/eskapade_stream_test/dummy_$i;  *
+# *                     sleep 0.1; \                                             *
+# *             done`                                                            *
 # *        and then run the example (in a second terminal):                      *
 # *          `$ run_eskapade -c stream_type='file' \                             *
 # *                 tutorials/esk610_spark_streaming_wordcount.py`               *
 # *                                                                              *
-# *         NB: only new files in /tmp/eskapade_stream_test are processed,
-# *             do not forget to delete this directory
+# *         NB: only new files in /tmp/eskapade_stream_test are processed,       *
+# *             do not forget to delete this directory                           *
 # *                                                                              *
 # *      In both cases, the output stream is stored in flat files in             *
 # *      $ESKAPADE/results/esk610_spark_streaming/data/v0/dstream/               *
@@ -114,8 +114,9 @@ proc_mgr.get_chain('SparkStreaming').add_link(wordcount_link)
 
 # store output
 writer_link = spark_analysis.SparkStreamingWriter(
-    name='SparkStreamingWriter', read_key=wordcount_link.store_key, path=persistence.io_dir(
-        'results_data', settings.io_conf()) + '/dstream/wordcount', suffix='txt', repartition=1)
+    name='SparkStreamingWriter', read_key=wordcount_link.store_key,
+    output_path='file:' + persistence.io_dir('results_data', settings.io_conf()) + '/dstream/wordcount',
+    mode='overwrite', suffix='txt', repartition=1)
 proc_mgr.get_chain('SparkStreaming').add_link(writer_link)
 
 # start/stop of Spark Streaming
