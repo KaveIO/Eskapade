@@ -64,6 +64,7 @@ fi
 if [ ${TERM} = "dumb" ] || [ ${TERM} = "linux" ] || [ ${TERM} = "eterm-color" ] || [ ${TERM} = "emacs" ]; then
     export PS1="[\A|\u@\h:(\!)\j/\l \W]\$ "
 else
+    source /etc/bash_completion.d/git-prompt 
     export PS1="\[\e]2;\u@\H:\w\a\][\A|\u@\h:(\!)\j/\l\`__git_ps1\` \W]\$ "
 fi
 unset color_prompt force_color_prompt
@@ -126,3 +127,8 @@ fi
 export GIT_PS1_SHOWDIRTYSTATE=1
 export GIT_PS1_SHOWSTASHSTATE=1
 export GIT_PS1_SHOWUPSTREAM=verbose
+
+# source eskapade setup scripts if found
+if [ -f /opt/eskapade/setup.sh ]; then
+    . /opt/eskapade/setup.sh
+fi
