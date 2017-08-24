@@ -65,10 +65,12 @@ The repository is hosted on github, clone it to your machine with:
 
 See the readme's in other parts of the repository for specific requirements and usage.
 
+
 Requirements
 ------------
 
 Eskapade requires Python 3 and Anaconda version 4.3 (or greater), which can be found `here <https://www.continuum.io/downloads>`_.
+
 
 Path
 ----
