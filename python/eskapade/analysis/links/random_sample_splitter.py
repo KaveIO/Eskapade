@@ -45,7 +45,7 @@ class RandomSampleSplitter(Link):
                              readKey=None,
                              storeKey=None,
                              fractions=None,
-                             nevents=False)
+                             nevents=None)
         
         # check residual kwargs. exit if any present. 
         self.check_extra_kwargs(kwargs)
@@ -87,15 +87,15 @@ class RandomSampleSplitter(Link):
             for i,f in enumerate(self.fractions):
                 if sumf>1:
                     self.fractions[i] = f/sumf
-                self.log().info('Random class <%d> assigned fraction is <%f>.' % (i,self.fractions[i]))
+                self.log().info('Random sample <%d> assigned fraction is <%f>.' % (i,self.fractions[i]))
 
         # alternatively, check that provided number of events per random class are all okay.
         if self.nevents is not None:
             if isinstance(self.nevents,list): pass
-            elif isinstance(self.nevents,float):
+            elif isinstance(self.nevents,int):
                 self.nevents = [self.nevents]
             else:
-                raise Exception('Given nevent set of incorrect type.')
+                raise Exception('Given nevent set of incorrect type. Should be list of/or int(s)')
             if not ((len(self.nevents) == self._nclasses) or (len(self.nevents) == self._nclasses-1)):
                 raise Exception('number of provided events <%d> does not equal number of classes <%d>.' % \
                                 (len(self.nevents), self._nclasses))
@@ -104,6 +104,7 @@ class RandomSampleSplitter(Link):
         # there needs to be a random seed set in the configobject
         settings = ProcessManager().service(ConfigObject)
         assert 'seed' in settings, 'random seed not set in ConfigObject.'
+        self._seed = settings['seed']
 
         return StatusCode.Success
 
@@ -119,8 +120,6 @@ class RandomSampleSplitter(Link):
             raise Exception('Retrieved object not of type pandas DataFrame.')
         ndf = len(df.index)
         assert ndf>0, 'dataframe %s is empty.' % self.readKey
-        if self.column in df.columns:
-            raise Exception('Column name <%s> already used: <%s>. Will not overwrite.' % (self.column,str(df.columns)))
 
         # fix final number of events assigned per random class
         # ... each class gets at least one event
@@ -136,22 +135,25 @@ class RandomSampleSplitter(Link):
             self.nevents[i] -= ndiff 
             pass
         for i,n in enumerate(self.nevents):
-            assert n>=0, 'Random class <%d> assigned nevents <%n> needs to be greater than zero. %s' % \
+            assert n>=0, 'Random sample <%d> assigned nevents <%n> needs to be greater than zero. %s' % \
                 (i,n,str(self.nevents))
-            self.log().info('Random class <%d> assigned n events <%d>.' % (i,n))
+            self.log().info('Random sample <%d> assigned n events <%d>.' % (i,n))
             
         # random reshuffling of dataframe indices
         settings = ProcessManager().service(ConfigObject)
-        RNG = RandomState(settings['seed'])
+        RNG = RandomState(self._seed)
         permute = RNG.permutation(df.index)
 
         # apply the random reshuffling, and assign records to the n datasets
         for i in range(self._nclasses):
             ib = sum(n for n in self.nevents[:i])
             ie = sum(n for n in self.nevents[:i+1])
-            df[self.storeKey[i]] = df.ix[permute[ib:ie]]
-            self.log().info('Stored output collection <%s> with <%d> records in datastore.' % \
-                            (self.storeKey[i],len(ds[self.storeKey[i]].index)) )
+            ds[self.storeKey[i]] = df.ix[permute[ib:ie]]
+            self.log().info('Sample %d: stored output collection <%s> with <%d> records in datastore.' % \
+                            (i, self.storeKey[i], len(ds[self.storeKey[i]].index)) )
+
+        # increase seed in case of next iteration
+        self._seed += 1
         
         return StatusCode.Success
 
