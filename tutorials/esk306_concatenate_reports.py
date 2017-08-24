@@ -22,7 +22,7 @@ import logging
 log = logging.getLogger('macro.esk306_concatenate_reports')
 
 from eskapade import ConfigObject, ProcessManager
-from eskapade import core_ops, analysis, root_analysis, visualization
+from eskapade import core_ops, analysis, visualization
 
 log.debug('Now parsing configuration file esk306_concatenate_reports')
 
