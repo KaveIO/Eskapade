@@ -188,6 +188,7 @@ def setup_package() -> None:
           # data_files=[('./lib/', ['build/'])],
           include_package_data=True,
           install_requires=[
+              'pendulum==1.2.4',
               'numba==0.34.0',
               'jupyter==1.0.0',
               'matplotlib==2.0.2',
