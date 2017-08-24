@@ -45,6 +45,7 @@ import logging
 from pyspark.streaming import StreamingContext
 
 from eskapade import process_manager as proc_mgr, ConfigObject, DataStore, spark_analysis
+from eskapade.core import persistence
 from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.esk610_spark_streaming')
@@ -105,7 +106,7 @@ proc_mgr.get_chain('SparkStreaming').add_link(wordcount_link)
 
 # store output
 writer_link = spark_analysis.SparkStreamingWriter(
-    name='SparkStreamingWriter', read_key=wordcount_link.store_key, path=persistence.io_dir(
+    name='SparkStreamingWriter', read_key=wordcount_link.store_key, path='file:' + persistence.io_dir(
         'results_data', settings.io_conf()) + '/dstream/wordcount', suffix='txt', repartition=1)
 proc_mgr.get_chain('SparkStreaming').add_link(writer_link)
 

@@ -79,26 +79,27 @@ class SparkDataToCsv(Link):
             raise RuntimeError('empty header sequence specified')
 
         # check output directory
-        self.output_path = os.path.abspath(self.output_path)
-        if os.path.exists(self.output_path):
-            # output data already exist
-            if self.mode == 'ignore':
-                # do not execute link
-                self.log().debug('Output data already exist; not executing link')
-                self.do_execution = False
-                return StatusCode.Success
-            elif self.mode == 'error':
-                # raise exception
-                raise RuntimeError('output data already exist')
+        if self.output_path.startswith('file:/'):
+            output_path = os.path.abspath(self.output_path.replace('file:/', '/'))
+            if os.path.exists(output_path):
+                # output data already exist
+                if self.mode == 'ignore':
+                    # do not execute link
+                    self.log().debug('Output data already exist; not executing link')
+                    self.do_execution = False
+                    return StatusCode.Success
+                elif self.mode == 'error':
+                    # raise exception
+                    raise RuntimeError('output data already exist')
 
-            # remove output directory
-            if not os.path.isdir(self.output_path):
-                raise RuntimeError('output path "{}" is not a directory'.format(self.output_path))
-            shutil.rmtree(self.output_path)
-        elif not os.path.exists(os.path.dirname(self.output_path)):
-            # create path up to the last component
-            self.log().debug('Creating output path "%s"', self.output_path)
-            os.makedirs(os.path.dirname(self.output_path))
+                # remove output directory
+                if not os.path.isdir(output_path):
+                    raise RuntimeError('output path "{}" is not a directory'.format(output_path))
+                shutil.rmtree(output_path)
+            elif not os.path.exists(os.path.dirname(output_path)):
+                # create path up to the last component
+                self.log().debug('Creating output path "%s"', output_path)
+                os.makedirs(os.path.dirname(output_path))
 
         return StatusCode.Success
 
