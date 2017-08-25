@@ -26,8 +26,8 @@ lib
 /**/.vagrant
 
 # data and results directories
-python/eskapade/data/*
-results/*
+python/eskapade/data/
+results/
 
 # Build and package stuff
 build
@@ -52,6 +52,5 @@ Eskapade.egg-info
 !python/eskapade/README.rst
 !vagrant/README.rst
 
-results/
 *cmake-build-debug
 
