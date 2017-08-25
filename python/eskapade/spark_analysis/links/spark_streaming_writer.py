@@ -50,7 +50,7 @@ class SparkStreamingWriter(Link):
 
         # check output directory, if local
         if self.output_path.startswith('file:/'):
-            local_output_path = os.path.abspath(self.output_path.replace('file:/', ''))
+            local_output_path = os.path.abspath(self.output_path.replace('file:/', '/'))
             if os.path.exists(self.output_path):
                 # output data already exist
                 if self.mode == 'ignore':
