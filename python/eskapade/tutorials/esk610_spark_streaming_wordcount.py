@@ -111,7 +111,7 @@ process_manager.get_chain('SparkStreaming').add_link(wordcount_link)
 writer_link = spark_analysis.SparkStreamingWriter(
     name='SparkStreamingWriter',
     read_key=wordcount_link.store_key,
-    path='file:' + persistence.io_dir('results_data', settings.io_conf()) + '/dstream/wordcount',  suffix='txt',
+    output_path='file:' + persistence.io_dir('results_data', settings.io_conf()) + '/dstream/wordcount',  suffix='txt',
     repartition=1)
 
 process_manager.get_chain('SparkStreaming').add_link(writer_link)
