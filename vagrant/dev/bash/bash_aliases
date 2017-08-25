@@ -1,1 +1,2 @@
 alias gitlog='git log --graph --decorate --oneline'
+alias jupy='nohup jupyter notebook --port 8888 --ip=0.0.0.0'
