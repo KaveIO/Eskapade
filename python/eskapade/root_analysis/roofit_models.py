@@ -236,7 +236,7 @@ class TruncExponential(RooFitModel):
         pdf_norm_full._created_vars = [var, max_var]
 
         if not data:
-            return (pdf_norm_full, pdf_norm_full.clone(pdf_norm_full.GetName()))
+            return pdf_norm_full, pdf_norm_full.clone(pdf_norm_full.GetName())
 
         # check data
         if not isinstance(data, ROOT.RooDataSet):
@@ -257,7 +257,7 @@ class TruncExponential(RooFitModel):
         pdf_norm_data = ROOT.RooDataWeightedAverage('{0:s}_norm_{1:s}'.format(self.name, data.GetName()), '',
                                                     pdf_norm_data, data, ROOT.RooArgSet())
 
-        return (pdf_norm_full, pdf_norm_data)
+        return pdf_norm_full, pdf_norm_data
 
 
 class LinearRegression(RooFitModel):

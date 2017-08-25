@@ -135,10 +135,10 @@ class WriteFromDf(Link):
                 path = ps[0] + '_' + str(self._counter) + ps[1]
             writer = pandas_writer(path, self.writer)
             folder = os.path.dirname(path)
-            self.log().debug('Checking for directory: %s', folder)
+            self.log().debug('Checking for directory: {}'.format(folder))
             if not os.path.exists(folder):
                 self.log().fatal('Path given is invalid.')
-            self.log().debug('Writing file: %s' % (path))
+            self.log().debug('Writing file: {}'.format(path))
             writer(df, path, **self.kwargs)
 
         self._counter += 1

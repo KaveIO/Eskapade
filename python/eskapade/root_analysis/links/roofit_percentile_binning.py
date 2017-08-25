@@ -112,7 +112,7 @@ class RooFitPercentileBinning(Link):
             col_var = ws.var(col)
             binning.setRange(col_var.getMin(), col_var.getMax())
             for b in bin_edges.values[1:nbins]:
-                if b > col_var.getMin() and b < col_var.getMax():
+                if col_var.getMin() < b < col_var.getMax():
                     binning.addBoundary(b)
             if isinstance(data, ROOT.RooDataSet):
                 binning.setAverageFromData(data, col_var)

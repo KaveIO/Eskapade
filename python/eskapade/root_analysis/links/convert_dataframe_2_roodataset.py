@@ -163,7 +163,7 @@ class ConvertDataFrame2RooDataSet(Link):
         for c in self.columns:
             match_c = fnmatch.filter(df.columns, c)
             if not match_c:
-                raise AssertionError('column or pattern "%s" not in data frame' % (c, self.read_key))
+                raise AssertionError('column or pattern "{}" not in data frame {}'.format(c, self.read_key))
             matched_columns += match_c
         self.columns = matched_columns
         for col in self.columns[:]:

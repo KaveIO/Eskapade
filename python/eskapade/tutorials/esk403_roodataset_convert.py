@@ -92,7 +92,7 @@ ch.add_link(pds)
 
 # --- you should do something to the roodataset here,
 #     possibly producting a new roodataset
-ch = process_manager.add_chain('Action')
+process_manager.add_chain('Action')
 
 # --- example to convert a roodatset back to a pandas df
 ch = process_manager.add_chain('Conversion2')

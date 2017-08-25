@@ -141,9 +141,9 @@ class RandomSampleSplitter(Link):
             self.nevents[i] -= ndiff
             pass
         for i, n in enumerate(self.nevents):
-            assert n >= 0, 'Random class <%d> assigned nevents <%n> needs to be greater than zero. %s' % \
-                           (i, n, str(self.nevents))
-            self.log().info('Random class <%d> assigned n events <%d>.' % (i, n))
+            assert n >= 0, 'Random class <{:d}> assigned nevents <{:d}> needs to be greater than zero. {}'\
+                .format(i, n, str(self.nevents))
+            self.log().info('Random class <{:d}> assigned n events <{:d}>.'.format(i, n))
 
         # random reshuffling of dataframe indices
         settings = process_manager.service(ConfigObject)

@@ -170,7 +170,7 @@ class UncorrelationHypothesisTester(Link):
         if not self.results_path:
             self.results_path = persistence.io_path('results_data', io_conf, 'report')
         if self.results_path and not self.results_path.endswith('/'):
-            self.results_path = self.results_path + '/'
+            self.results_path += '/'
 
         # check if output directory exists
         if os.path.exists(self.results_path):
@@ -185,7 +185,7 @@ class UncorrelationHypothesisTester(Link):
 
         # prefix for file storage
         if self.prefix and not self.prefix.endswith('_'):
-            self.prefix = self.prefix + '_'
+            self.prefix += '_'
 
         # check provided columns
         if len(self.columns):
@@ -247,7 +247,7 @@ class UncorrelationHypothesisTester(Link):
         for c in self.columns:
             match_c = fnmatch.filter(self._all_columns, c)
             if not match_c:
-                raise AssertionError('column or pattern "%s" not present in roodataset' % (c, self.read_key))
+                raise AssertionError('column or pattern "{}" not present in roodataset {}'.format(c, self.read_key))
             matched_columns += match_c
         self.columns = sorted(list(set(matched_columns)))  # sorted unique list
 
@@ -256,14 +256,14 @@ class UncorrelationHypothesisTester(Link):
         for c in self.x_columns:
             match_c = fnmatch.filter(self._all_columns, c)
             if not match_c:
-                raise AssertionError('column or pattern "%s" not present in roodataset' % (c, self.read_key))
+                raise AssertionError('column or pattern "{}" not present in roodataset {}'.format(c, self.read_key))
             matched_columns += match_c
         self.x_columns = sorted(list(set(matched_columns)))  # sorted unique list
         matched_columns = []
         for c in self.y_columns:
             match_c = fnmatch.filter(self._all_columns, c)
             if not match_c:
-                raise AssertionError('column or pattern "%s" not present in roodataset' % (c, self.read_key))
+                raise AssertionError('column or pattern "{}" not present in roodataset {}'.format(c, self.read_key))
             matched_columns += match_c
         self.y_columns = sorted(list(set(matched_columns)))  # sorted unique list
         self.y_columns = sorted([c for c in self.y_columns if c not in self.x_columns])
@@ -646,7 +646,7 @@ def latex_residuals_table(df, keep_cols=[], absZ_threshold=3., n_rows=20, normRe
     :param pandas.DataFrame df: pandas dataframe from which latex table will be created
     :param list keep_cols: selection on columns. List of columns for which table will be created (optional)
     :param float absZ_threshold: selection on rows. Create only if value in normResidCol >= threshold (optional)
-    :param int n_nrows: maximum number of rows (optional)
+    :param int n_rows: maximum number of rows (optional)
     :param str normResidCol: latex table is sorted according to values in this column. Also the threshold
                              is applied to this column (optional)
     :return: table in string format

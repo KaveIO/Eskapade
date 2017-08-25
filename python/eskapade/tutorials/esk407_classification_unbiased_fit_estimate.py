@@ -134,7 +134,7 @@ wsu = root_analysis.WsUtils(name='TemplateFitter')
 wsu.add_fit(pdf='hist_model', data='data', key='fit_result')
 wsu.add_plot(obs='score', data='data', pdf='hist_model',
              pdf_args=(RooFit.MoveToBack(),),
-             pdf_kwargs={'VisualizeError': ('fit_result')},
+             pdf_kwargs={'VisualizeError': 'fit_result'},
              key='data_plot')
 wsu.add_plot(obs='score', pdf='hist_model', key='data_plot')
 wsu.add_plot(obs='score', pdf='hist_model',

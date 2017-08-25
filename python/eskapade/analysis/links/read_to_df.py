@@ -228,7 +228,7 @@ class ReadToDf(Link):
 
         # 1. input file has already been set (in previous cycle),
         #    and this is still used for chunking.
-        if self._reader != None and isinstance(self._reader, pd.io.parsers.TextFileReader):
+        if self._reader is not None and isinstance(self._reader, pd.io.parsers.TextFileReader):
             try:
                 data = next(self._reader)
                 return data
@@ -238,7 +238,7 @@ class ReadToDf(Link):
             except:
                 # import sys
                 # print 'Unexpected error' #: %s" % sys.exc_info()[0]
-                raise 'Unexpected error: cannot process next dataset iteration. Exit.'
+                raise Exception('Unexpected error: cannot process next dataset iteration. Exit.')
             pass
 
         # 2. trying next file
@@ -272,7 +272,7 @@ class ReadToDf(Link):
                 # TextFileReader throws stopiterator exception at end
                 data = None
             except:
-                raise 'Unexpected error: cannot process next dataset iteration. Exit.'
+                raise Exception('Unexpected error: cannot process next dataset iteration. Exit.')
             pass
 
         return data

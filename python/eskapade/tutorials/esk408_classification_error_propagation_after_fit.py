@@ -84,7 +84,7 @@ wsu = root_analysis.WsUtils(name='SignalProbability')
 wsu.factory = ["expr::high_risk_pvalue('@0*@1/@2',{frac,high_risk,model})"]
 wsu.add_plot(obs='score', func='high_risk_pvalue',
              func_args=(RooFit.MoveToBack(),),
-             func_kwargs={'VisualizeError': ('fit_result')},
+             func_kwargs={'VisualizeError': 'fit_result'},
              key='ratio_plot')
 wsu.add_plot(obs='score', func='high_risk_pvalue', output_file='high_risk_probability.pdf', key='ratio_plot')
 ch.add_link(wsu)

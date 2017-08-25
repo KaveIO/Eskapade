@@ -55,7 +55,7 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False, pdf_fi
             width = np.diff(be_tsv)
             # pd.Timestamp(ts).value is in ns
             # maplotlib dates have base of 1 day
-            width = width / NUM_NS_DAY
+            width /= NUM_NS_DAY
         else:
             width = np.diff(bin_edges)
 

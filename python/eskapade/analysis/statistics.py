@@ -276,9 +276,9 @@ class ArrayStats(LoggingMixin):
                     var_min, var_max = pd.Timestamp(var_min).value, pd.Timestamp(var_max).value
                 var_min -= 0.05 * (var_max - var_min)
                 var_max += 0.05 * (var_max - var_min)
-                if var_min > 0. and var_min < +0.2 * (var_max - var_min):
+                if 0. < var_min < +0.2 * (var_max - var_min):
                     var_min = 0.
-                elif var_max < 0. and var_max > -0.2 * (var_max - var_min):
+                elif -0.2 * (var_max - var_min) < var_max < 0.:
                     var_max = 0.
                 if np.isnan(var_min):
                     var_min = bin_edges[0]

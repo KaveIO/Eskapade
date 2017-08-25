@@ -188,7 +188,7 @@ def bin_range(self, q):
         ax = self.GetYaxis()
     elif q == 2:
         ax = self.GetZaxis()
-    return (ax.GetXmin(), ax.GetXmax())
+    return ax.GetXmin(), ax.GetXmax()
 
 
 @property

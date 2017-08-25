@@ -225,7 +225,7 @@ class FixPandasDataFrame(Link):
         # check presence and data types of requested columns
         for col in self.original_columns:
             if col not in df.columns:
-                raise AssertionError('column "%s" not present in input data frame' % (col, self.read_key))
+                raise AssertionError('column "{}" not present in input data frame {}'.format(col, self.read_key))
 
         # set string columns to clean up
         if isinstance(self.cleanup_string_columns, bool):

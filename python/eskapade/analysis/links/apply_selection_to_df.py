@@ -68,7 +68,7 @@ class ApplySelectionToDf(Link):
         # querySet or selectColumns needs to be set.
         assert len(self.readKey) > 0, 'readKey has not been set.'
 
-        if self.storeKey == None:
+        if self.storeKey is None:
             self.log().warning('storeKey has not been set, now set to: %s' % self.readKey)
             self.storeKey = self.readKey
             pass
