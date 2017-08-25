@@ -24,5 +24,11 @@ pipeline {
                 }
             }
         }
+        stage('Cleaning') {
+            steps {
+                echo 'Cleaning up...'
+                sh ('rm -rf /tmp/eskapade_stream_test')
+            }
+        }
     }
 }
