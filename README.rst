@@ -2,13 +2,32 @@
 Eskapade
 ========
 
-Version: 0.5
+Version: 0.6
 
 Eskapade is a light-weight, python-based data analysis framework, meant for all sorts of data analysis problems.
 
 
 Release notes
 =============
+
+Version 0.6
+-----------
+
+The primary feature of version 0.6 (August 2017) is the inclusion of Spark, but this version
+also includes several other new features and analyses.
+
+We include multiple Spark links and 10 Spark examples on:
+
+* The configuration of spark, reading, writing and converting spark dataframes, applying functions and queries to dataframes,
+  filling histograms and (very useful!) applying arbitrary functions (e.g. pandas) to groupby calls.
+
+In addition we hade added:
+
+* A ROOT analysis for studying and quantifying between sets of (non-)categorical and observables.
+  This is useful for finding outliers in arbitrary datasets (e.g. surveys), and we include a tutorial of how to do this.
+* A ROOT analysis on predictive maintenance that decomposes a distribution of time difference between malfunctions
+  by fitting this multiple Weibull distributions.
+* New flexible features to create and chain analysis reports with several analysis and visualization links.
 
 Version 0.5
 -----------
@@ -46,10 +65,12 @@ The repository is hosted on github, clone it to your machine with:
 
 See the readme's in other parts of the repository for specific requirements and usage.
 
+
 Requirements
 ------------
 
 Eskapade requires Python 3 and Anaconda version 4.3 (or greater), which can be found `here <https://www.continuum.io/downloads>`_.
+
 
 Path
 ----

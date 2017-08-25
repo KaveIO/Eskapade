@@ -24,8 +24,8 @@ from eskapade import ConfigObject, resources
 from eskapade import analysis, visualization
 from eskapade import process_manager
 
-log = logging.getLogger('macro.esk306_concatenate_reports')
 
+log = logging.getLogger('macro.esk306_concatenate_reports')
 log.debug('Now parsing configuration file esk306_concatenate_reports')
 
 #########################################################################################

@@ -22,18 +22,21 @@
 # *         NB: hostname and port can be adapted in this macro                   *
 # *                                                                              *
 # *     ii) to run locally using file stream, create dummy files in /tmp:        *
-# *          `$ for ((i=0; i<=100; i++)); do \                                   *
-# *                 echo "Hello world" > /tmp/dummy_$(printf %05d ${i}); \       *
-# *                 sleep 0.1; \                                                 *
+# *          `$ for i in $(seq -f \"%05g\" 0 100); \                             *
+# *                 do echo "Hello world" > /tmp/eskapade_stream_test/dummy_$i;  *
+# *                     sleep 0.1; \                                             *
 # *             done`                                                            *
 # *        and then run the example (in a second terminal):                      *
 # *          `$ run_eskapade -c stream_type='file' \                             *
 # *                 tutorials/esk610_spark_streaming_wordcount.py`               *
 # *                                                                              *
-# *         NB: only new files in /tmp are processed, do not forget to delete    *
+# *         NB: only new files in /tmp/eskapade_stream_test are processed,       *
+# *             do not forget to delete this directory                           *
 # *                                                                              *
 # *      In both cases, the output stream is stored in flat files in             *
 # *      $ESKAPADE/results/esk610_spark_streaming/data/v0/dstream/               *
+# *                                                                              *
+# *      Do not forget to clean the results directory when testing.              *
 # *                                                                              *
 # * Redistribution and use in source and binary forms, with or without           *
 # * modification, are permitted according to the terms listed in the file        *
@@ -88,7 +91,7 @@ sm.spark_streaming_context = ssc
 ds = process_manager.service(DataStore)
 
 if not stream_type or stream_type == 'file':
-    ds['dstream'] = ssc.textFileStream('/tmp/')
+    ds['dstream'] = ssc.textFileStream('/tmp/eskapade_stream_test/')
 elif stream_type == 'tcp':
     ds['dstream'] = ssc.socketTextStream('localhost', 9999)
 else:
@@ -106,8 +109,11 @@ process_manager.get_chain('SparkStreaming').add_link(wordcount_link)
 
 # store output
 writer_link = spark_analysis.SparkStreamingWriter(
-    name='SparkStreamingWriter', read_key=wordcount_link.store_key, path='file:' + persistence.io_dir(
-        'results_data', settings.io_conf()) + '/dstream/wordcount', suffix='txt', repartition=1)
+    name='SparkStreamingWriter',
+    read_key=wordcount_link.store_key,
+    path='file:' + persistence.io_dir('results_data', settings.io_conf()) + '/dstream/wordcount',  suffix='txt',
+    repartition=1)
+
 process_manager.get_chain('SparkStreaming').add_link(writer_link)
 
 # start/stop of Spark Streaming

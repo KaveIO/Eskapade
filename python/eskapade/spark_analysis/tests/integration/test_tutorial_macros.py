@@ -2,6 +2,7 @@ import glob
 import os
 import random
 import re
+import shutil
 import string
 import subprocess
 import sys
@@ -317,9 +318,15 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
             sc.getConf().get('spark.master', ''),
             'local\[[.*]\]', 'Spark not running in local mode, required for testing with local files')
 
+        # create test dir
+        tmpdir = '/tmp/eskapade_stream_test'
+        os.mkdir(tmpdir)
+
         # create a file stream
         tmpfile = ''.join(random.choice(string.ascii_lowercase) for x in range(8))
-        cmd = 'for ((i=0; i<=100; i++)); do echo "Hello world" > /tmp/{}_$(printf %05d $i).dummy; sleep 0.1; done'.format(tmpfile)
+        cmd = 'for i in $(seq -f \"%05g\" 0 1000); \
+                do echo \'Hello world\' > "{}"/"{}"_$i.dummy; \
+                        sleep 1; done'.format(tmpdir, tmpfile)
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         # run eskapade
@@ -346,7 +353,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         for csv_dir in csv_dirs:
             names.append(os.path.basename(csv_dir))
             csv_files = glob.glob('{}/part*'.format(csv_dir))
-            #self.assertEqual(len(csv_files), 1, 'expected to find exactly one CSV file in "{}"'.format(names[-1]))
+            # self.assertEqual(len(csv_files), 1, 'expected to find exactly one CSV file in "{}"'.format(names[-1]))
             if len(csv_files) > 0:
                 with open(csv_files[0]) as csv:
                     record = [l for l in csv]
@@ -357,4 +364,4 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertGreater(len(contents), 0, 'expected ~ten items (each second a streaming RDD) - depending on timing')
 
         # clean up files
-        os.system('rm -rf /tmp/{}_*.dummy'.format(tmpfile))
+        shutil.rmtree(tmpdir)
