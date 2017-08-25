@@ -14,7 +14,6 @@
 # ********************************************************************************
 
 import ROOT
-from ROOT import RooFit
 
 
 def coll_iter(coll):

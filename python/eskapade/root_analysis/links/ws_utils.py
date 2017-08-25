@@ -20,19 +20,13 @@ import re
 import uuid
 
 import ROOT
-from ROOT import RooFit
 import tabulate
+from ROOT import RooFit
 
-from eskapade import core
-from eskapade import process_manager
-from eskapade import ConfigObject
-from eskapade import DataStore
-from eskapade import Link
-from eskapade import StatusCode
-
-from eskapade.root_analysis.roofit_manager import RooFitManager
-from eskapade.root_analysis import roofit_utils
+from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 from eskapade.core import persistence
+from eskapade.root_analysis import roofit_utils
+from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class WsUtils(Link):
@@ -107,9 +101,9 @@ class WsUtils(Link):
         io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
+        with open(persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
+        with open(persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
         with open(persistence.io_path('templates', io_conf, 'df_summary_table_page.tex')) as templ_file:
             self.table_template = templ_file.read()
@@ -118,7 +112,7 @@ class WsUtils(Link):
         if not self.results_path:
             # get I/O configuration
             io_conf = process_manager.service(ConfigObject).io_conf()
-            self.results_path = core.persistence.io_path('results_data', io_conf, 'report')
+            self.results_path = persistence.io_path('results_data', io_conf, 'report')
 
         # check if output directory exists
         if os.path.exists(self.results_path):

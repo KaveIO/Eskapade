@@ -1,21 +1,20 @@
-import os
-import re
 import glob
-import pandas as pd
-import pyspark
+import os
 import random
+import re
 import string
 import subprocess
 import sys
 import unittest
 
+import pandas as pd
+import pyspark
 from pyspark.sql.types import StructField, LongType, DoubleType, StringType
 
 from eskapade import process_manager, resources, utils, ConfigObject, DataStore
 from eskapade.core import persistence
-from eskapade.tests.integration.test_bases import TutorialMacrosTest
-
 from eskapade.spark_analysis import SparkManager
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 
 
 class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):

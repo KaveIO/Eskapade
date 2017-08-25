@@ -14,8 +14,6 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import pyspark
-
 from eskapade import process_manager, ConfigObject, Link, StatusCode
 from eskapade.spark_analysis import SparkManager
 

@@ -22,6 +22,7 @@ import eskapade.utils
 from eskapade.core.process_manager import process_manager
 from .process_services import ConfigObject
 
+
 def reset_eskapade(skip_config=False):
     """Reset Eskapade objects
 

@@ -17,8 +17,6 @@
 # **********************************************************************************
 
 from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.spark_analysis import SparkManager
-from pyspark.sql import Row
 
 
 class SparkStreamingWriter(Link):

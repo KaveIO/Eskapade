@@ -17,9 +17,8 @@
 
 import logging
 
-from eskapade.spark_analysis import SparkManager
-
 from eskapade import process_manager, ConfigObject, resources
+from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.Tutorial_5')
 

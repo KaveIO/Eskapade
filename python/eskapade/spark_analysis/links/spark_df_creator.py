@@ -13,8 +13,6 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import pyspark
-
 from eskapade import Link, StatusCode, process_manager, DataStore
 from eskapade.helpers import process_transform_funcs
 from eskapade.spark_analysis import SparkManager, data_conversion

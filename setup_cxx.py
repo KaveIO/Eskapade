@@ -1,6 +1,6 @@
 import os
-import subprocess
 import platform
+import subprocess
 
 from setuptools import Extension
 from setuptools.command.build_ext import build_ext

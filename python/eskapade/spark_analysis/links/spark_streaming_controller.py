@@ -13,9 +13,7 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import time
-
-from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, Link, StatusCode
 from eskapade.spark_analysis import SparkManager
 
 

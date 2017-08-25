@@ -12,11 +12,11 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import sys
 import logging
+import sys
 
-from setuptools import setup
 from setuptools import find_packages
+from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
 from setup_cxx import CMakeExtension, CMakeBuild

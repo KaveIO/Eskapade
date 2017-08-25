@@ -16,8 +16,7 @@ from collections import OrderedDict as odict
 
 import pandas as pd
 
-from eskapade import process_manager
-from eskapade import ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
 from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.esk605_create_spark_df')

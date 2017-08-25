@@ -16,7 +16,6 @@
 # **********************************************************************************
 
 import logging
-import os
 
 from eskapade import ConfigObject, resources
 from eskapade import core_ops, analysis, visualization

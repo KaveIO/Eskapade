@@ -1,10 +1,6 @@
-import unittest
-import pyspark
-
 from pyspark.sql.functions import udf
 from pyspark.sql.types import StringType
 
-import eskapade
 from eskapade import ConfigObject, process_manager
 from eskapade.data_quality import dq_helper
 from eskapade.tests.integration.test_bases import IntegrationTest

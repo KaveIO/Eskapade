@@ -99,8 +99,6 @@ wsu = root_analysis.WsUtils(name='TemplateFixer')
 
 
 def nonzero_templates(w):
-    import ROOT
-    from eskapade.root_analysis.decorators.roofit import ws_put
     # fix non-zero bins
     def nonzero_hist(rdh, minimum_value=0.01):
         if rdh.numEntries() == 0: return
