@@ -14,10 +14,9 @@
 # ********************************************************************************
 
 import ROOT
-from ROOT import RooFit
 
 from eskapade.core.process_services import ProcessService
-from .roofit_models import RooFitModel
+from eskapade.root_analysis.roofit_models import RooFitModel
 
 
 class RooFitManager(ProcessService):

@@ -1,21 +1,29 @@
 try:
     import ROOT
-except:
+except ImportError:
     from eskapade import MissingRootError
     raise MissingRootError()
 
 try:
     from ROOT import RooFit
-except:
-    from eskapade import MissingRooFitError
-    raise MissingRooFitError()
+except ImportError:
+    try:
+        # noinspection PyUnresolvedReferences
+        import ROOT.RooFit
+    except ImportError:
+        from eskapade import MissingRooFitError
+        raise MissingRooFitError()
 
 try:
     from ROOT import RooStats
-except:
-    from eskapade import MissingRooStatsError
-    raise MissingRooStatsError()
+except ImportError:
+    try:
+        # noinspection PyUnresolvedReferences
+        import ROOT.RooStats
+    except ImportError:
+        from eskapade import MissingRooStatsError
+        raise MissingRooStatsError()
 
-from . import decorators, style
-from .roofit_manager import RooFitManager
-from .links import *
+from eskapade.root_analysis import decorators, style
+from eskapade.root_analysis.links import *
+from eskapade.root_analysis.roofit_manager import RooFitManager

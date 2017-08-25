@@ -13,24 +13,24 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import os
-import pandas as pd
-import numpy as np
-import fnmatch
 import copy
-import tabulate
-
-from numba import jit
+import fnmatch
+import os
 from collections import OrderedDict
 
 import ROOT
+import numpy as np
+import pandas as pd
 import root_numpy
+import tabulate
+from numba import jit
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.root_analysis import RooFitManager, data_conversion, roofit_utils
-from eskapade.visualization import vis_utils
-import eskapade.root_analysis.decorators
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
 from eskapade.core import persistence
+from eskapade.root_analysis import data_conversion, roofit_utils
+from eskapade.root_analysis.roofit_manager import RooFitManager
+from eskapade.visualization import vis_utils
+
 
 class UncorrelationHypothesisTester(Link):
     """Link to test for correlations between categorical observables.
@@ -140,7 +140,8 @@ class UncorrelationHypothesisTester(Link):
 
         # check input arguments
         self.check_arg_types(read_key=str, significance_key=str, sk_significance_map=str, sk_residuals_map=str,
-                             sk_residuals_overview=str, default_number_of_bins=int, nsims_per_significance=int, prefix=str,
+                             sk_residuals_overview=str, default_number_of_bins=int, nsims_per_significance=int,
+                             prefix=str,
                              z_threshold=float, pages_key=str, clientpages_key=str, hist_dict_key=str)
         self.check_arg_types(recurse=True, allow_none=True, columns=str)
         self.check_arg_types(recurse=True, allow_none=True, x_columns=str)
@@ -155,7 +156,7 @@ class UncorrelationHypothesisTester(Link):
             raise TypeError('map_to_original needs to be a dict or string (to fetch a dict from the datastore)')
 
         # get I/O configuration
-        io_conf = ProcessManager().service(ConfigObject).io_conf()
+        io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates
         with open(persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
@@ -169,7 +170,7 @@ class UncorrelationHypothesisTester(Link):
         if not self.results_path:
             self.results_path = persistence.io_path('results_data', io_conf, 'report')
         if self.results_path and not self.results_path.endswith('/'):
-            self.results_path = self.results_path + '/'
+            self.results_path += '/'
 
         # check if output directory exists
         if os.path.exists(self.results_path):
@@ -184,7 +185,7 @@ class UncorrelationHypothesisTester(Link):
 
         # prefix for file storage
         if self.prefix and not self.prefix.endswith('_'):
-            self.prefix = self.prefix + '_'
+            self.prefix += '_'
 
         # check provided columns
         if len(self.columns):
@@ -210,13 +211,12 @@ class UncorrelationHypothesisTester(Link):
     def execute(self):
         """Execute UncorrelationHypothesisTester"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         # 1a. basic checks on contents of the roodataset
         if self.from_ws:
-            ws = proc_mgr.service(RooFitManager).ws
+            ws = process_manager.service(RooFitManager).ws
             rds = ws.data(self.read_key)
             assert rds is not None, 'Key %s not in workspace' % self.read_key
         else:
@@ -247,7 +247,7 @@ class UncorrelationHypothesisTester(Link):
         for c in self.columns:
             match_c = fnmatch.filter(self._all_columns, c)
             if not match_c:
-                raise AssertionError('column or pattern "%s" not present in roodataset' % (c, self.read_key))
+                raise AssertionError('column or pattern "{}" not present in roodataset {}'.format(c, self.read_key))
             matched_columns += match_c
         self.columns = sorted(list(set(matched_columns)))  # sorted unique list
 
@@ -256,14 +256,14 @@ class UncorrelationHypothesisTester(Link):
         for c in self.x_columns:
             match_c = fnmatch.filter(self._all_columns, c)
             if not match_c:
-                raise AssertionError('column or pattern "%s" not present in roodataset' % (c, self.read_key))
+                raise AssertionError('column or pattern "{}" not present in roodataset {}'.format(c, self.read_key))
             matched_columns += match_c
         self.x_columns = sorted(list(set(matched_columns)))  # sorted unique list
         matched_columns = []
         for c in self.y_columns:
             match_c = fnmatch.filter(self._all_columns, c)
             if not match_c:
-                raise AssertionError('column or pattern "%s" not present in roodataset' % (c, self.read_key))
+                raise AssertionError('column or pattern "{}" not present in roodataset {}'.format(c, self.read_key))
             matched_columns += match_c
         self.y_columns = sorted(list(set(matched_columns)))  # sorted unique list
         self.y_columns = sorted([c for c in self.y_columns if c not in self.x_columns])
@@ -298,7 +298,8 @@ class UncorrelationHypothesisTester(Link):
         self.clientpages = []
         if self.clientpages_key:
             self.clientpages = ds.get(self.clientpages_key, [])
-            assert isinstance(self.clientpages, list), 'Client pages key %s does not refer to a list' % self.clientpages_key
+            assert isinstance(self.clientpages,
+                              list), 'Client pages key %s does not refer to a list' % self.clientpages_key
 
         # 1g. initialize significance_matrix
         nx = ny = 0
@@ -322,7 +323,7 @@ class UncorrelationHypothesisTester(Link):
         for idx, c1 in enumerate(self.columns):
             for c2 in self.columns[idx + 1:]:
                 self.combinations.append([c1, c2])
-        #     add left-right pair combinations
+        # add left-right pair combinations
         if self.x_columns and self.inproduct:
             assert len(self.x_columns) == len(self.y_columns)
         for i, c1 in enumerate(self.x_columns):
@@ -373,7 +374,8 @@ class UncorrelationHypothesisTester(Link):
                         significance_matrix[x, y] = Zi
             # b) calculate residuals
             success = ROOT.Eskapade.ABCD.checkInputData(rdh)
-            self.log().debug('Combination %s has significance: %f. Can calculate residuals? %s' % (str(combo), Zi, success))
+            self.log().debug(
+                'Combination %s has significance: %f. Can calculate residuals? %s' % (str(combo), Zi, success))
             if not success:
                 self.log().warning('Cannot calculate residuals for combination: %s. Skipping.' % str(combo))
                 del rdh
@@ -407,16 +409,17 @@ class UncorrelationHypothesisTester(Link):
         significance = self.significance_map.copy()
         for key in list(significance.keys()):
             significance[key] = [significance[key]]
-        dfsignificance = pd.DataFrame(significance).stack().reset_index(level=1)\
-                                                           .rename(columns={'level_1': 'Questions', 0: 'Significance'})\
-                                                           .sort_values(by='Significance', ascending=False)
+        dfsignificance = pd.DataFrame(significance).stack().reset_index(level=1) \
+            .rename(columns={'level_1': 'Questions', 0: 'Significance'}) \
+            .sort_values(by='Significance', ascending=False)
         keep_cols = ['Questions', 'Significance']
         table = latex_residuals_table(dfsignificance, keep_cols, self.z_threshold, normResidCol='Significance')
         if table:
-            self.clientpages.append(self.table_template.replace('VAR_LABEL', 'Significance').replace('VAR_STATS_TABLE', table))
+            self.clientpages.append(
+                self.table_template.replace('VAR_LABEL', 'Significance').replace('VAR_STATS_TABLE', table))
 
         # 2a. create one residual table containing the top non-noncorrelating answers
-        resid_all=[]
+        resid_all = []
         if len(self.combinations) > 1:
             # create one dataframe containing all data
             resid_list = []
@@ -438,12 +441,16 @@ class UncorrelationHypothesisTester(Link):
                             ['answer_%d' % i for i in range(ndim_max)] + \
                             ['num_entries', 'abcd', 'abcd_error', 'pValue', 'normResid']
                 table = latex_residuals_table(resid_all, keep_cols, self.z_threshold)
-                self.pages.append(self.table_template.replace('VAR_LABEL', 'Most significant outliers').replace('VAR_STATS_TABLE', table))
+                self.pages.append(
+                    self.table_template.replace('VAR_LABEL', 'Most significant outliers').replace('VAR_STATS_TABLE',
+                                                                                                  table))
                 keep_cols = ['question_%d' % i for i in range(ndim_max)] + \
                             ['answer_%d' % i for i in range(ndim_max)] + \
                             ['num_entries', 'abcd', 'normResid']
                 table = latex_residuals_table(resid_all, keep_cols, self.z_threshold)
-                self.clientpages.append(self.table_template.replace('VAR_LABEL', 'Most significant outliers').replace('VAR_STATS_TABLE', table))
+                self.clientpages.append(
+                    self.table_template.replace('VAR_LABEL', 'Most significant outliers').replace('VAR_STATS_TABLE',
+                                                                                                  table))
 
         # 2b. make residuals heatmaps
         for combo in self.combinations:
@@ -477,7 +484,9 @@ class UncorrelationHypothesisTester(Link):
             table = latex_residuals_table(residi, keep_cols, self.z_threshold)
             if not table:
                 continue
-            self.pages.append(self.table_template.replace('VAR_LABEL', 'outliers: ' + ' vs '.join(combo)).replace('VAR_STATS_TABLE', table))
+            self.pages.append(
+                self.table_template.replace('VAR_LABEL', 'outliers: ' + ' vs '.join(combo)).replace('VAR_STATS_TABLE',
+                                                                                                    table))
 
         # 2d. make residuals histograms
         p_all = ROOT.TH1F('p_all', 'p_all', 20, 0, 1)
@@ -507,7 +516,7 @@ class UncorrelationHypothesisTester(Link):
         if self.sk_residuals_map:
             ds[self.sk_residuals_map] = self.residuals_map
             self.log().debug('Stored residuals map in data store under key: %s' % self.sk_residuals_map)
-        if self.sk_residuals_overview and len(resid_all)>0:
+        if self.sk_residuals_overview and len(resid_all) > 0:
             ds[self.sk_residuals_overview] = resid_all
             self.log().debug('Stored residuals list in data store under key: %s' % self.sk_residuals_overview)
 
@@ -621,7 +630,8 @@ def extract_matrix(df, x_col, y_col, v_col='normResid'):
     for i, x in enumerate(x_vals):
         for j, y in enumerate(y_vals):
             keep = (df[x_col] == x) & (df[y_col] == y)
-            assert len(df[keep].index) == 1, 'Cannot selected more than one row to fill matrix: %d' % len(df[keep].index)
+            assert len(df[keep].index) == 1, 'Cannot selected more than one row to fill matrix: %d' % len(
+                df[keep].index)
             val = df[keep][v_col].values[0]
             matrix[j][i] = val
 
@@ -636,7 +646,7 @@ def latex_residuals_table(df, keep_cols=[], absZ_threshold=3., n_rows=20, normRe
     :param pandas.DataFrame df: pandas dataframe from which latex table will be created
     :param list keep_cols: selection on columns. List of columns for which table will be created (optional)
     :param float absZ_threshold: selection on rows. Create only if value in normResidCol >= threshold (optional)
-    :param int n_nrows: maximum number of rows (optional)
+    :param int n_rows: maximum number of rows (optional)
     :param str normResidCol: latex table is sorted according to values in this column. Also the threshold
                              is applied to this column (optional)
     :return: table in string format

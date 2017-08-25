@@ -13,9 +13,7 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import pyspark
-
-from eskapade import Link, StatusCode, ProcessManager, DataStore
+from eskapade import Link, StatusCode, process_manager, DataStore
 from eskapade.helpers import apply_transform_funcs, process_transform_funcs
 from eskapade.spark_analysis import SparkManager
 
@@ -67,14 +65,13 @@ class SparkDfReader(Link):
         """Execute SparkDfReader"""
 
         # create data-frame reader
-        proc_mgr = ProcessManager()
-        spark = proc_mgr.service(SparkManager).get_session()
+        spark = process_manager.service(SparkManager).get_session()
         data = spark.read
 
         # call data-frame reader methods
         data = apply_transform_funcs(data, self._read_methods)
 
         # store data in data store
-        proc_mgr.service(DataStore)[self.store_key] = data
+        process_manager.service(DataStore)[self.store_key] = data
 
         return StatusCode.Success

@@ -10,10 +10,10 @@ class DsToDsTest(unittest.TestCase, TestCaseObservable):
         super(DsToDsTest, self).set_up_observers(observers)
 
     def test_execute(self):
-        from eskapade import ProcessManager, DataStore
+        from eskapade import process_manager, DataStore
         from eskapade.core_ops.links import DsToDs
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
         ds['test'] = 1
         ds_to_ds = DsToDs()
         ds_to_ds.readKey = 'test'

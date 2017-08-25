@@ -14,9 +14,7 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.spark_analysis import SparkManager
-from pyspark.sql import Row
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
 
 
 class SparkStreamingWordCount(Link):
@@ -57,9 +55,8 @@ class SparkStreamingWordCount(Link):
     def execute(self):
         """Execute SparkStreamingWordCount"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         lines = ds[self.read_key]
         counts = lines.flatMap(lambda line: line.split(" "))\

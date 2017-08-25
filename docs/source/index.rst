@@ -11,6 +11,8 @@ Eskapade: Modular Analytics
 
 **Version**: |version|
 
+**Release**: |release|
+
 **Date**: |today|
 
 **Web page:** http://eskapade.kave.io
@@ -110,7 +112,7 @@ Contents
    tutorials
    package_structure
    command_line_arguments
-   contributing
+   developing
 
 API
 ---

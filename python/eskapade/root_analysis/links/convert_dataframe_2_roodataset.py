@@ -13,14 +13,15 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import pandas as pd
-import numpy as np
 import fnmatch
 
 import ROOT
+import numpy as np
+import pandas as pd
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.root_analysis import RooFitManager, data_conversion
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
+from eskapade.root_analysis import data_conversion
+from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertDataFrame2RooDataSet(Link):
@@ -123,10 +124,9 @@ class ConvertDataFrame2RooDataSet(Link):
     def execute(self):
         """Execute ConvertDataFrame2RooDataSet"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
-        ws = proc_mgr.service(RooFitManager).ws
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # 1a. basic checks on contensts of the data frame
         assert self.read_key in list(ds.keys()), 'key %s not in DataStore' % self.read_key
@@ -163,13 +163,13 @@ class ConvertDataFrame2RooDataSet(Link):
         for c in self.columns:
             match_c = fnmatch.filter(df.columns, c)
             if not match_c:
-                raise AssertionError('column or pattern "%s" not in data frame' % (c, self.read_key))
+                raise AssertionError('column or pattern "{}" not in data frame {}'.format(c, self.read_key))
             matched_columns += match_c
         self.columns = matched_columns
         for col in self.columns[:]:
             dt = df[col].dtype.type
             # keep categorical observables -- convert these to roocategories in conversion
-            if issubclass(dt, pd.types.dtypes.CategoricalDtypeType):
+            if pd.core.common.is_categorical(dt):
                 continue
             # reject all string-based columns
             if (dt is np.string_) or (dt is np.object_):

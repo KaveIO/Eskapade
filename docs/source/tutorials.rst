@@ -127,14 +127,14 @@ analysis: Chains and Links. There are two chains added to the macro, with follow
 
 .. code-block:: python
 
-  proc_mgr.add_chain('Data')
+  process_manager.add_chain('Data')
 
 This chain called ``Data`` is added to the ProcessManager, which is the object that runs the entire macro. Then the
 chain is fetched by:
 
 .. code-block:: python
 
-  proc_mgr.get_chain('Data')
+  process_manager.get_chain('Data')
 
 and a Link is added. First the link is initialized (links are classes) and its properties are set, and finally it is
 inserted into the chain:
@@ -142,7 +142,7 @@ inserted into the chain:
 .. code-block:: python
 
   reader = analysis.ReadToDf(name='Read_LA_ozone', path=DATA_FILE_PATH, reader=pd.read_csv, key='data')
-  proc_mgr.get_chain('Data').add_link(reader)
+  process_manager.get_chain('Data').add_link(reader)
 
 This means the Link is added to the chain and when Eskapade runs, it will execute the code in the Link.
 
@@ -266,7 +266,7 @@ So use the code and add 3 chains with different names:
 
 .. code-block:: python
 
-  ch = proc_mgr.add_chain('CHAINNAME')
+  ch = process_manager.add_chain('CHAINNAME')
 
 When naming chains, remember that the output of Eskapade will print per chain-link combination the logs that are
 defined in the Links. So name the chains appropriately, so when you run the macro the logging actually makes sense.

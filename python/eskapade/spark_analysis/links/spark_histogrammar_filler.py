@@ -17,17 +17,16 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import numpy as np
-import pandas as pd
-
-import pyspark
-from pyspark.sql.types import LongType, FloatType
-from pyspark.sql.functions import udf
 import histogrammar
 import histogrammar.sparksql
+import numpy as np
+import pandas as pd
+import pyspark
+from pyspark.sql.functions import udf
+from pyspark.sql.types import FloatType
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 from eskapade.analysis import HistogrammarFiller, histogram_filling as hf
+
 
 def unit_func(x):
     return x

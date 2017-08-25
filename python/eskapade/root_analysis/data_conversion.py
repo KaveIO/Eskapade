@@ -13,12 +13,12 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import numpy as np
-import pandas as pd
-import uuid
 import collections
+import uuid
 
 import ROOT
+import numpy as np
+import pandas as pd
 from root_numpy import array2tree, tree2array
 
 from eskapade.analysis.histogram import Histogram
@@ -341,7 +341,7 @@ def df_to_tree(df, name='tree', tree=None, store_index=True):
     for col in df_.columns:
         # 1. convert categorical data and boolians to integers
         dt = df_[col].dtype
-        if issubclass(dt.type, pd.types.dtypes.CategoricalDtypeType) or dt == 'bool':
+        if pd.core.common.is_categorical(dt) or dt == 'bool':
             labels, unique = df_[col].factorize()
             df_[col] = labels
             # store the mapping for possible use in roocategories

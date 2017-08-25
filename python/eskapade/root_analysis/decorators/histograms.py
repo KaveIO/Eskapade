@@ -15,7 +15,6 @@
 
 import numpy
 
-import ROOT
 from ROOT import TH1
 from ROOT import TH1C, TH1S, TH1I, TH1F, TH1D
 from ROOT import TH2C, TH2S, TH2I, TH2F, TH2D
@@ -189,7 +188,7 @@ def bin_range(self, q):
         ax = self.GetYaxis()
     elif q == 2:
         ax = self.GetZaxis()
-    return (ax.GetXmin(), ax.GetXmax())
+    return ax.GetXmin(), ax.GetXmax()
 
 
 @property

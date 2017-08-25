@@ -13,7 +13,11 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, StatusCode, DataStore, Link, ConfigObject
+from eskapade import ConfigObject
+from eskapade import DataStore
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import process_manager
 
 
 class HelloWorld(Link):
@@ -38,15 +42,13 @@ class HelloWorld(Link):
         self.check_extra_kwargs(kwargs)
         # self.kwargs = kwargs
 
-
     def execute(self):
         """Execute HelloWorld"""
 
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         for i in range(self.repeat):
             self.log().info('Hello {0}'.format(self.hello))
 
         return StatusCode.Success
-

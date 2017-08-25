@@ -1,1 +1,1 @@
-from .links import *
+from eskapade.core_ops.links import *

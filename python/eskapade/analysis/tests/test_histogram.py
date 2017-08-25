@@ -1,10 +1,10 @@
 import unittest
-import numpy as np
-
 from collections import Counter
 
-from eskapade.tests.observers import TestCaseObservable
+import numpy as np
+
 from eskapade.analysis.histogram import Histogram, ValueCounts
+from eskapade.tests.observers import TestCaseObservable
 
 
 class HistogramTest(unittest.TestCase, TestCaseObservable):

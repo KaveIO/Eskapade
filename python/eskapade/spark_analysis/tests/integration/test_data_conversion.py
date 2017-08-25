@@ -1,14 +1,14 @@
-from collections import OrderedDict as odict
 import datetime
-import pandas as pd
+from collections import OrderedDict as odict
 
+import pandas as pd
 import pyspark
 from pyspark.sql.types import StructField, StructType, LongType, DoubleType, StringType, TimestampType
 
-from eskapade import ProcessManager, ConfigObject
+from eskapade import process_manager, ConfigObject
+from eskapade.spark_analysis.data_conversion import create_spark_df, df_schema
+from eskapade.spark_analysis.spark_manager import SparkManager
 from eskapade.tests.integration.test_bases import IntegrationTest
-from ...spark_manager import SparkManager
-from ...data_conversion import create_spark_df, df_schema
 
 
 class DataConversionTest(IntegrationTest):
@@ -17,31 +17,29 @@ class DataConversionTest(IntegrationTest):
     def setUp(self):
         """Setup test environment"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
         settings['analysisName'] = 'DataConversionTest'
         # ensure local testing
         spark_settings = [('spark.app.name', settings['analysisName']),
                           ('spark.master', 'local[*]'),
                           ('spark.driver.host', 'localhost')]
-        proc_mgr.service(SparkManager).create_session(eskapade_settings=settings, spark_settings=spark_settings)
+        process_manager.service(SparkManager).create_session(eskapade_settings=settings, spark_settings=spark_settings)
 
     def tearDown(self):
         """Tear down test environment"""
 
-        ProcessManager().service(SparkManager).finish()
+        process_manager.service(SparkManager).finish()
 
     def test_create_spark_df(self):
         """Test creation of a Spark data frame"""
 
         # create Spark session
-        spark = ProcessManager().service(SparkManager).get_session()
+        spark = process_manager.service(SparkManager).get_session()
 
         # create input data
         orig_cols = odict([('_1', LongType()), ('_2', StringType()), ('_3', DoubleType())])
         orig_schema = StructType([StructField(*c) for c in orig_cols.items()])
-        data = {}
-        data['rows'] = [(it, 'foo{:d}'.format(it), (it + 1) / 2.) for it in range(100)]  # list of tuples
+        data = {'rows': [(it, 'foo{:d}'.format(it), (it + 1) / 2.) for it in range(100)]}
         data['rdd'] = spark.sparkContext.parallelize(data['rows'])  # RDD
         data['df'] = spark.createDataFrame(data['rdd'], schema=list(orig_cols.keys()))  # Spark data frame
         data['pddf'] = pd.DataFrame(data['rows'], columns=list(orig_cols.keys()))  # Pandas data frame

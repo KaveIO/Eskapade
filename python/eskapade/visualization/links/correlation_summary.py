@@ -14,16 +14,16 @@
 # **********************************************************************************
 
 import os
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 import tabulate
-#from sklearn.feature_selection import mutual_info_regression
+from sklearn.feature_selection import mutual_info_regression
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.core import persistence
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
 from eskapade import visualization
+from eskapade.core import persistence
 
-#ALL_CORRS = ['pearson', 'kendall', 'spearman', 'mutual_information', 'correlation_ratio']
 ALL_CORRS = ['pearson', 'kendall', 'spearman', 'correlation_ratio']
 LINEAR_CORRS = ['pearson', 'kendall', 'spearman']
 
@@ -57,7 +57,7 @@ class CorrelationSummary(Link):
         self.check_arg_vals('read_key')
 
         # get I/O configuration
-        io_conf = ProcessManager().service(ConfigObject).io_conf()
+        io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates
         with open(persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
@@ -95,10 +95,7 @@ class CorrelationSummary(Link):
     def execute(self):
         """Execute CorrelationSummary"""
 
-        ds = ProcessManager().service(DataStore)
-
-        import matplotlib.pyplot as plt
-        from matplotlib import colors
+        ds = process_manager.service(DataStore)
 
         # fetch and check input data frame
         # drop all-nan columns right away

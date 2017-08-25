@@ -14,18 +14,34 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import os
-import re
 import glob
 import logging
+import os
+import re
 from collections import defaultdict
 
 # IO locations
-IO_LOCS = dict(config='config_dir', results='results_dir', data='data_dir', macros='macros_dir', input_data='data_dir',
-               config_spark='config_dir', records='data_dir', ana_results='results_dir', ana_plots='results_dir',
-               proc_service_data='results_dir', results_data='results_dir', results_ml_data='results_dir',
-               results_config='results_dir', tmva='results_dir', plots='results_dir', templates='templates_dir')
-IO_SUB_DIRS = defaultdict(lambda: '', config_spark='spark', ana_results='{ana_name:s}', ana_plots='{ana_name:s}/plots',
+IO_LOCS = dict(config='config_dir',
+               results='results_dir',
+               data='data_dir',
+               macros='macros_dir',
+               input_data='data_dir',
+               config_spark='config_dir',
+               records='data_dir',
+               ana_results='results_dir',
+               ana_plots='results_dir',
+               proc_service_data='results_dir',
+               results_data='results_dir',
+               results_ml_data='results_dir',
+               results_config='results_dir',
+               tmva='results_dir',
+               plots='results_dir',
+               templates='templates_dir')
+
+IO_SUB_DIRS = defaultdict(lambda: '',
+                          config_spark='spark',
+                          ana_results='{ana_name:s}',
+                          ana_plots='{ana_name:s}/plots',
                           proc_service_data='{ana_name:s}/proc_service_data/v{ana_version:s}',
                           results_data='{ana_name:s}/data/v{ana_version:s}',
                           results_ml_data='{ana_name:s}/data/v{ana_version:s}',
@@ -95,8 +111,9 @@ def io_path(io_type, io_conf, sub_path):
 
     # check inputs
     if not isinstance(sub_path, str):
-        log.critical('specified sub path/file name must be a string, but has type "%s"' % type(sub_path).__name__)
-        raise RuntimeError('the sub path/file name in the io_path function must be a string')
+        log.critical('Specified sub path/file name must be a string, but has type "{type!s}"'
+                     .format(type=type(sub_path).__name__))
+        raise TypeError('The sub path/file name in the io_path function must be a string')
     sub_path = repl_whites(sub_path).strip('/')
 
     # construct path
@@ -133,7 +150,11 @@ def record_file_number(io_conf, file_name_base, file_name_ext):
 class IoConfig(dict):
     """Configuration object for I/O operations"""
 
-    _conf_items = dict(analysis_name=str, analysis_version=None, results_dir=str, data_dir=str, macros_dir=str,
+    _conf_items = dict(analysis_name=str,
+                       analysis_version=None,
+                       results_dir=str,
+                       data_dir=str,
+                       macros_dir=str,
                        templates_dir=str)
 
     def __init__(self, **input_config):

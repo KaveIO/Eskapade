@@ -14,15 +14,19 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import pandas as pd
-import numpy as np
+import copy
 import re
 import string
-import copy
 from collections import Counter
-#import fastnumbers
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+import numpy as np
+import pandas as pd
+
+from eskapade import ConfigObject
+from eskapade import DataStore
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import process_manager
 from eskapade.data_quality.dq_helper import check_nan, convert, cleanup_string, CONV_FUNCS
 
 
@@ -196,9 +200,8 @@ class FixPandasDataFrame(Link):
         - Make data types in each row consistent (by default ignoring all nans)
         """
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         # basic checks on contensts of the data frame
         if self.read_key not in ds:
@@ -222,7 +225,7 @@ class FixPandasDataFrame(Link):
         # check presence and data types of requested columns
         for col in self.original_columns:
             if col not in df.columns:
-                raise AssertionError('column "%s" not present in input data frame' % (col, self.read_key))
+                raise AssertionError('column "{}" not present in input data frame {}'.format(col, self.read_key))
 
         # set string columns to clean up
         if isinstance(self.cleanup_string_columns, bool):
@@ -273,7 +276,7 @@ class FixPandasDataFrame(Link):
         # --- Next: fix datatypes - all rows in a column get consistent datatype, except for nans
 
         # convert all values to real numbers if possible
-        #df_ = df_.apply(fastnumbers.fast_real)
+        # df_ = df_.apply(fastnumbers.fast_real)
 
         # init - assess data types of columns as earlier assessed by pandas
         for col in self.fixed_columns:
@@ -328,12 +331,12 @@ class FixPandasDataFrame(Link):
                     ndt = str
                 mc = dtype_cnt.pop(dtp)
                 dtype_cnt[ndt] += mc
-            prefered_dtype = determine_preferred_dtype(dtype_cnt)
+            preferred_dtype = determine_preferred_dtype(dtype_cnt)
             if col not in self.var_dtype:
-                self.var_dtype[col] = prefered_dtype
+                self.var_dtype[col] = preferred_dtype
             if len(dtype_cnt) > 1:
-                self.log().warning('Found multiple types for column "%s"', col)
-                self.log().debug('Picked type "%s" for column "%s" (counts: %s)', prefered_dtype, col, str(dtype_cnt))
+                self.log().warning('Found multiple types for column "{col!s}"'.format(col=col))
+                self.log().debug('Picked type "%s" for column "%s" (counts: %s)', preferred_dtype, col, str(dtype_cnt))
                 if col not in self.contaminated_columns:
                     self.contaminated_columns.append(col)
 

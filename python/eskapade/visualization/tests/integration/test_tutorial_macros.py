@@ -1,25 +1,29 @@
 import os
+
 import pandas as pd
 
-from eskapade.tests.integration.test_bases import TutorialMacrosTest
+from eskapade import process_manager, resources, ConfigObject, DataStore
 from eskapade.core import execution, definitions, persistence
-from eskapade import ProcessManager, ConfigObject, DataStore
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 
 
 class VisualizationTutorialMacrosTest(TutorialMacrosTest):
     """Integration tests based on visualization tutorial macros"""
-        
+
     def test_esk301(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = process_manager.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk301_dfsummary_plotter.py'
+        settings['macro'] = resources.tutorial('esk301_dfsummary_plotter.py')
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
+
         columns = ['var_a', 'var_b', 'var_c']
 
         # data-generation checks
@@ -38,17 +42,20 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             self.assertTrue(statinfo.st_size > 0)
 
     def test_esk302(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk302_histogram_filler_plotter.py'
+        settings['macro'] = resources.tutorial('esk302_histogram_filler_plotter.py')
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
-        columns = ['date','isActive','age','eyeColor','gender','company','latitude','longitude']
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
+
+        columns = ['date', 'isActive', 'age', 'eyeColor', 'gender', 'company', 'latitude', 'longitude']
 
         # data-generation checks
         self.assertTrue(status.isSuccess())
@@ -67,16 +74,18 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             self.assertTrue(statinfo.st_size > 0)
 
     def test_esk303(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk303_hgr_filler_plotter.py'
+        settings['macro'] = resources.tutorial('esk303_hgr_filler_plotter.py')
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         # data-generation checks
         self.assertTrue(status.isSuccess())
@@ -99,16 +108,18 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             self.assertTrue(statinfo.st_size > 0)
 
     def test_esk304(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = process_manager.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk304_df_boxplot.py'
+        settings['macro'] = resources.tutorial('esk304_df_boxplot.py')
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         # data-generation checks
         self.assertTrue(status.isSuccess())
@@ -126,17 +137,21 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             self.assertTrue(statinfo.st_size > 0)
 
     def test_esk305(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk305_correlation_summary.py'
+        settings['macro'] = resources.tutorial('esk305_correlation_summary.py')
+        # settings['dataDir'] = resource_filename('eskapade', '/data')
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
+
         self.assertTrue(status.isSuccess())
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         # input data checks
         all_col_names = ['x1', 'x2', 'x3', 'x4', 'x5', 'Unnamed: 5']
@@ -155,7 +170,7 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
 
         for corr in corr_list:
             self.assertIsInstance(corr, pd.DataFrame)
-            #self.assertListEqual(list(corr.columns), col_names)
+            # self.assertListEqual(list(corr.columns), col_names)
             self.assertListEqual(list(corr.index), col_names)
 
         # heatmap pdf checks
@@ -170,16 +185,18 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             self.assertTrue(statinfo.st_size > 0)
 
     def test_esk306(self):
-        settings = ProcessManager().service(ConfigObject)
+        pm = process_manager
+
+        settings = pm.service(ConfigObject)
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
-        settings['macro'] = settings['esRoot'] + '/tutorials/esk306_concatenate_reports.py'
+        settings['macro'] = resources.tutorial('esk306_concatenate_reports.py')
         settings['batchMode'] = True
 
         status = execution.run_eskapade(settings)
 
-        pm = ProcessManager()
-        settings = ProcessManager().service(ConfigObject)
-        ds = ProcessManager().service(DataStore)
+        settings = pm.service(ConfigObject)
+
+        ds = pm.service(DataStore)
 
         # report checks
         self.assertTrue(status.isSuccess())

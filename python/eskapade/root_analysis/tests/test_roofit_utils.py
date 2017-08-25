@@ -1,9 +1,10 @@
 import unittest
-import mock
+import unittest.mock as mock
 
 import ROOT
 
-from ..roofit_utils import load_libesroofit
+from eskapade import resources
+from eskapade.root_analysis.roofit_utils import load_libesroofit
 
 
 class LoadLibesroofitTest(unittest.TestCase):
@@ -13,8 +14,7 @@ class LoadLibesroofitTest(unittest.TestCase):
     @mock.patch('ROOT.gSystem.Load')
     @mock.patch('eskapade.root_analysis.roofit_utils.CUSTOM_ROOFIT_OBJECTS')
     @mock.patch('eskapade.root_analysis.roofit_utils.log')
-    @mock.patch('eskapade.utils.build_cxx_library')
-    def test_load_libesroofit(self, mock_build_cxx_library, mock_log, mock_objects, mock_load, mock_get_libraries):
+    def test_load_libesroofit(self, mock_log, mock_objects, mock_load, mock_get_libraries):
         """Test loading Eskapade RooFit library"""
 
         # set custom object attributes
@@ -26,18 +26,14 @@ class LoadLibesroofitTest(unittest.TestCase):
         mock_load.return_value = 0
         mock_get_libraries.return_value = 'lib/libmylib.so'
         load_libesroofit()
-        mock_build_cxx_library.assert_called_once_with(lib_key='roofit', accept_existing=True)
-        mock_load.assert_called_once_with('libesroofit')
-        mock_build_cxx_library.reset_mock()
+        mock_load.assert_called_once_with(resources.lib('libesroofit.so'))
         mock_load.reset_mock()
 
         # test with loaded library
         mock_get_libraries.return_value = 'lib/libmylib.so lib/libesroofit.so'
         load_libesroofit()
-        mock_build_cxx_library.assert_not_called()
         mock_load.assert_not_called()
         mock_get_libraries.return_value = 'lib/libmylib.so'
-        mock_build_cxx_library.reset_mock()
         mock_load.reset_mock()
 
         # test failed load
@@ -45,7 +41,6 @@ class LoadLibesroofitTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             load_libesroofit()
         mock_load.return_value = 0
-        mock_build_cxx_library.reset_mock()
         mock_load.reset_mock()
 
         # test missing custom class

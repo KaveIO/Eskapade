@@ -1,13 +1,13 @@
 import os
-import pandas as pd
 from glob import glob
 
 import ROOT
+import pandas as pd
 
-from eskapade.tests.integration.test_bases import TutorialMacrosTest
+from eskapade import process_manager, resources, ConfigObject, DataStore
 from eskapade.core import persistence
-from eskapade import ProcessManager, ConfigObject, DataStore
-from eskapade.root_analysis import RooFitManager
+from eskapade.root_analysis.roofit_manager import RooFitManager
+from eskapade.tests.integration.test_bases import TutorialMacrosTest
 
 
 class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
@@ -17,8 +17,8 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-401: ROOT hist fill, plot, convert"""
 
         # run Eskapade
-        self.run_eskapade('esk401_roothist_fill_plot_convert.py')
-        ds = ProcessManager().service(DataStore)
+        self.eskapade_run(resources.tutorial('esk401_roothist_fill_plot_convert.py'))
+        ds = process_manager.service(DataStore)
 
         # histogram checks
         self.assertIn('hist', ds)
@@ -47,7 +47,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIsInstance(ds['vars_x2_vs_x3'], ROOT.RooArgSet)
 
         # data-summary checks
-        io_conf = ProcessManager().service(ConfigObject).io_conf()
+        io_conf = process_manager.service(ConfigObject).io_conf()
         file_names = ['report.tex'] + ['hist_{}.pdf'.format(col.replace(':', '_vs_')) for col in columns]
         for fname in file_names:
             path = persistence.io_path('results_data', io_conf, 'report/{}'.format(fname))
@@ -59,8 +59,8 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-402: RooDataHist fill"""
 
         # run Eskapade
-        self.run_eskapade('esk402_roodatahist_fill.py')
-        ds = ProcessManager().service(DataStore)
+        self.eskapade_run(resources.tutorial('esk402_roodatahist_fill.py'))
+        ds = process_manager.service(DataStore)
 
         # data-generation checks
         self.assertIn('n_accounts', ds)
@@ -88,8 +88,8 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-403: RooDataSet convert"""
 
         # run Eskapade
-        self.run_eskapade('esk403_roodataset_convert.py')
-        ds = ProcessManager().service(DataStore)
+        self.eskapade_run(resources.tutorial('esk403_roodataset_convert.py'))
+        ds = process_manager.service(DataStore)
 
         # data-generation checks
         self.assertIn('n_accounts', ds)
@@ -131,9 +131,9 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-404: Workspace create PDF, simulate, fit, plot"""
 
         # run Eskapade
-        self.run_eskapade('esk404_workspace_createpdf_simulate_fit_plot.py')
-        ds = ProcessManager().service(DataStore)
-        ws = ProcessManager().service(RooFitManager).ws
+        self.eskapade_run(resources.tutorial('esk404_workspace_createpdf_simulate_fit_plot.py'))
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # data-generation checks
         self.assertIn('n_df_simdata', ds)
@@ -162,9 +162,9 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-405: Simulation based on binned data"""
 
         # run Eskapade
-        self.run_eskapade('esk405_simulation_based_on_binned_data.py')
-        ds = ProcessManager().service(DataStore)
-        ws = ProcessManager().service(RooFitManager).ws
+        self.eskapade_run(resources.tutorial('esk405_simulation_based_on_binned_data.py'))
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # data-generation checks
         self.assertIn('n_rdh_accounts', ds)
@@ -187,8 +187,9 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-406: Simulation based on unbinned data"""
 
         # run Eskapade
-        self.run_eskapade('esk406_simulation_based_on_unbinned_data.py')
-        ds = ProcessManager().service(DataStore)
+        macro = resources.tutorial('esk406_simulation_based_on_unbinned_data.py')
+        self.eskapade_run(macro)
+        ds = process_manager.service(DataStore)
 
         # data-generation checks
         self.assertIn('n_correlated_data', ds)
@@ -216,9 +217,10 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-407: Classification unbiased fit estimate"""
 
         # run Eskapade
-        self.run_eskapade('esk407_classification_unbiased_fit_estimate.py')
-        ds = ProcessManager().service(DataStore)
-        ws = ProcessManager().service(RooFitManager).ws
+        macro = resources.tutorial('esk407_classification_unbiased_fit_estimate.py')
+        self.eskapade_run(macro)
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # roofit objects check in datastore
         self.assertIn('fit_result', ds)
@@ -249,9 +251,9 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-408: Classification error propagation after fit"""
 
         # run Eskapade
-        self.run_eskapade('esk408_classification_error_propagation_after_fit.py')
-        ds = ProcessManager().service(DataStore)
-        ws = ProcessManager().service(RooFitManager).ws
+        self.eskapade_run(resources.tutorial('esk408_classification_error_propagation_after_fit.py'))
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # data-generation checks
         self.assertIn('n_df_pvalues', ds)
@@ -279,9 +281,9 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-409: Unredeemed vouchers"""
 
         # run Eskapade
-        self.run_eskapade('esk409_unredeemed_vouchers.py')
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        macro = resources.tutorial('esk409_unredeemed_vouchers.py')
+        self.eskapade_run(macro)
+        ds = process_manager.service(DataStore)
 
         # check generated data
         self.assertIn('voucher_redeems', ds)
@@ -293,14 +295,14 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(ds['voucher_ages'].numEntries(), 10000)
 
         # check fit result
-        fit_link = proc_mgr.get_chain('Fitting').get_link('Fit')
+        fit_link = process_manager.get_chain('Fitting').get_link('Fit')
         self.assertEqual(fit_link.fit_result.status(), 0)
         n_ev_pull = (fit_link.results['n_ev'][0] - 6000.) / fit_link.results['n_ev'][1]
         self.assertGreater(n_ev_pull, -3.)
         self.assertLess(n_ev_pull, 3.)
 
         # check plot output
-        plot_path = persistence.io_path('results_data', proc_mgr.service(ConfigObject).io_conf(), 'voucher_redeem.pdf')
+        plot_path = persistence.io_path('results_data', process_manager.service(ConfigObject).io_conf(), 'voucher_redeem.pdf')
         self.assertTrue(os.path.exists(plot_path))
         statinfo = os.stat(plot_path)
         self.assertGreater(statinfo.st_size, 0)
@@ -309,9 +311,9 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-410: Hypothesis test of categorical observables """
 
         # run Eskapade
-        self.run_eskapade('esk410_testing_correlations_between_categories.py')
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        macro = resources.tutorial('esk410_testing_correlations_between_categories.py')
+        self.eskapade_run(macro)
+        ds = process_manager.service(DataStore)
 
         # report checks
         self.assertIn('report_pages', ds)
@@ -319,7 +321,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(12, len(ds['report_pages']))
 
         # data-summary checks
-        settings = ProcessManager().service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
         file_names = ['report.tex']
         for fname in file_names:
             path = '{0:s}/{1:s}/data/v0/report/{2:s}'.format(settings['resultsDir'], settings['analysisName'], fname)
@@ -331,9 +333,10 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         """Test Esk-411: Predictive maintenance Weibull fit"""
 
         # run Eskapade
-        self.run_eskapade('esk411_weibull_predictive_maintenance.py')
-        ds = ProcessManager().service(DataStore)
-        ws = ProcessManager().service(RooFitManager).ws
+        macro = resources.tutorial('esk411_weibull_predictive_maintenance.py')
+        self.eskapade_run(macro)
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # roofit objects check in datastore
         self.assertIn('fit_result', ds)
@@ -364,7 +367,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertGreater(n3.getVal(), 5.e4)
 
         # data-summary checks
-        io_conf = ProcessManager().service(ConfigObject).io_conf()
+        io_conf = process_manager.service(ConfigObject).io_conf()
         file_names = ['weibull_fit_report.tex', 'correlation_matrix_fit_result.pdf', 'floating_pars_fit_result.tex',
                       'fit_of_time_difference_medium_range.pdf']
         for fname in file_names:
@@ -373,23 +376,25 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertGreater(statinfo.st_size, 0)
 
-    def test_tutorial3(self):
+    def test_tutorial4(self):
         """Test Tutorial 3: Workspace create PDF, simulate, fit, plot"""
 
         # turn on creation and loading of MyPdfV3
-        settings = ProcessManager().service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
         settings['onthefly'] = True
-        
+
         # run Eskapade
-        self.run_eskapade('tutorial_4.py')
+        macro = resources.tutorial('tutorial_4.py')
+        self.eskapade_run(macro)
+
 
         # check existence of class MyPdfV3
         import ROOT
         cl = ROOT.TClass.GetClass('MyPdfV3')
         self.assertTrue(not not cl)
 
-        ds = ProcessManager().service(DataStore)
-        ws = ProcessManager().service(RooFitManager).ws
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # roofit objects check in datastore
         self.assertIn('fit_result', ds)
@@ -415,3 +420,4 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         rm_files = glob('MyPdfV3.*') + glob('MyPdfV3_cxx*')
         for rm_file in rm_files:
             os.remove(rm_file)
+

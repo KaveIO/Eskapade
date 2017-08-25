@@ -20,13 +20,14 @@
 # ********************************************************************************
 
 from collections import Counter
-import numpy as np
-import pandas as pd
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+import numpy as np
+
+from eskapade import DataStore
+from eskapade import process_manager
 from eskapade.analysis import histogram_filling as hf
-from eskapade.analysis.histogram_filling import HistogramFillerBase
 from eskapade.analysis.histogram import Histogram, ValueCounts
+from eskapade.analysis.histogram_filling import HistogramFillerBase
 
 
 class ValueCounter(HistogramFillerBase):
@@ -169,8 +170,7 @@ class ValueCounter(HistogramFillerBase):
         if self.store_key_hists is None and self.store_key_counts is None:
             return
 
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # 1. construct value counts
         for col in self.columns:

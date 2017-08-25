@@ -19,7 +19,7 @@ import shutil
 
 import pyspark
 
-from eskapade import Link, StatusCode, ProcessManager, DataStore, ConfigObject
+from eskapade import Link, StatusCode, process_manager, DataStore, ConfigObject
 from eskapade.core import persistence
 
 
@@ -67,8 +67,8 @@ class SparkDataToCsv(Link):
 
         # set default output path
         if not self.output_path:
-            settings = ProcessManager().service(ConfigObject)
-            self.output_path = 'file:' + persistence.io_path('results_data', settings.io_conf(), '{}_output'.format(self.name))
+            settings = process_manager.service(ConfigObject)
+            self.output_path = persistence.io_path('results_data', settings.io_conf(), '{}_output'.format(self.name))
 
         # parse header argument
         try:
@@ -77,11 +77,11 @@ class SparkDataToCsv(Link):
             self.header = bool(self.header)
         if isinstance(self.header, tuple) and not self.header:
             raise RuntimeError('empty header sequence specified')
-    
-        # check output directory, if local
-        if self.output_path.startswith('file:'):
-            local_output_path = os.path.abspath(self.output_path.replace('file:',''))
-            if os.path.exists(self.output_path):
+
+        # check output directory
+        if self.output_path.startswith('file:/'):
+            output_path = os.path.abspath(self.output_path.replace('file:/', '/'))
+            if os.path.exists(output_path):
                 # output data already exist
                 if self.mode == 'ignore':
                     # do not execute link
@@ -93,13 +93,13 @@ class SparkDataToCsv(Link):
                     raise RuntimeError('output data already exist')
 
                 # remove output directory
-                if not os.path.isdir(local_output_path):
-                    raise RuntimeError('output path "{}" is not a directory'.format(local_output_path))
-                shutil.rmtree(local_output_path)
-            elif not os.path.exists(os.path.dirname(local_output_path)):
+                if not os.path.isdir(output_path):
+                    raise RuntimeError('output path "{}" is not a directory'.format(output_path))
+                shutil.rmtree(output_path)
+            elif not os.path.exists(os.path.dirname(output_path)):
                 # create path up to the last component
-                self.log().debug('Creating output path "%s"', local_output_path)
-                os.makedirs(os.path.dirname(local_output_path))
+                self.log().debug('Creating output path "%s"', output_path)
+                os.makedirs(os.path.dirname(output_path))
 
         return StatusCode.Success
 
@@ -112,7 +112,7 @@ class SparkDataToCsv(Link):
             return StatusCode.Success
 
         # fetch data from data store
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
         if self.read_key not in ds:
             raise KeyError('no data with key "{}" in data store'.format(self.read_key))
         data = ds[self.read_key]

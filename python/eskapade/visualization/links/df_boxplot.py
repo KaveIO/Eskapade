@@ -15,9 +15,10 @@
 # **********************************************************************************
 
 import os
+
 import pandas as pd
 
-from eskapade import StatusCode, DataStore, Link, ProcessManager, ConfigObject
+from eskapade import StatusCode, DataStore, Link, process_manager, ConfigObject
 from eskapade import core, visualization
 from eskapade.analysis import statistics
 
@@ -69,7 +70,7 @@ class DfBoxplot(Link):
         self.check_arg_vals('read_key')
 
         # get I/O configuration
-        io_conf = ProcessManager().service(ConfigObject).io_conf()
+        io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates, we use the summary_report template from the df summary link
         with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
@@ -106,7 +107,7 @@ class DfBoxplot(Link):
         """
 
         # fetch and check input data frame
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
         data = ds.get(self.read_key, None)
         if not isinstance(data, pd.DataFrame):
             self.log().critical('No Pandas data frame "%s" found in data store for %s', self.read_key, str(self))

@@ -14,7 +14,10 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ProcessManager, StatusCode, Link, ConfigObject
+from eskapade import ConfigObject
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import process_manager
 
 
 class RepeatChain(Link):
@@ -56,18 +59,18 @@ class RepeatChain(Link):
     def execute(self):
         """Execute RepeatChain"""
 
-        settings = ProcessManager().service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
 
         # search for listenTo key in ConfigObject. if present and true, send signal to repeat current chain.
         for l in self.listenTo:
-            if l in settings and settings[l] == True:
-                self.log().debug('The repeater count is: %d' % (self._counter))
+            if l in settings and settings[l]:
+                self.log().debug('The repeater count is: {:d}'.format(self._counter))
                 self._counter += 1
                 return StatusCode.RepeatChain
                 
         # repeat this chain until counter reaches specified maxcount value..
         while self._counter < self.maxcount:
-            self.log().debug('The repeater count is: %d. Max count is: %d' % (self._counter, self.maxcount))
+            self.log().debug('The repeater count is: {:d}. Max count is: {:d}'.format(self._counter, self.maxcount))
             self._counter += 1
             return StatusCode.RepeatChain
 

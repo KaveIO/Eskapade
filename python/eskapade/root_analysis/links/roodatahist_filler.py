@@ -13,16 +13,23 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import pandas as pd
-import numpy as np
 import math
 
 import ROOT
-from ROOT import RooFit
+import numpy as np
+import pandas as pd
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+try:
+    from ROOT import RooFit
+except ImportError:
+    import ROOT.RooFit as RooFit
+
+from eskapade import process_manager
+from eskapade import Link
+from eskapade import DataStore
+from eskapade import StatusCode
 from eskapade.root_analysis import data_conversion
-from eskapade.root_analysis import RooFitManager
+from eskapade.root_analysis.roofit_manager import RooFitManager
 
 N_BINS_DEFAULT = 40
 
@@ -157,8 +164,7 @@ class RooDataHistFiller(Link):
            optionally, at the storage stage a pdf can be created of the roodatahist as well.
         """
 
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # 1a. basic checks on contensts of the data frame
         assert self.read_key in list(ds.keys()), 'key "%s" not in DataStore' % self.read_key
@@ -187,7 +193,7 @@ class RooDataHistFiller(Link):
             assert col in df.columns, 'column "%s" not in dataframe "%s"' % (col, self.read_key)
             dt = df[col].dtype.type
             # keep categorical observables -- convert these to roocategories in conversion to tree
-            if issubclass(dt, pd.types.dtypes.CategoricalDtypeType):
+            if pd.core.common.is_categorical(dt):
                 continue
             # reject all string-based columns
             if (dt is np.string_) or (dt is np.object_):
@@ -285,8 +291,7 @@ class RooDataHistFiller(Link):
     def do_storage(self):
         """Storage of the created RooDataHist object"""
 
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # 1. create pdf of dataset as well?
         if self.create_hist_pdf:
@@ -299,7 +304,7 @@ class RooDataHistFiller(Link):
 
         # 3a. put objects from the datastore into the workspace
         if self.into_ws:
-            ws = proc_mgr.service(RooFitManager).ws
+            ws = process_manager.service(RooFitManager).ws
             try:
                 ws.put(self._rdh, ROOT.RooFit.Rename(self.store_key))
                 ws.defineSet(self.store_key_vars, self._varset)

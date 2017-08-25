@@ -20,7 +20,10 @@
 import numpy as np
 import pandas as pd
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import DataStore
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import process_manager
 
 # numeric datatypes get converted to an index, which is then used for value counting
 NUMERIC_SUBSTR = [np.dtype('int'), np.dtype('float'), np.dtype('double')]
@@ -139,9 +142,7 @@ class HistogramFillerBase(Link):
         * do the actual value counting based on categories and created indices
         * then convert to histograms and add to datastore
         """
-
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # basic checks on contensts of the data frame
         if self.read_key not in ds.keys():
@@ -194,9 +195,7 @@ class HistogramFillerBase(Link):
 
     def process_and_store(self):
         """Store (and possibly process) histogram objects"""
-
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         if self.store_key is not None:
             ds[self.store_key] = self._hists

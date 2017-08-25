@@ -26,8 +26,15 @@ lib
 /**/.vagrant
 
 # data and results directories
-data/*
-results/*
+python/eskapade/data/
+results/
+
+# Build and package stuff
+build
+dist
+.cache
+.eggs
+Eskapade.egg-info
 
 # documentation
 *.rst
@@ -37,10 +44,13 @@ results/*
 !docs/source/tutorial_jupyter.rst
 !docs/source/tutorial_spark.rst
 !docs/source/installation.rst
+!docs/source/developing.rst
 !docs/source/index.rst
 !docs/source/tutorial.rst
 !docs/source/spark.rst
 !README.rst
 !python/eskapade/README.rst
 !vagrant/README.rst
-docs/build/*
+
+*cmake-build-debug
+

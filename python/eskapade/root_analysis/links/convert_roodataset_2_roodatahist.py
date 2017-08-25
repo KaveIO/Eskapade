@@ -17,8 +17,9 @@ import uuid
 
 import ROOT
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.root_analysis import RooFitManager, data_conversion
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
+from eskapade.root_analysis import data_conversion
+from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertRooDataSet2RooDataHist(Link):
@@ -67,10 +68,9 @@ class ConvertRooDataSet2RooDataHist(Link):
     def execute(self):
         """Execute ConvertRooDataSet2RooDataHist"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
-        ws = proc_mgr.service(RooFitManager).ws
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # basic checks on contensts of the data frame
         if self.from_ws:

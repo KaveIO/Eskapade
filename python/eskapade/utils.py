@@ -13,12 +13,12 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import sys
+import logging
 import os
 import subprocess
-import logging
-import matplotlib
+import sys
 
+import matplotlib
 
 ENV_VARS = dict(es_root='ESKAPADE', wd_root='WORKDIRROOT', spark_args='PYSPARK_SUBMIT_ARGS',
                 docker='DE_DOCKER', display='DISPLAY')
@@ -98,7 +98,7 @@ def get_env_var(key):
 
 
 def get_dir_path(key):
-    """Function to retrieve Eskapade specific directrory path
+    """Function to retrieve Eskapade specific directory path
 
     :param str key: Eskapade specific project directory key
     :return: directory path
@@ -106,11 +106,16 @@ def get_dir_path(key):
     """
 
     dir_comps = PROJECT_DIRS[key]
-    return get_env_var(dir_comps[0]) + (('/%s' % dir_comps[1]) if dir_comps[1] else '')
+    if get_env_var(dir_comps[0]):
+        path = get_env_var(dir_comps[0]) + (('/%s' % dir_comps[1]) if dir_comps[1] else '')
+    else:
+        path = os.getcwd() + (('/%s' % dir_comps[1]) if dir_comps[1] else '')
+
+    return path
 
 
 def get_file_path(key):
-    """Function to retrieve Eskapade specific directrory file path
+    """Function to retrieve Eskapade specific directory file path
 
     :param str key: Eskapade specific project file key
     :return: file path

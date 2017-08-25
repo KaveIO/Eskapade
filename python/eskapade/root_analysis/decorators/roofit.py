@@ -14,7 +14,6 @@
 # ********************************************************************************
 
 import ROOT
-from ROOT import RooFit
 
 
 def coll_iter(coll):
@@ -44,7 +43,7 @@ def ws_put(ws, *args):
 
     ws_import = getattr(ROOT.RooWorkspace, 'import')
     if len(args) == 1 and any(isinstance(args[0], c) for c in (ROOT.RooAbsArg, ROOT.RooArgSet, ROOT.RooAbsData)):
-        args = args + (ROOT.RooCmdArg(),)
+        args += (ROOT.RooCmdArg(),)
     return ws_import(ws, *args)
 
 

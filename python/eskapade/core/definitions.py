@@ -17,10 +17,13 @@
 # **********************************************************************************
 
 
-from enum import Enum
-import logging
-import collections
 import ast
+import collections
+import logging
+import os
+from enum import Enum
+
+from pkg_resources import resource_filename
 
 # dummy logging level to turn off logging.
 logging.OFF = 60
@@ -167,32 +170,110 @@ class RandomSeeds:
 
 # configuration variables
 CONFIG_VARS = collections.OrderedDict()
-CONFIG_VARS['run'] = ['analysisName', 'version', 'macro', 'batchMode', 'interactive', 'logLevel', 'logFormat',
-                      'doCodeProfiling']
-CONFIG_VARS['chains'] = ['beginWithChain', 'endWithChain', 'storeResultsEachChain', 'storeResultsOneChain',
-                         'doNotStoreResults']
-CONFIG_VARS['file_io'] = ['esRoot', 'resultsDir', 'dataDir', 'macrosDir', 'templatesDir']
-CONFIG_VARS['config'] = ['sparkCfgFile']
-CONFIG_VARS['db_io'] = ['all_mongo_collections']
-CONFIG_VARS['rand_gen'] = ['seeds']
-CONFIG_TYPES = dict(version=int, batchMode=bool, interactive=bool, storeResultsEachChain=bool, doNotStoreResults=bool,
-                    all_mongo_collections=list)
-CONFIG_DEFAULTS = dict(version=0, batchMode=True, interactive=False, logLevel=logging.INFO,
+
+CONFIG_VARS['run'] = ['analysisName',
+                      'version',
+                      'macro',
+                      'batchMode',
+                      'interactive',
+                      'logLevel',
+                      'logFormat',
+                      'doCodeProfiling',
+                      ]
+
+CONFIG_VARS['chains'] = ['beginWithChain',
+                         'endWithChain',
+                         'storeResultsEachChain',
+                         'storeResultsOneChain',
+                         'doNotStoreResults',
+                         ]
+
+CONFIG_VARS['file_io'] = ['esRoot',
+                          'resultsDir',
+                          'dataDir',
+                          'macrosDir',
+                          'templatesDir',
+                          'configDir',
+                          ]
+
+CONFIG_VARS['config'] = ['sparkCfgFile',
+                         ]
+
+CONFIG_VARS['db_io'] = ['all_mongo_collections',
+                        ]
+
+CONFIG_VARS['rand_gen'] = ['seeds',
+                           ]
+
+CONFIG_TYPES = dict(version=int,
+                    batchMode=bool,
+                    interactive=bool,
+                    storeResultsEachChain=bool,
+                    doNotStoreResults=bool,
+                    all_mongo_collections=list,
+                    )
+
+CONFIG_DEFAULTS = dict(version=0,
+                       batchMode=True,
+                       interactive=False,
+                       logLevel=logging.INFO,
                        logFormat='%(asctime)s %(levelname)s [%(module)s]: %(message)s',
-                       doCodeProfiling=None, storeResultsEachChain=False, doNotStoreResults=False, esRoot='',
-                       resultsDir='results', dataDir='data', macrosDir='tutorials', templatesDir='templates',
-                       sparkCfgFile='spark.cfg', seeds=RandomSeeds())
+                       doCodeProfiling=None,
+                       storeResultsEachChain=False,
+                       doNotStoreResults=False,
+                       esRoot=os.getcwd() + '/',
+                       resultsDir=os.getcwd() + '/results/',
+                       dataDir=os.getcwd() + '/data/',
+                       macrosDir=os.getcwd() + '/macros/',
+                       templatesDir=resource_filename('eskapade', 'templates') + '/',
+                       configDir=os.getcwd() + '/config/',
+                       sparkCfgFile='spark.cfg',
+                       seeds=RandomSeeds(),
+                       )
 
 # user options in command-line arguments
 USER_OPTS = collections.OrderedDict()
-USER_OPTS['run'] = ['analysis_name', 'analysis_version', 'batch_mode', 'interactive', 'log_level', 'log_format',
-                    'unpickle_config', 'profile', 'conf_var']
-USER_OPTS['chains'] = ['begin_with', 'end_with', 'single_chain', 'store_all', 'store_one', 'store_none']
-USER_OPTS['file_io'] = ['results_dir', 'data_dir', 'macros_dir', 'templates_dir']
-USER_OPTS['config'] = ['spark_cfg_file']
-USER_OPTS['rand_gen'] = ['seed']
-USER_OPTS_SHORT = dict(analysis_name='n', analysis_version='v', interactive='i', log_level='L', conf_var='c',
-                       begin_with='b', end_with='e', single_chain='s')
+USER_OPTS['run'] = ['analysis_name',
+                    'analysis_version',
+                    'batch_mode',
+                    'interactive',
+                    'log_level',
+                    'log_format',
+                    'unpickle_config',
+                    'profile',
+                    'conf_var',
+                    ]
+
+USER_OPTS['chains'] = ['begin_with',
+                       'end_with',
+                       'single_chain',
+                       'store_all',
+                       'store_one',
+                       'store_none',
+                       ]
+
+USER_OPTS['file_io'] = ['results_dir',
+                        'data_dir',
+                        'macros_dir',
+                        'templates_dir',
+                        ]
+
+USER_OPTS['config'] = ['spark_cfg_file',
+                       ]
+
+USER_OPTS['rand_gen'] = ['seed',
+                         ]
+
+USER_OPTS_SHORT = dict(analysis_name='n',
+                       analysis_version='v',
+                       interactive='i',
+                       log_level='L',
+                       conf_var='c',
+                       begin_with='b',
+                       end_with='e',
+                       single_chain='s',
+                       )
+
 USER_OPTS_KWARGS = dict(analysis_name=dict(help='set name of analysis in run',
                                            metavar='NAME'),
                         analysis_version=dict(help='set version of analysis version in run',
@@ -240,12 +321,23 @@ USER_OPTS_KWARGS = dict(analysis_name=dict(help='set name of analysis in run',
                                             metavar='SPARK_CONFIG_FILE'),
                         seed=dict(help='set seed for random-number generation',
                                   action='append',
-                                  metavar='KEY=SEED'))
-USER_OPTS_CONF_KEYS = dict(analysis_name='analysisName', analysis_version='analysisVersion', batch_mode='batchMode',
-                           log_level='logLevel', log_format='logFormat', profile='doCodeProfiling',
-                           begin_with='beginWithChain', end_with='endWithChain', store_all='storeResultsEachChain',
-                           store_one='storeResultsOneChain', store_none='doNotStoreResults',
-                           spark_cfg_file='sparkCfgFile', seed='seeds')
+                                  metavar='KEY=SEED'),
+                        )
+
+USER_OPTS_CONF_KEYS = dict(analysis_name='analysisName',
+                           analysis_version='analysisVersion',
+                           batch_mode='batchMode',
+                           log_level='logLevel',
+                           log_format='logFormat',
+                           profile='doCodeProfiling',
+                           begin_with='beginWithChain',
+                           end_with='endWithChain',
+                           store_all='storeResultsEachChain',
+                           store_one='storeResultsOneChain',
+                           store_none='doNotStoreResults',
+                           spark_cfg_file='sparkCfgFile',
+                           seed='seeds',
+                           )
 
 
 def set_opt_var(opt_key, settings, args):
@@ -256,6 +348,8 @@ def set_opt_var(opt_key, settings, args):
         return
     conf_key = USER_OPTS_CONF_KEYS.get(opt_key, opt_key)
     settings[conf_key] = CONFIG_TYPES.get(conf_key, str)(value)
+
+
 CONFIG_OPTS_SETTERS = collections.defaultdict(lambda: set_opt_var)
 
 
@@ -269,6 +363,8 @@ def set_log_level_opt(opt_key, settings, args):
         raise ValueError('invalid logging level specified: "{}"'.format(str(level)))
 
     settings[USER_OPTS_CONF_KEYS.get(opt_key, opt_key)] = LOG_LEVELS[level]
+
+
 CONFIG_OPTS_SETTERS['log_level'] = set_log_level_opt
 
 
@@ -281,6 +377,8 @@ def set_begin_end_chain_opt(opt_key, settings, args):
     if args.get('single_chain'):
         raise RuntimeError('"begin-with" and "end-with" chain options cannot be combined with "single-chain" option')
     settings[USER_OPTS_CONF_KEYS.get(opt_key, opt_key)] = str(chain)
+
+
 CONFIG_OPTS_SETTERS['begin_with'] = set_begin_end_chain_opt
 CONFIG_OPTS_SETTERS['end_with'] = set_begin_end_chain_opt
 
@@ -293,6 +391,8 @@ def set_single_chain_opt(opt_key, settings, args):
         return
     settings[USER_OPTS_CONF_KEYS['begin_with']] = str(chain)
     settings[USER_OPTS_CONF_KEYS['end_with']] = str(chain)
+
+
 CONFIG_OPTS_SETTERS['single_chain'] = set_single_chain_opt
 
 
@@ -311,6 +411,8 @@ def set_seeds(opt_key, settings, args):
             raise RuntimeError('expected "key=seed" for --seed command-line argument; got "{}"'.format(kv))
         key, value = (kv[:eq_pos].strip().lower(), kv[eq_pos + 1:].strip()) if eq_pos > 0 else ('default', kv.strip())
         seeds[key] = value
+
+
 CONFIG_OPTS_SETTERS['seed'] = set_seeds
 
 
@@ -334,4 +436,6 @@ def set_custom_user_vars(opt_key, settings, args):
             settings[key] = ast.literal_eval(value)
         except:
             settings[key] = value
+
+
 CONFIG_OPTS_SETTERS['conf_var'] = set_custom_user_vars

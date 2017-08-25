@@ -2,6 +2,7 @@ import pandas as pd
 
 from eskapade.mixins import ArgumentsMixin, LoggingMixin
 
+
 ################
 # time periods #
 ################

@@ -1,7 +1,7 @@
+from collections import Counter
+
 import numpy as np
 import pandas as pd
-import random
-from collections import Counter
 from sortedcontainers import SortedDict
 
 from eskapade.mixins import ArgumentsMixin, LoggingMixin
@@ -575,7 +575,7 @@ class BinningUtil(object):
         if not self.bin_specs:
             return None
         if 'bin_edges' in self.bin_specs:
-            return (self.bin_specs['bin_edges'][0], self.bin_specs['bin_edges'][-1])
+            return self.bin_specs['bin_edges'][0], self.bin_specs['bin_edges'][-1]
         else:
             return None
 

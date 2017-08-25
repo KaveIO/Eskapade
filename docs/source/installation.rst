@@ -13,7 +13,6 @@ installed and working properly. Alternatively, you can download the repository a
 This manual is written for Linux systems, but Eskapade also runs fine on `MacOS <mac_os.html>`_ systems.
 
 
-
 Eskapade with Docker
 --------------------
 
@@ -126,7 +125,7 @@ In this way any notebook(s) you create are kept after you exit the docker run.
 After you exit Docker
 _____________________
 
-Everytime you want to have a clean Docker environment, run the following commands::
+Every time you want to have a clean Docker environment, run the following commands::
 
   # --- 1. remove all exited docker processes
   docker ps -a | grep Exited | awk '{print "docker stop "$1 "; docker rm "$1}' | sh

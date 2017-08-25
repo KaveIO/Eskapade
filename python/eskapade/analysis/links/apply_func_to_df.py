@@ -16,7 +16,10 @@
 
 import collections
 
-from eskapade import ProcessManager, StatusCode, DataStore, Link
+from eskapade import DataStore
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import process_manager
 
 
 class ApplyFuncToDf(Link):
@@ -62,7 +65,7 @@ class ApplyFuncToDf(Link):
     def execute(self):
         """Execute link"""
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
         assert self.read_key in list(ds.keys()), 'key <%s> not in DataStore.' % self.read_key
         df = ds[self.read_key]
 

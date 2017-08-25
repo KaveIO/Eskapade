@@ -1,13 +1,12 @@
-import os
 import logging
+import os
 
 import pyspark
 
 import eskapade
-from eskapade import ProcessManager, ConfigObject
 from eskapade.core import persistence
-from eskapade.mixins import ConfigMixin
 from eskapade.core.process_services import ProcessService
+from eskapade.mixins import ConfigMixin
 from eskapade.spark_analysis.functions import SPARK_UDFS
 
 logging.getLogger('py4j.java_gateway').setLevel('INFO')
@@ -104,14 +103,14 @@ class SparkManager(ProcessService, ConfigMixin):
         can be overwritten.  Also additional settings can be specified with this
         argument.
 
+        :param eskapade.ConfigObject eskapade_settings: Eskapade configuration (key "sparkCfgFile" for config path)
         :param str config_path: path of configuration file
-        :param eskapade.ConfigObject es_settings_obj: Eskapade configuration (key "sparkCfgFile" for config path)
         :param iterable spark_settings: iterable of custom settings key-value pairs to be set
         """
 
         # set path of config file
-        cfg_path = str(config_path) if config_path else str(
-            eskapade_settings.get('sparkCfgFile')) if eskapade_settings else None
+        cfg_path = str(config_path) if config_path else str(eskapade_settings.get('sparkCfgFile')) \
+            if eskapade_settings and eskapade_settings.get('sparkCfgFile') else None
         if cfg_path and eskapade_settings and not os.path.isabs(cfg_path):
             cfg_path = persistence.io_path('config_spark', eskapade_settings.io_conf(), cfg_path)
         if cfg_path and cfg_path != self.config_path:

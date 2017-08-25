@@ -14,18 +14,19 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import os
-import uuid
 import copy
-import tabulate
+import os
 import re
+import uuid
 
 import ROOT
+import tabulate
 from ROOT import RooFit
 
-from eskapade import core, ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.root_analysis import RooFitManager, roofit_utils
+from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 from eskapade.core import persistence
+from eskapade.root_analysis import roofit_utils
+from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class WsUtils(Link):
@@ -97,12 +98,12 @@ class WsUtils(Link):
         assert isinstance(self.copy_into_ds, list), 'copy_into_ds needs to be a string or list of strings.'
 
         # get I/O configuration
-        io_conf = ProcessManager().service(ConfigObject).io_conf()
+        io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
+        with open(persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
+        with open(persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
         with open(persistence.io_path('templates', io_conf, 'df_summary_table_page.tex')) as templ_file:
             self.table_template = templ_file.read()
@@ -110,8 +111,8 @@ class WsUtils(Link):
         # get path to results directory
         if not self.results_path:
             # get I/O configuration
-            io_conf = ProcessManager().service(ConfigObject).io_conf()
-            self.results_path = core.persistence.io_path('results_data', io_conf, 'report')
+            io_conf = process_manager.service(ConfigObject).io_conf()
+            self.results_path = persistence.io_path('results_data', io_conf, 'report')
 
         # check if output directory exists
         if os.path.exists(self.results_path):
@@ -144,10 +145,9 @@ class WsUtils(Link):
         7. move objects from the workspace to the datastore
         """
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
-        ws = proc_mgr.service(RooFitManager).ws
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # --- open existing report pages
         if self.pages_key:

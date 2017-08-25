@@ -16,11 +16,11 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import os
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.spark_analysis import SparkManager
-from pyspark.sql import Row
+import os
+import shutil
+
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
 
 
 class SparkStreamingWriter(Link):
@@ -50,7 +50,7 @@ class SparkStreamingWriter(Link):
 
         # check output directory, if local
         if self.output_path.startswith('file:/'):
-            local_output_path = os.path.abspath(self.output_path.replace('file:/', ''))
+            local_output_path = os.path.abspath(self.output_path.replace('file:/', '/'))
             if os.path.exists(self.output_path):
                 # output data already exist
                 if self.mode == 'ignore':
@@ -76,9 +76,8 @@ class SparkStreamingWriter(Link):
     def execute(self):
         """Execute SparkStreamingWriter"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         data = ds[self.read_key]
 

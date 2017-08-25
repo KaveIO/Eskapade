@@ -24,7 +24,7 @@ Eskapade will start a Spark session, do nothing, and quit - there are no chains/
 
 .. code-block:: python
 
-  proc_mgr.service(SparkManager).spark_session
+  process_manager.service(SparkManager).spark_session
 
 Note that when the Spark session is created, the following line appears in logs:
 
@@ -46,7 +46,7 @@ Spark can read data from various sources, e.g. local disk, HDFS, HIVE tables. Es
   reader = spark_analysis.SparkDfReader(name='Read_LA_ozone', store_key='data', read_methods=['csv'])
   reader.read_meth_args['csv'] = (DATA_FILE_PATH,)
   reader.read_meth_kwargs['csv'] = dict(sep=',', header=True, inferSchema=True)
-  proc_mgr.get_chain('Data').add_link(reader) 
+  process_manager.get_chain('Data').add_link(reader)
 
 The ``DataStore`` holds a pointer to the Spark dataframe in (distributed) memory. This is different from a Pandas dataframe, where the entire dataframe is stored in the ``DataStore``, because a Spark dataframe residing on the cluster may not fit entirely in the memory of the machine running Eskapade. This means that Spark dataframes are never written to disk in ``DataStore`` pickles!
 
@@ -63,9 +63,9 @@ To add two columns to the Tutorial data using the conversion functions defined e
 .. code-block:: python
 
   transform = spark_analysis.SparkWithColumn(name='Transform_doy', read_key=reader.store_key, store_key='transformed_data', col_select=['doy'], func=udf(comp_date, TimestampType()), new_column='date')
-  proc_mgr.get_chain('Data').add_link(transform)
+  process_manager.get_chain('Data').add_link(transform)
   transform = spark_analysis.SparkWithColumn(name='Transform_vis', read_key=transform.store_key, store_key='transformed_data', col_select=['vis'], func=udf(mi_to_km, FloatType()), new_column='vis_km')
-  proc_mgr.get_chain('Data').add_link(transform)
+  process_manager.get_chain('Data').add_link(transform)
 
 Note that the functions defined in the macro are converted to user-defined functions with ``pyspark.sql.function.udf`` and their output types are explicitly specified in terms of ``pyspark.sql.types``. Omitting these type definitions can lead to obscure errors when executing the job.
 
@@ -78,10 +78,10 @@ As was demonstrated in Tutorial 1, the ``DfSummary`` link creates LaTeX/PDF repo
 
   histo = spark_analysis.SparkHistogrammarFiller(name='Histogrammer', read_key=transform.store_key, store_key='hist')
   histo.columns = ['vis', 'vis_km', 'doy', 'date']
-  proc_mgr.get_chain('Summary').add_link(histo)
+  process_manager.get_chain('Summary').add_link(histo)
  
   summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=histo.store_key, var_labels=VAR_LABELS, var_units=VAR_UNITS)
-  proc_mgr.get_chain('Summary').add_link(summarizer)
+  process_manager.get_chain('Summary').add_link(summarizer)
 
 
 Creating custom links
@@ -102,9 +102,8 @@ The next step is to add the desired functionality to the link. In this case, the
       def execute(self):
         """Execute SparkDfPrint"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         # --- your algorithm code goes here
         self.log().debug('Now executing link: %s', self.name)
@@ -121,7 +120,7 @@ In order to configure Eskapade to run this link, the link needs to be added to a
   ...
 
   printer = SparkDfPrint(name='Print_spark_df', read_key=transform.store_key, nrows=42) 
-  proc_mgr.get_chain('Summary').add_link(printer) 
+  process_manager.get_chain('Summary').add_link(printer)
 
 The name of the dataframe is the output name of the ``transform`` link and the number of rows to print is specified by the ``nrows`` parameter.
 

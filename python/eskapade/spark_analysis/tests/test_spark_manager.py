@@ -1,12 +1,10 @@
 import unittest
-import mock
+import unittest.mock as mock
 
 import pyspark
 
-from eskapade import ProcessManager, ConfigObject
-
-from ..spark_manager import SparkManager
-from ..functions import SPARK_UDFS
+from eskapade.spark_analysis.functions import SPARK_UDFS
+from eskapade.spark_analysis.spark_manager import SparkManager
 
 
 class SparkManagerTest(unittest.TestCase):
@@ -79,12 +77,12 @@ class SparkManagerTest(unittest.TestCase):
         mock_sm._session.sparkContext = mock_sc
         mock_sm._session.sparkContext._jsc = None
         session = SparkManager.create_session(mock_sm)
-        mock_sm._create_spark_conf.assert_called_once()
+        mock_sm._create_spark_conf.assert_called_once_with()
         mock_es_utils.collect_python_modules.assert_not_called()
         mock_builder.enableHiveSupport.assert_not_called()
         mock_builder.config.assert_called_once_with(conf=created_config)
         created_session.config.assert_not_called()
-        created_session.getOrCreate.assert_called_once()
+        created_session.getOrCreate.assert_called_once_with()
         self.assertIs(session, created_session, 'incorrect session returned')
         self.assertIs(mock_sm._session, created_session, 'incorrect session set')
         mock_sm.reset_mock()
@@ -95,12 +93,12 @@ class SparkManagerTest(unittest.TestCase):
         # test returning of newly created session without Hive support (default)
         mock_sm._session = None
         session = SparkManager.create_session(mock_sm)
-        mock_sm._create_spark_conf.assert_called_once()
+        mock_sm._create_spark_conf.assert_called_once_with()
         mock_es_utils.collect_python_modules.assert_not_called()
         mock_builder.enableHiveSupport.assert_not_called()
         mock_builder.config.assert_called_once_with(conf=created_config)
         created_session.config.assert_not_called()
-        created_session.getOrCreate.assert_called_once()
+        created_session.getOrCreate.assert_called_once_with()
         self.assertIs(session, created_session, 'incorrect session returned')
         self.assertIs(mock_sm._session, created_session, 'incorrect session set')
         # check UDF calls
@@ -115,12 +113,12 @@ class SparkManagerTest(unittest.TestCase):
         # test returning of newly created session with Hive support
         mock_sm._session = None
         session = SparkManager.create_session(mock_sm, enableHiveSupport=True)
-        mock_sm._create_spark_conf.assert_called_once()
+        mock_sm._create_spark_conf.assert_called_once_with()
         mock_es_utils.collect_python_modules.assert_not_called()
         mock_builder.enableHiveSupport.assert_called_once_with()
         mock_builder.config.assert_not_called()
         created_session.config.assert_called_once_with(conf=created_config)
-        created_session.getOrCreate.assert_called_once()
+        created_session.getOrCreate.assert_called_once_with()
         self.assertIs(session, created_session, 'incorrect session returned')
         self.assertIs(mock_sm._session, created_session, 'incorrect session set')
         mock_sm.reset_mock()
@@ -131,13 +129,13 @@ class SparkManagerTest(unittest.TestCase):
         # test returning of newly created session with Eskapade modules submission
         mock_sm._session = None
         session = SparkManager.create_session(mock_sm, includeEskapadeModules=True)
-        mock_sm._create_spark_conf.assert_called_once()
+        mock_sm._create_spark_conf.assert_called_once_with()
         mock_es_utils.collect_python_modules.assert_called_once_with()
         mock_builder.enableHiveSupport.assert_not_called()
         mock_builder.config.assert_called_once_with(conf=created_config)
         created_config.set.assert_any_call('spark.submit.pyFiles', 'py_mods_path')
         created_config.set.assert_any_call('spark.files', 'py_mods_path')
-        created_session.getOrCreate.assert_called_once()
+        created_session.getOrCreate.assert_called_once_with()
         self.assertIs(session, created_session, 'incorrect session returned')
         self.assertIs(mock_sm._session, created_session, 'incorrect session set')
         mock_sm.reset_mock()
@@ -207,6 +205,11 @@ class SparkManagerTest(unittest.TestCase):
 
         # test creating config with Eskapade settings
         mock_sm.config_path = None
+
+        def get(arg):
+            return {'sparkCfgFile': 'spark.cfg'}[arg]
+
+        eskapade_settings.get = get
         eskapade_settings.io_conf.return_value = dict(foo='bar')
 
         def get_config(*args):
@@ -221,8 +224,8 @@ class SparkManagerTest(unittest.TestCase):
             return dummy
         mock_sm.get_config.side_effect = get_config
         eskapade_config = SparkManager._create_spark_conf(mock_sm, eskapade_settings=eskapade_settings)
-        mock_io_path.assert_called_once()
-        mock_sm.reset_config.assert_called_once()
+        mock_io_path.assert_called_once_with('config_spark', {'foo': 'bar'}, 'spark.cfg')
+        mock_sm.reset_config.assert_called_once_with()
         created_config.setAll.assert_called_once_with([('foo', 'bar')])
         self.assertIs(eskapade_config, created_config, 'incorrect config set')
         mock_sm.reset_mock()
@@ -245,7 +248,7 @@ class SparkManagerTest(unittest.TestCase):
         mock_sm.get_config.side_effect = get_config
         file_config = SparkManager._create_spark_conf(mock_sm, config_path='/foo/bar')
         mock_io_path.assert_not_called()
-        mock_sm.reset_config.assert_called_once()
+        mock_sm.reset_config.assert_called_once_with()
         created_config.setAll.assert_called_once_with([('foo', 'bar')])
         self.assertIs(file_config, created_config, 'incorrect config set')
         mock_sm.reset_mock()
@@ -269,7 +272,7 @@ class SparkManagerTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             SparkManager._create_spark_conf(mock_sm, config_path='/foo/bar')
         mock_io_path.assert_not_called()
-        mock_sm.reset_config.assert_called_once()
+        mock_sm.reset_config.assert_called_once_with()
         mock_sm.reset_mock()
         mock_io_path.reset_mock()
         created_config.reset_mock()
@@ -301,8 +304,8 @@ class SparkManagerTest(unittest.TestCase):
         mock_sm.get_config.side_effect = get_config
         specific_config = SparkManager._create_spark_conf(
             mock_sm, config_path='foo.bar', eskapade_settings=eskapade_settings, spark_settings=spark_settings)
-        mock_io_path.assert_called_once()
-        mock_sm.reset_config.assert_called_once()
+        mock_io_path.assert_called_once_with('config_spark', {'foo': 'bar'}, 'foo.bar')
+        mock_sm.reset_config.assert_called_once_with()
         calls = [mock.call(get_config().items()), mock.call(spark_settings)]
         created_config.setAll.assert_has_calls(calls, any_order=False)
         self.assertEqual(created_config.setAll.call_count, 2)

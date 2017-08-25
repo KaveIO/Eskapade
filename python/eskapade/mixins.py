@@ -17,9 +17,9 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
+import configparser
 import logging
 import timeit
-import configparser
 
 
 class ArgumentsMixin:

@@ -13,9 +13,7 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import time
-
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, Link, StatusCode
 from eskapade.spark_analysis import SparkManager
 
 
@@ -51,8 +49,7 @@ class SparkStreamingController(Link):
     def execute(self):
         """Execute SparkStreamingController"""
 
-        proc_mgr = ProcessManager()
-        ssc = proc_mgr.service(SparkManager).spark_streaming_context
+        ssc = process_manager.service(SparkManager).spark_streaming_context
         ssc.start()
 
         if self.timeout is not None:

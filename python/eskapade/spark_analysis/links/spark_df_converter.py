@@ -13,13 +13,10 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import pandas as pd
-
 import pyspark
 
-from eskapade import Link, StatusCode, ProcessManager, DataStore
+from eskapade import Link, StatusCode, process_manager, DataStore
 from eskapade.helpers import apply_transform_funcs, process_transform_funcs
-from eskapade.spark_analysis import SparkManager
 
 OUTPUT_FORMATS = ('df', 'rdd', 'list', 'pd')
 
@@ -94,8 +91,7 @@ class SparkDfConverter(Link):
         """Execute SparkDfConverter"""
 
         # get process manager and data store
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # fetch data frame from data store
         if self.read_key not in ds:

@@ -16,12 +16,13 @@
 # **********************************************************************************
 
 import os
-import pandas as pd
+
 import numpy as np
+import pandas as pd
 import tabulate
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
 from eskapade import core, visualization
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
 from eskapade.analysis import statistics
 
 NUMBER_OF_BINS = 30
@@ -79,7 +80,7 @@ class DfSummary(Link):
         self.check_arg_vals('read_key')
 
         # get I/O configuration
-        io_conf = ProcessManager().service(ConfigObject).io_conf()
+        io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates
         with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
@@ -122,7 +123,7 @@ class DfSummary(Link):
         :rtype: StatusCode
         """
 
-        ds = ProcessManager().service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # fetch and check input data frame
         data = ds.get(self.read_key, None)
@@ -169,7 +170,7 @@ class DfSummary(Link):
 
         # storage
         if self.pages_key:
-            ds = ProcessManager().service(DataStore)
+            ds = process_manager.service(DataStore)
             ds[self.pages_key] = self.pages
 
         return StatusCode.Success

@@ -13,13 +13,11 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import pandas as pd
-import numpy as np
-
 import ROOT
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.root_analysis import RooFitManager, data_conversion
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
+from eskapade.root_analysis import data_conversion
+from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertRootHist2RooDataHist(Link):
@@ -82,10 +80,9 @@ class ConvertRootHist2RooDataHist(Link):
     def execute(self):
         """Execute ConvertRootHist2RooDataHist"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
-        ws = proc_mgr.service(RooFitManager).ws
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # basic checks on contents of the root histogram
         if not self.hist_dict_key:

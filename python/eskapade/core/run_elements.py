@@ -13,10 +13,7 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import os
-
 from eskapade.core.definitions import StatusCode
-from eskapade.core import persistence
 from eskapade.mixins import LoggingMixin, ArgumentsMixin, TimerMixin
 
 
@@ -37,8 +34,7 @@ class Link(ArgumentsMixin, LoggingMixin, TimerMixin):
     Links are added to a chain as follows:
 
     >>> # add a chain first
-    >>> proc_mgr = ProcessManager()
-    >>> overview = proc_mgr.add_chain('Overview')
+    >>> overview = process_manager.add_chain('Overview')
     >>>
     >>> # add a link to the chain
     >>> from eskapade import analysis
@@ -362,10 +358,9 @@ class Chain(LoggingMixin, TimerMixin):
     topic, for example 'validation of a model', or 'data preparation', or
     'data quality checks'.
 
-    Chains are added to the processManager (PM) thusly:
+    Chains are added to the process_manager (PM) thusly:
 
-    >>> proc_mgr = ProcessManager()
-    >>> overview = proc_mgr.add_chain('Overview')
+    >>> overview = process_manager.add_chain('Overview')
 
     And Links are added to a chain as follows:
 

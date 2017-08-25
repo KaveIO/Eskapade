@@ -15,13 +15,13 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import pandas as pd
-import numpy as np
-
 import ROOT
+import numpy as np
+import pandas as pd
 
-from eskapade import ProcessManager, ConfigObject, Link, DataStore, StatusCode
-from eskapade.root_analysis import RooFitManager, data_conversion, roofit_utils
+from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
+from eskapade.root_analysis import data_conversion, roofit_utils
+from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class RooFitPercentileBinning(Link):
@@ -57,10 +57,9 @@ class RooFitPercentileBinning(Link):
     def execute(self):
         """Execute RooFitPercentileBinning"""
 
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
-        ws = proc_mgr.service(RooFitManager).ws
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # basic checks on contensts of the data frame
         if self.from_ws:
@@ -113,7 +112,7 @@ class RooFitPercentileBinning(Link):
             col_var = ws.var(col)
             binning.setRange(col_var.getMin(), col_var.getMax())
             for b in bin_edges.values[1:nbins]:
-                if b > col_var.getMin() and b < col_var.getMax():
+                if col_var.getMin() < b < col_var.getMax():
                     binning.addBoundary(b)
             if isinstance(data, ROOT.RooDataSet):
                 binning.setAverageFromData(data, col_var)

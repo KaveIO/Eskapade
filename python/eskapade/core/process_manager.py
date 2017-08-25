@@ -15,31 +15,40 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
+import glob
 import importlib
 import os
-import glob
 
-from . import persistence
-from .definitions import StatusCode
-from .process_services import ProcessService, ConfigObject
-from .run_elements import Chain
-from eskapade.mixins import LoggingMixin, TimerMixin
+from eskapade.core import persistence
+from eskapade.core.definitions import StatusCode
+from eskapade.core.process_services import ConfigObject
+from eskapade.core.process_services import ProcessService
+from eskapade.core.run_elements import Chain
+from eskapade.mixins import LoggingMixin
+from eskapade.mixins import TimerMixin
 
 
-class ProcessManager(LoggingMixin, TimerMixin):
+class _ProcessManager(LoggingMixin, TimerMixin):
     """Eskapade run-process manager
 
     The processManager singleton class forms the core of Eskapade.  It
     performs initialization, execution, and finalizing of the configured
     chains.  Chains are added to the processManager (PM) thusly:
 
-    >>> proc_mgr = ProcessManager()
-    >>> proc_mgr.add_chain('Data')
-    >>> proc_mgr.add_chain('MyOverview')
+    >>> from eskapade import process_manager
+    >>>
+    >>>
+    >>> data_chain = Chain('Data')
+    >>>
+    >>> process_manager.add_chain('Data')
+    >>>
+    >>> process_manager.add_chain('MyOverview')
+    >>>
+    >>> process_manager.run()
 
     The function:
 
-    >>> proc_mgr.execute_all()
+    >>> process_manager.execute_all()
 
     executes all chains. This function is called by the run_eskapade.py
     (the executable script of this project).  The chains are executed in
@@ -54,7 +63,7 @@ class ProcessManager(LoggingMixin, TimerMixin):
     * Executes the python configuration macro -> chains and links are defined in the PM
     * Executes the PM
 
-    To be precise, proc_mgr.execute_all() does the following:
+    To be precise, process_manager.execute_all() does the following:
 
     * initialize():
         For each Chain, set name of previous Chain. Needed to pick up
@@ -78,7 +87,7 @@ class ProcessManager(LoggingMixin, TimerMixin):
 
         # create and store the singleton instance if not created before
         if not cls._instance:
-            cls._instance = super(ProcessManager, cls).__new__(cls)
+            cls._instance = super(_ProcessManager, cls).__new__(cls)
 
         # return the stored singleton instance
         return cls._instance
@@ -677,3 +686,6 @@ class ProcessManager(LoggingMixin, TimerMixin):
         # re-initialize
         self._initialized = False
         self.__init__()
+
+
+process_manager = _ProcessManager()

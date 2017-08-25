@@ -15,16 +15,15 @@
 # *****************************************************************************
 
 import logging
-import numpy as np
 
 import ROOT
-from ROOT import RooFit
+import numpy as np
 
-from eskapade import StatusCode, DataStore, Link, ProcessManager, ConfigObject
+from eskapade import StatusCode, DataStore, Link, process_manager, ConfigObject
 from eskapade.core import persistence
-from eskapade.root_analysis import RooFitManager
-from eskapade.root_analysis.roofit_utils import ROO_INF, create_roofit_opts
+from eskapade.root_analysis.roofit_manager import RooFitManager
 from eskapade.root_analysis.roofit_models import TruncExponential
+from eskapade.root_analysis.roofit_utils import ROO_INF, create_roofit_opts
 
 
 class TruncExpFit(Link):
@@ -68,10 +67,9 @@ class TruncExpFit(Link):
         self.check_arg_types(read_key=str, max_var_data_key=str, model_name=str, results_path=str)
         self.check_arg_vals('read_key', 'model_name')
 
-        # create process-manager and service instances
-        proc_mgr = ProcessManager()
-        settings = proc_mgr.service(ConfigObject)
-        rfm = proc_mgr.service(RooFitManager)
+        # create service instances
+        settings = process_manager.service(ConfigObject)
+        rfm = process_manager.service(RooFitManager)
 
         # check if model exists
         model = rfm.model(self.model_name)
@@ -97,9 +95,8 @@ class TruncExpFit(Link):
         """Execute TruncExpFit"""
 
         # get process manager and services
-        proc_mgr = ProcessManager()
-        ds = proc_mgr.service(DataStore)
-        rfm = proc_mgr.service(RooFitManager)
+        ds = process_manager.service(DataStore)
+        rfm = process_manager.service(RooFitManager)
 
         # get PDF from RooFitManager
         model = rfm.model(self.model_name)

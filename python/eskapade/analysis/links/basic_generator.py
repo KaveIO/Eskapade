@@ -17,7 +17,10 @@
 import numpy as np
 import pandas as pd
 
-from eskapade import Link, StatusCode, ProcessManager, DataStore
+from eskapade import DataStore
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import process_manager
 
 
 class BasicGenerator(Link):
@@ -76,6 +79,6 @@ class BasicGenerator(Link):
                 data[col] = np.random.normal(loc=mu, scale=sigma, size=self.size).astype(dtype)
 
         # create data frame
-        ProcessManager().service(DataStore)[self.key] = pd.DataFrame(data=data, columns=self.columns)
+        process_manager.service(DataStore)[self.key] = pd.DataFrame(data=data, columns=self.columns)
 
         return StatusCode.Success

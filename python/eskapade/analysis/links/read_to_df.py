@@ -16,26 +16,31 @@
 
 import copy
 import glob
-import os
-import pandas as pd
-import numpy as np
-
 import logging
+import os
+
+import numpy as np
+import pandas as pd
+
+from eskapade import ConfigObject
+from eskapade import DataStore
+from eskapade import Link
+from eskapade import StatusCode
+from eskapade import process_manager
+
 log = logging.getLogger(__name__)
 
-from eskapade import ProcessManager, Link, StatusCode, DataStore, ConfigObject
-
-pd_readers = {'csv':    pd.read_csv,
-              'tsv':    pd.read_csv,
-              'xls':    pd.read_excel,
-              'xlsx':   pd.read_excel,
-              'json':   pd.read_json,
-              'h5':     pd.read_hdf,
-              'sql':    pd.read_sql,
-              'htm':    pd.read_html,
-              'html':   pd.read_html,
-              'dta':    pd.read_stata,
-              'pkl':    pd.read_pickle,
+pd_readers = {'csv': pd.read_csv,
+              'tsv': pd.read_csv,
+              'xls': pd.read_excel,
+              'xlsx': pd.read_excel,
+              'json': pd.read_json,
+              'h5': pd.read_hdf,
+              'sql': pd.read_sql,
+              'htm': pd.read_html,
+              'html': pd.read_html,
+              'dta': pd.read_stata,
+              'pkl': pd.read_pickle,
               'pickle': pd.read_pickle}
 
 
@@ -60,14 +65,14 @@ class ReadToDf(Link):
 
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'ReadToDf'))
-        
+
         # process and register all relevant kwargs. kwargs are added as attributes of the link.
         # second arg is default value for an attribute. key is popped from kwargs.
         self._process_kwargs(kwargs, path='', key='', reader=None, itr_over_files=False, chunksize=None)
-        
+
         # pass on remaining kwargs to pandas reader 
         self.kwargs = copy.deepcopy(kwargs)
-        
+
         self._paths = None
         self._path_itr = None
         self._current_path = None
@@ -76,7 +81,7 @@ class ReadToDf(Link):
         self._iterate = False
         self._reader = None
         self._usecols = [] if 'usecols' not in self.kwargs else self.kwargs['usecols']
-        
+
         return
 
     def setChunkSize(self, size):
@@ -88,7 +93,7 @@ class ReadToDf(Link):
 
         assert isinstance(self.key, str) and len(self.key) > 0, 'output key not set.'
         assert isinstance(self._usecols, list), 'usecols not set correctly.'
-        
+
         # construct and check list of file paths to read
         read_paths = [p for p in self.path] if not isinstance(self.path, str) else [self.path]
         if not read_paths:
@@ -114,10 +119,11 @@ class ReadToDf(Link):
         # now determine if file iterator will be used. Will iterate if:
         # 1. chunksize>0.
         if self.chunksize is not None:
-            assert isinstance(self.chunksize, int) and self.chunksize > 0, 'chunksize needs to be set to positive integer.'
+            assert isinstance(self.chunksize,
+                              int) and self.chunksize > 0, 'chunksize needs to be set to positive integer.'
             self._iterate = True
         # 2. more than one file path has been set, and self.itr_over_files==True.
-        elif len(self._paths)>1 and self.itr_over_files is True:
+        elif len(self._paths) > 1 and self.itr_over_files is True:
             self._iterate = True
         self.log().info('File and/or chunksize iterator is active: %s.' % self._iterate)
         if self.chunksize is not None:
@@ -126,20 +132,19 @@ class ReadToDf(Link):
         # add back chunksize if it was a kwarg, so it's picked up by pandas.
         if self.chunksize is not None:
             self.kwargs['chunksize'] = self.chunksize
-            
-        self.log().info('kwargs passed on to pandas reader are: %s' % self.kwargs )
-        
+
+        self.log().info('kwargs passed on to pandas reader are: %s' % self.kwargs)
+
         return StatusCode.Success
 
-    
     def execute(self):
         """ Execute ReadToDf
 
         Reads the input file(s) and puts the dataframe in the datastore.
         """
 
-        ds = ProcessManager().service(DataStore)
-        settings = ProcessManager().service(ConfigObject)
+        ds = process_manager.service(DataStore)
+        settings = process_manager.service(ConfigObject)
 
         # 1. handle first the case of no iteration. Concatenate into one dataframe.
         if not self._iterate:
@@ -150,30 +155,30 @@ class ReadToDf(Link):
         else:
             # try picking up new dataset from iterator
             df = next(self)
-            while self.latest_data_length()==0 and not self.isFinished():
+            while self.latest_data_length() == 0 and not self.isFinished():
                 df = next(self)
 
             # at end of loop
-            if self.latest_data_length()==0:
+            if self.latest_data_length() == 0:
                 assert self.isFinished(), 'Got empty dataset but not at end of iterator. Thats weird. Exit.'
                 # at end of loop, df == None.
-                df = pd.DataFrame(columns = self._usecols)
+                df = pd.DataFrame(columns=self._usecols)
 
             # do we have more datasets to go?
             # pass this information to the (possible) repeater at the end of chain
-            reqstr = 'chainRepeatRequestBy_'+self.name
+            reqstr = 'chainRepeatRequestBy_' + self.name
             settings[reqstr] = True if not self.isFinished() else False
 
             numentries = self.latest_data_length()
             sumentries = self.sum_data_length()
-            self.log().info('Read next <%d> records; summing up to <%d>.' % (numentries,sumentries) )
-            ds['n_sum_'+self.key] = sumentries
+            self.log().info('Read next <%d> records; summing up to <%d>.' % (numentries, sumentries))
+            ds['n_sum_' + self.key] = sumentries
             pass
-        
+
         # store dataframe and number of entries
         ds[self.key] = df
-        ds['n_'+self.key] = numentries
-        
+        ds['n_' + self.key] = numentries
+
         return StatusCode.Success
 
     def isFinished(self):
@@ -183,7 +188,7 @@ class ReadToDf(Link):
         Assess if looper is done or if a next dataset is still coming up.
         """
         finished = self._path_itr.finished
-        if isinstance(self.chunksize,int) and self.chunksize > 0:
+        if isinstance(self.chunksize, int) and self.chunksize > 0:
             finished &= (self._latest_data_length < self.chunksize)
         return finished
 
@@ -199,16 +204,16 @@ class ReadToDf(Link):
         # bookkeeping
         try:
             self._latest_data_length = len(data.index)
-        except: 
+        except:
             self._latest_data_length = 0
         self._sum_data_length += self._latest_data_length
-            
+
         return data
 
     def latest_data_length(self):
         """ Return length of current dataset """
         return self._latest_data_length
-    
+
     def sum_data_length(self):
         """ Return sum length of all datasets processed sofar """
         return self._sum_data_length
@@ -223,7 +228,7 @@ class ReadToDf(Link):
 
         # 1. input file has already been set (in previous cycle),
         #    and this is still used for chunking.
-        if self._reader!=None and isinstance(self._reader,pd.io.parsers.TextFileReader):        
+        if self._reader is not None and isinstance(self._reader, pd.io.parsers.TextFileReader):
             try:
                 data = next(self._reader)
                 return data
@@ -231,9 +236,9 @@ class ReadToDf(Link):
                 # TextFileReader throws stopiterator exception at end
                 data = None
             except:
-                #import sys
-                #print 'Unexpected error' #: %s" % sys.exc_info()[0]
-                raise 'Unexpected error: cannot process next dataset iteration. Exit.'
+                # import sys
+                # print 'Unexpected error' #: %s" % sys.exc_info()[0]
+                raise Exception('Unexpected error: cannot process next dataset iteration. Exit.')
             pass
 
         # 2. trying next file
@@ -242,10 +247,10 @@ class ReadToDf(Link):
             path = str(self._path_itr[0])
             self._path_itr.iternext()
             try:
-                self._reader = pandasReader(path, self.reader, **self.kwargs) 
+                self._reader = pandasReader(path, self.reader, **self.kwargs)
             except:
                 self.log().critical('Could not read from new path <%s>' % path)
-                raise 
+                raise
             self._current_path = path
             self.log().info('Opened new file [%s]' % self._current_path)
         else:
@@ -255,23 +260,23 @@ class ReadToDf(Link):
 
         # 3. new reader has been set up
         # trying the new reader 
-        if isinstance(self._reader,pd.core.frame.DataFrame):
+        if isinstance(self._reader, pd.core.frame.DataFrame):
             # chunksize not provided, so not chunking.
             data = self._reader
             # resetting the reader for next itr
             self._reader = None
-        elif isinstance(self._reader,pd.io.parsers.TextFileReader):        
+        elif isinstance(self._reader, pd.io.parsers.TextFileReader):
             try:
                 data = next(self._reader)
             except StopIteration:
                 # TextFileReader throws stopiterator exception at end
                 data = None
             except:
-                raise 'Unexpected error: cannot process next dataset iteration. Exit.'
+                raise Exception('Unexpected error: cannot process next dataset iteration. Exit.')
             pass
-            
+
         return data
-    
+
 
 def pandasReader(path, reader, *args, **kwargs):
     """ 
