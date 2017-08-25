@@ -17,7 +17,7 @@ import logging
 
 from eskapade import ConfigObject, resources
 from eskapade import core_ops, analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 
 log = logging.getLogger('macro.esk201_readdata')
@@ -26,7 +26,7 @@ log.debug('Now parsing configuration file esk201_readdata')
 
 #########################################################################################
 # --- minimal analysis information
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk201_readdata'
 settings['version'] = 0
 
@@ -49,7 +49,7 @@ data_path = resources.fixture('dummy.csv')
 
 # --- example 1: readdata with one input file
 if settings['do_example1']:
-    ch1 = proc_mgr.add_chain('MyChain1')
+    ch1 = process_manager.add_chain('MyChain1')
 
     readdata = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
     ch1.add_link(readdata)
@@ -59,7 +59,7 @@ if settings['do_example1']:
 # --- example 2: readdata with default settings reads all three input files simultaneously.
 #                all extra key word arguments are passed on to pandas reader.
 if settings['do_example2']:
-    ch2 = proc_mgr.add_chain('MyChain2')
+    ch2 = process_manager.add_chain('MyChain2')
 
     # --- a loop is set up in the chain MyChain.
     #     we iterate over (chunks of) the next file in the list until the iterator is done.
@@ -72,10 +72,10 @@ if settings['do_example2']:
     ch2.add_link(readdata)
 
 # --- print contents of the datastore
-proc_mgr.add_chain('Overview')
+process_manager.add_chain('Overview')
 pds = core_ops.PrintDs(name='End')
 pds.keys = ['n_test1', 'n_test2']
-proc_mgr.get_chain('Overview').add_link(pds)
+process_manager.get_chain('Overview').add_link(pds)
 
 #########################################################################################
 

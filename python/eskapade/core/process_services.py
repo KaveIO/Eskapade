@@ -162,13 +162,13 @@ class ConfigObject(ProcessService):
 
     Obtain the ConfigObject from any location as follows:
 
-    >>> from eskapade import process_manager as proc_mgr
+    >>> from eskapade import process_manager
     >>> from eskapade import ConfigObject
     >>>
     >>>
-    >>> settings = proc_mgr.settings
-    >>> proc_mgr.settings = settings
-    >>> settings = proc_mgr.service(ConfigObject)
+    >>> settings = process_manager.settings
+    >>> process_manager.settings = settings
+    >>> settings = process_manager.service(ConfigObject)
 
     One can treat the ConfigObject as any other dictionary:
 
@@ -360,11 +360,11 @@ class DataStore(ProcessService, dict):
 
     Obtain the global datastore from any location as follows:
 
-    >>> from eskapade import process_manager as proc_mgr
+    >>> from eskapade import process_manager
     >>> from eskapade import DataStore
     >>>
     >>>
-    >>> ds = proc_mgr.service(DataStore)
+    >>> ds = process_manager.service(DataStore)
 
     One can treat the datastore as any other dict:
 

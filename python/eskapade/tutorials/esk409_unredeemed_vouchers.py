@@ -37,7 +37,7 @@ import ROOT
 import numpy as np
 
 from eskapade import ConfigObject
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 from eskapade.root_analysis import RooFitManager, TruncExpGen, TruncExpFit
 from eskapade.root_analysis.roofit_models import TruncExponential
 
@@ -57,7 +57,7 @@ log.debug('Now parsing configuration file esk409_unredeemed_vouchers')
 ###############################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk409_unredeemed_vouchers'
 settings['version'] = 0
 
@@ -67,7 +67,7 @@ settings['version'] = 0
 
 # create model if it is not read from persisted services of first chain
 if not settings.get('beginWithChain'):
-    rfm = proc_mgr.service(RooFitManager)
+    rfm = process_manager.service(RooFitManager)
     model = rfm.model(MODEL_NAME, model_cls=TruncExponential, var_range=(0., MAX_AGE), var=('redeem_age', 0.),
                       max_var=('age', MAX_AGE), exp=[('rate_fast', FAST_REDEEM_RATE), ('rate_slow', SLOW_REDEEM_RATE)],
                       fracs=[('frac_fast', FAST_FRAC)])
@@ -81,7 +81,7 @@ if not settings.get('beginWithChain'):
 ###############################################################################
 # --- create chain for generating voucher redeem data
 
-ch = proc_mgr.add_chain('Generation')
+ch = process_manager.add_chain('Generation')
 gen_link = TruncExpGen(name='Generate', store_key=REDEEM_DATA_KEY, max_var_data_key=AGE_DATA_KEY,
                        model_name=MODEL_NAME, event_frac=REDEEM_FRAC)
 ch.add_link(gen_link)
@@ -93,7 +93,7 @@ ROOT.RooRandom.randomGenerator().SetSeed(settings['seeds']['RooFit'])
 ###############################################################################
 # --- create chain for fitting voucher redeem model to generated data
 
-ch = proc_mgr.add_chain('Fitting')
+ch = process_manager.add_chain('Fitting')
 fit_link = TruncExpFit(name='Fit', read_key=gen_link.store_key, max_var_data_key=gen_link.max_var_data_key,
                        model_name=gen_link.model_name)
 ch.add_link(fit_link)

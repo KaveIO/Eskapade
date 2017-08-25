@@ -36,7 +36,7 @@ from pkg_resources import resource_filename
 
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, visualization, root_analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk406_simulation_based_on_unbinned_data')
 
@@ -45,7 +45,7 @@ log.debug('Now parsing configuration file esk406_simulation_based_on_unbinned_da
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk406_simulation_based_on_unbinned_data'
 settings['version'] = 0
 
@@ -63,7 +63,7 @@ input_files = [resource_filename('eskapade', '/data/correlated_data.sv.gz')]
 # --- now set up the chains and links based on configuration flags
 
 if settings['read_data']:
-    ch = proc_mgr.add_chain('Data')
+    ch = process_manager.add_chain('Data')
 
     # --- 0. read the input dataset
     read_data = analysis.ReadToDf(name='reader', key='correlated_data', reader='csv', sep=' ')
@@ -87,7 +87,7 @@ if settings['read_data']:
 
 if settings['generate']:
     # --- 2. simulate a new dataset with the keys pdf, and then plot this dataset
-    ch = proc_mgr.add_chain('WsOps')
+    ch = process_manager.add_chain('WsOps')
     wsu = root_analysis.WsUtils()
     wsu.add_simulate(pdf='keys_Ndim', obs='keys_varset', num=5000, key='simdata', into_ws=True)
     wsu.add_plot(obs='x2', data='simdata', output_file='x2_simdata.pdf')
@@ -104,7 +104,7 @@ if settings['generate']:
 
 if settings['make_plot']:
     # --- 3. make a summary report out of the simulated dataset
-    ch = proc_mgr.add_chain('Plotting')
+    ch = process_manager.add_chain('Plotting')
 
     rds2df = root_analysis.ConvertRooDataSet2DataFrame()
     rds2df.read_key = 'simdata'

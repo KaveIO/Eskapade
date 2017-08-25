@@ -22,7 +22,7 @@ import ROOT
 from ROOT import RooFit
 
 from eskapade import ConfigObject
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 from eskapade import root_analysis
 from eskapade.core import persistence
 from eskapade.root_analysis import roofit_utils
@@ -37,7 +37,7 @@ log.debug('Now parsing configuration file esk411_weibull_predictive_maintenance'
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk411_weibull_predictive_maintenance'
 settings['version'] = 0
 
@@ -66,7 +66,7 @@ n_percentile_bins = 300
 
 if settings['model']:
     # --- generate pdf
-    ch = proc_mgr.add_chain('Model')
+    ch = process_manager.add_chain('Model')
 
     # --- 1. define a model
     wsu = root_analysis.WsUtils(name='modeller')
@@ -82,7 +82,7 @@ if settings['model']:
 
 if settings['generate']:
     # --- generate pdf
-    ch = proc_mgr.add_chain('Generate')
+    ch = process_manager.add_chain('Generate')
 
     wsu = root_analysis.WsUtils(name='generator')
     wsu.add_simulate(pdf=fitpdf, obs='t', num=1625500, key='rds')
@@ -90,14 +90,14 @@ if settings['generate']:
 
 # # --- example of how to import a roodataset from a root file
 # if settings['read_data']:
-#     ch = proc_mgr.add_chain('Data')
+#     ch = process_manager.add_chain('Data')
 #     read_data = root_analysis.ReadFromRootFile()
 #     read_data.path = '/opt/eskapade/data/tsv_renamed_data.root'
 #     read_data.keys = ['rds']
 #     ch.add_link(read_data)
 
 if settings['process']:
-    ch = proc_mgr.add_chain('ProcessData')
+    ch = process_manager.add_chain('ProcessData')
 
     # --- a. rebinning configuration, for (faster) binned fit
     pb = root_analysis.RooFitPercentileBinning()
@@ -115,7 +115,7 @@ if settings['process']:
     ch.add_link(conv)
 
 if settings['fit_plot']:
-    ch = proc_mgr.add_chain('FitAndPlot')
+    ch = process_manager.add_chain('FitAndPlot')
 
     # --- 1. fit: perform fit of pdf 'fitpdf' to dataset 'binnedData'.
     #        store the fit result object in the datastore under key 'fit_result'
@@ -158,7 +158,7 @@ if settings['fit_plot']:
     ch.add_link(wsu)
 
 if settings['summary']:
-    ch = proc_mgr.add_chain('Summary')
+    ch = process_manager.add_chain('Summary')
 
     # print contents of the workspace
     pws = root_analysis.PrintWs()

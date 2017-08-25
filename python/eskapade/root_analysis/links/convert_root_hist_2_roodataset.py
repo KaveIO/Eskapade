@@ -83,9 +83,8 @@ class ConvertRootHist2RooDataSet(Link):
     def execute(self):
         """Execute ConvertRootHist2RooDataSet"""
 
-        proc_mgr = process_manager
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         # basic checks on contents of the root histogram
         if not self.hist_dict_key:
@@ -133,7 +132,7 @@ class ConvertRootHist2RooDataSet(Link):
         # 1. put object into the workspace
         if self.into_ws:
             try:
-                ws = proc_mgr.service(Workspace).ws
+                ws = process_manager.service(Workspace).ws
                 ws.put(rds, ROOT.RooFit.Rename(self.store_key))
                 ws.defineSet(self.store_key_vars, obs_vars)
             except:

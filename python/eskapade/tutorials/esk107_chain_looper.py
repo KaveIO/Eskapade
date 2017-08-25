@@ -18,7 +18,7 @@ import logging
 
 from eskapade import ConfigObject
 from eskapade import core_ops
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk107_chain_looper')
 
@@ -27,7 +27,7 @@ log.debug('Now parsing configuration file esk107_chain_looper')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk107_chain_looper'
 settings['version'] = 0
 
@@ -50,7 +50,7 @@ if settings['do_example']:
     # --- a loop is set up in the chain MyChain.
     #     we iterate over the chain until the link RepeatChain is done.
     #     then move on to the next chain (Overview)
-    ch = proc_mgr.add_chain('MyChain')
+    ch = process_manager.add_chain('MyChain')
 
     link = core_ops.HelloWorld(name='HelloWorld')
     link.set_log_level(logging.DEBUG)
@@ -67,9 +67,9 @@ if settings['do_example']:
 
 # --- print contents of the datastore.
 #    which in this case is empty.
-proc_mgr.add_chain('Overview')
+process_manager.add_chain('Overview')
 pds = core_ops.PrintDs(name='End')
-proc_mgr.get_chain('Overview').add_link(pds)
+process_manager.get_chain('Overview').add_link(pds)
 
 #########################################################################################
 

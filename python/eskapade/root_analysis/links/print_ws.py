@@ -37,8 +37,7 @@ class PrintWs(Link):
     def execute(self):
         """Execute PrintWs"""
 
-        proc_mgr = process_manager
-        ws = proc_mgr.service(RooFitManager).ws
+        ws = process_manager.service(RooFitManager).ws
 
         ws.Print('v')
 

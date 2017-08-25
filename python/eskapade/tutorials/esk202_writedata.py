@@ -17,7 +17,7 @@ import logging
 
 from eskapade import ConfigObject, resources
 from eskapade import analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 
 log = logging.getLogger('macro.esk202_writedata')
@@ -26,7 +26,7 @@ log.debug('Now parsing configuration file esk202_writedata')
 
 #########################################################################################
 # --- minimal analysis information
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk202_writedata'
 settings['version'] = 0
 
@@ -46,7 +46,7 @@ data_path = resources.fixture('dummy.csv')
 # --- readdata with default settings reads all three input files simultaneously.
 #     all extra key word arguments are passed on to pandas reader.
 if settings['do_readdata']:
-    ch = proc_mgr.add_chain('ReadData')
+    ch = process_manager.add_chain('ReadData')
 
     # --- readdata keeps on opening the next file in the file list.
     #     all kwargs are passed on to pandas file reader.
@@ -54,7 +54,7 @@ if settings['do_readdata']:
     ch.add_link(read_data)
 
 if settings['do_writedata']:
-    ch = proc_mgr.add_chain('WriteData')
+    ch = process_manager.add_chain('WriteData')
 
     # --- writedata needs a specified output format ('writer' argument).
     #     if this is not set, try to determine this from the extension from the filename.

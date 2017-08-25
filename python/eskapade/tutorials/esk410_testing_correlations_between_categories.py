@@ -34,7 +34,7 @@ from pkg_resources import resource_filename
 
 from eskapade import ConfigObject
 from eskapade import analysis, root_analysis, visualization
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk410_testing_correlations_between_categories')
 
@@ -43,7 +43,7 @@ log.debug('Now parsing configuration file esk410_testing_correlations_between_ca
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk410_testing_correlations_between_categories'
 settings['version'] = 0
 
@@ -55,7 +55,7 @@ input_files = [resource_filename('eskapade', '/data/mock_accounts.csv.gz')]
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = proc_mgr.add_chain('Data')
+ch = process_manager.add_chain('Data')
 
 # --- 0. readdata keeps on opening the next file in the file list.
 #     all kwargs are passed on to pandas file reader.
@@ -137,11 +137,11 @@ hypotest.set_log_level(logging.DEBUG)
 ch.add_link(hypotest)
 
 # --- 4. print contents of the datastore
-proc_mgr.add_chain('Overview')
+process_manager.add_chain('Overview')
 hist_summary = visualization.DfSummary(name='HistogramSummary',
                                        read_key=hypotest.hist_dict_key,
                                        pages_key=hypotest.pages_key)
-proc_mgr.get_chain('Overview').add_link(hist_summary)
+process_manager.get_chain('Overview').add_link(hist_summary)
 
 #########################################################################################
 

@@ -41,7 +41,7 @@ from ROOT import RooFit
 
 from eskapade import ConfigObject
 from eskapade import core_ops, visualization, root_analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk408_classification_error_propagation_after_fit')
 
@@ -50,7 +50,7 @@ log.debug('Now parsing configuration file esk408_classification_error_propagatio
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk408_classification_error_propagation_after_fit'
 settings['version'] = 0
 
@@ -61,7 +61,7 @@ settings['version'] = 0
 # --- now set up the chains and links based on configuration flags
 
 # --- generate pdf, simulate, fit, and plot
-ch = proc_mgr.add_chain('WsOps')
+ch = process_manager.add_chain('WsOps')
 
 # 1. simulate output score of machine learning classifier
 wsu = root_analysis.WsUtils(name='DataSimulator')
@@ -77,7 +77,7 @@ wsu.add_plot(obs='score', pdf='model', \
              output_file='data_with_generator_model.pdf', key='simplot')
 ch.add_link(wsu)
 
-ch = proc_mgr.add_chain('SignalPValue')
+ch = process_manager.add_chain('SignalPValue')
 
 # 2. plot signal probability
 wsu = root_analysis.WsUtils(name='SignalProbability')
@@ -98,7 +98,7 @@ ape.fit_result = 'fit_result'
 ape.function_error_name = 'high_risk_perror'
 ch.add_link(ape)
 
-ch = proc_mgr.add_chain('Summary')
+ch = process_manager.add_chain('Summary')
 
 # 4. convert back to df and plot
 rds2df = root_analysis.ConvertRooDataSet2DataFrame()

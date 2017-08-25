@@ -17,7 +17,7 @@ import logging
 
 from pyspark.sql import types, functions
 
-from eskapade import process_manager as proc_mgr, ConfigObject, resources, spark_analysis
+from eskapade import process_manager, ConfigObject, resources, spark_analysis
 from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.esk607_spark_with_column')
@@ -27,14 +27,14 @@ log.debug('Now parsing configuration file esk607_spark_with_column')
 ##########################################################################
 # Minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk607_spark_with_column'
 settings['version'] = 0
 
 ##########################################################################
 # Start Spark session
 
-spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
+spark = process_manager.service(SparkManager).create_session(eskapade_settings=settings)
 
 ##########################################################################
 # CSV and dataframe settings
@@ -45,7 +45,7 @@ file_path = ['file:' + resources.fixture('dummy1.csv')]
 ##########################################################################
 # Now set up the chains and links based on configuration flags
 
-proc_mgr.add_chain('Read')
+process_manager.add_chain('Read')
 
 # create read link for each data file
 read_link = spark_analysis.SparkDfReader(name='ReadFile',
@@ -57,7 +57,7 @@ read_link.read_meth_args['csv'] = (file_path,)
 read_link.read_meth_kwargs['csv'] = dict(sep='|', header=True, inferSchema=True)
 
 # add link to chain
-proc_mgr.get_chain('Read').add_link(read_link)
+process_manager.get_chain('Read').add_link(read_link)
 
 # create link to create new column
 col_link = spark_analysis.SparkWithColumn(name='UdfPower', read_key=read_link.store_key, store_key='new_spark_df')
@@ -69,7 +69,7 @@ col_link.func = functions.udf(lambda a, b: float(a) ** float(b), returnType=type
 col_link.new_column = 'pow_xy1'
 
 # add link to chain
-proc_mgr.add_chain('AddColumn').add_link(col_link)
+process_manager.add_chain('AddColumn').add_link(col_link)
 
 # create link to create new column
 col_link = spark_analysis.SparkWithColumn(name='BuiltPower', read_key=col_link.store_key, store_key=col_link.store_key)
@@ -81,7 +81,7 @@ col_link.func = functions.pow  # Power of two columns
 col_link.new_column = 'pow_xy2'
 
 # add link to chain
-proc_mgr.get_chain('AddColumn').add_link(col_link)
+process_manager.get_chain('AddColumn').add_link(col_link)
 
 ##########################################################################
 

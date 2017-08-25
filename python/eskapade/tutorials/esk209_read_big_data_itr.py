@@ -18,8 +18,7 @@ import logging
 
 from eskapade import ConfigObject, resources
 from eskapade import core_ops, analysis
-from eskapade import process_manager as proc_mgr
-from eskapade.core import persistence
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk209_read_big_data_itr')
 
@@ -27,7 +26,7 @@ log.debug('Now parsing configuration file esk209_read_big_data_itr')
 
 #########################################################################################
 # --- minimal analysis information
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk209_read_big_data_itr'
 settings['version'] = 0
 
@@ -46,7 +45,7 @@ data_path = resources.fixture('dummy.csv')
 # --- example 1: readdata loops over the input files, but no file chunking.
 
 if settings.get('do_example1', True):
-    ch = proc_mgr.add_chain('MyChain1')
+    ch = process_manager.add_chain('MyChain1')
 
     # --- a loop is set up in the chain MyChain.
     #     we iterate over (chunks of) the next file in the list until the iterator is done.
@@ -83,7 +82,7 @@ if settings.get('do_example1', True):
 # --- example 2: readdata loops over the input files, with file chunking.
 
 if settings.get('do_example2', True):
-    ch = proc_mgr.add_chain('MyChain2')
+    ch = process_manager.add_chain('MyChain2')
 
     # --- a loop is set up in the chain MyChain.
     #     we iterate over (chunks of) the next file in the list until the iterator is done.
@@ -131,10 +130,10 @@ if settings.get('do_example2', True):
     ch.add_link(repeater)
 
 # --- print contents of the datastore
-proc_mgr.add_chain('Overview')
+process_manager.add_chain('Overview')
 pds = core_ops.PrintDs(name='End')
 pds.keys = ['n_test1', 'n_sum_test1', 'n_test2', 'n_sum_test2', 'test2', 'n_merged']
-proc_mgr.get_chain('Overview').add_link(pds)
+process_manager.get_chain('Overview').add_link(pds)
 
 #########################################################################################
 

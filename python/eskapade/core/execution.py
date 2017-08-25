@@ -22,19 +22,16 @@ import eskapade.utils
 from eskapade.core.process_manager import process_manager
 from .process_services import ConfigObject
 
-proc_mgr = process_manager
-
-
 def reset_eskapade(skip_config=False):
     """Reset Eskapade objects
 
     :param bool skip_config: skip reset of configuration object
     """
 
-    settings = proc_mgr.service(ConfigObject)
-    proc_mgr.reset()
+    settings = process_manager.service(ConfigObject)
+    process_manager.reset()
     if skip_config:
-        proc_mgr.service(settings)
+        process_manager.service(settings)
 
 
 def run_eskapade(settings=None):
@@ -58,9 +55,9 @@ def run_eskapade(settings=None):
     # get config object from process manager
     if settings:
         # use supplied settings as config service in process manager
-        proc_mgr.remove_service(ConfigObject, silent=True)
-        proc_mgr.service(settings)
-    settings = proc_mgr.service(ConfigObject)
+        process_manager.remove_service(ConfigObject, silent=True)
+        process_manager.service(settings)
+    settings = process_manager.service(ConfigObject)
 
     # initialize logging
     logging.basicConfig(level=settings['logLevel'], format=settings.get(
@@ -76,7 +73,7 @@ def run_eskapade(settings=None):
     # execute configuration macro, this sets up the order of the chains and links.
     if not settings['macro']:
         raise RuntimeError('macro is not set')
-    proc_mgr.execute_macro(settings['macro'])
+    process_manager.execute_macro(settings['macro'])
 
     if 'ROOT.RooFit' in sys.modules:
         # initialize logging for RooFit
@@ -90,7 +87,7 @@ def run_eskapade(settings=None):
     # standard execution from now on
 
     # initialize
-    status = proc_mgr.initialize()
+    status = process_manager.initialize()
     if status.isFailure():
         return status
 
@@ -100,7 +97,7 @@ def run_eskapade(settings=None):
         profiler.enable()
 
     # run Eskapade
-    status = proc_mgr.execute_all()
+    status = process_manager.execute_all()
 
     if settings.get('doCodeProfiling'):
         # turn off profiling
@@ -117,7 +114,7 @@ def run_eskapade(settings=None):
         return status
 
     # finalization and storage()
-    status = proc_mgr.finalize()
+    status = process_manager.finalize()
     if status.isFailure():
         return status
 

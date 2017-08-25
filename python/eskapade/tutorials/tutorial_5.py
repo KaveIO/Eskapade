@@ -19,7 +19,7 @@ import logging
 
 from eskapade.spark_analysis import SparkManager
 
-from eskapade import process_manager as proc_mgr, ConfigObject, resources
+from eskapade import process_manager, ConfigObject, resources
 
 log = logging.getLogger('macro.Tutorial_5')
 
@@ -36,13 +36,13 @@ log.info(msg)
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'Tutorial_5'
 
 #########################################################################################
 # --- setup Spark
 
-proc_mgr.service(SparkManager).get_or_create_session()
+process_manager.service(SparkManager).get_or_create_session()
 
 #########################################################################################
 # --- analysis values, settings, helper functions, configuration flags.
@@ -69,27 +69,27 @@ def mi_to_km(dist):
 # --- now set up the chains and links based on configuration flags
 
 # create first chain
-proc_mgr.add_chain('Data')
+process_manager.add_chain('Data')
 
 ## add data-frame reader to "Data" chain
 # reader = spark_analysis.SparkDfReader()
-# proc_mgr.get_chain('Data').add_link(reader)
+# process_manager.get_chain('Data').add_link(reader)
 
 ## add conversion functions to "Data" chain
 # transform = spark_analysis.SparkWithColumn()
-# proc_mgr.get_chain('Data').add_link(transform)
+# process_manager.get_chain('Data').add_link(transform)
 
 # create second chain
-proc_mgr.add_chain('Summary')
+process_manager.add_chain('Summary')
 
 ## fill spark histograms
 # histo = spark_analysis.SparkHistogrammarFiller()
-# proc_mgr.get_chain('Summary').add_link(histo)
+# process_manager.get_chain('Summary').add_link(histo)
 
 ## add data-frame summary link to "Summary" chain
 # summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=histo.store_key,
 #                                     var_labels=VAR_LABELS, var_units=VAR_UNITS)
-# proc_mgr.get_chain('Summary').add_link(summarizer)
+# process_manager.get_chain('Summary').add_link(summarizer)
 
 
 #########################################################################################

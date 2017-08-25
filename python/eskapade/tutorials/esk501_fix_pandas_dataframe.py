@@ -27,7 +27,7 @@ import tempfile
 
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, data_quality
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk501_fix_pandas_dataframe')
 
@@ -36,7 +36,7 @@ log.debug('Now parsing configuration file esk501_fix_pandas_dataframe')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk501_fix_pandas_dataframe'
 settings['version'] = 0
 
@@ -63,7 +63,7 @@ f.close()
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = proc_mgr.add_chain('DataPrep')
+ch = process_manager.add_chain('DataPrep')
 
 # --- 0. pandas read_csv has multiple settings to help reading in of buggy csv's.
 #     o The option error_bad_lines=False skips lines with too few or too many values

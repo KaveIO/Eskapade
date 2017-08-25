@@ -30,7 +30,7 @@ import sys
 
 import ROOT
 
-from eskapade import process_manager as proc_mgr, ConfigObject, root_analysis
+from eskapade import process_manager, ConfigObject, root_analysis
 from eskapade.root_analysis import roofit_utils
 
 log = logging.getLogger('macro.tutorial_4')
@@ -53,7 +53,7 @@ Move to the directory:
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'Tutorial_4'
 =======
 Start an interactive python session and type:
@@ -124,7 +124,7 @@ log.info(msg)
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'tutorial_4'
 settings['version'] = 0
 
@@ -168,7 +168,7 @@ log.info(msg)
 # --- now set up the chains and links based on configuration flags
 
 # --- generate pdf, simulate, fit, and plot
-ch = proc_mgr.add_chain('WsOps')
+ch = process_manager.add_chain('WsOps')
 
 # --- 1. define a model by passing strings to the rooworkspace factory
 #     For the workspace factory syntax, see:

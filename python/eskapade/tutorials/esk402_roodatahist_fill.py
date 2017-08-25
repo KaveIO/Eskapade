@@ -26,7 +26,7 @@ from pkg_resources import resource_filename
 
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, root_analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk402_roodatahist_fill')
 
@@ -35,7 +35,7 @@ log.debug('Now parsing configuration file esk402_roodatahist_fill')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk402_roodatahist_fill'
 settings['version'] = 0
 
@@ -47,7 +47,7 @@ input_files = [resource_filename('eskapade', '/data/mock_accounts.csv.gz')]
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = proc_mgr.add_chain('Data')
+ch = process_manager.add_chain('Data')
 
 # --- 0. readdata keeps on opening the next file in the file list.
 #     all kwargs are passed on to pandas file reader.
@@ -83,10 +83,10 @@ df2rdh.columns = ['transaction', 'latitude', 'longitude', 'age', 'eyeColor', 'fa
 ch.add_link(df2rdh)
 
 # --- print contents of the datastore
-proc_mgr.add_chain('Overview')
+process_manager.add_chain('Overview')
 pds = core_ops.PrintDs()
 pds.keys = ['n_rdh_accounts', 'n_accounts']
-proc_mgr.get_chain('Overview').add_link(pds)
+process_manager.get_chain('Overview').add_link(pds)
 
 #########################################################################################
 

@@ -12,7 +12,7 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr, ConfigObject, resources, spark_analysis
+from eskapade import process_manager, ConfigObject, resources, spark_analysis
 from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.esk602_read_csv_to_spark_df')
@@ -22,14 +22,14 @@ log.debug('Now parsing configuration file esk602_read_csv_to_spark_df')
 ##########################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk602_read_csv_to_spark_df'
 settings['version'] = 0
 
 ##########################################################################
 # --- start Spark session
 
-spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
+spark = process_manager.service(SparkManager).create_session(eskapade_settings=settings)
 
 ##########################################################################
 # --- CSV and data-frame settings
@@ -69,7 +69,7 @@ if num_partitions:
     read_link.read_meth_args['repartition'] = (num_partitions,)
 
 # add link to chain
-proc_mgr.add_chain('Read').add_link(read_link)
+process_manager.add_chain('Read').add_link(read_link)
 
 ##########################################################################
 

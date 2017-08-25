@@ -21,7 +21,7 @@ import pandas as pd
 
 from eskapade import ConfigObject
 from eskapade import analysis, resources
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.Tutorial_1')
 
@@ -38,7 +38,7 @@ log.info(msg)
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'Tutorial_1'
 
 #########################################################################################
@@ -72,24 +72,24 @@ conv_funcs = [{'func': comp_date, 'colin': 'doy', 'colout': 'date'},
 # --- now set up the chains and links based on configuration flags
 
 # create first chain
-proc_mgr.add_chain('Data')
+process_manager.add_chain('Data')
 
 # add data-frame reader to "Data" chain
 reader = analysis.ReadToDf(name='Read_LA_ozone', path=DATA_FILE_PATH, reader=pd.read_csv, key='data')
-proc_mgr.get_chain('Data').add_link(reader)
+process_manager.get_chain('Data').add_link(reader)
 
 # add conversion functions to "Data" chain
 transform = analysis.ApplyFuncToDf(name='Transform', read_key=reader.key, store_key='transformed_data',
                                    apply_funcs=conv_funcs)
-proc_mgr.get_chain('Data').add_link(transform)
+process_manager.get_chain('Data').add_link(transform)
 
 # create second chain
-proc_mgr.add_chain('Summary')
+process_manager.add_chain('Summary')
 
 # add data-frame summary link to "Summary" chain
 # summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=transform.store_key,
 #                                     var_labels=VAR_LABELS, var_units=VAR_UNITS)
-# proc_mgr.get_chain('Summary').add_link(summarizer)
+# process_manager.get_chain('Summary').add_link(summarizer)
 
 
 #########################################################################################

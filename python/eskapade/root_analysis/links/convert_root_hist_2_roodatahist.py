@@ -80,10 +80,9 @@ class ConvertRootHist2RooDataHist(Link):
     def execute(self):
         """Execute ConvertRootHist2RooDataHist"""
 
-        proc_mgr = process_manager
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
-        ws = proc_mgr.service(RooFitManager).ws
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # basic checks on contents of the root histogram
         if not self.hist_dict_key:

@@ -24,7 +24,7 @@ try:
 except ImportError:
     import ROOT.RooFit as RooFit
 
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 from eskapade import Link
 from eskapade import DataStore
 from eskapade import StatusCode
@@ -164,7 +164,7 @@ class RooDataHistFiller(Link):
            optionally, at the storage stage a pdf can be created of the roodatahist as well.
         """
 
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # 1a. basic checks on contensts of the data frame
         assert self.read_key in list(ds.keys()), 'key "%s" not in DataStore' % self.read_key
@@ -291,7 +291,7 @@ class RooDataHistFiller(Link):
     def do_storage(self):
         """Storage of the created RooDataHist object"""
 
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # 1. create pdf of dataset as well?
         if self.create_hist_pdf:
@@ -304,7 +304,7 @@ class RooDataHistFiller(Link):
 
         # 3a. put objects from the datastore into the workspace
         if self.into_ws:
-            ws = proc_mgr.service(RooFitManager).ws
+            ws = process_manager.service(RooFitManager).ws
             try:
                 ws.put(self._rdh, ROOT.RooFit.Rename(self.store_key))
                 ws.defineSet(self.store_key_vars, self._varset)

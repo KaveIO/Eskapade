@@ -12,7 +12,7 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr, ConfigObject, spark_analysis
+from eskapade import process_manager, ConfigObject, spark_analysis
 from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.esk601_spark_configuration')
@@ -38,13 +38,13 @@ log.debug('Now parsing configuration file esk601_spark_configuration')
 
 ##########################################################################
 # --- minimal analysis information
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk601_spark_configuration'
 settings['version'] = 0
 
 ##########################################################################
 # --- get Spark Manager to start/stop Spark
-sm = proc_mgr.service(SparkManager)
+sm = process_manager.service(SparkManager)
 
 ##########################################################################
 # --- METHOD 1: configuration file
@@ -62,7 +62,7 @@ conf_link = spark_analysis.SparkConfigurator(name='SparkConfigurator', log_level
 conf_link.spark_settings = [('spark.app.name', settings['analysisName'] + '_link'),
                             ('spark.master', 'local[42]'),
                             ('spark.driver.host', '127.0.0.1')]
-proc_mgr.add_chain('Config').add_link(conf_link)
+process_manager.add_chain('Config').add_link(conf_link)
 
 log.info('---> METHOD 2: link')
 log.info('NB: settings will be printed at time of link execution')

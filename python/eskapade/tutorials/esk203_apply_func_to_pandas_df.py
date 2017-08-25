@@ -17,7 +17,7 @@ import logging
 
 from eskapade import ConfigObject, DataStore
 from eskapade import core_ops, analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk203_apply_func_to_pandas_df')
 
@@ -25,7 +25,7 @@ log.debug('Now parsing configuration file esk203_apply_func_to_pandas_df')
 
 #########################################################################################
 # --- minimal analysis information
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk203_apply_func_to_pandas_df'
 settings['version'] = 0
 
@@ -58,13 +58,13 @@ from pandas import DataFrame
 
 df = DataFrame(randn(20, 2), columns=list('xy'))
 
-ds = proc_mgr.service(DataStore)
+ds = process_manager.service(DataStore)
 ds['incoming_data'] = df
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = proc_mgr.add_chain('DataPrep')
+ch = process_manager.add_chain('DataPrep')
 
 # querySet = seletions that are applies to incoming_records
 # after selections, only keep column in selectColumns ('a', 'c')

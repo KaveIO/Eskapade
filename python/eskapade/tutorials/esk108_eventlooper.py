@@ -19,11 +19,11 @@ import tempfile
 
 from eskapade import ConfigObject
 from eskapade import core_ops
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 #########################################################################################
 # --- minimal analysis information
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk108_eventlooper'
 settings['version'] = 0
 
@@ -84,7 +84,7 @@ def first_word(x):
 #     this eventlooper link serves as a mapper.
 #     in this example the lines are converted to lower chars, and the first word is selected.
 if settings['do_map']:
-    ch = proc_mgr.add_chain("Mapper")
+    ch = process_manager.add_chain("Mapper")
     looper = core_ops.EventLooper(name='listener')
     looper.skip_line_beginning_with = ['#']
     looper.line_processor_set = [first_word, to_lower]
@@ -96,7 +96,7 @@ if settings['do_map']:
 #     this eventlooper link serves as a reducer
 #     in this example the lines are grouped together into unique sets.
 if settings['do_reduce']:
-    ch = proc_mgr.add_chain("Reducer")
+    ch = process_manager.add_chain("Reducer")
     looper = core_ops.EventLooper(name='grouper')
     # reducer selects all unique lines
     looper.sort = True

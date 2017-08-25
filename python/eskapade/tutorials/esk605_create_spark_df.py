@@ -16,7 +16,7 @@ from collections import OrderedDict as odict
 
 import pandas as pd
 
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 from eskapade import ConfigObject, DataStore, spark_analysis
 from eskapade.spark_analysis import SparkManager
 
@@ -27,19 +27,19 @@ log.debug('Now parsing configuration file esk605_create_spark_df')
 ##########################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk605_create_spark_df'
 settings['version'] = 0
 
 ##########################################################################
 # --- start Spark session
 
-spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
+spark = process_manager.service(SparkManager).create_session(eskapade_settings=settings)
 
 ##########################################################################
 # --- input data
 
-ds = proc_mgr.service(DataStore)
+ds = process_manager.service(DataStore)
 schema = odict([('index', int), ('foo', str), ('bar', float)])
 ds['rows'] = [(it, 'foo{:d}'.format(it), (it + 1) / 2.) for it in range(100)]  # list of tuples
 ds['rdd'] = spark.sparkContext.parallelize(ds['rows'])  # RDD
@@ -58,7 +58,7 @@ def set_num_parts(df, max_num_parts):
 
 
 # create chain and data-frame-creator links
-chain = proc_mgr.add_chain('Create')
+chain = process_manager.add_chain('Create')
 for ds_key, lnk_schema in zip(('rows', 'rdd', 'df', 'pd'), (list(schema.keys()), schema, schema, None)):
     # create data-frame-creator link
     lnk = spark_analysis.SparkDfCreator(name='df_creator_{}'.format(ds_key),

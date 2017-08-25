@@ -15,7 +15,7 @@ import logging
 
 import pyspark
 
-from eskapade import process_manager as proc_mgr, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
 from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.esk606_convert_spark_df')
@@ -25,19 +25,19 @@ log.debug('Now parsing configuration file esk606_convert_spark_df')
 ##########################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk606_convert_spark_df'
 settings['version'] = 0
 
 ##########################################################################
 # --- start Spark session
 
-spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
+spark = process_manager.service(SparkManager).create_session(eskapade_settings=settings)
 
 ##########################################################################
 # --- input data
 
-ds = proc_mgr.service(DataStore)
+ds = process_manager.service(DataStore)
 rows = [(it, 'foo{:d}'.format(it), (it + 1) / 2.) for it in range(100)]
 ds['df'] = spark.createDataFrame(rows, schema=['index', 'foo', 'bar'])
 schema = ds['df'].schema
@@ -82,7 +82,7 @@ process_meth_kwargs = {'df': {set_num_parts: dict(max_num_parts=2)},
                        'pd': {filter_pd: dict(min_index=20)}}
 
 # create chain and data-frame-creator links
-chain = proc_mgr.add_chain('Create')
+chain = process_manager.add_chain('Create')
 for out_format in process_methods:
     # create data-frame-conversion link
     lnk = spark_analysis.SparkDfConverter(name='df_to_{}_converter'.format(out_format),

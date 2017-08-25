@@ -18,7 +18,7 @@ import logging
 
 from eskapade import ConfigObject
 from eskapade import core_ops
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk106_cmdline_options')
 
@@ -26,7 +26,7 @@ log.debug('Now parsing configuration file esk106_cmdline_options')
 
 #########################################################################################
 # --- minimal analysis information
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk106_cmdline_options'
 settings['version'] = 0
 
@@ -45,13 +45,13 @@ log.info(msg)
 # --- now set up the chains and links based on configuration flags
 
 if settings.get('do_chain0', True):
-    ch = proc_mgr.add_chain('Chain0')
+    ch = process_manager.add_chain('Chain0')
     link = core_ops.HelloWorld(name='hello0')
     link.hello = 'Town'
     ch.add_link(link)
 
 if settings.get('do_chain1', True):
-    ch = proc_mgr.add_chain('Chain1')
+    ch = process_manager.add_chain('Chain1')
     link = core_ops.HelloWorld(name='hello1')
     link.hello = 'Universe'
     ch.add_link(link)

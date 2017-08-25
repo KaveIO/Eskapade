@@ -284,8 +284,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         # run Eskapade
         macro = resources.tutorial('esk409_unredeemed_vouchers.py')
         self.eskapade_run(macro)
-        proc_mgr = process_manager
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # check generated data
         self.assertIn('voucher_redeems', ds)
@@ -297,14 +296,14 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(ds['voucher_ages'].numEntries(), 10000)
 
         # check fit result
-        fit_link = proc_mgr.get_chain('Fitting').get_link('Fit')
+        fit_link = process_manager.get_chain('Fitting').get_link('Fit')
         self.assertEqual(fit_link.fit_result.status(), 0)
         n_ev_pull = (fit_link.results['n_ev'][0] - 6000.) / fit_link.results['n_ev'][1]
         self.assertGreater(n_ev_pull, -3.)
         self.assertLess(n_ev_pull, 3.)
 
         # check plot output
-        plot_path = persistence.io_path('results_data', proc_mgr.service(ConfigObject).io_conf(), 'voucher_redeem.pdf')
+        plot_path = persistence.io_path('results_data', process_manager.service(ConfigObject).io_conf(), 'voucher_redeem.pdf')
         self.assertTrue(os.path.exists(plot_path))
         statinfo = os.stat(plot_path)
         self.assertGreater(statinfo.st_size, 0)
@@ -315,8 +314,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         # run Eskapade
         macro = resources.tutorial('esk410_testing_correlations_between_categories.py')
         self.eskapade_run(macro)
-        proc_mgr = process_manager
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
 
         # report checks
         self.assertIn('report_pages', ds)

@@ -67,10 +67,9 @@ class ReadFromRootFile(Link):
     def execute(self):
         """Execute ReadFromRootFile"""
 
-        proc_mgr = process_manager
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
         if self.into_ws:
-            ws = proc_mgr.service(RooFitManager).ws
+            ws = process_manager.service(RooFitManager).ws
 
         for key in self.keys:
             obj = self.in_file.Get(key)

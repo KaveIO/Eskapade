@@ -26,7 +26,7 @@ from pkg_resources import resource_filename
 
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, visualization, root_analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk401_roothist_fill_plot_convert')
 
@@ -35,7 +35,7 @@ log.debug('Now parsing configuration file esk401_roothist_fill_plot_convert')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk401_roothist_fill_plot_convert'
 settings['version'] = 0
 
@@ -62,7 +62,7 @@ log.info(msg)
 # --- now set up the chains and links based on configuration flags
 
 if settings['read_data']:
-    ch = proc_mgr.add_chain('Data')
+    ch = process_manager.add_chain('Data')
 
     # --- 0. read input data
     readdata = analysis.ReadToDf(name='reader', key='correlated_data', reader='csv', sep=' ')
@@ -81,14 +81,14 @@ if settings['read_data']:
     ch.add_link(hf)
 
 if settings['make_plot']:
-    ch = proc_mgr.add_chain('Plotting')
+    ch = process_manager.add_chain('Plotting')
 
     # --- 2. make a nice summary report of the created histograms
     hs = visualization.DfSummary(name='HistogramSummary', read_key=hf.store_key)
     ch.add_link(hs)
 
 if settings['convert_to_rdh']:
-    ch = proc_mgr.add_chain('Convert1')
+    ch = process_manager.add_chain('Convert1')
 
     # --- 3. convert a root histogram to a RooDataHist object
     h2rdh = root_analysis.ConvertRootHist2RooDataHist()
@@ -99,7 +99,7 @@ if settings['convert_to_rdh']:
     ch.add_link(h2rdh)
 
 if settings['convert_to_rds']:
-    ch = proc_mgr.add_chain('Convert2')
+    ch = process_manager.add_chain('Convert2')
 
     # --- 4. convert a histogram to a RooDataSet object
     h2rds = root_analysis.ConvertRootHist2RooDataSet()
@@ -109,7 +109,7 @@ if settings['convert_to_rds']:
     ch.add_link(h2rds)
 
 # --- summary
-ch = proc_mgr.add_chain('Summary')
+ch = process_manager.add_chain('Summary')
 
 pds = core_ops.PrintDs()
 pds.keys = ['hist', 'n_rdh_x1', 'n_rds_x2_vs_x3']

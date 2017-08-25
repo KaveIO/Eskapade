@@ -35,20 +35,20 @@ class _ProcessManager(LoggingMixin, TimerMixin):
     performs initialization, execution, and finalizing of the configured
     chains.  Chains are added to the processManager (PM) thusly:
 
-    >>> from eskapade import process_manager as proc_mgr
+    >>> from eskapade import process_manager
     >>>
     >>>
     >>> data_chain = Chain('Data')
     >>>
-    >>> proc_mgr.add_chain('Data')
+    >>> process_manager.add_chain('Data')
     >>>
-    >>> proc_mgr.add_chain('MyOverview')
+    >>> process_manager.add_chain('MyOverview')
     >>>
-    >>> proc_mgr.run()
+    >>> process_manager.run()
 
     The function:
 
-    >>> proc_mgr.execute_all()
+    >>> process_manager.execute_all()
 
     executes all chains. This function is called by the run_eskapade.py
     (the executable script of this project).  The chains are executed in
@@ -63,7 +63,7 @@ class _ProcessManager(LoggingMixin, TimerMixin):
     * Executes the python configuration macro -> chains and links are defined in the PM
     * Executes the PM
 
-    To be precise, proc_mgr.execute_all() does the following:
+    To be precise, process_manager.execute_all() does the following:
 
     * initialize():
         For each Chain, set name of previous Chain. Needed to pick up

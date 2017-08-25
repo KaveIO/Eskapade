@@ -17,7 +17,7 @@ import logging
 
 from eskapade import ConfigObject
 from eskapade import core_ops
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk102_multiple_chains')
 
@@ -26,7 +26,7 @@ log.debug('Now parsing configuration file esk102_multiple_chains')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk102_multiple_chains'
 settings['version'] = 0
 
@@ -43,7 +43,7 @@ settings['do_chain2'] = True
 # Three simple chains are set up.
 
 if settings['do_chain0']:
-    ch = proc_mgr.add_chain('Chain0')
+    ch = process_manager.add_chain('Chain0')
     link = core_ops.HelloWorld(name='hello0')
     link.hello = 'Town'
     ch.add_link(link)
@@ -51,13 +51,13 @@ if settings['do_chain0']:
 # adding more chains is as easy as calling add_chain and passing a new name.
 
 if settings['do_chain1']:
-    ch = proc_mgr.add_chain('Chain1')
+    ch = process_manager.add_chain('Chain1')
     link = core_ops.HelloWorld(name='hello1')
     link.hello = 'World'
     ch.add_link(link)
 
 if settings['do_chain2']:
-    ch = proc_mgr.add_chain('Chain2')
+    ch = process_manager.add_chain('Chain2')
     link = core_ops.HelloWorld(name='hello2')
     link.hello = 'Universe'
     ch.add_link(link)

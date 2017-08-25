@@ -22,7 +22,7 @@ import logging
 
 from eskapade import ConfigObject, resources
 from eskapade import analysis, visualization
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk306_concatenate_reports')
 
@@ -31,7 +31,7 @@ log.debug('Now parsing configuration file esk306_concatenate_reports')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk306_concatenate_reports'
 settings['version'] = 0
 
@@ -43,7 +43,7 @@ input_files = resources.fixture('correlated_data.sv.gz')
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = proc_mgr.add_chain('Data')
+ch = process_manager.add_chain('Data')
 
 # --- 0. readdata keeps on opening the next file in the file list.
 #     all kwargs are passed on to pandas file reader.

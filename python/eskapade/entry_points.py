@@ -36,10 +36,7 @@ def eskapade_run():
     import IPython
     import pandas as pd
 
-    from eskapade import process_manager as proc_mgr
-    from eskapade import ConfigObject
-    from eskapade import DataStore
-    from eskapade import core
+    from eskapade import core, process_manager, ConfigObject, DataStore
     from eskapade.core.run_utils import create_arg_parser
 
     # create parser for command-line arguments
@@ -67,9 +64,9 @@ def eskapade_run():
 
     # start interpreter if requested (--interactive on command line)
     if settings.get('interactive'):
-        # create process manager, config object, and data store
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        # get process manager, config object, and data store
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         # set Pandas display options
         pd.set_option('display.width', 120)
@@ -128,7 +125,7 @@ def eskapade_generate_link():
 # **********************************************************************************
 /
 
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 from eskapade import ConfigObject
 from eskapade import Link
 from eskapade import DataStore
@@ -175,8 +172,8 @@ class {link_name!s}(Link):
         :rtype: StatusCode
         \"\"\"
 
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         # --- your algorithm code goes here
 

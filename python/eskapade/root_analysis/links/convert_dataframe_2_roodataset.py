@@ -124,10 +124,9 @@ class ConvertDataFrame2RooDataSet(Link):
     def execute(self):
         """Execute ConvertDataFrame2RooDataSet"""
 
-        proc_mgr = process_manager
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
-        ws = proc_mgr.service(RooFitManager).ws
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # 1a. basic checks on contensts of the data frame
         assert self.read_key in list(ds.keys()), 'key %s not in DataStore' % self.read_key

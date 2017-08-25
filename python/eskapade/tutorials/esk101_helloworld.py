@@ -17,7 +17,7 @@ import logging
 
 from eskapade import ConfigObject
 from eskapade import core_ops
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk101_helloworld')
 
@@ -26,7 +26,7 @@ log.debug('Now parsing configuration file esk101_helloworld')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk101_helloworld'
 settings['version'] = 0
 
@@ -44,7 +44,7 @@ settings['n_repeat'] = 2
 # --- now set up the chains and links based on configuration flags
 
 if settings['do_hello']:
-    ch = proc_mgr.add_chain('Hello')
+    ch = process_manager.add_chain('Hello')
     link = core_ops.HelloWorld(name='HelloWorld')
     link.set_log_level(logging.DEBUG)
     link.repeat = settings['n_repeat']

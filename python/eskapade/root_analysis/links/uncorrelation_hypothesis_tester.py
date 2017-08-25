@@ -211,13 +211,12 @@ class UncorrelationHypothesisTester(Link):
     def execute(self):
         """Execute UncorrelationHypothesisTester"""
 
-        proc_mgr = process_manager
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         # 1a. basic checks on contents of the roodataset
         if self.from_ws:
-            ws = proc_mgr.service(RooFitManager).ws
+            ws = process_manager.service(RooFitManager).ws
             rds = ws.data(self.read_key)
             assert rds is not None, 'Key %s not in workspace' % self.read_key
         else:

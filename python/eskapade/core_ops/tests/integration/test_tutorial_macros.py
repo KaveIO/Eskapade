@@ -186,10 +186,8 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
     def test_esk106_script(self, mock_argv):
         """Test Eskapade run with esk106 macro from script"""
 
-        proc_mgr = process_manager
-
         # get file paths
-        settings = proc_mgr.service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
         settings['analysisName'] = 'esk106_cmdline_options'
         settings_ = settings.copy()
         script_path = eskapade.utils.get_file_path('run_eskapade')
@@ -219,12 +217,12 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
             settings.update(add_settings)
 
             # run Eskapade
-            proc_mgr.reset()
+            process_manager.reset()
             run_eskapade.main()
-            settings_run = proc_mgr.service(ConfigObject)
+            settings_run = process_manager.service(ConfigObject)
 
             # check results
-            self.assertListEqual([c.name for c in proc_mgr.chains], chains,
+            self.assertListEqual([c.name for c in process_manager.chains], chains,
                                  'unexpected chain names in "{}" test'.format(name))
             self.assertDictEqual(settings_run, settings, 'unexpected settings in "{}" test'.format(name))
 

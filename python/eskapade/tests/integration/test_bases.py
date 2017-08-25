@@ -14,8 +14,7 @@ class IntegrationTest(unittest.TestCase):
         """Set up test"""
 
         execution.reset_eskapade()
-        proc_mgr = process_manager
-        settings = proc_mgr.service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
         settings['analysisName'] = self.__class__.__name__
         settings['logLevel'] = definitions.LOG_LEVELS['DEBUG']
         settings['batchMode'] = True
@@ -40,8 +39,7 @@ class TutorialMacrosTest(IntegrationTest):
     def eskapade_run(self, macro, return_status=definitions.StatusCode.Success):
         """Run Eskapade"""
 
-        proc_mgr = process_manager
-        settings = proc_mgr.service(ConfigObject)
+        settings = process_manager.service(ConfigObject)
         settings['macro'] = macro
         status = execution.run_eskapade(settings)
         self.assertTrue(status == return_status)

@@ -18,7 +18,7 @@ import logging
 
 from eskapade import ConfigObject
 from eskapade import core_ops
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.MACROTEMPLATE')
 
@@ -27,7 +27,7 @@ log.debug('Now parsing configuration file MACROTEMPLATE')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'MACROTEMPLATE'
 settings['version'] = 0
 
@@ -41,7 +41,7 @@ settings['do_hello'] = True
 # --- now set up the chains and links based on configuration flags
 
 if settings['do_hello']:
-    ch = proc_mgr.add_chain('Hello')
+    ch = process_manager.add_chain('Hello')
     link = core_ops.HelloWorld(name='HelloWorld')
     link.set_log_level(logging.DEBUG)
     link.repeat = 2

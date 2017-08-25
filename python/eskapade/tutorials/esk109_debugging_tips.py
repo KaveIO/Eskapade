@@ -17,7 +17,7 @@ import logging
 from eskapade import ConfigObject
 from eskapade import DataStore
 from eskapade import core_ops
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk109_debugging_tips')
 
@@ -26,7 +26,7 @@ log.debug('Now parsing configuration file esk109_debugging_tips')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk109_debugging_tips'
 settings['version'] = 0
 
@@ -46,14 +46,14 @@ settings['TESTING'] = False if not 'TESTING' in settings else settings['TESTING'
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ds = proc_mgr.service(DataStore)
+ds = process_manager.service(DataStore)
 ds['hello'] = 'world'
 ds['d'] = {'a': 1, 'b': 2, 'c': 3}
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = proc_mgr.add_chain('Overview')
+ch = process_manager.add_chain('Overview')
 
 # 1. printdatastore prints an overview of the contents in the datastore
 # at the state of executing the link.
@@ -88,7 +88,7 @@ ch.add_link(link)
 link.keys = ['foo', 'hello', 'd']
 
 # 5. this link should not be reached because of the Break!
-ch = proc_mgr.add_chain('End')
+ch = process_manager.add_chain('End')
 link = core_ops.PrintDs(name='printer3')
 ch.add_link(link)
 

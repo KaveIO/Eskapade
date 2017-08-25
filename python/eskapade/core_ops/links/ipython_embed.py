@@ -43,13 +43,12 @@ class IPythonEmbed(Link):
     def execute(self):
         """Execute IPythonEmbed"""
 
-        proc_mgr = process_manager
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         self.log().info("Starting interactive session ... press Ctrl+d to exit.\n")
         # this function calls the interactive ipython session
-        # in this session ds, settings, and proc_mgr are available
+        # in this session ds, settings, and process_manager are available
         embed()
 
         return StatusCode.Success

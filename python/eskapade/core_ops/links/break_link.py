@@ -40,6 +40,6 @@ class Break(Link):
     def execute(self):
         """Execute Break"""
 
-        # halt the execution of proc_mgr by sending a failure signal
+        # halt the execution of process_manager by sending a failure signal
         self.log().info('Now sending break signal to halt execution!')
         return StatusCode.Failure

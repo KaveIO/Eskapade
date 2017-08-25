@@ -19,7 +19,7 @@ from pandas import DataFrame
 
 from eskapade import ConfigObject, DataStore
 from eskapade import core_ops, analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk205_concatenate_pandas_dfs')
 
@@ -28,7 +28,7 @@ log.debug('Now parsing configuration file esk205_concatenate_pandas_dfs')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk205_concatenate_pandas_dfs'
 settings['version'] = 0
 
@@ -41,7 +41,7 @@ settings['version'] = 0
 # NB: realize that, normally, such dataframes are read or generated
 # on the fly during link execution.
 
-ds = proc_mgr.service(DataStore)
+ds = process_manager.service(DataStore)
 
 ds['df1'] = DataFrame({'A': ['A0', 'A1', 'A2', 'A3'],
                        'B': ['B0', 'B1', 'B2', 'B3'],
@@ -61,7 +61,7 @@ ds['df3'] = DataFrame({'A': ['A8', 'A9', 'A10', 'A11'],
 #########################################################################################
 # --- below we concatenate the dataframes found in the datastore
 
-ch = proc_mgr.add_chain('DataPrep')
+ch = process_manager.add_chain('DataPrep')
 
 # concatenate the three dataframes below each other during link execution
 link = analysis.DfConcatenator(readKeys=['df1', 'df2', 'df3'],

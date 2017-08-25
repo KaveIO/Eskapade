@@ -12,7 +12,7 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr, ConfigObject, visualization, resources, spark_analysis
+from eskapade import process_manager, ConfigObject, visualization, resources, spark_analysis
 from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.esk608_spark_histogrammar')
@@ -22,14 +22,14 @@ log.debug('Now parsing configuration file esk608_spark_histogrammar')
 ##########################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk608_spark_histogrammar'
 settings['version'] = 0
 
 ##########################################################################
 # --- start Spark session
 
-spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
+spark = process_manager.service(SparkManager).create_session(eskapade_settings=settings)
 
 ##########################################################################
 # --- CSV and data-frame settings
@@ -66,9 +66,9 @@ if num_partitions:
     read_link.read_meth_args['repartition'] = (num_partitions,)
 
 # add link to chain
-proc_mgr.add_chain('Read').add_link(read_link)
+process_manager.add_chain('Read').add_link(read_link)
 
-ch = proc_mgr.add_chain('Output')
+ch = process_manager.add_chain('Output')
 
 # fill spark histograms
 hf = spark_analysis.SparkHistogrammarFiller()

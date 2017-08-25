@@ -14,7 +14,7 @@
 import logging
 
 from eskapade import ConfigObject
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk110_code_profiling')
 
@@ -23,7 +23,7 @@ log.debug('Now parsing configuration file esk110_code_profiling')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk110_code_profiling'
 settings['version'] = 0
 

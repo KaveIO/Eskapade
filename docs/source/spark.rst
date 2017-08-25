@@ -59,7 +59,7 @@ The Spark session is then started directly from a macro with specified settings.
 
 .. code-block:: python
 
-  sm = proc_mgr.service(SparkManager)
+  sm = process_manager.service(SparkManager)
   sm.spark_session
   sm.spark_context.setLogLevel('INFO')
 
@@ -81,7 +81,7 @@ The Spark session is then started directly from a macro with specified settings.
 
 .. code-block:: python
 
-  sm = proc_mgr.service(SparkManager)
+  sm = process_manager.service(SparkManager)
   sm.spark_conf = conf
   sm.spark_session
   sm.spark_context.setLogLevel('INFO')
@@ -99,7 +99,7 @@ Configurations for Spark jobs are set via the ``SparkConf`` class that holds a l
   conf_link = spark_analysis.SparkConfigurator(name='SparkConfigurator')
   conf_link.sparkConf = [('spark.master', 'local[3]')]
   conf_link.setLogLevel = 'INFO'
-  proc_mgr.add_chain('Config').add_link(conf_link) 
+  process_manager.add_chain('Config').add_link(conf_link)
 
 Note that the ``SparkConfigurator`` stops any existing Spark session before starting a new one. This means that the user should make sure all relevant data is stored at this point, since all cached Spark data will be cleared from memory.
 
@@ -140,7 +140,7 @@ The logging level of Spark can be controlled in two ways:
 
 .. code-block:: python
 
-  proc_mgr.service(SparkManager).spark_context.setLogLevel('INFO')
+  process_manager.service(SparkManager).spark_context.setLogLevel('INFO')
 
 
 PS: the loggers in Python can be controlled through:

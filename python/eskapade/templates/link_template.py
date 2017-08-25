@@ -17,7 +17,7 @@ from eskapade import ConfigObject
 from eskapade import DataStore
 from eskapade import Link
 from eskapade import StatusCode
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 
 class LINKTEMPLATE(Link):
@@ -61,8 +61,8 @@ class LINKTEMPLATE(Link):
         :rtype: StatusCode
         """
 
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         # --- your algorithm code goes here
 

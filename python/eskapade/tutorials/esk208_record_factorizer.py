@@ -16,7 +16,7 @@ import logging
 
 from eskapade import ConfigObject, resources
 from eskapade import core_ops, analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 
 log = logging.getLogger('macro.esk208_record_factorizer')
@@ -26,7 +26,7 @@ log.debug('Now parsing configuration file esk208_record_factorizer')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk208_record_factorizer'
 settings['version'] = 0
 
@@ -39,7 +39,7 @@ data_path = resources.fixture('dummy.csv')
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch1 = proc_mgr.add_chain('Factorize')
+ch1 = process_manager.add_chain('Factorize')
 
 # --- read dummy dataset
 readdata = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
@@ -68,7 +68,7 @@ pds = core_ops.PrintDs(name='printer2')
 pds.keys = ['to_original', 'test1', 'test1_fact']
 ch1.add_link(pds)
 
-ch2 = proc_mgr.add_chain('ReFactorize')
+ch2 = process_manager.add_chain('ReFactorize')
 
 # --- add second record factorizer, which now maps the columns
 #     dummy and loc back to their original format

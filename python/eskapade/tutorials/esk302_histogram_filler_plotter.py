@@ -20,7 +20,7 @@ import os
 
 from eskapade import ConfigObject, resources
 from eskapade import core_ops, analysis, visualization
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk302_histogram_filler_plotter')
 
@@ -28,7 +28,7 @@ log.debug('Now parsing configuration file esk302_histogram_filler_plotter')
 
 #########################################################################################
 # --- minimal analysis information
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk302_histogram_filler_plotter'
 settings['version'] = 0
 
@@ -73,7 +73,7 @@ def to_date(x):
 # --- example 2: readdata loops over the input files, with file chunking.
 
 if settings['do_loop']:
-    ch = proc_mgr.add_chain('Data')
+    ch = process_manager.add_chain('Data')
 
     # --- a loop is set up in the chain MyChain.
     #     we iterate over (chunks of) the next file in the list until the iterator is done.
@@ -124,15 +124,15 @@ if settings['do_loop']:
     ch.add_link(link)
 
 # --- print contents of the datastore
-proc_mgr.add_chain('Overview')
+process_manager.add_chain('Overview')
 pds = core_ops.PrintDs(name='End')
 pds.keys = ['n_sum_rc']
-proc_mgr.get_chain('Overview').add_link(pds)
+process_manager.get_chain('Overview').add_link(pds)
 
 # --- make a nice summary report of the created histograms
 hist_summary = visualization.DfSummary(name='HistogramSummary',
                                        read_key=vc.store_key_hists)
-proc_mgr.get_chain('Overview').add_link(hist_summary)
+process_manager.get_chain('Overview').add_link(hist_summary)
 
 #########################################################################################
 

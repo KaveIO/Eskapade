@@ -20,7 +20,7 @@ import os
 
 from eskapade import ConfigObject, resources
 from eskapade import core_ops, analysis, visualization
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk303_hgr_filler_plotter')
 
@@ -28,7 +28,7 @@ log.debug('Now parsing configuration file esk303_hgr_filler_plotter.py')
 
 #########################################################################################
 # --- minimal analysis information
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk303_hgr_filler_plotter'
 settings['version'] = 0
 
@@ -73,7 +73,7 @@ def to_date(x):
 # --- example 2: readdata loops over the input files, with file chunking.
 
 if settings['do_loop']:
-    ch = proc_mgr.add_chain('Data')
+    ch = process_manager.add_chain('Data')
 
     # --- a loop is set up in the chain MyChain.
     #     we iterate over (chunks of) the next file in the list until the iterator is done.
@@ -123,7 +123,7 @@ if settings['do_loop']:
 
 # --- print contents of the datastore
 if settings['do_plotting']:
-    ch = proc_mgr.add_chain('Overview')
+    ch = process_manager.add_chain('Overview')
     pds = core_ops.PrintDs(name='End')
     pds.keys = ['n_sum_rc']
     ch.add_link(pds)

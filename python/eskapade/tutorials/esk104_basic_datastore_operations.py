@@ -17,7 +17,7 @@ import logging
 
 from eskapade import ConfigObject
 from eskapade import core_ops
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk104_basic_datastore_operations')
 
@@ -26,7 +26,7 @@ log.debug('Now parsing configuration file esk104_basic_datastore_operations')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk104_basic_datastore_operations'
 settings['version'] = 0
 
@@ -53,7 +53,7 @@ g = {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 'favorite'}
 # - putting items in the datastore.
 # - displaying the contents of items in the datastore.
 
-ch = proc_mgr.add_chain('chain1')
+ch = process_manager.add_chain('chain1')
 
 # the link ToDsDict adds objects to the datastore
 # by default this happens at the execution of the link.
@@ -76,7 +76,7 @@ ch.add_link(link)
 # - asserting the presence of items in the datastore.
 # - deleting individual items from the datastore.
 
-ch = proc_mgr.add_chain('chain2')
+ch = process_manager.add_chain('chain2')
 
 # the link AssertInDs checks the presence
 # of certain objects in the datastore
@@ -98,7 +98,7 @@ ch.add_link(link)
 # chain 3
 # - deleting all items from the datastore.
 
-ch = proc_mgr.add_chain('chain3')
+ch = process_manager.add_chain('chain3')
 
 # default, delete everything from the datastore
 link = core_ops.DsObjectDeleter()
@@ -116,7 +116,7 @@ ch.add_link(link)
 # chain 4
 # - deleting all but certain items from the datastore.
 
-ch = proc_mgr.add_chain('chain4')
+ch = process_manager.add_chain('chain4')
 
 link = core_ops.AssertInDs()
 link.keySet = ['a', 'b']
@@ -134,7 +134,7 @@ ch.add_link(link)
 # chain 5
 # - moving, copying, or removing objects from the datastore
 
-ch = proc_mgr.add_chain('chain5')
+ch = process_manager.add_chain('chain5')
 
 link = core_ops.AssertInDs()
 link.keySet = ['a', 'b', 'c']

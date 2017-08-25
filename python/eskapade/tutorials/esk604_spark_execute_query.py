@@ -13,7 +13,7 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr, ConfigObject, resources, spark_analysis
+from eskapade import process_manager, ConfigObject, resources, spark_analysis
 from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.esk604_spark_execute_query')
@@ -23,14 +23,14 @@ log.debug('Now parsing configuration file esk604_spark_execute_query')
 ##########################################################################
 # Minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk604_spark_execute_query'
 settings['version'] = 0
 
 ##########################################################################
 # Start Spark session
 
-spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
+spark = process_manager.service(SparkManager).create_session(eskapade_settings=settings)
 
 ##########################################################################
 # CSV and dataframe settings
@@ -45,7 +45,7 @@ STORE_KEYS = ['spark_df1', 'spark_df2']
 ##########################################################################
 # Now set up the chains and links based on configuration flags
 
-proc_mgr.add_chain('Read')
+process_manager.add_chain('Read')
 
 # create read link for each data file
 for index, key in enumerate(STORE_KEYS):
@@ -58,7 +58,7 @@ for index, key in enumerate(STORE_KEYS):
     read_link.read_meth_kwargs['csv'] = dict(sep='|', header=True, inferSchema=True)
 
     # add link to chain
-    proc_mgr.get_chain('Read').add_link(read_link)
+    process_manager.get_chain('Read').add_link(read_link)
 
 # create SQL-query link
 sql_link = spark_analysis.SparkExecuteQuery(name='SparkSQL',
@@ -71,7 +71,7 @@ sql_link.query = 'SELECT loc, sum(x) as sumx, sum(y) as sumy ' \
                  'GROUP BY loc'.format(STORE_KEYS[0], STORE_KEYS[1])
 
 # add link to chain
-proc_mgr.add_chain('ApplySQL').add_link(sql_link)
+process_manager.add_chain('ApplySQL').add_link(sql_link)
 
 ##########################################################################
 

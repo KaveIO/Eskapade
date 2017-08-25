@@ -16,7 +16,7 @@
 # **********************************************************************************
 
 from eskapade import ConfigObject
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
@@ -24,7 +24,7 @@ from eskapade import process_manager as proc_mgr
 # turning on this flag, the datastore and configuration are not written out to disk
 # at the end of the program.
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['do_reduce'] = True
 settings['doNotStoreResults'] = True
 
@@ -33,4 +33,4 @@ settings['doNotStoreResults'] = True
 
 # the flag doNotStoreResults is picked up when parsing the following macro
 macro = settings['macrosDir'] + '/' + 'esk108_eventlooper.py'
-proc_mgr.execute_macro(macro)
+process_manager.execute_macro(macro)

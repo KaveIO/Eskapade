@@ -20,7 +20,7 @@ from pandas import DataFrame
 
 from eskapade import ConfigObject, DataStore
 from eskapade import core_ops, analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk204_apply_query_to_pandas_df')
 
@@ -29,7 +29,7 @@ log.debug('Now parsing configuration file esk204_apply_query_to_pandas_df')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk204_apply_query_to_pandas_df'
 settings['version'] = 0
 
@@ -45,13 +45,13 @@ settings['version'] = 0
 
 df = DataFrame(randn(100, 3), columns=list('abc'))
 
-ds = proc_mgr.service(DataStore)
+ds = process_manager.service(DataStore)
 ds['incoming_records'] = df
 
 #########################################################################################
 # --- Here we apply example selections to a dataframe picked up from the datastore. 
 
-ch = proc_mgr.add_chain('DataPrep')
+ch = process_manager.add_chain('DataPrep')
 
 # querySet = seletions that are applies to incoming_records
 # after selections, only keep column in selectColumns ('a', 'c')

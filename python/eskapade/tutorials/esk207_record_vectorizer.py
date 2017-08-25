@@ -16,7 +16,7 @@ import logging
 
 from eskapade import ConfigObject, resources
 from eskapade import core_ops, analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 
 log = logging.getLogger('macro.esk207_record_vectorizer')
@@ -26,7 +26,7 @@ log.debug('Now parsing configuration file esk207_record_vectorizer')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk207_record_vectorizer'
 settings['version'] = 0
 
@@ -39,7 +39,7 @@ data_path = resources.fixture('dummy.csv')
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch1 = proc_mgr.add_chain('MyChain1')
+ch1 = process_manager.add_chain('MyChain1')
 
 # --- read dummy dataset
 read_data = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)

@@ -44,7 +44,7 @@ import logging
 
 from pyspark.streaming import StreamingContext
 
-from eskapade import process_manager as proc_mgr, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
 from eskapade.core import persistence
 from eskapade.spark_analysis import SparkManager
 
@@ -54,7 +54,7 @@ log.debug('Now parsing configuration file esk610_spark_streaming')
 ##########################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk610_spark_streaming'
 settings['version'] = 0
 
@@ -77,7 +77,7 @@ stream_type = checkVar('stream_type')
 # --- start Spark session
 
 # create Spark Context
-sm = proc_mgr.service(SparkManager)
+sm = process_manager.service(SparkManager)
 sc = sm.create_session(eskapade_settings=settings).sparkContext
 
 # create Spark Streaming context
@@ -85,7 +85,7 @@ ssc = StreamingContext(sc, 1.0)
 sm.spark_streaming_context = ssc
 
 # define data stream
-ds = proc_mgr.service(DataStore)
+ds = process_manager.service(DataStore)
 
 if not stream_type or stream_type == 'file':
     ds['dstream'] = ssc.textFileStream('/tmp/')
@@ -97,22 +97,22 @@ else:
 ##########################################################################
 # --- now set up the chains and links based on configuration flags
 
-proc_mgr.add_chain('SparkStreaming')
+process_manager.add_chain('SparkStreaming')
 
 # the word count example
 wordcount_link = spark_analysis.SparkStreamingWordCount(
     name='SparkStreamingWordCount', read_key='dstream', store_key='wordcounts')
-proc_mgr.get_chain('SparkStreaming').add_link(wordcount_link)
+process_manager.get_chain('SparkStreaming').add_link(wordcount_link)
 
 # store output
 writer_link = spark_analysis.SparkStreamingWriter(
     name='SparkStreamingWriter', read_key=wordcount_link.store_key, path='file:' + persistence.io_dir(
         'results_data', settings.io_conf()) + '/dstream/wordcount', suffix='txt', repartition=1)
-proc_mgr.get_chain('SparkStreaming').add_link(writer_link)
+process_manager.get_chain('SparkStreaming').add_link(writer_link)
 
 # start/stop of Spark Streaming
 control_link = spark_analysis.SparkStreamingController(name='SparkStreamingController', timeout=10)
-proc_mgr.get_chain('SparkStreaming').add_link(control_link)
+process_manager.get_chain('SparkStreaming').add_link(control_link)
 
 ##########################################################################
 

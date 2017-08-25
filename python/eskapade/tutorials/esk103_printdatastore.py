@@ -20,7 +20,7 @@ import logging
 from eskapade import ConfigObject
 from eskapade import DataStore
 from eskapade import core_ops
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk103_printdatastore')
 
@@ -29,20 +29,20 @@ log.debug('Now parsing configuration file esk103_printdatastore')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk103_printdatastore'
 settings['version'] = 0
 
 #########################################################################################
 # --- for this macro, fill the datastore with some dummy information
 
-proc_mgr.service(DataStore)['hello'] = 'world'
-proc_mgr.service(DataStore)['d'] = {'a': 1, 'b': 2, 'c': 3}
+process_manager.service(DataStore)['hello'] = 'world'
+process_manager.service(DataStore)['d'] = {'a': 1, 'b': 2, 'c': 3}
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = proc_mgr.add_chain('Overview')
+ch = process_manager.add_chain('Overview')
 
 # printdatastore prints an overview of the contents in the datastore 
 # at the state of executing the link.

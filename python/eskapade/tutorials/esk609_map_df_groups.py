@@ -13,7 +13,7 @@
 
 import logging
 
-from eskapade import process_manager as proc_mgr, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
 from eskapade.spark_analysis import SparkManager
 
 log = logging.getLogger('macro.esk609_map_df_groups')
@@ -23,14 +23,14 @@ log.debug('Now parsing configuration file esk609_map_df_groups')
 ##########################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk609_map_df_groups'
 settings['version'] = 0
 
 ##########################################################################
 # --- start Spark session
 
-spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
+spark = process_manager.service(SparkManager).create_session(eskapade_settings=settings)
 
 
 ##########################################################################
@@ -47,7 +47,7 @@ def add_sum_bar(gr):
 ##########################################################################
 # --- input data
 
-ds = proc_mgr.service(DataStore)
+ds = process_manager.service(DataStore)
 rows = [(it, 'foo{:d}'.format(it), (it + 1) / 2.) for it in range(100)]
 ds['df'] = spark.createDataFrame(rows, schema=['index', 'foo', 'bar'])
 
@@ -55,7 +55,7 @@ ds['df'] = spark.createDataFrame(rows, schema=['index', 'foo', 'bar'])
 # --- now set up the chains and links based on configuration flags
 
 # create chain
-chain = proc_mgr.add_chain('Map')
+chain = process_manager.add_chain('Map')
 
 # create a link to convert the data frame into an RDD
 conv_lnk = spark_analysis.SparkDfConverter(name='DfConverter',

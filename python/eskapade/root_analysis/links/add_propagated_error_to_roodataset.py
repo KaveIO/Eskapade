@@ -73,10 +73,9 @@ class AddPropagatedErrorToRooDataSet(Link):
     def execute(self):
         """Execute AddPropagatedErrorToRooDataSet"""
 
-        proc_mgr = process_manager
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
-        ws = proc_mgr.service(RooFitManager).ws
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
+        ws = process_manager.service(RooFitManager).ws
 
         # retrieve data set
         if self.from_ws:

@@ -76,10 +76,8 @@ class SkipChainIfEmpty(Link):
         not present in the datastore.
         """
 
-        proc_mgr = process_manager
-
         # check if collection names are present in datastore
-        ds = proc_mgr.service(DataStore)
+        ds = process_manager.service(DataStore)
         for k in self.collectionSet:
             if k not in list(ds.keys()):
                 if self.skip_chain_when_key_not_in_ds:

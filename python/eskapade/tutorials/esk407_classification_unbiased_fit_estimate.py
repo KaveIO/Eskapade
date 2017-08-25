@@ -35,7 +35,7 @@ from ROOT import RooFit
 
 from eskapade import ConfigObject
 from eskapade import core_ops, root_analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk407_classification_unbiased_fit_estimate')
 
@@ -44,7 +44,7 @@ log.debug('Now parsing configuration file esk407_classification_unbiased_fit_est
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk407_classification_unbiased_fit_estimate'
 settings['version'] = 0
 
@@ -52,7 +52,7 @@ settings['version'] = 0
 # --- now set up the chains and links based on configuration flags
 
 # --- generate pdf, simulate, fit, and plot
-ch = proc_mgr.add_chain('WsOps')
+ch = process_manager.add_chain('WsOps')
 
 # 1. simulate output score of machine learning classifier
 wsu = root_analysis.WsUtils(name='DataSimulator')

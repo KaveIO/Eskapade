@@ -31,7 +31,7 @@ import logging
 
 from eskapade import ConfigObject
 from eskapade import core_ops, visualization, root_analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk404_workspace_createpdf_simulate_fit_plot')
 
@@ -40,7 +40,7 @@ log.debug('Now parsing configuration file esk404_workspace_createpdf_simulate_fi
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk404_workspace_createpdf_simulate_fit_plot'
 settings['version'] = 0
 
@@ -55,7 +55,7 @@ settings['summary'] = True
 
 if settings['generate_fit_plot']:
     # --- generate pdf, simulate, fit, and plot
-    ch = proc_mgr.add_chain('WsOps')
+    ch = process_manager.add_chain('WsOps')
 
     # --- 1. define a model by passing strings to the rooworkspace factory
     #     For the workspace factory syntax, see:
@@ -98,7 +98,7 @@ if settings['generate_fit_plot']:
     ch.add_link(wsu)
 
     # --- 5. convert simulated data to dataframe
-    ch = proc_mgr.add_chain('Conversion2')
+    ch = process_manager.add_chain('Conversion2')
 
     rds2df = root_analysis.ConvertRooDataSet2DataFrame()
     rds2df.read_key = 'simdata'
@@ -107,7 +107,7 @@ if settings['generate_fit_plot']:
     ch.add_link(rds2df)
 
 if settings['summary']:
-    proc_mgr.add_chain('Summary')
+    process_manager.add_chain('Summary')
 
     # print contents of the workspace
     pws = root_analysis.PrintWs()
@@ -121,7 +121,7 @@ if settings['summary']:
     # --- make a summary document of simulated dataframe
     summarizer = visualization.DfSummary(name='Create_stats_overview',
                                          read_key=rds2df.store_key)
-    proc_mgr.get_chain('Summary').add_link(summarizer)
+    process_manager.get_chain('Summary').add_link(summarizer)
 
 #########################################################################################
 

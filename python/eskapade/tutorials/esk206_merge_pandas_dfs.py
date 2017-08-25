@@ -20,7 +20,7 @@ from pandas import DataFrame
 
 from eskapade import ConfigObject, DataStore
 from eskapade import core_ops, analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk206_merge_pandas_dfs')
 
@@ -29,7 +29,7 @@ log.debug('Now parsing configuration file esk206_merge_pandas_dfs')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk206_merge_pandas_dfs'
 settings['version'] = 0
 
@@ -42,7 +42,7 @@ settings['version'] = 0
 # NB: realize that, normally, such dataframes are read or generated
 # on the fly during link execution.
 
-ds = proc_mgr.service(DataStore)
+ds = process_manager.service(DataStore)
 
 ds['left'] = DataFrame({'key': ['K0', 'K1', 'K2', 'K3'],
                         'A': ['A0', 'A1', 'A2', 'A3'],
@@ -55,7 +55,7 @@ ds['right'] = DataFrame({'key': ['K0', 'K1', 'K2', 'K3'],
 #########################################################################################
 # --- below we merge the two dataframes found in the datastore
 
-ch = proc_mgr.add_chain('DataPrep')
+ch = process_manager.add_chain('DataPrep')
 
 # inner-join the two dataframes with each other on 'key' during link execution
 link = analysis.DfMerger(input_collection1 ='left',

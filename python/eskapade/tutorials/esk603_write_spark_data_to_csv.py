@@ -13,7 +13,7 @@
 import logging
 from collections import OrderedDict as odict
 
-from eskapade import process_manager as proc_mgr, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
 from eskapade.core import persistence
 from eskapade.spark_analysis import SparkManager
 
@@ -24,14 +24,14 @@ log.debug('Now parsing configuration file esk603_read_csv_to_spark_df')
 ##########################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk603_read_csv_to_spark_df'
 settings['version'] = 0
 
 ##########################################################################
 # --- start Spark session
 
-spark = proc_mgr.service(SparkManager).create_session(eskapade_settings=settings)
+spark = process_manager.service(SparkManager).create_session(eskapade_settings=settings)
 
 ##########################################################################
 # --- CSV and data settings
@@ -46,7 +46,7 @@ rows = [(it, 'foo{:d}'.format(it), (it + 1) / 2.) for it in range(100)]
 ##########################################################################
 # --- Spark data
 
-ds = proc_mgr.service(DataStore)
+ds = process_manager.service(DataStore)
 ds['rdd'] = spark.sparkContext.parallelize(rows)
 ds['df'] = spark.createDataFrame(ds['rdd'], schema=columns)
 
@@ -86,7 +86,7 @@ for input_format in ('df', 'rdd'):
                                                  mode='overwrite')
 
 # add links to chain
-chain = proc_mgr.add_chain('Write')
+chain = process_manager.add_chain('Write')
 for lnk in writers.values():
     chain.add_link(lnk)
 

@@ -200,9 +200,8 @@ class FixPandasDataFrame(Link):
         - Make data types in each row consistent (by default ignoring all nans)
         """
 
-        proc_mgr = process_manager
-        settings = proc_mgr.service(ConfigObject)
-        ds = proc_mgr.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+        ds = process_manager.service(DataStore)
 
         # basic checks on contensts of the data frame
         if self.read_key not in ds:

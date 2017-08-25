@@ -67,10 +67,9 @@ class TruncExpFit(Link):
         self.check_arg_types(read_key=str, max_var_data_key=str, model_name=str, results_path=str)
         self.check_arg_vals('read_key', 'model_name')
 
-        # create process-manager and service instances
-        proc_mgr = process_manager
-        settings = proc_mgr.service(ConfigObject)
-        rfm = proc_mgr.service(RooFitManager)
+        # create service instances
+        settings = process_manager.service(ConfigObject)
+        rfm = process_manager.service(RooFitManager)
 
         # check if model exists
         model = rfm.model(self.model_name)
@@ -96,9 +95,8 @@ class TruncExpFit(Link):
         """Execute TruncExpFit"""
 
         # get process manager and services
-        proc_mgr = process_manager
-        ds = proc_mgr.service(DataStore)
-        rfm = proc_mgr.service(RooFitManager)
+        ds = process_manager.service(DataStore)
+        rfm = process_manager.service(RooFitManager)
 
         # get PDF from RooFitManager
         model = rfm.model(self.model_name)

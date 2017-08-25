@@ -17,7 +17,7 @@ import logging
 
 from eskapade import ConfigObject
 from eskapade import analysis, visualization
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk304_df_boxplot')
 
@@ -26,7 +26,7 @@ log.debug('Now parsing configuration file esk304_df_boxplot')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk304_df_boxplot'
 settings['version'] = 0
 
@@ -51,8 +51,8 @@ GEN_CONF = dict(var_a=dict(choice=['alpha', 'beta', 'gamma'], dtype=str), var_b=
 # --- now set up the chains and links based on configuration flags
 
 # create chains
-proc_mgr.add_chain('Data')
-proc_mgr.add_chain('BoxPlot')
+process_manager.add_chain('Data')
+process_manager.add_chain('BoxPlot')
 
 # add data-generator link to "Data" chain
 
@@ -61,7 +61,7 @@ generator = analysis.BasicGenerator(name='Generate_data',
                                     columns=COLUMNS,
                                     size=SIZE,
                                     gen_config=GEN_CONF)
-proc_mgr.get_chain('Data').add_link(generator)
+process_manager.get_chain('Data').add_link(generator)
 
 # add data-frame summary link to "Boxplot" chain
 # can provide labels and units for the variables in the dataset, and set the statistics to print in output file
@@ -73,7 +73,7 @@ box_plot = visualization.DfBoxplot(name='Create_stats_overview',
                                    column='var_b',
                                    cause_columns=['var_a', 'var_c'],
                                    results_path=persistence.io_path('results_data', settings.io_conf(), 'report'))
-proc_mgr.get_chain('BoxPlot').add_link(box_plot)
+process_manager.get_chain('BoxPlot').add_link(box_plot)
 
 #########################################################################################
 

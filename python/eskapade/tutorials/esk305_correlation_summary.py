@@ -18,7 +18,7 @@ import logging
 
 from eskapade import ConfigObject, resources
 from eskapade import analysis, visualization
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk305_correlation_summary')
 
@@ -27,7 +27,7 @@ log.debug('Now parsing configuration file esk305_correlation_summary')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk305_correlation_summary'
 settings['version'] = 0
 
@@ -43,8 +43,8 @@ settings['correlations'] = ['pearson', 'kendall', 'spearman', 'correlation_ratio
 # --- now set up the chains and links based on configuration flags
 
 # create chains
-proc_mgr.add_chain('Data')
-proc_mgr.add_chain('Summary')
+process_manager.add_chain('Data')
+process_manager.add_chain('Summary')
 
 # load data
 reader = analysis.ReadToDf(name='reader',
@@ -53,7 +53,7 @@ reader = analysis.ReadToDf(name='reader',
                            key='input_data',
                            reader=settings['reader'])
 
-proc_mgr.get_chain('Data').add_link(reader)
+process_manager.get_chain('Data').add_link(reader)
 
 # make visualizations of correlations
 corr_link = visualization.CorrelationSummary(name='correlation_summary',
@@ -61,7 +61,7 @@ corr_link = visualization.CorrelationSummary(name='correlation_summary',
                                              store_key='correlations',
                                              methods=settings['correlations'])
 
-proc_mgr.get_chain('Summary').add_link(corr_link)
+process_manager.get_chain('Summary').add_link(corr_link)
 
 #########################################################################################
 

@@ -18,7 +18,7 @@ import logging
 
 from eskapade import ConfigObject
 from eskapade import core_ops
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk105_datastore_pickling')
 
@@ -26,7 +26,7 @@ log.debug('Now parsing configuration file esk105_datastore_pickling')
 
 #########################################################################################
 # --- minimal analysis information
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk105_datastore_pickling'
 settings['version'] = 0
 
@@ -58,7 +58,7 @@ h = [2, 7]
 
 #########
 # chain 1
-ch = proc_mgr.add_chain('chain1')
+ch = process_manager.add_chain('chain1')
 
 # the link ToDsDict adds objects to the datastore at link execution.
 link = core_ops.ToDsDict(name='intods_1')
@@ -72,7 +72,7 @@ ch.add_link(link)
 
 #########
 # chain 2
-ch = proc_mgr.add_chain('chain2')
+ch = process_manager.add_chain('chain2')
 
 # the link AssertInDs checks the presence
 # of certain objects in the datastore
@@ -91,7 +91,7 @@ ch.add_link(link)
 
 #########
 # chain 3
-ch = proc_mgr.add_chain('chain3')
+ch = process_manager.add_chain('chain3')
 
 # the link AssertInDs checks the presence
 # of certain objects in the datastore

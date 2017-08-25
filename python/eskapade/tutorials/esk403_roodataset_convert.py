@@ -25,7 +25,7 @@ from pkg_resources import resource_filename
 
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, root_analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk403_roodataset_convert')
 
@@ -34,7 +34,7 @@ log.debug('Now parsing configuration file esk403_roodataset_convert')
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk403_roodataset_convert'
 settings['version'] = 0
 
@@ -46,7 +46,7 @@ input_files = [resource_filename('eskapade', '/data/mock_accounts.csv.gz')]
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = proc_mgr.add_chain('Data')
+ch = process_manager.add_chain('Data')
 
 # --- 0. read the input data
 #     all kwargs are passed on to pandas file reader.
@@ -54,7 +54,7 @@ read_data = analysis.ReadToDf(name='dflooper', key='accounts', reader='csv')
 read_data.path = input_files
 ch.add_link(read_data)
 
-ch = proc_mgr.add_chain('Conversion1')
+ch = process_manager.add_chain('Conversion1')
 
 # --- 1. add the record factorizer
 #     Here the columns dummy and loc of the input dataset are factorized
@@ -92,10 +92,10 @@ ch.add_link(pds)
 
 # --- you should do something to the roodataset here,
 #     possibly producting a new roodataset
-ch = proc_mgr.add_chain('Action')
+ch = process_manager.add_chain('Action')
 
 # --- example to convert a roodatset back to a pandas df
-ch = proc_mgr.add_chain('Conversion2')
+ch = process_manager.add_chain('Conversion2')
 
 # --- first, convert the roodataset back to a plain pandas dataframe
 rds2df = root_analysis.ConvertRooDataSet2DataFrame()

@@ -19,7 +19,7 @@
 import logging
 
 from eskapade import ConfigObject
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk105_C_begin_at_chain3')
 
@@ -29,7 +29,7 @@ log = logging.getLogger('macro.esk105_C_begin_at_chain3')
 # turning on this flag, the process manager starts off at chain3,
 # and does so by reading in the datastore written out after chain 2.
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['beginWithChain'] = 'chain3'
 
 msg = r"""
@@ -57,4 +57,4 @@ log.info(msg)
 
 # the flag doNotStoreResults is picked up when parsing the following macro
 macro = settings['macrosDir'] + '/' + 'esk105_datastore_pickling.py'
-proc_mgr.execute_macro(macro)
+process_manager.execute_macro(macro)

@@ -43,7 +43,7 @@ from pkg_resources import resource_filename
 
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, root_analysis
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk405_simulation_based_on_binned_data')
 
@@ -52,7 +52,7 @@ log.debug('Now parsing configuration file esk405_simulation_based_on_binned_data
 #########################################################################################
 # --- minimal analysis information
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk405_simulation_based_on_binned_data'
 settings['version'] = 0
 
@@ -66,7 +66,7 @@ input_files = [resource_filename('eskapade','/data/mock_accounts.csv.gz')]
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = proc_mgr.add_chain('Data')
+ch = process_manager.add_chain('Data')
 
 # --- 0. read input data
 read_data = analysis.ReadToDf(name='dflooper', key='accounts', reader='csv')
@@ -116,7 +116,7 @@ pds = core_ops.PrintDs()
 ch.add_link(pds)
 
 # --- 3. resimulate the data with the created hist-pdf, and plot these data and the pdf
-ch = proc_mgr.add_chain('WsOps')
+ch = process_manager.add_chain('WsOps')
 wsu = root_analysis.WsUtils()
 wsu.add_simulate(pdf='hpdf_Ndim', obs='rdh_vars', num=10000, key='simdata')
 wsu.add_plot(obs='age', data='simdata', pdf='hpdf_Ndim', output_file='test.pdf',

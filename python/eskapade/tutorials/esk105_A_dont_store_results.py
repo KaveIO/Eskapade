@@ -18,7 +18,7 @@
 import logging
 
 from eskapade import ConfigObject
-from eskapade import process_manager as proc_mgr
+from eskapade import process_manager
 
 log = logging.getLogger('macro.esk105_A_dont_store_results')
 
@@ -28,7 +28,7 @@ log = logging.getLogger('macro.esk105_A_dont_store_results')
 # turning on this flag, the datastore and configuration are not written out to disk
 # at the end of the program.
 
-settings = proc_mgr.service(ConfigObject)
+settings = process_manager.service(ConfigObject)
 settings['doNotStoreResults'] = True
 
 msg = r"""
@@ -46,4 +46,4 @@ log.info(msg)
 
 # the flag doNotStoreResults is picked up when parsing the following macro
 macro = settings['macrosDir'] + '/' + 'esk105_datastore_pickling.py'
-proc_mgr.execute_macro(macro)
+process_manager.execute_macro(macro)
