@@ -28,7 +28,7 @@ set(REQUIRED_ROOT_VERSION 6.08.06)
 # The set of options that ROOT should have been compiled with.
 set(ROOT_OPTIONS cxx11 fftw3 mathmore python roofit soversion thread tmva)
 # The set of components that should be present in ROOT.
-set(ROOT_COMPONENTS Minuit2 PyROOT RooFitCore RooFit TMVA)
+set(ROOT_COMPONENTS Minuit2 PyROOT RooFitCore RooFit RooStats TMVA)
 
 # Include cmake/Common.cmake.
 include(Common)
