@@ -1,3 +1,4 @@
+# flake8: noqa
 from eskapade.core import definitions
 from eskapade.core import execution
 from eskapade.core import persistence

@@ -4,7 +4,7 @@
 # * Created: 2017/02/17                                                            *
 # * Description:                                                                   *
 # *      Macro that illustrates how to loop over multiple (possibly large!)        *
-# *      datasets in chunks, in each loop fill a (common) histogram, and plot the  * 
+# *      datasets in chunks, in each loop fill a (common) histogram, and plot the  *
 # *      final histogram.
 # *                                                                                *
 # * Authors:                                                                       *
@@ -15,15 +15,12 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
+from eskapade import analysis, core_ops, process_manager, resources, visualization, ConfigObject
+from eskapade.logger import Logger, LogLevel
 
-from eskapade import ConfigObject, resources
-from eskapade import core_ops, analysis, visualization
-from eskapade import process_manager
+logger = Logger()
 
-log = logging.getLogger('macro.esk302_histogram_filler_plotter')
-
-log.debug('Now parsing configuration file esk302_histogram_filler_plotter')
+logger.debug('Now parsing configuration file esk302_histogram_filler_plotter.')
 
 #########################################################################################
 # --- minimal analysis information
@@ -36,9 +33,9 @@ settings['version'] = 0
 msg = r"""
 
 The plots and latex files produced by link hist_summary can be found in dir:
-%s
-""" % (settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/report/')
-log.info(msg)
+{path}
+"""
+logger.info(msg, path=settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/report/')
 
 # --- Analysis configuration flags.
 #     E.g. use these flags turn on or off certain chains with links.
@@ -57,6 +54,7 @@ input_files = [resources.fixture('mock_accounts.csv.gz'),
 
 
 def to_date(x):
+    """Convert to timestamp."""
     import pandas as pd
     try:
         ts = pd.Timestamp(x.split()[0])
@@ -79,7 +77,7 @@ if settings['do_loop']:
     #     then move on to the next chain (Overview)
 
     # --- readdata keeps on opening the next 400 lines of the open or next file in the file list.
-    #     all kwargs are passed on to pandas file reader. 
+    #     all kwargs are passed on to pandas file reader.
     read_data = analysis.ReadToDf(name='dflooper', key='rc', reader='csv')
     read_data.chunksize = chunk_size
     read_data.path = input_files
@@ -96,7 +94,7 @@ if settings['do_loop']:
     vc = analysis.ValueCounter()
     vc.read_key = 'rc'
     vc.store_key_hists = 'hist'
-    vc.set_log_level(logging.DEBUG)
+    vc.logger.log_level = LogLevel.DEBUG
     # colums that are picked up to do value_counting on in the input dataset
     # note: can also be 2-dim: ['isActive','age']
     # in this example, the rest are one-dimensional histograms
@@ -104,10 +102,11 @@ if settings['do_loop']:
                   ['isActive', 'age']]
     # binning is apply to all input columns that are numeric or timestamps.
     # default binning is: bin_width = 1, bin_offset = 0
-    # for timestamps, default binning is: { 'bin_width': np.timedelta64(30,'D'), 'bin_offset': np.datetime64('2010-01-04') } }
-    vc.bin_specs = {'longitude': {'bin_width': 5, 'bin_offset': 0}, \
+    # for timestamps, default binning is:
+    # { 'bin_width': np.timedelta64(30,'D'), 'bin_offset': np.datetime64('2010-01-04') } }
+    vc.bin_specs = {'longitude': {'bin_width': 5, 'bin_offset': 0},
                     'latitude': {'bin_width': 5, 'bin_offset': 0}}
-    # as we are running in a loop, store the resulting histograms in the finalize() of the link, 
+    # as we are running in a loop, store the resulting histograms in the finalize() of the link,
     # after having looped through all (small) datasets.
     vc.store_at_finalize = True
     ch.add_link(vc)
@@ -115,11 +114,11 @@ if settings['do_loop']:
     # --- this serves as the continue statement of the loop. go back to start of the chain.
     repeater = core_ops.RepeatChain()
     # repeat until readdata says halt.
-    repeater.listenTo = 'chainRepeatRequestBy_' + read_data.name
+    repeater.listen_to = 'chainRepeatRequestBy_' + read_data.name
     ch.add_link(repeater)
 
     link = core_ops.DsObjectDeleter()
-    link.keepOnly = ['hist', 'n_sum_rc']
+    link.keep_only = ['hist', 'n_sum_rc']
     ch.add_link(link)
 
 # --- print contents of the datastore
@@ -135,4 +134,4 @@ process_manager.get_chain('Overview').add_link(hist_summary)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk302_histogram_filler_plotter')
+logger.debug('Done parsing configuration file esk302_histogram_filler_plotter.')

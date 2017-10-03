@@ -12,16 +12,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject, resources
 from eskapade import core_ops, analysis
 from eskapade import process_manager
+from eskapade.logger import Logger, LogLevel
 
+logger = Logger()
 
-log = logging.getLogger('macro.esk208_record_factorizer')
-
-log.debug('Now parsing configuration file esk208_record_factorizer')
+logger.debug('Now parsing configuration file esk208_record_factorizer')
 
 #########################################################################################
 # --- minimal analysis information
@@ -60,7 +58,7 @@ fact.columns = ['dummy', 'loc']
 fact.read_key = 'test1'
 fact.store_key = 'test1_fact'
 fact.sk_map_to_original = 'to_original'
-fact.set_log_level(logging.DEBUG)
+fact.logger.log_level = LogLevel.DEBUG
 ch1.add_link(fact)
 
 # --- print contents of the datastore
@@ -76,7 +74,7 @@ refact = analysis.RecordFactorizer(name='rf2')
 refact.read_key = fact.store_key
 refact.store_key = 'test1_refact'
 refact.map_to_original = fact.sk_map_to_original
-refact.set_log_level(logging.DEBUG)
+refact.logger.log_level = LogLevel.DEBUG
 ch2.add_link(refact)
 
 # --- print contents of the datastore
@@ -86,4 +84,4 @@ ch2.add_link(pds)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk208_record_factorizer')
+logger.debug('Done parsing configuration file esk208_record_factorizer')

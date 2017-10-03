@@ -19,12 +19,13 @@ import uuid
 
 import ROOT
 
-from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, Link, DataStore, StatusCode
 from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class AddPropagatedErrorToRooDataSet(Link):
-    """Evaluates errors on a provided roofit function
+
+    """Evaluates errors on a provided roofit function.
 
     The evaluated errors are added as a new column to the input dataset.
     Optionally, the evaluated function values are added as a column to the
@@ -32,7 +33,7 @@ class AddPropagatedErrorToRooDataSet(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize AddPropagatedErrorToRooDataSet instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str data: key of input data to read from data store or workspace
@@ -44,7 +45,6 @@ class AddPropagatedErrorToRooDataSet(Link):
         :param str function_error_name: column name assigned to propagated errors that are appended to data
         :param bool add_function_to_data: add column of the function values to the data. Default is true
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'AddPropagatedErrorToRooDataSet'))
 
@@ -62,8 +62,7 @@ class AddPropagatedErrorToRooDataSet(Link):
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
-        """Initialize AddPropagatedErrorToRooDataSet"""
-
+        """Initialize the link."""
         # check input arguments are filled strings
         self.check_arg_types(data=str, function=str, fit_result=str, function_error_name=str)
         self.check_arg_vals('data', 'function', 'fit_result', 'function_error_name')
@@ -71,53 +70,51 @@ class AddPropagatedErrorToRooDataSet(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute AddPropagatedErrorToRooDataSet"""
-
-        settings = process_manager.service(ConfigObject)
+        """Execute the link."""
         ds = process_manager.service(DataStore)
         ws = process_manager.service(RooFitManager).ws
 
         # retrieve data set
         if self.from_ws:
             thedata = ws.data(self.data)
-            assert thedata is not None, 'key "%s" not in workspace' % self.data
+            assert thedata is not None, 'key "{}" not in workspace'.format(self.data)
         else:
-            assert self.data in ds, 'key "%s" not found in datastore' % self.data
+            assert self.data in ds, 'key "{}" not found in datastore'.format(self.data)
             thedata = ds[self.data]
         if not isinstance(thedata, ROOT.RooDataSet):
-            raise TypeError('retrieved object "%s" not of type RooDataSet, but: %s' % (self.data, type(thedata)))
-        assert thedata.numEntries() > 0, 'RooDataSet "%s" is empty.' % self.data
+            raise TypeError('retrieved object "{}" not of type RooDataSet, but: {}'.format(self.data, type(thedata)))
+        assert thedata.numEntries() > 0, 'RooDataSet "{}" is empty.'.format(self.data)
 
         # retrieve function to propagate
         if self.from_ws:
             func = ws.function(self.function)
-            assert func is not None, 'key %s not in workspace' % self.function
+            assert func is not None, 'key {} not in workspace'.format(self.function)
         else:
-            assert self.function in ds, 'key "%s" not found in datastore' % self.function
+            assert self.function in ds, 'key "{}" not found in datastore'.format(self.function)
             func = ds[self.function]
         if not isinstance(func, ROOT.RooAbsReal):
-            raise TypeError('retrieved object "%s" not of type RooAbsReal, but: %s' % (self.function, type(func)))
+            raise TypeError('retrieved object "{}" not of type RooAbsReal, but: {}'.format(self.function, type(func)))
 
         # retrieve fit result to propagate errors of
         if self.from_ws:
             fit_result = ws.obj(self.fit_result)
-            assert func is not None, 'key %s not in workspace' % self.fit_result
+            assert func is not None, 'key {} not in workspace'.format(self.fit_result)
         else:
-            assert self.fit_result in ds, 'key "%s" not found in datastore' % self.fit_result
+            assert self.fit_result in ds, 'key "{}" not found in datastore'.format(self.fit_result)
             fit_result = ds[self.fit_result]
         if not isinstance(fit_result, ROOT.RooFitResult):
-            raise TypeError('retrieved object "%s" not of type RooAbsReal, but: %s' % (self.fit_result,
-                                                                                       type(fit_result)))
+            raise TypeError('retrieved object "{}" not of type RooAbsReal, but: {}'
+                            .format(self.fit_result, type(fit_result)))
 
         # determine the observables of the function (= all non-fit parameters)
         # and check they are present in the input dataset
         pars_obs = [po.GetName() for po in func.getParameters(0)]
         pars = [p.GetName() for p in fit_result.floatParsFinal()]
         obs_names = [item for item in pars_obs if item not in pars]
-        assert len(obs_names), 'no observables needed for function "%s"?' % self.function
+        assert len(obs_names), 'no observables needed for function "{}"?'.format(self.function)
         obs_set = thedata.get()
         for o in obs_names:
-            assert o in obs_set, 'observable "%s" not in dataset "%s"' % (o, self.data)
+            assert o in obs_set, 'observable "{}" not in dataset "{}"'.format(o, self.data)
 
         # retrieve observables
         obs = ','.join(obs_names)
@@ -132,10 +129,10 @@ class AddPropagatedErrorToRooDataSet(Link):
             if not failure:
                 theobs = ws.set(temp_obs)
             else:
-                raise RuntimeError('unable to retrieve (/create) observables with name "%s"' % obs)
-        else:
+                raise RuntimeError('unable to retrieve (/create) observables with name "{}"'.format(obs))
+        if not theobs:
             raise RuntimeError('unable to retrieve (/create) observables')
-        assert isinstance(theobs, ROOT.RooArgSet), 'retrieved object "%s" not of type RooArgSet' % obs
+        assert isinstance(theobs, ROOT.RooArgSet), 'retrieved object "{}" not of type RooArgSet'.format(obs)
 
         # all okay, here we go ...
 

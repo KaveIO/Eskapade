@@ -1,6 +1,6 @@
 # **************************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                       *
-# * Created : 2015-09-16                                                               *
+# * Created : 2017-08-08                                                               *
 # *                                                                                    *
 # * Description:                                                                       *
 # *      Collection of eskapade entry points                                           *
@@ -13,20 +13,24 @@
 # * LICENSE.                                                                           *
 # **************************************************************************************
 
-import logging
+from eskapade import _bootstrap as bootstrap
+from eskapade.logger import LogLevel, Logger, global_log_publisher, ConsoleHandler, ConsoleErrHandler
 
-logging.basicConfig(
-    format='%(asctime)-15s [%(levelname)s] %(funcName)s: %(message)s',
-    level=logging.INFO,
-)
+publisher = global_log_publisher
+publisher.log_level = LogLevel.INFO
+publisher.add_handler(ConsoleHandler())
+publisher.add_handler(ConsoleErrHandler())
+
+logger = Logger(__name__)
 
 
 def eskapade_ignite():
-    print('Boom!')
+    """Log info message."""
+    logger.info('Boom!')
 
 
 def eskapade_run():
-    """Run Eskapade
+    """Run Eskapade.
 
     Top-level entry point for an Eskapade run started from the
     command line.  Arguments specified by the user are parsed and
@@ -36,7 +40,7 @@ def eskapade_run():
     import IPython
     import pandas as pd
 
-    from eskapade import core, process_manager, ConfigObject, DataStore
+    from eskapade import core, ConfigObject
     from eskapade.core.run_utils import create_arg_parser
 
     # create parser for command-line arguments
@@ -64,16 +68,12 @@ def eskapade_run():
 
     # start interpreter if requested (--interactive on command line)
     if settings.get('interactive'):
-        # get process manager, config object, and data store
-        settings = process_manager.service(ConfigObject)
-        ds = process_manager.service(DataStore)
-
         # set Pandas display options
         pd.set_option('display.width', 120)
         pd.set_option('display.max_columns', 50)
 
         # start interactive session
-        logging.info("Continuing interactive session ... press Ctrl+d to exit.\n")
+        logger.info("Continuing interactive session ... press Ctrl+d to exit.\n")
         IPython.embed()
 
 
@@ -85,7 +85,6 @@ def eskapade_trial():
     hard coded. Gotta come up with
     a better solution.
     """
-
     import sys
     import pytest
 
@@ -96,154 +95,121 @@ def eskapade_trial():
     sys.exit(pytest.main(args))
 
 
-def eskapade_generate_link():
-    """Generate Eskapde link.
+def _add_project_dir_argument(parser, arg_name, dir_type):
+    """Add a project directory argument to a parser.
 
-    :return:
+    :param parser: argparse
+    :param arg_name: argument's name
+    :param dir_type: type of the directory to be created
     """
-
-    import argparse
     import os
-    import sys
-    import datetime
 
-    # Do not modify the indentation of template!
-    template = """
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : {link_name!s}
-# * Created: {date_generated!s}
-# * Description:                                                                   *
-# *      Algorithm to do...(fill in one-liner here)                                *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
-/
-
-from eskapade import process_manager
-from eskapade import ConfigObject
-from eskapade import Link
-from eskapade import DataStore
-from eskapade import StatusCode
-
-class {link_name!s}(Link):
-    \"\"\"Defines the content of link {link_name!s}\"\"\"
-
-    def __init__(self, **kwargs):
-        \"\"\"Initialize {link_name!s} instance
-
-        :param str name: name of link
-        :param str read_key: key of input data to read from data store
-        :param str store_key: key of output data to store in data store
-        \"\"\"
-
-        # initialize Link, pass name from kwargs
-        Link.__init__(self, kwargs.pop('name', {link_name!s}))
-
-        # Process and register keyword arguments.  All arguments are popped from
-        # kwargs and added as attributes of the link.  The values provided here
-        # are defaults.
-        self._process_kwargs(kwargs, read_key=None, store_key=None)
-
-        # check residual kwargs; exit if any present
-        self.check_extra_kwargs(kwargs)
-        # Turn off line above, and on two lines below if you wish to keep these
-        # extra kwargs.
-        #self.kwargs = kwargs
-
-    def initialize(self):
-        \"\"\"Initialize {link_name!s}
-
-        :returns: status code of initialization
-        :rtype: StatusCode
-        \"\"\"
-
-        return StatusCode.Success
-
-    def execute(self):
-        \"\"\"Execute {link_name!s}
-
-        :returns: status code of execution
-        :rtype: StatusCode
-        \"\"\"
-
-        settings = process_manager.service(ConfigObject)
-        ds = process_manager.service(DataStore)
-
-        # --- your algorithm code goes here
-
-        self.log().debug('Now executing link: %s', self.name)
-
-        return StatusCode.Success
-
-    def finalize(self):
-        \"\"\"Finalize {link_name!s}
-
-        :returns: status code of finalization
-        :rtype: StatusCode
-        \"\"\"
-
-        # --- any code to finalize the link follows here
-
-        return StatusCode.Success
-
-"""
-
-    parser = argparse.ArgumentParser('eskapade_generate_link')
-    parser.add_argument('link_name',
-                        help='The name of the link to generate.',
-                        )
-    parser.add_argument('--links_root_dir',
+    parser.add_argument('--{arg_name}'.format(arg_name=arg_name),
                         nargs='?',
                         default=os.getcwd(),
-                        help='The analysis project root directory. Default is: ' + os.getcwd(),
-                        )
+                        help='The analysis project {dir_type} directory. Default is: {default}.'
+                        .format(dir_type=dir_type, default=os.getcwd()), )
+
+
+def eskapade_generate_link():
+    """Generate Eskapade link.
+
+    By default does not create init file.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser('eskapade_generate_link',
+                                     description='Generate Eskapade link.')
+    parser.add_argument('name',
+                        help='The name of the link to generate.', )
+    _add_project_dir_argument(parser, 'dir', 'links')
+    parser.add_argument('--create_init',
+                        nargs='?',
+                        default=False,
+                        type=bool,
+                        help='Whether to create __init__.py file or no. Default is: False.', )
     args = parser.parse_args()
 
-    # First expand ~ if present.
-    # Second take care of any . or ..
-    links_dir = os.path.abspath(os.path.expanduser(args.links_root_dir)) + '/links'
+    if args.name == 'Link':
+        raise AttributeError('Link is reserved by Eskapade. Please, choose different name for the link.')
 
-    status = 0
+    path = bootstrap.get_absolute_path(args.dir)
 
-    try:
-        logging.info('Creating links directory {dir!s}'.format(dir=links_dir))
-        os.makedirs(links_dir, exist_ok=True)
-    except PermissionError as e:
-        logging.error('Failed to create links directory {dir!s}! error={err!s}'
-                      .format(dir=links_dir, err=e.strerror))
-        status = e.errno
+    bootstrap.create_dir(path)
+    bootstrap.generate_link(path, args.name, args.create_init)
 
-    if status == 0:
 
-        try:
-            logging.info('Creating __init__.py in links directory {dir!s}'.format(dir=links_dir))
-            fp = open(links_dir + '/__init__.py', 'w')
-        except PermissionError:
-            logging.error('Failed to create __init__.py in links directory {dir!s}! error={err!s}'
-                          .format(dir=links_dir, err=e.strerror))
-            status = e.errno
-        else:
-            with fp:
-                fp.write('# Created by Eskapade on {date!s}'.format(date=datetime.date.today()))
+def eskapade_generate_macro():
+    """Generate Eskapade macro."""
+    import argparse
 
-    if status == 0:
+    parser = argparse.ArgumentParser('eskapade_generate_macro',
+                                     description='Generate Eskapade macro.')
+    parser.add_argument('name',
+                        help='The name of the macro to generate.', )
+    _add_project_dir_argument(parser, 'dir', 'macros')
+    args = parser.parse_args()
 
-        try:
-            logging.info('Creating {link_name!s}.py links directory {dir!s}'
-                         .format(link_name=args.link_name, dir=links_dir))
-            fp = open(links_dir + '/{link_name!s}.py'.format(link_name=args.link_name), 'w')
-        except PermissionError:
-            logging.error('Failed to create {link_name!s}.py in links directory {dir!s}! error={err!s}'
-                          .format(link_name=args.link_name, dir=links_dir, err=e.strerror))
-            status = e.errno
-        else:
-            with fp:
-                fp.write(template.format(link_name=args.link_name, date_generated=datetime.date.today()))
+    path = bootstrap.get_absolute_path(args.dir)
 
-    return sys.exit(status)
+    bootstrap.create_dir(path)
+    bootstrap.generate_macro(path, args.name, False)
+
+
+def eskapade_generate_notebook():
+    """Generate Eskapade notebook."""
+    import argparse
+
+    parser = argparse.ArgumentParser('eskapade_generate_notebook',
+                                     description='Generate Eskapade notebook.')
+    parser.add_argument('name',
+                        help='The name of the notebook to generate.', )
+    _add_project_dir_argument(parser, 'dir', 'notebooks')
+    args = parser.parse_args()
+
+    path = bootstrap.get_absolute_path(args.dir)
+
+    bootstrap.create_dir(path)
+    bootstrap.generate_notebook(notebook_dir=path, notebook_name=args.name)
+
+
+def eskapade_bootstrap():
+    """Generate Eskapade project structure."""
+    import argparse
+
+    parser = argparse.ArgumentParser('eskapade_bootstrap',
+                                     description='Generate Eskapade project structure.',
+                                     epilog='Please note, existing files with the same names will be rewritten.')
+    parser.add_argument('project_name',
+                        help='The name of the project to generate.', )
+    _add_project_dir_argument(parser, 'project_root_dir', 'root')
+    parser.add_argument('--macro_name', '-m',
+                        nargs='?',
+                        help='The name of the macro to generate. Default is: macro.',
+                        default='macro', )
+    parser.add_argument('--link_name', '-l',
+                        nargs='?',
+                        help='The name of the link to generate. Default is: ExampleLink.',
+                        default='ExampleLink', )
+    parser.add_argument('--notebook_name', '-n',
+                        nargs='?',
+                        help='The name of the notebook to generate. Default is: notebook.',
+                        default='notebook', )
+    args = parser.parse_args()
+
+    if args.link_name == 'Link':
+        raise AttributeError('Link is reserved by Eskapade. Please, choose different name for the link.')
+    if args.project_name.lower() == 'eskapade':
+        raise AttributeError('eskapade is reserved by Eskapade. Please, choose different name for the project.')
+
+    project_dir = bootstrap.get_absolute_path(args.project_root_dir) + '/' + args.project_name
+    link_dir = project_dir + '/links'
+    marco_path = project_dir + '/' + args.macro_name + '.py'
+
+    # create the directories
+    bootstrap.create_dir(link_dir)
+    bootstrap.generate_link(link_dir=link_dir, link_name=args.link_name, is_create_init=True)
+    bootstrap.generate_macro(macro_dir=project_dir, macro_name=args.macro_name,
+                             link_module=args.project_name, link_name=args.link_name, is_create_init=True)
+    bootstrap.generate_notebook(notebook_dir=project_dir, notebook_name=args.notebook_name, macro_path=marco_path)
+    bootstrap.generate_setup(root_dir=args.project_root_dir, project_name=args.project_name)

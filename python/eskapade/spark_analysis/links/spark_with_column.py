@@ -20,7 +20,8 @@ from eskapade import process_manager, DataStore, Link, StatusCode
 
 
 class SparkWithColumn(Link):
-    """Create a new column from columns in a Spark dataframe
+
+    """Create a new column from columns in a Spark dataframe.
 
     SparkWithColumn applies a (user-defined) function to column(s) in a
     Spark dataframe and adds its output as a new column to the same
@@ -28,7 +29,7 @@ class SparkWithColumn(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize SparkWithColumn instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of data to read from data store
@@ -39,7 +40,6 @@ class SparkWithColumn(Link):
                                 the function is applied, together with col_usage (use all columns if not specified)
         :param list col_usage: use columns in col_select ('include') or any other columns in dataframe ('exclude')
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'SparkWithColumn'))
 
@@ -52,8 +52,7 @@ class SparkWithColumn(Link):
         self.schema = None
 
     def initialize(self):
-        """Initialize SparkWithColumn"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(read_key=str, store_key=str, col_usage=str, new_column=str)
         self.check_arg_vals('read_key', 'new_column')
@@ -68,8 +67,7 @@ class SparkWithColumn(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute SparkWithColumn"""
-
+        """Execute the link."""
         # fetch data frame
         ds = process_manager.service(DataStore)
         spark_df = ds[self.read_key]

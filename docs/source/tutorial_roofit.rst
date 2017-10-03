@@ -23,7 +23,7 @@ Move to the directory:
 
 .. code-block:: bash
 
-   $ cd $ESKAPADE/cxx/roofit/src/
+   $ cd $ESKAPADE/cxx/esroofit/src/
 
 Start an interactive python session and type:
 
@@ -61,27 +61,29 @@ itself. (Of course this is a costly operation.) If you wish, since we know the a
 go ahead and edit ``MyPdfV2.cxx`` to add the expression of the analytical integral to the class.
 
 As another example of a simple pdf class, take a look at the expressions in the file:
-``$ESKAPADE/cxx/roofit/src/RooWeibull.cxx``.
+``$ESKAPADE/cxx/esroofit/src/RooWeibull.cxx``.
 
 Now move the header files to their correct location:
 
 .. code-block:: bash
 
-   $ mv MyPdfV*.h $ESKAPADE/cxx/roofit/include/
+   $ mv MyPdfV*.h $ESKAPADE/cxx/esroofit/include/
 
-To make sure that these classes get picked up in Eskapade roofit libary, open the file ``$ESKAPADE/cxx/roofit/dict/LinkDef.h`` and add the lines:
+To make sure that these classes get picked up in Eskapade roofit libary, open the file ``$ESKAPADE/cxx/esroofit/dict/esroofit/LinkDef.h`` and add the lines:
 
 .. code-block:: c
 
    #pragma link C++ class MyPdfV2+;
    #pragma link C++ class MyPdfV3+;
 
-Finally, let's compile the c++ code of these classes:
+Finally, let's compile the C++ code of these classes:
 
 .. code-block:: bash
 
-   $ cd $ESKAPADE
-   $ make install
+   $ mkdir $ESKAPADE/build
+   $ cd $ESKAPADE/build
+   $ cmake ../cxx/esroofit
+   $ cmake --build .
 
 You should see the compiler churning away, processing several existing classes but also ``MyPdfV2`` and ``MyPdfV3``.
 
@@ -99,7 +101,7 @@ In fact, this last snippet of code is used in the tutorial macro right below.
 Running the tutorial macro
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's take a look at the steps in tutorial macro  ``$ESKAPADE/tutorials/tutorial_4.py``.
+Let's take a look at the steps in tutorial macro  ``$ESKAPADE/python/eskapade/tutorials/tutorial_4.py``.
 The macro illustrates how do basic statistical data analysis with roofit, by making use of the ``RooWorkspace`` functionality.
 A ``RooWorkspace`` is a persistable container for RooFit projects. A workspace can contain and own variables, p.d.f.s, functions and datasets.
 The example shows how to define a pdf, simulate data, fit this data, and then plot the fit result.
@@ -109,9 +111,7 @@ The next step is to run the tutorial macro.
 
 .. code-block:: bash
 
-  $ cd $ESKAPADE
-  $ source setup.sh
-  $ run_eskapade.py tutorials/tutorial_4.py
+  $ eskapade_run $ESKAPADE/python/eskapade/tutorials/tutorial_4.py
 
 Let's discuss what we are seeing on the screen.
 
@@ -131,13 +131,13 @@ The macro first checks the existence of the class ``MyPdfV3`` that we just creat
 
    # --- check existence of class MyPdfV3 in ROOT
    pdf_name = 'MyPdfV3'
-   log.info('Now checking existence of ROOT class %s' % pdf_name)
+   logger.info('Now checking existence of ROOT class {name}', name=pdf_name)
    cl = ROOT.TClass.GetClass(pdf_name)
    if not cl:
-       log.critical('Could not find ROOT class %s. Did you build and compile it correctly?' % pdf_name)
+       logger.fatal('Could not find ROOT class {name}. Did you build and compile it correctly?', name=pdf_name)
        sys.exit(1)
    else:
-       log.info('Successfully found ROOT class %s' % pdf_name)
+       logger.info('Successfully found ROOT class {name}', name=pdf_name)
 
 In the output on the screen, look for ``Now checking existence of ROOT class MyPdfV3``. If this was successful,
 it should then say ``Successfully found class MyPdfV3``.
@@ -243,5 +243,5 @@ summary tables of the floating and fixed parameters in the fit, as well as the p
 Other ROOT Examples in Eskapade
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Other example Eskapade macros using ROOT and RooFit can be found in the ``$ESKAPADE/tutorials`` directory,
-e.g. see ``esk401_roothist_fill_plot_convert.py`` and all other 400 numbered macros.
+Other example Eskapade macros using ROOT and RooFit can be found in the ``$ESKAPADE/python/eskapade/tutorials``
+directory, e.g. see ``esk401_roothist_fill_plot_convert.py`` and all other 400 numbered macros.

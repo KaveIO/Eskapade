@@ -11,17 +11,17 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
 from collections import OrderedDict as odict
 
 import pandas as pd
 
 from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
-log = logging.getLogger('macro.esk605_create_spark_df')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk605_create_spark_df')
+logger.debug('Now parsing configuration file esk605_create_spark_df.')
 
 ##########################################################################
 # --- minimal analysis information
@@ -51,6 +51,10 @@ ds['pd'] = pd.DataFrame(ds['rows'], columns=schema.keys())  # Pandas data frame
 
 # define function to set number of partitions
 def set_num_parts(df, max_num_parts):
+    """Set number of partitions.
+
+    :param max_num_parts maximum number of partitions
+    """
     if df.rdd.getNumPartitions() > max_num_parts:
         df = df.repartition(max_num_parts)
     return df
@@ -75,4 +79,4 @@ for ds_key, lnk_schema in zip(('rows', 'rdd', 'df', 'pd'), (list(schema.keys()),
 
 ##########################################################################
 
-log.debug('Done parsing configuration file esk605_create_spark_df')
+logger.debug('Done parsing configuration file esk605_create_spark_df.')

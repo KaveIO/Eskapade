@@ -1,12 +1,12 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk103_printdatastore                                                         
+# * Macro  : esk103_printdatastore
 # * Created: 2017/02/15                                                            *
 # * Description:                                                                   *
 # *      Macro to illustrate the use of the Printdatastore link.
 # *      Prindatastore prints an overview of the contents in the
 # *      datastore at the state of running
-# *      
+# *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands
 # *                                                                                *
@@ -15,16 +15,12 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
+from eskapade import core_ops, process_manager, ConfigObject, DataStore
+from eskapade.logger import Logger
 
-from eskapade import ConfigObject
-from eskapade import DataStore
-from eskapade import core_ops
-from eskapade import process_manager
+logger = Logger()
 
-log = logging.getLogger('macro.esk103_printdatastore')
-
-log.debug('Now parsing configuration file esk103_printdatastore')
+logger.debug('Now parsing configuration file esk103_printdatastore')
 
 #########################################################################################
 # --- minimal analysis information
@@ -44,9 +40,9 @@ process_manager.service(DataStore)['d'] = {'a': 1, 'b': 2, 'c': 3}
 
 ch = process_manager.add_chain('Overview')
 
-# printdatastore prints an overview of the contents in the datastore 
+# printdatastore prints an overview of the contents in the datastore
 # at the state of executing the link.
-# The overview consists of list of keys in the datastore and and the object types. 
+# The overview consists of list of keys in the datastore and and the object types.
 link = core_ops.PrintDs()
 # keys are the items for which the contents of the actual item is printed.
 # if the key is not known ('foo'), then it is skipped.
@@ -55,4 +51,4 @@ ch.add_link(link)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk103_printdatastore')
+logger.debug('Done parsing configuration file esk103_printdatastore')

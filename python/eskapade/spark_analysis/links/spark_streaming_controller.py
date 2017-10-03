@@ -18,17 +18,17 @@ from eskapade.spark_analysis import SparkManager
 
 
 class SparkStreamingController(Link):
-    """Defines the content of link SparkStreamingController"""
+
+    """Defines the content of link SparkStreamingController."""
 
     def __init__(self, **kwargs):
-        """Initialize SparkStreamingController instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of input data to read from data store
         :param str store_key: key of output data to store in data store
         :param int timeout: the amount of time (in seconds) for running the Spark Streaming Context
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'SparkStreamingController'))
 
@@ -39,28 +39,25 @@ class SparkStreamingController(Link):
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
-        """Initialize SparkStreamingController"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(timeout=int)
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute SparkStreamingController"""
-
+        """Execute the link."""
         ssc = process_manager.service(SparkManager).spark_streaming_context
         ssc.start()
 
         if self.timeout is not None:
-            self.log().info('spark session started with a maximum duration of {} seconds.'.format(self.timeout))
+            self.logger.info('Spark session started with a maximum duration of {secs} seconds.', secs=self.timeout)
 
         ssc.awaitTerminationOrTimeout(self.timeout)
-        self.log().info('spark streaming session ended - some innocent java errors may appear')
+        self.logger.info('Spark streaming session ended - some innocent java errors may appear.')
 
         return StatusCode.Success
 
     def finalize(self):
-        """Finalize SparkStreamingController"""
-
+        """Finalize the link."""
         return StatusCode.Success

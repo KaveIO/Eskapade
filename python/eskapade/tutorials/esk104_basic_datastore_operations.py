@@ -1,10 +1,10 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk104_datastore_operations                                                         
+# * Macro  : esk104_datastore_operations
 # * Created: 2017/02/20                                                            *
 # * Description:                                                                   *
 # *      Macro to illustrate how to control the contents of the datastore
-# *      
+# *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands
 # *                                                                                *
@@ -13,15 +13,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject
 from eskapade import core_ops
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk104_basic_datastore_operations')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk104_basic_datastore_operations')
+logger.debug('Now parsing configuration file esk104_basic_datastore_operations.')
 
 #########################################################################################
 # --- minimal analysis information
@@ -44,7 +43,7 @@ g = {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 'favorite'}
 #
 # 1. putting items in the datastore, and displaying the contents.
 # 2. asserting the presence of items in the datastore, and then deleting individual items from the datastore.
-# 3. deleting all items from the datastore. 
+# 3. deleting all items from the datastore.
 # 4. deleting all but certain items from the datastore.
 # 5. moving, copying, or removing objects from the datastore
 
@@ -87,7 +86,7 @@ ch.add_link(link)
 # the link DsObjectDeleter removes objects from the datastore
 # here, keep only 'v'
 link = core_ops.DsObjectDeleter()
-link.keepOnly = ['v']
+link.keep_only = ['v']
 ch.add_link(link)
 
 link = core_ops.PrintDs()
@@ -124,7 +123,7 @@ ch.add_link(link)
 
 # here, delete only c and d
 link = core_ops.DsObjectDeleter()
-link.deletionKeys = ['d', 'e']
+link.deletion_keys = ['d', 'e']
 ch.add_link(link)
 
 link = core_ops.PrintDs()
@@ -145,8 +144,8 @@ ch.add_link(link)
 
 # in this example, move key 'c' to 'd'
 link = core_ops.DsToDs(name='ds_move')
-link.readKey = 'c'
-link.storeKey = 'd'
+link.read_key = 'c'
+link.store_key = 'd'
 ch.add_link(link)
 
 link = core_ops.PrintDs(name='pds1')
@@ -155,8 +154,8 @@ ch.add_link(link)
 
 # in this example, copy key 'd' to 'e'
 link = core_ops.DsToDs(name='ds_copy')
-link.readKey = 'd'
-link.storeKey = 'e'
+link.read_key = 'd'
+link.store_key = 'e'
 link.copy = True
 ch.add_link(link)
 
@@ -164,9 +163,9 @@ link = core_ops.PrintDs(name='pds2')
 link.keys = ['d', 'e']
 ch.add_link(link)
 
-# in this example, remove item 'd' 
+# in this example, remove item 'd'
 link = core_ops.DsToDs(name='ds_remove')
-link.readKey = 'd'
+link.read_key = 'd'
 link.remove = True
 ch.add_link(link)
 
@@ -175,7 +174,7 @@ link.keys = ['e']
 ch.add_link(link)
 
 link = core_ops.DsObjectDeleter()
-link.keepOnly = ['a']
+link.keep_only = ['a']
 ch.add_link(link)
 
 # empty ...
@@ -185,4 +184,4 @@ ch.add_link(link)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk104_basic_datastore_operations')
+logger.debug('Done parsing configuration file esk104_basic_datastore_operations.')

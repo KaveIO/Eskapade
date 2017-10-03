@@ -15,15 +15,12 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
-
 import pandas as pd
 
-from eskapade import ConfigObject
-from eskapade import analysis, resources
-from eskapade import process_manager
+from eskapade import analysis, process_manager, visualization, ConfigObject
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.Tutorial_1')
+logger = Logger()
 
 #########################################################################################
 
@@ -31,9 +28,9 @@ msg = r"""
 
 Be sure to download the input dataset:
 
-$ wget -P $ESKAPADE/data/ https://statweb.stanford.edu/~tibs/ElemStatLearn/datasets/LAozone.data
+$ wget https://s3-eu-west-1.amazonaws.com/kpmg-eskapade-share/data/LAozone.data
 """
-log.info(msg)
+logger.info(msg)
 
 #########################################################################################
 # --- minimal analysis information
@@ -44,21 +41,18 @@ settings['analysisName'] = 'Tutorial_1'
 #########################################################################################
 # --- analysis values, settings, helper functions, configuration flags.
 
-DATA_FILE_PATH = resources.fixture('LAozone.data')
 VAR_LABELS = dict(doy='Day of year', date='Date', vis='Visibility', vis_km='Visibility')
 VAR_UNITS = dict(vis='mi', vis_km='km')
 
 
 def comp_date(day):
-    """Get date/time from day of year"""
-
+    """Get date/time from day of year."""
     import pandas as pd
     return pd.Timestamp('1976-01-01') + pd.Timedelta('{:d}D'.format(day - 1))
 
 
 def mi_to_km(dist):
-    """Convert miles to kilometres"""
-
+    """Convert miles to kilometres."""
     return dist * 1.60934
 
 
@@ -75,7 +69,7 @@ conv_funcs = [{'func': comp_date, 'colin': 'doy', 'colout': 'date'},
 process_manager.add_chain('Data')
 
 # add data-frame reader to "Data" chain
-reader = analysis.ReadToDf(name='Read_LA_ozone', path=DATA_FILE_PATH, reader=pd.read_csv, key='data')
+reader = analysis.ReadToDf(name='Read_LA_ozone', path='LAozone.data', reader=pd.read_csv, key='data')
 process_manager.get_chain('Data').add_link(reader)
 
 # add conversion functions to "Data" chain
@@ -87,9 +81,9 @@ process_manager.get_chain('Data').add_link(transform)
 process_manager.add_chain('Summary')
 
 # add data-frame summary link to "Summary" chain
-# summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=transform.store_key,
-#                                     var_labels=VAR_LABELS, var_units=VAR_UNITS)
-# process_manager.get_chain('Summary').add_link(summarizer)
+summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=transform.store_key,
+                                     var_labels=VAR_LABELS, var_units=VAR_UNITS)
+process_manager.get_chain('Summary').add_link(summarizer)
 
 
 #########################################################################################
@@ -105,7 +99,7 @@ process_manager.add_chain('Summary')
 # Rerun the macro and take a look at the output. The output can be found in decision_engine/results
 
 # 3.
-# We are going to make a new link by calling decision_engine/scripts/make_link.sh
+# We are going to make a new link by calling eskapade_generate_link command.
 # Place the link in links/tutoriallinks and since the link will be doing a transformation, name it something
 # appropriate. Write a link that calls the datastore, picks up the dataframe and adds a new column that contains the
 # wind speed in km/h. If this works try to add the temperature in degrees Celsius.

@@ -24,8 +24,8 @@ from ROOT import TH3C, TH3S, TH3I, TH3F, TH3D
 
 
 @property
-def datatype(self):
-    """Data type of histogram variable
+def datatype(self):  # noqa
+    """Data type of histogram variable.
 
     Return data type of the variable represented by the histogram.  If not
     already set, will determine datatype automatically.
@@ -33,20 +33,20 @@ def datatype(self):
     :returns: data type
     :rtype: type or list(type)
     """
-
     if not hasattr(self, '_datatype'):
         cn = self.__class__.__name__
         n_dim = int(cn[2:3])
         dt = cn[3:4]
-        if dt is 'C':
+        assert dt in ['C', 'S', 'I', 'F', 'D'], 'data type of histogram variable is unknown.'
+        if dt == 'C':
             dtype = numpy.int8
-        elif dt is 'S':
+        elif dt == 'S':
             dtype = numpy.int16
-        elif dt is 'I':
+        elif dt == 'I':
             dtype = numpy.int32
-        elif dt is 'F':
+        elif dt == 'F':
             dtype = numpy.float32
-        elif dt is 'D':
+        elif dt == 'D':
             dtype = numpy.float64
         self._datatype = dtype if n_dim == 1 else [dtype] * n_dim
 
@@ -55,14 +55,13 @@ def datatype(self):
 
 @datatype.setter
 def datatype(self, dt):
-    """Set data type of histogram variable
+    """Set data type of histogram variable.
 
     Set data type of the variable represented by the histogram.
 
     :param type dt: type of the variable represented by the histogram
     :raises RunTimeError: if datatype has already been set, it will not overwritten
     """
-
     if hasattr(self, '_datatype'):
         raise RuntimeError('datatype already (assessed and) set')
     self._datatype = dt
@@ -70,8 +69,7 @@ def datatype(self, dt):
 
 @property
 def n_dim(self):
-    """Histogram dimension"""
-
+    """Histogram dimension."""
     cn = self.__class__.__name__
     n_dim = int(cn[2:3])
     return n_dim
@@ -82,24 +80,22 @@ TH1.n_dim = n_dim
 
 
 @property
-def n_bins(self):
-    """Number of bins of x axis
+def n_bins(self):  # noqa
+    """Number of bins of x axis.
 
     :returns: number of bins for x axis
     :rtype: int
     """
-
     return self.GetNbinsX()
 
 
 def bin_centers(self, q):
-    """Get bin centers of histogram axis
+    """Get bin centers of histogram axis.
 
     :param int q: axis index, should be 0 (=x), 1 (=y), or 2(=z)
     :returns: numpy array of bin centers
     :rtype: numpy.array
     """
-
     assert q in [0, 1, 2], 'axis index should be 0, 1, or 2'
     if q == 0:
         ax = self.GetXaxis()
@@ -112,13 +108,12 @@ def bin_centers(self, q):
 
 
 def bin_edges(self, q):
-    """Get bin edges of histogram axis
+    """Get bin edges of histogram axis.
 
     :param int q: axis index, should be 0 (=x), 1 (=y), or 2(=z)
     :returns: numpy array of bin edges
     :rtype: numpy.array
     """
-
     assert q in [0, 1, 2], 'axis index should be 0, 1, or 2'
     if q == 0:
         ax = self.GetXaxis()
@@ -132,13 +127,12 @@ def bin_edges(self, q):
 
 
 def bin_labels(self, q):
-    """Get bin labels of histogram axis
+    """Get bin labels of histogram axis.
 
     :param int q: axis index, should be 0 (=x), 1 (=y), or 2(=z)
     :returns: numpy array of bin labels
     :rtype: numpy.array
     """
-
     assert q in [0, 1, 2], 'axis index should be 0, 1, or 2'
     if q == 0:
         ax = self.GetXaxis()
@@ -151,36 +145,33 @@ def bin_labels(self, q):
 
 
 def bin_entries(self):
-    """Get bin values
+    """Get bin values.
 
     :returns: numpy array of bin entries
     :rtype: numpy.array
     """
-
     bin_entries = [self.GetBinContent(i + 1) for i in range(self.GetNbinsX())]
     return numpy.array(bin_entries)
 
 
 def bin_vals(self):
-    """Get NumPy-style histogram values
+    """Get NumPy-style histogram values.
 
     :returns: comma-separated np array of bin entries, np array of bin edges
     :rtype: numpy.array, numpy.array
     """
-
     bin_entries = self.bin_entries()
     bin_edges = self.bin_edges()
     return bin_entries, bin_edges
 
 
 def bin_range(self, q):
-    """Get bin range of histogram axis
+    """Get bin range of histogram axis.
 
     :param int q: axis index, should be 0 (=x), 1 (=y), or 2(=z)
     :returns: tuple of bin range
     :rtype: tuple
     """
-
     assert q in [0, 1, 2], 'axis index should be 0, 1, or 2'
     if q == 0:
         ax = self.GetXaxis()
@@ -193,24 +184,22 @@ def bin_range(self, q):
 
 @property
 def low(self):
-    """Low edge of first bin
+    """Low edge of first bin.
 
     :returns: low edge of first bin
     :rtype: float
     """
-
     ax = self.GetXaxis()
     return ax.GetXmin()
 
 
 @property
 def high(self):
-    """High edge of last bin
+    """High edge of last bin.
 
     :returns: up edge of first bin
     :rtype: float
     """
-
     ax = self.GetXaxis()
     return ax.GetXmax()
 
@@ -228,11 +217,10 @@ for T in [TH1C, TH1S, TH1I, TH1F, TH1D]:
 
 
 def bin_entries_2dgrid(self):
-    """Get 2-D grid of bin entries
+    """Get 2-D grid of bin entries.
 
     :returns: 2-d grid of bin entries
     """
-
     grid = numpy.zeros((self.GetNbinsY(), self.GetNbinsX()))
     for j in range(self.GetNbinsX()):
         for i in range(self.GetNbinsY()):
@@ -241,7 +229,7 @@ def bin_entries_2dgrid(self):
 
 
 def xy_ranges_grid(self):
-    """Get x and y ranges and x, y grid
+    """Get x and y ranges and x, y grid.
 
     :returns: x and y ranges and x,y grid
     """

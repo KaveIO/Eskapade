@@ -20,20 +20,19 @@ from eskapade.root_analysis.roofit_models import RooFitModel
 
 
 class RooFitManager(ProcessService):
-    """Process service for managing RooFit operations"""
+
+    """Process service for managing RooFit operations."""
 
     _persist = True
 
     def __init__(self):
-        """Initialize RooFit manager instance"""
-
+        """Initialize RooFit manager instance."""
         self._ws = None
         self._models = {}
 
     @property
-    def ws(self):
-        """RooFit workspace for Eskapade run"""
-
+    def ws(self):  # noqa
+        """RooFit workspace for Eskapade run."""
         if not self._ws:
             self._ws = ROOT.RooWorkspace('esws', 'Eskapade workspace')
             ROOT.SetOwnership(self._ws, False)
@@ -41,17 +40,16 @@ class RooFitManager(ProcessService):
         return self._ws
 
     def set_var_vals(self, vals):
-        """Set values of workspace variables
+        """Set values of workspace variables.
 
         :param dict vals: values and errors to set: {name1: (val1, err1), name2: (val2, err2), ...}
         """
-
         for var, (val, err) in vals.items():
             self.ws.var(var).setVal(val)
             self.ws.var(var).setError(err)
 
     def model(self, name, model_cls=None, **kwargs):
-        """Get RooFit model
+        """Get RooFit model.
 
         Return the RooFit model with the specified name.  Create the model if it
         does not yet exist.  Arguments and key-word arguments are passed on to
@@ -60,7 +58,6 @@ class RooFitManager(ProcessService):
         :param str name: name of the model
         :param model_cls: model class; must inherit from RooFitModel
         """
-
         # check name
         name = str(name) if name else ''
         if not name:

@@ -25,7 +25,7 @@ from eskapade.analysis.histogram import Histogram
 
 
 def to_root_hist(histogram, **kwargs):
-    """Convert Eskapade histogram to root histogram
+    """Convert Eskapade histogram to root histogram.
 
     Input Eskapade histogram first gets converted to a numpy histogram,
     which is then converted to a root histogram.  All kwargs besides the
@@ -37,14 +37,14 @@ def to_root_hist(histogram, **kwargs):
     :rtype: ROOT.TH1
     """
     if not isinstance(histogram, Histogram):
-        raise TypeError('histogram not of type %s' % Histogram)
+        raise TypeError('histogram not of type Histogram')
     # convert to ROOT histogram
     new_var_name = str(kwargs.pop('variable', histogram.variable))
     return bin_vals_to_hist(histogram.get_bin_vals(**kwargs), var_name=new_var_name)
 
 
 def bin_vals_to_hist(vals, var_name='x'):
-    """Convert numpy to root histogram
+    """Convert numpy to root histogram.
 
     :param vals: two comma-separated arrays: bin_entries, bin_edges, or bin_entries, bin_labels,
                  representing a 1-dimensional histogram as returned by numpy.histogram()
@@ -82,7 +82,7 @@ def bin_vals_to_hist(vals, var_name='x'):
 
 
 def hist_to_bin_vals(hist):
-    """Convert root histogram to numpy bin_vals
+    """Convert root histogram to numpy bin_vals.
 
     Create bin_counts and bin_edges lists, similar to np.histogram()
     function.
@@ -90,7 +90,6 @@ def hist_to_bin_vals(hist):
     :param ROOT.TH1 hist: input root histogram, assumed to be 1-dimensional.
     :returns: two comma-separated arrays: bin_entries, bin_edges
     """
-
     # check input type
     assert isinstance(hist, ROOT.TH1), 'root hist needs to be 1-dimensional'
 
@@ -107,7 +106,7 @@ def hist_to_bin_vals(hist):
 
 
 def hist_to_rdh(hist, obs='x'):
-    """Convert root histogram to roodatahist object
+    """Convert root histogram to roodatahist object.
 
     Convert root histogram to corresponding roodatahist object, which can be
     used as dataset by roofit.
@@ -119,7 +118,6 @@ def hist_to_rdh(hist, obs='x'):
               representing the corresponding observables in roofit.
     :rtype: RooDataHist, RooArgList
     """
-
     # check input histogram
     if not issubclass(type(hist), ROOT.TH1):
         raise TypeError('root hist needs to inherit from TH1')
@@ -184,7 +182,7 @@ def hist_to_rdh(hist, obs='x'):
 
 
 def hist_to_rds(hist, obs='x'):
-    """Convert root histogram to roodataset object
+    """Convert root histogram to roodataset object.
 
     Convert root histogram to corresponding roodataset object, which can be
     used as dataset by roofit.
@@ -196,7 +194,6 @@ def hist_to_rds(hist, obs='x'):
               representing the corresponding observables in roofit.
     :rtype: RooDataHist, RooArgList
     """
-
     # check input histogram
     if not issubclass(type(hist), ROOT.TH1):
         raise TypeError('root hist needs to inherit from TH1')
@@ -265,9 +262,9 @@ def hist_to_rds(hist, obs='x'):
     # start filling the roodataset ...
 
     # array for easily setting roorealvar values
-    vars = []
+    values = []
     for rrv in obs_set:
-        vars.append(rrv)
+        values.append(rrv)
 
     # loop over upto 3 dimensions of the histogram
     ax = hist.GetXaxis()
@@ -275,7 +272,7 @@ def hist_to_rds(hist, obs='x'):
     az = hist.GetZaxis()
     for i in range(ax.GetNbins()):
         xval = ax.GetBinCenter(i + 1)
-        vars[0].setVal(xval)
+        values[0].setVal(xval)
         if n_dim == 1:
             fval = hist.GetBinContent(i + 1)
             if fval == 0:
@@ -285,7 +282,7 @@ def hist_to_rds(hist, obs='x'):
         else:  # 2 or more dims
             for j in range(ay.GetNbins()):
                 yval = ay.GetBinCenter(j + 1)
-                vars[1].setVal(yval)
+                values[1].setVal(yval)
                 if n_dim == 2:
                     fval = hist.GetBinContent(i + 1, j + 1)
                     if fval == 0:
@@ -298,14 +295,14 @@ def hist_to_rds(hist, obs='x'):
                         if fval == 0:
                             continue
                         zval = az.GetBinCenter(k + 1)
-                        vars[2].setVal(zval)
+                        values[2].setVal(zval)
                         weight.setVal(fval)
                         rds.add(obsw_set, fval)
     return rds, obs_set
 
 
 def df_to_tree(df, name='tree', tree=None, store_index=True):
-    """Convert DataFrame to a ROOT TTree
+    """Convert DataFrame to a ROOT TTree.
 
     Inspired by to_root() by root_pandas:
     https://github.com/ibab/root_pandas/blob/master/root_pandas/readwrite.py#L242
@@ -325,7 +322,6 @@ def df_to_tree(df, name='tree', tree=None, store_index=True):
     :returns: comma-separated tree and dict with conversion maps of boolean and categorical observables.
     :rtype: TTree, dict
     """
-
     if df is None:
         return None, {}
 
@@ -373,7 +369,7 @@ def df_to_tree(df, name='tree', tree=None, store_index=True):
 
 
 def series_to_tree(series, name='tree', tree=None):
-    """Convert Series to a ROOT TTree
+    """Convert Series to a ROOT TTree.
 
     :param pandas.Series series: input pandas series object, to be converted to a TTree
     :param str name: Name of the created ROOT TTree if ``tree`` is None. optional, default='tree'.
@@ -385,12 +381,11 @@ def series_to_tree(series, name='tree', tree=None):
     :returns: comma-separated tree and dict with conversion maps of boolean or categorical observable.
     :rtype: TTree, dict
     """
-
     return df_to_tree(pd.DataFrame(series), name, tree)
 
 
 def tree_to_df(tree, branch_names=[], index_name='', drop_roofit_labels=False):
-    """Convert a TTree to a pandas DataFrame
+    """Convert a TTree to a pandas DataFrame.
 
     :param TTree tree: An existing ROOT TTree to be converted to a pandas DataFrame
     :param list branch_names: input list of branch to be converted dataframe columns. If empty, pick all branches.
@@ -401,7 +396,6 @@ def tree_to_df(tree, branch_names=[], index_name='', drop_roofit_labels=False):
     :returns: dataframe
     :rtype: pandas.DataFrame
     """
-
     if tree is None:
         return None
 
@@ -450,7 +444,7 @@ def tree_to_df(tree, branch_names=[], index_name='', drop_roofit_labels=False):
 
 
 def rds_to_tree(rds, tree_name='', ignore_lost_records=False):
-    """Convert a RooDataSet to a TTree
+    """Convert a RooDataSet to a TTree.
 
     :param ROOT.RooDataSet rds: an existing ROOT RooDataSet to be converted to a ROOT TTree
     :param str tree_name: new name of the tree. (optional)
@@ -458,7 +452,6 @@ def rds_to_tree(rds, tree_name='', ignore_lost_records=False):
     :returns: a root tree
     :rtype: ROOT.TTree
     """
-
     if rds is None:
         return None
 
@@ -486,7 +479,7 @@ def rds_to_tree(rds, tree_name='', ignore_lost_records=False):
 
 
 def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}):
-    """Convert root tree to roodataset object
+    """Convert root tree to roodataset object.
 
     Convert root TTree to corresponding roodataset object, that can be used
     as dataset by roofit.
@@ -504,7 +497,6 @@ def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}
               boolean or categorical observable.
     :rtype: RooDataHist, RooArgSet, dict
     """
-
     if tree is None:
         return None, None, {}
 
@@ -560,7 +552,7 @@ def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}
                 pass
 
     # 3a. construct corresponding roocategories, needed for roodataset
-    vars = ROOT.RooArgSet()
+    values = ROOT.RooArgSet()
     map_to_original = {}
     for bn in branch_names:
         if bn not in category_vars:
@@ -572,7 +564,7 @@ def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}
         # python does not take ownership of rcat
         # https://root-forum.cern.ch/t/crash-when-using-rooargset/21868
         ROOT.SetOwnership(rcat, False)
-        vars.addOwned(rcat)
+        values.addOwned(rcat)
         map_to_original[bn] = dict((i, v) for v, i in label_dict.items())
 
     # 3b. construct corresponding roorealvars, needed for roodataset
@@ -582,7 +574,7 @@ def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}
         # python does not take ownership of rrv
         # https://root-forum.cern.ch/t/crash-when-using-rooargset/21868
         ROOT.SetOwnership(rrv, False)
-        vars.addOwned(rrv)
+        values.addOwned(rrv)
 
     # 4. construct the RooDataSet
     # we set RooDataSet's internal format to TTrees,
@@ -590,7 +582,7 @@ def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}
     if len(name) == 0:
         name = 'rds_' + tree.GetName()
     ROOT.RooAbsData.setDefaultStorageType(ROOT.RooAbsData.Tree)
-    rds = ROOT.RooDataSet(name, tree.GetTitle(), tree, vars)
+    rds = ROOT.RooDataSet(name, tree.GetTitle(), tree, values)
 
     # basic conversion check
     n_tree = tree.GetEntries()
@@ -602,13 +594,13 @@ def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}
     # ... these are just there for bookkeeping purposes
     for bn in var_specs:
         if bn.startswith('__index__'):
-            vars.remove(vars[bn])
+            values.remove(values[bn])
 
-    return rds, vars, map_to_original
+    return rds, values, map_to_original
 
 
 def df_to_rds(df, rf_varset=None, category_vars={}, name='', store_index=True):
-    """Convert a pandas dataframe to roodataset object
+    """Convert a pandas dataframe to roodataset object.
 
     Convert pandas DataFrame to RooDataSet object, that can be used as dataset by roofit.
 
@@ -624,7 +616,6 @@ def df_to_rds(df, rf_varset=None, category_vars={}, name='', store_index=True):
               of integer back to boolean or categorical observable.
     :rtype: RooDataHist, RooArgSet, dict, dict
     """
-
     if df is None:
         return None, None
 
@@ -640,7 +631,7 @@ def df_to_rds(df, rf_varset=None, category_vars={}, name='', store_index=True):
 
 
 def rds_to_df(rds, branch_names=[], index_name='', ignore_lost_records=False):
-    """Convert a roodataset to a pandas DataFrame
+    """Convert a roodataset to a pandas DataFrame.
 
     :param ROOT.RooDataSet rds: An existing ROOT RooDataSet to be converted to a pandas DataFrame
     :param list branch_names: input list of branch to be converted dataframe columns. If empty, pick all branches.
@@ -650,7 +641,6 @@ def rds_to_df(rds, branch_names=[], index_name='', ignore_lost_records=False):
     :returns: dataframe
     :rtype: pandas.DataFrame
     """
-
     if rds is None:
         return None
     tree = rds_to_tree(rds, ignore_lost_records=ignore_lost_records)
@@ -660,19 +650,18 @@ def rds_to_df(rds, branch_names=[], index_name='', ignore_lost_records=False):
 
 
 def rdh_to_rds(rdh):
-    """Convert a roodatahist to a roodataset
+    """Convert a roodatahist to a roodataset.
 
     :param ROOT.RooDataHist rdh: An existing ROOT RooDataHist to be converted to a ROOT.RooDataSet
     :returns: ROOT RooDataSet
     :rtype: ROOT.RooDataSet
     """
-
     if rdh is None:
         return None
 
     if not isinstance(rdh, ROOT.RooDataHist):
-        raise TypeError('input object not of type RooDataHist, but: %s' % (type(rdh)))
-    assert rdh.numEntries() > 0, 'RooDataHist "%s" is empty.' % rdh.GetName()
+        raise TypeError('input object not of type RooDataHist, but: {}'.format(type(rdh)))
+    assert rdh.numEntries() > 0, 'RooDataHist "{}" is empty.'.format(rdh.GetName())
 
     # create corresponding list of roofit observables
     obs_set = rdh.get()
@@ -698,13 +687,13 @@ def rdh_to_rds(rdh):
         num_entries.setVal(rdh.weight())
         weight_error.setVal(rdh.weightError())
         weight.setVal(rdh.weight())
-        rds.add(obsw_set,rdh.weight())
+        rds.add(obsw_set, rdh.weight())
 
     return rds
 
 
 def rds_to_rdh(rds, rf_varset=None, columns=None, binning_name=''):
-    """Convert a RooDataSet to a RooDataHist
+    """Convert a RooDataSet to a RooDataHist.
 
     :param ROOT.RooDataSet rds: An existing ROOT RooDataSet to be converted to a pandas DataFrame
     :param ROOT.RooArgSet rf_varset: roofit variables used in RooDataHist constructor
@@ -713,7 +702,6 @@ def rds_to_rdh(rds, rf_varset=None, columns=None, binning_name=''):
     :returns: RooDataHist of selected columns
     :rtype: ROOT.RooDataHist
     """
-
     if not isinstance(rds, ROOT.RooDataSet):
         raise AssertionError('input object not of type RooDataSet')
     if rds.numEntries() == 0:

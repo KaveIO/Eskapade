@@ -19,107 +19,108 @@
 
 import ast
 import collections
-import logging
 import os
-from enum import Enum
+from enum import IntEnum, unique
 
 from pkg_resources import resource_filename
 
-# dummy logging level to turn off logging.
-logging.OFF = 60
-
-LOG_LEVELS = {
-    'NOTSET': logging.NOTSET,
-    'DEBUG': logging.DEBUG,
-    'INFO': logging.INFO,
-    'WARN': logging.WARNING,
-    'WARNING': logging.WARNING,
-    'ERROR': logging.ERROR,
-    'FATAL': logging.FATAL,
-    'CRITICAL': logging.CRITICAL,
-    'OFF': logging.OFF,
-    logging.DEBUG: 'DEBUG',
-    logging.INFO: 'INFO',
-    logging.WARNING: 'WARNING',
-    logging.ERROR: 'ERROR',
-    logging.FATAL: 'FATAL',
-    logging.CRITICAL: 'CRITICAL',
-    logging.NOTSET: 'NOTSET',
-    logging.OFF: 'OFF'
-}
+from eskapade.logger import LogLevel
 
 
-class StatusCode(Enum):
-    """Return-status codes for Eskapade run
+@unique
+class StatusCode(IntEnum):
 
-    A StatusCode object is returned after each initialize, execute, and
-    finalize function call of links, chains, and the process manager.
+    """Return status code enumeration class.
+
+    A StatusCode should be returned by the initialize, execute,
+    and finalize methods of links, chains, and the process manager.
+
+    The enumerations are:
+
+    * Undefined (-1): Default status.
+    * Success (0 == EX_OK / EXIT_SUCCESS): All OK, i.e. there were no errors.
+    * RepeatChain (1): Repeat this chain.
+    * SkipChain (2): Skip this chain.
+    * Recoverable (3): Not OK, but can continue, i.e. there was an error, but the
+      application can recover from it.
+    * Failure (4): An error occurred and the application cannot recover from it.
+      In this case the application should just quit.
     """
 
-    # all okay
-    Success = 1
-    # not okay, but can continue
-    Recoverable = 2
-    # skip this chain
-    SkipChain = 3
-    # failure means quit
+    Undefined = -1
+    Success = 0
+    RepeatChain = 1
+    SkipChain = 2
+    Recoverable = 3
     Failure = 4
-    # repeat this chain
-    RepeatChain = 5
-    # undefined = default status
-    Undefined = 6
 
-    def isSuccess(self):
-        """Check if status is "Success"
+    def __str__(self) -> str:
+        """Get string representation of :class:`StatusCode`.
 
-        :rtype: bool
+        :return: String representation of :class:`StatusCode`.
+        :rtype: str
         """
-        return StatusCode.Success == self
+        return self.name
 
-    def isRecoverable(self):
-        """Check if status is "Recoverable"
+    def is_undefined(self) -> bool:
+        """Check if status is `StatusCode.Undefined`.
 
-        :rtype: bool
-        """
-        return StatusCode.Recoverable == self
-
-    def isSkipChain(self):
-        """Check if status is "SkipChain"
-
-        :rtype: bool
-        """
-        return StatusCode.SkipChain == self
-
-    def isRepeatChain(self):
-        """Check if status is "RepeatChain"
-
-        :rtype: bool
-        """
-        return StatusCode.RepeatChain == self
-
-    def isFailure(self):
-        """Check if status is "Failure"
-
-        :rtype: bool
-        """
-        return StatusCode.Failure == self
-
-    def isUndefined(self):
-        """Check if status is "Undefined"
-
+        :return: True when `StatusCode.Undefined`, False otherwise.
         :rtype: bool
         """
         return StatusCode.Undefined == self
 
+    def is_success(self) -> bool:
+        """Check if status is `StatusCode.Success`.
+
+        :return: True when `StatusCode.Success`, False otherwise.
+        :rtype: bool
+        """
+        return StatusCode.Success == self
+
+    def is_repeat_chain(self) -> bool:
+        """Check if status is `StatusCode.RepeatChain`.
+
+        :return: True when `StatusCode.RepeatChain`, False otherwise.
+        :rtype: bool
+        """
+        return StatusCode.RepeatChain == self
+
+    def is_skip_chain(self) -> bool:
+        """Check if status is `StatusCode.RepeatChain`.
+
+        :return: True when `StatusCode.RepeatChain`, False otherwise.
+        :rtype: bool
+        """
+        return StatusCode.SkipChain == self
+
+    def is_recoverable(self) -> bool:
+        """Check if status is `StatusCode.Recoverable`.
+
+        :return: True when `StatusCode.Recoverable`, False otherwise.
+        :rtype: bool
+        """
+        return StatusCode.Recoverable == self
+
+    def is_failure(self) -> bool:
+        """Check if status is `StatusCode.Failure`.
+
+        :return: True when `StatusCode.Failure`, False otherwise.
+        :rtype: bool
+        """
+        return StatusCode.Failure == self
+
 
 class RandomSeeds:
-    """Container for seeds of random generators
+
+    """Container for seeds of random generators.
 
     Seeds are stored as key-value pairs and are accessed with getitem and
     setitem methods.  A default seed can be accessed with the key "default".
     The default seed is also returned if no seed is set for the specified
     key.
 
+    >>> import numpy as np
     >>> seeds = RandomSeeds(default=999, foo=42, bar=13)
     >>> seeds['NumPy'] = 100
     >>> np.random.seed(seeds['NumPy'])
@@ -128,12 +129,11 @@ class RandomSeeds:
     """
 
     def __init__(self, **kwargs):
-        """Initialize RandomSeeds instance
+        """Initialize an instance.
 
         Values of the specified keyword arguments must be integers, which are
         set as seed values for the corresponding key.
         """
-
         # initialize attributes
         self._seeds = {}
         self._default = 1
@@ -143,19 +143,17 @@ class RandomSeeds:
             self[key] = seed
 
     def __getitem__(self, key):
-        """Return seed for specified lowercase-string key"""
-
+        """Return seed for specified lowercase-string key."""
         return self._seeds.get(str(key).strip().lower(), self._default)
 
     def __setitem__(self, key, seed):
-        """Set integer seed for specified lowercase-string key"""
-
+        """Set integer seed for specified lowercase-string key."""
         # parse key and seed
         key = str(key).strip().lower()
         try:
             seed = int(seed)
         except:
-            raise TypeError('specified seed for key "{0:s}" is not an integer: "{1:s}"'.format(key, str(seed)))
+            raise TypeError('specified seed for key "{0:s}" is not an integer: "{1!s}"'.format(key, seed))
 
         # check if this is the default key
         if key == 'default':
@@ -178,45 +176,38 @@ CONFIG_VARS['run'] = ['analysisName',
                       'interactive',
                       'logLevel',
                       'logFormat',
-                      'doCodeProfiling',
-                      ]
+                      'doCodeProfiling', ]
 
 CONFIG_VARS['chains'] = ['beginWithChain',
                          'endWithChain',
                          'storeResultsEachChain',
                          'storeResultsOneChain',
-                         'doNotStoreResults',
-                         ]
+                         'doNotStoreResults', ]
 
 CONFIG_VARS['file_io'] = ['esRoot',
                           'resultsDir',
                           'dataDir',
                           'macrosDir',
                           'templatesDir',
-                          'configDir',
-                          ]
+                          'configDir', ]
 
-CONFIG_VARS['config'] = ['sparkCfgFile',
-                         ]
+CONFIG_VARS['config'] = ['sparkCfgFile', ]
 
-CONFIG_VARS['db_io'] = ['all_mongo_collections',
-                        ]
+CONFIG_VARS['db_io'] = ['all_mongo_collections', ]
 
-CONFIG_VARS['rand_gen'] = ['seeds',
-                           ]
+CONFIG_VARS['rand_gen'] = ['seeds', ]
 
 CONFIG_TYPES = dict(version=int,
                     batchMode=bool,
                     interactive=bool,
                     storeResultsEachChain=bool,
                     doNotStoreResults=bool,
-                    all_mongo_collections=list,
-                    )
+                    all_mongo_collections=list, )
 
 CONFIG_DEFAULTS = dict(version=0,
                        batchMode=True,
                        interactive=False,
-                       logLevel=logging.INFO,
+                       logLevel=LogLevel.INFO,
                        logFormat='%(asctime)s %(levelname)s [%(module)s]: %(message)s',
                        doCodeProfiling=None,
                        storeResultsEachChain=False,
@@ -228,8 +219,7 @@ CONFIG_DEFAULTS = dict(version=0,
                        templatesDir=resource_filename('eskapade', 'templates') + '/',
                        configDir=os.getcwd() + '/config/',
                        sparkCfgFile='spark.cfg',
-                       seeds=RandomSeeds(),
-                       )
+                       seeds=RandomSeeds(), )
 
 # user options in command-line arguments
 USER_OPTS = collections.OrderedDict()
@@ -241,28 +231,23 @@ USER_OPTS['run'] = ['analysis_name',
                     'log_format',
                     'unpickle_config',
                     'profile',
-                    'conf_var',
-                    ]
+                    'conf_var', ]
 
 USER_OPTS['chains'] = ['begin_with',
                        'end_with',
                        'single_chain',
                        'store_all',
                        'store_one',
-                       'store_none',
-                       ]
+                       'store_none', ]
 
 USER_OPTS['file_io'] = ['results_dir',
                         'data_dir',
                         'macros_dir',
-                        'templates_dir',
-                        ]
+                        'templates_dir', ]
 
-USER_OPTS['config'] = ['spark_cfg_file',
-                       ]
+USER_OPTS['config'] = ['spark_cfg_file', ]
 
-USER_OPTS['rand_gen'] = ['seed',
-                         ]
+USER_OPTS['rand_gen'] = ['seed', ]
 
 USER_OPTS_SHORT = dict(analysis_name='n',
                        analysis_version='v',
@@ -271,8 +256,7 @@ USER_OPTS_SHORT = dict(analysis_name='n',
                        conf_var='c',
                        begin_with='b',
                        end_with='e',
-                       single_chain='s',
-                       )
+                       single_chain='s', )
 
 USER_OPTS_KWARGS = dict(analysis_name=dict(help='set name of analysis in run',
                                            metavar='NAME'),
@@ -284,8 +268,8 @@ USER_OPTS_KWARGS = dict(analysis_name=dict(help='set name of analysis in run',
                         interactive=dict(help='start IPython shell after run',
                                          action='store_true'),
                         log_level=dict(help='set logging level',
-                                       choices=['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'FATAL', 'OFF'],
-                                       metavar='{NOTSET,DEBUG,INFO,WARNING,ERROR,FATAL,OFF}'),
+                                       choices=['NOTSET', 'DEBUG', 'INFO', 'WARNING', 'ERROR', 'FATAL'],
+                                       metavar='{NOTSET,DEBUG,INFO,WARNING,ERROR,FATAL}'),
                         log_format=dict(help='set log-message format',
                                         metavar='FORMAT'),
                         unpickle_config=dict(help='interpret first CONFIG_FILE as path to pickled settings',
@@ -321,11 +305,10 @@ USER_OPTS_KWARGS = dict(analysis_name=dict(help='set name of analysis in run',
                                             metavar='SPARK_CONFIG_FILE'),
                         seed=dict(help='set seed for random-number generation',
                                   action='append',
-                                  metavar='KEY=SEED'),
-                        )
+                                  metavar='KEY=SEED'), )
 
 USER_OPTS_CONF_KEYS = dict(analysis_name='analysisName',
-                           analysis_version='analysisVersion',
+                           analysis_version='version',
                            batch_mode='batchMode',
                            log_level='logLevel',
                            log_format='logFormat',
@@ -336,13 +319,11 @@ USER_OPTS_CONF_KEYS = dict(analysis_name='analysisName',
                            store_one='storeResultsOneChain',
                            store_none='doNotStoreResults',
                            spark_cfg_file='sparkCfgFile',
-                           seed='seeds',
-                           )
+                           seed='seeds', )
 
 
 def set_opt_var(opt_key, settings, args):
-    """Set configuration variable from user options"""
-
+    """Set configuration variable from user options."""
     value = args.get(opt_key)
     if value is None:
         return
@@ -354,23 +335,21 @@ CONFIG_OPTS_SETTERS = collections.defaultdict(lambda: set_opt_var)
 
 
 def set_log_level_opt(opt_key, settings, args):
-    """Set configuration log level from user option"""
-
+    """Set configuration log level from user option."""
     level = args.get(opt_key)
     if not level:
         return
-    if level not in LOG_LEVELS:
-        raise ValueError('invalid logging level specified: "{}"'.format(str(level)))
+    if level not in LogLevel.__members__:
+        raise ValueError('invalid logging level specified: "{!s}"'.format(level))
 
-    settings[USER_OPTS_CONF_KEYS.get(opt_key, opt_key)] = LOG_LEVELS[level]
+    settings[USER_OPTS_CONF_KEYS.get(opt_key, opt_key)] = level
 
 
 CONFIG_OPTS_SETTERS['log_level'] = set_log_level_opt
 
 
 def set_begin_end_chain_opt(opt_key, settings, args):
-    """Set begin/end-chain variable from user option"""
-
+    """Set begin/end-chain variable from user option."""
     chain = args.get(opt_key)
     if not chain:
         return
@@ -384,8 +363,7 @@ CONFIG_OPTS_SETTERS['end_with'] = set_begin_end_chain_opt
 
 
 def set_single_chain_opt(opt_key, settings, args):
-    """Set single-chain variable from user option"""
-
+    """Set single-chain variable from user option."""
     chain = args.get(opt_key)
     if not chain:
         return
@@ -397,8 +375,7 @@ CONFIG_OPTS_SETTERS['single_chain'] = set_single_chain_opt
 
 
 def set_seeds(opt_key, settings, args):
-    """Set random seeds"""
-
+    """Set random seeds."""
     seed_args = args.get(opt_key)
     if not seed_args:
         return
@@ -417,8 +394,7 @@ CONFIG_OPTS_SETTERS['seed'] = set_seeds
 
 
 def set_custom_user_vars(opt_key, settings, args):
-    """Set custom user configuration variables"""
-
+    """Set custom user configuration variables."""
     custom_vars = args.get(opt_key)
     if not custom_vars:
         return
@@ -434,7 +410,7 @@ def set_custom_user_vars(opt_key, settings, args):
         # interpret type of value
         try:
             settings[key] = ast.literal_eval(value)
-        except:
+        except Exception:
             settings[key] = value
 
 

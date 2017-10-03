@@ -1,6 +1,6 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk403_roodataset_convert                                           *
+# * Macro  : esk403_roodataset_convert                                             *
 # * Created: 2017/03/28                                                            *
 # *                                                                                *
 # * Authors:                                                                       *
@@ -9,7 +9,7 @@
 # * Description:
 # *
 # * This macro illustrates how to convert a pandas dataframe to a roofit dataset
-# * (= roodataset), do something to it with roofit, and then convert the roodataset 
+# * (= roodataset), do something to it with roofit, and then convert the roodataset
 # * back again to a pandas dataframe.
 # *                                                                                *
 # * Licence:
@@ -19,17 +19,15 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
-from pkg_resources import resource_filename
-
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, root_analysis
 from eskapade import process_manager
+from eskapade import resources
+from eskapade.logger import Logger, LogLevel
 
-log = logging.getLogger('macro.esk403_roodataset_convert')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk403_roodataset_convert')
+logger.debug('Now parsing configuration file esk403_roodataset_convert')
 
 #########################################################################################
 # --- minimal analysis information
@@ -41,7 +39,7 @@ settings['version'] = 0
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
 
-input_files = [resource_filename('eskapade', '/data/mock_accounts.csv.gz')]
+input_files = [resources.fixture('mock_accounts.csv.gz')]
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
@@ -69,7 +67,7 @@ fact.store_key = 'accounts_fact'
 fact.sk_map_to_original = 'to_original'
 # factorizer also stores a dict with the mappings that have been applied to all observables
 fact.sk_map_to_factorized = 'to_factorized'
-fact.set_log_level(logging.DEBUG)
+fact.logger.log_level = LogLevel.DEBUG
 ch.add_link(fact)
 
 # --- 2. turn the dataframe into a roofit dataset (= roodataset)
@@ -104,13 +102,13 @@ rds2df.store_key = 'df_from_rds'
 ch.add_link(rds2df)
 
 # --- add second record factorizer, which now maps all roocategory columns
-#     back to their original format. 
-#     For this it picks up the mapping in: 'rds_to_original' 
+#     back to their original format.
+#     For this it picks up the mapping in: 'rds_to_original'
 refact = analysis.RecordFactorizer(name='rf2')
 refact.read_key = rds2df.store_key
 refact.store_key = 'df_refact'
 refact.map_to_original = df2rds.sk_map_to_original
-refact.set_log_level(logging.DEBUG)
+refact.logger.log_level = LogLevel.DEBUG
 ch.add_link(refact)
 
 pds = core_ops.PrintDs(name='pds2')
@@ -119,4 +117,4 @@ ch.add_link(pds)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk403_roodataset_convert')
+logger.debug('Done parsing configuration file esk403_roodataset_convert')

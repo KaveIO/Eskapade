@@ -22,16 +22,16 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
 import tempfile
 
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, data_quality
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk501_fix_pandas_dataframe')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk501_fix_pandas_dataframe')
+logger.debug('Now parsing configuration file esk501_fix_pandas_dataframe')
 
 #########################################################################################
 # --- minimal analysis information
@@ -113,4 +113,4 @@ writedata = analysis.WriteFromDf(name='writer',
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk501_fix_pandas_dataframe')
+logger.debug('Done parsing configuration file esk501_fix_pandas_dataframe')

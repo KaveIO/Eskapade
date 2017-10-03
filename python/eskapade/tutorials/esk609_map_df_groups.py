@@ -11,14 +11,13 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
-
 from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
-log = logging.getLogger('macro.esk609_map_df_groups')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk609_map_df_groups')
+logger.debug('Now parsing configuration file esk609_map_df_groups')
 
 ##########################################################################
 # --- minimal analysis information
@@ -37,8 +36,7 @@ spark = process_manager.service(SparkManager).create_session(eskapade_settings=s
 # --- helper (map) function
 
 def add_sum_bar(gr):
-    """Add sum of "bar" variable to rows in group"""
-
+    """Add sum of "bar" variable to rows in group."""
     rows = list(gr)
     sum_bar = sum(r['bar'] for r in rows)
     return [r + (sum_bar,) for r in rows]
@@ -86,4 +84,4 @@ chain.add_link(flmap_lnk)
 
 ##########################################################################
 
-log.debug('Done parsing configuration file esk609_map_df_groups')
+logger.debug('Done parsing configuration file esk609_map_df_groups')

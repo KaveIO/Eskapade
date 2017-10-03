@@ -15,13 +15,14 @@
 
 import ROOT
 
-from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, Link, DataStore, StatusCode
 from eskapade.root_analysis import data_conversion
 from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertRootHist2RooDataHist(Link):
-    """Convert a ROOT histogram into a RooFit histogram
+
+    """Convert a ROOT histogram into a RooFit histogram.
 
     Input histograms can have up to three dimensions. RooFit observables are
     deduced from the histogram axes.  By default all observables are
@@ -33,7 +34,7 @@ class ConvertRootHist2RooDataHist(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize ConvertRootHist2RooDataHist instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: histogram to pick up from datastore (or, if set, from histogram dict)
@@ -44,7 +45,6 @@ class ConvertRootHist2RooDataHist(Link):
         :param bool rm_original: if true, remove original histogram. Default is False.
         :param str create_hist_pdf: if set, create keys pdf from roodatahist with this name and add to ds or workspace
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'ConvertRootHist2RooDataHist'))
 
@@ -62,8 +62,7 @@ class ConvertRootHist2RooDataHist(Link):
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
-        """Initialize ConvertRootHist2RooDataHist"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(read_key=str, hist_dict_key=str, store_key=str)
         self.check_arg_vals('read_key')
@@ -72,30 +71,28 @@ class ConvertRootHist2RooDataHist(Link):
             self.store_key = 'rdh_' + self.read_key.replace(':', '_vs_')
 
         if self.create_hist_pdf:
-            assert isinstance(self.create_hist_pdf, str) and len(self.create_hist_pdf), \
-                'create_hist_pdf needs to be a filled string'
+            assert isinstance(self.create_hist_pdf, str) and self.create_hist_pdf, \
+                'create_hist_pdf needs to be a filled string.'
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute ConvertRootHist2RooDataHist"""
-
-        settings = process_manager.service(ConfigObject)
+        """Execute the link."""
         ds = process_manager.service(DataStore)
         ws = process_manager.service(RooFitManager).ws
 
         # basic checks on contents of the root histogram
         if not self.hist_dict_key:
-            assert self.read_key in ds, 'key "%s" not in DataStore' % self.read_key
+            assert self.read_key in ds, 'Key "{}" not in DataStore.'.format(self.read_key)
             hist = ds[self.read_key]
         else:
-            assert self.hist_dict_key in ds, 'key "%s" not in DataStore' % self.hist_dict_key
+            assert self.hist_dict_key in ds, 'Key "{}" not in DataStore.'.format(self.hist_dict_key)
             hist_dict = ds[self.hist_dict_key]
-            assert self.read_key in hist_dict, 'key "%s" not in histogram dictionary "%s"' % \
-                (self.read_key, self.hist_dict_key)
+            assert self.read_key in hist_dict, \
+                'Key "{}" not in histogram dictionary "{}".'.format(self.read_key, self.hist_dict_key)
             hist = hist_dict[self.read_key]
         if not isinstance(hist, ROOT.TH1):
-            raise TypeError('retrieved object "%s" not a ROOT histogram' % self.read_key)
+            raise TypeError('Retrieved object "{}" not a ROOT histogram.'.format(self.read_key))
 
         # retrieve observable names from axes titles
         columns = []
@@ -107,7 +104,7 @@ class ConvertRootHist2RooDataHist(Link):
             if i == 2:
                 col = hist.GetZaxis().GetName()
             col = col.strip().replace('axis', '').replace(' ', '_')
-            assert len(col), 'could not retrieve valid column name from axis %d its name' % i
+            assert col, 'Could not retrieve valid column name from axis {:d} its name.'.format(i)
             columns.append(col)
 
         # do conversion
@@ -132,9 +129,9 @@ class ConvertRootHist2RooDataHist(Link):
             try:
                 ws.put(rdh, ROOT.RooFit.Rename(self.store_key))
                 if self.create_hist_pdf:
-                    ws.put(hist_pdf, RooFit.RecycleConflictNodes())
+                    ws.put(hist_pdf, ROOT.RooFit.RecycleConflictNodes())
             except:
-                raise RuntimeError('could not import object "%s" into rooworkspace' % self.read_key)
+                raise RuntimeError('Could not import object "{}" into rooworkspace.'.format(self.read_key))
         # 2. put object into datastore
         else:
             ds[self.store_key] = rdh
@@ -143,6 +140,6 @@ class ConvertRootHist2RooDataHist(Link):
 
         n_rdh = rdh.numEntries()
         ds['n_' + self.store_key] = n_rdh
-        self.log().debug('Stored roodatahist "%s" with length: %d', self.store_key, n_rdh)
+        self.logger.debug('Stored roodatahist "{key}" with length: {length:d}', key=self.store_key, length=n_rdh)
 
         return StatusCode.Success

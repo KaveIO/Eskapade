@@ -25,17 +25,17 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
 import sys
 
 import ROOT
 
 from eskapade import process_manager, ConfigObject, root_analysis
+from eskapade.logger import Logger
 from eskapade.root_analysis import roofit_utils
 
-log = logging.getLogger('macro.tutorial_4')
+logger = Logger()
 
-log.debug('Now parsing configuration file tutorial_4')
+logger.debug('Now parsing configuration file tutorial_4.')
 
 ###############################################################################
 # --- first create, compile and load your pdf model
@@ -43,34 +43,26 @@ log.debug('Now parsing configuration file tutorial_4')
 msg = r"""
 <start of instructions>
 
-TUTORIAL 3: ROOFIT
+TUTORIAL 4: ROOFIT
 
 Move to the directory:
 
-% cd $ESKAPADE/cxx/roofit/src/
+% cd $ESKAPADE/cxx/esroofit/src/
 
-<<<<<<< HEAD:python/eskapade/tutorials/tutorial_4.py
-#########################################################################################
-# --- minimal analysis information
-
-settings = process_manager.service(ConfigObject)
-settings['analysisName'] = 'Tutorial_4'
-=======
 Start an interactive python session and type:
->>>>>>> origin/master:tutorials/tutorial_4.py
 
 >>> import ROOT
 >>> ROOT.RooClassFactory.makePdf("MyPdfV2","x,A,B","","A*fabs(x)+pow(x-B,2)")
 
 This command creates a RooFit skeleton probability density function class named MyPdfV2,
-with the variable x,a,b and the given formula expression.
+with the variable x, a, b and the given formula expression.
 
 Also type:
 
 >>> ROOT.RooClassFactory.makePdf("MyPdfV3","x,A,B","","A*fabs(x)+pow(x-B,2)",True,False, \
     "x:(A/2)*(pow(x.max(rangeName),2)+pow(x.min(rangeName),2))+(1./3)*(pow(x.max(rangeName)-B,3)-pow(x.min(rangeName)-B,3))")
 
-This creates the RooFit p.d.f. class MyPdfV3, with the variable x,a,b and the given formula expression,
+This creates the RooFit p.d.f. class MyPdfV3, with the variable x, a, b and the given formula expression,
 and the given expression for analytical integral over x.
 
 Exit python (Ctrl-D) and type:
@@ -78,7 +70,7 @@ Exit python (Ctrl-D) and type:
 % ls -l MyPdf*
 
 You will see two cxx files and two header files. Open the file MyPdfV2.cxx.
-You should see an evaluate() method in terms of x,a and b with the formula expression we provided.
+You should see an evaluate() method in terms of x, a and b with the formula expression we provided.
 
 Now open the file MyPdfV3.cxx. This also contains the method analyticalIntegral() with the expresssion
 for the analytical integral over x that we provided.
@@ -88,25 +80,27 @@ itself. (Of course this is a costly operation.) If you wish, since we know the a
 go ahead and edit MyPdfV2.cxx to add the expression of the analytical integral to the class.
 
 As another example of a simple pdf class, take a look at the expressions in the file:
-$ESKAPADE/cxx/roofit/src/RooWeibull.cxx
+$ESKAPADE/cxx/esroofit/src/RooWeibull.cxx
 
 Now move the header files to their correct location:
 
-% mv MyPdfV*.h $ESKAPADE/cxx/roofit/include/
+% mv MyPdfV*.h $ESKAPADE/cxx/esroofit/include/
 
 To make sure that these classes get picked up in Eskapade roofit libary, open the file:
 
-$ESKAPADE/cxx/roofit/dict/LinkDef.h
+$ESKAPADE/cxx/esroofit/dict/esroofit/LinkDef.h
 
 and add the lines:
 
 #pragma link C++ class MyPdfV2+;
 #pragma link C++ class MyPdfV3+;
 
-Finally, let's compile the c++ code of these classes:
+Finally, let's compile the C++ code of these classes:
 
-% cd $ESKAPADE
-% make install
+   $ mkdir $ESKAPADE/build
+   $ cd $ESKAPADE/build
+   $ cmake ../cxx/esroofit
+   $ cmake --build .
 
 You should see the compiler churning away, processing several existing classes but also MyPdfV2 and MyPdfV3.
 
@@ -119,7 +113,7 @@ In fact, this code is used right below.
 
 <end of instructions>
 """
-log.info(msg)
+logger.info(msg)
 
 #########################################################################################
 # --- minimal analysis information
@@ -135,34 +129,34 @@ settings['version'] = 0
 # --- NOT USED BY DEFAULT: Example of how to compile and load a roofit class on the fly
 if 'onthefly' in settings and settings['onthefly']:
     pdf_name = 'MyPdfV3'
-    log.info('Building and compiling RooFit pdf %s' % pdf_name)
+    logger.info('Building and compiling RooFit pdf {name}.', name=pdf_name)
     # building a roofit pdf class called MyPdfV3
     ROOT.RooClassFactory.makePdf(pdf_name, "x,A,B", "", "A*fabs(x)+pow(x-B,2)", True, False,
                                  "x:(A/2)*(pow(x.max(rangeName),2)+pow(x.min(rangeName),2))"
                                  "+(1./3)*(pow(x.max(rangeName)-B,3)-pow(x.min(rangeName)-B,3))")
     # compiling this class and loading it into ROOT on the fly.
-    ROOT.gROOT.ProcessLineSync(".x %s.cxx+" % pdf_name)
+    ROOT.gROOT.ProcessLineSync(".x {}.cxx+".format(pdf_name))
 
 # --- load and compile the Eskapade roofit library
 roofit_utils.load_libesroofit()
 
 # --- check existence of class MyPdfV3 in ROOT
 pdf_name = 'MyPdfV3'
-log.info('Now checking existence of ROOT class %s' % pdf_name)
+logger.info('Now checking existence of ROOT class {name}.', name=pdf_name)
 cl = ROOT.TClass.GetClass(pdf_name)
 if not cl:
-    log.critical('Could not find ROOT class %s. Did you build and compile it correctly?' % pdf_name)
+    logger.fatal('Could not find ROOT class {name}. Did you build and compile it correctly?', name=pdf_name)
     sys.exit(1)
 else:
-    log.info('Successfully found ROOT class %s' % pdf_name)
+    logger.info('Successfully found ROOT class {name}.', name=pdf_name)
 
 #########################################################################################
 
 msg = r"""
 The plots and latex files produced by this tutorial can be found in dir:
-%s
-""" % (settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/report/')
-log.info(msg)
+{path}
+"""
+logger.info(msg, path=settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/report/')
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
@@ -214,4 +208,4 @@ ch.add_link(wsu)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file tutorial_4')
+logger.debug('Done parsing configuration file tutorial_4.')

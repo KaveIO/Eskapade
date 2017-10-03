@@ -7,13 +7,14 @@ import tabulate
 from statsmodels.stats.weightstats import DescrStatsW
 
 from eskapade.analysis.histogram import BinningUtil
-from eskapade.mixins import LoggingMixin
+from eskapade.logger import Logger
 
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 
-class ArrayStats(LoggingMixin):
-    """Create summary of an array
+class ArrayStats:
+
+    """Create summary of an array.
 
     Class to calculate statistics (mean, standard deviation, percentiles,
     etc.) and create a histogram of values in an array.
@@ -21,8 +22,10 @@ class ArrayStats(LoggingMixin):
     printable string, or as a LaTeX string.
     """
 
+    logger = Logger()
+
     def __init__(self, data, col_name, weights=None, unit='', label=''):
-        """Initialize for a single column in data frame
+        """Initialize for a single column in data frame.
 
         :param data: Input array
         :type data: iterable
@@ -36,7 +39,6 @@ class ArrayStats(LoggingMixin):
         :param str label: Label to describe column variable
         :raises: TypeError
         """
-
         # set initial values of attributes
         self.stat_vars = []
         self.stat_vals = {}
@@ -57,16 +59,16 @@ class ArrayStats(LoggingMixin):
         try:
             iter(self.col)
         except TypeError:
-            raise TypeError('Specified data object is not iterable')
+            raise TypeError('Specified data object is not iterable.')
         if self.weights is not None:
             try:
                 iter(self.weights)
             except TypeError:
-                raise TypeError('Specified weights object is not iterable')
+                raise TypeError('Specified weights object is not iterable.')
 
         # check sizes of data and weights
         if self.weights is not None and len(self.col) != len(self.weights):
-            raise AssertionError('weights and data do not have the same length')
+            raise AssertionError('weights and data do not have the same length.')
 
         # store data and weights in a Pandas Series
         if not isinstance(self.col, pd.Series):
@@ -83,32 +85,31 @@ class ArrayStats(LoggingMixin):
         self.hist = None
 
     def get_col_props(self):
-        """Get column properties
+        """Get column properties.
 
         :returns dict: Column properties
         """
         return get_col_props(self.col.dtype)
 
     def create_mpv_stat(self):
-        """Compute most probable value from histogram
+        """Compute most probable value from histogram.
 
         This function computes the most probable value based on the histogram
         from make_histogram(), and adds it to the statistics.
         """
-
         # basic checks
         if self.hist is None:
-            self.log().warning('Internal histogram is not filled. Run make_histogram() first.')
+            self.logger.warning('Internal histogram is not filled. Run make_histogram() first.')
             return
         if len(self.hist) != 2:
-            raise AssertionError('internal histogram needs to consist of two arrays')
+            raise AssertionError('Internal histogram needs to consist of two arrays.')
         values, bins = self.hist
         if not isinstance(values, np.ndarray) and not isinstance(values, list):
-            raise TypeError('values should be a list or numpy array')
+            raise TypeError('Values should be a list or numpy array.')
         if not isinstance(bins, np.ndarray) and not isinstance(bins, list):
-            raise TypeError('bins should be a list or numpy array')
+            raise TypeError('Bins should be a list or numpy array.')
         if len(bins) != len(values) and len(bins) != len(values) + 1:
-            raise AssertionError('bins and values have inconsistent lengths')
+            raise AssertionError('Bins and values have inconsistent lengths.')
 
         # if two max elements are equal, this will return the element with the lowest index.
         max_idx = max(enumerate(values), key=lambda x: x[1])[0]
@@ -124,19 +125,18 @@ class ArrayStats(LoggingMixin):
         # append statistics
         mpv_name = 'mpv'
         self.stat_vars.append(mpv_name)
-        self.stat_vals[mpv_name] = (bc, '%s' % str(bc))
+        self.stat_vals[mpv_name] = (bc, '{!s}'.format(bc))
         name_len = max(len(n) for n in self.stat_vars)
         self.print_lines.append('{{0:{:d}s}} : {{1:s}}'.format(name_len)
                                 .format(mpv_name, self.stat_vals[mpv_name][1]))
 
     def create_stats(self):
-        """Compute statistical properties of column variable
+        """Compute statistical properties of column variable.
 
         This function computes the statistical properties of values in the
         specified column.  It is called by other functions that use the
         resulting figures to create a statistical overview.
         """
-
         # reset stats containers
         self.stat_vars = []
         self.stat_vals = {}
@@ -173,7 +173,7 @@ class ArrayStats(LoggingMixin):
         if col_props['is_num'] and len(col_num):
             stat_vars = ('mean', 'std', 'min', 'max', 'p01', 'p05', 'p16', 'p50', 'p84', 'p95', 'p99')
             quant_probs = (0, 1, 0.01, 0.05, 0.16, 0.50, 0.84, 0.95, 0.99)
-            #stat_vals = (col_num.mean(), col_num.std(), col_num.min(), col_num.max())\
+            # stat_vals = (col_num.mean(), col_num.std(), col_num.min(), col_num.max())\
             #            + tuple(col_num.quantile((0.01, 0.05, 0.16, 0.50, 0.84, 0.95, 0.99)))
             # two lines below also work if weights are None
             des = DescrStatsW(col_num, self.weights_nn)
@@ -199,12 +199,11 @@ class ArrayStats(LoggingMixin):
                                         .format(stat_var, self.stat_vals[stat_var][1]))
 
     def get_print_stats(self, to_output=False):
-        """Get statistics in printable form
+        """Get statistics in printable form.
 
         :param bool to_output: Print statistics to output stream?
         :returns str: Printable statistics string
         """
-
         # create statistics print lines
         if not self.stat_vals:
             self.create_stats()
@@ -217,7 +216,7 @@ class ArrayStats(LoggingMixin):
         return print_str
 
     def get_latex_table(self, get_stats=None, latex=True):
-        """Get LaTeX code string for table of stats values
+        """Get LaTeX code string for table of stats values.
 
         :param list get_stats: List of statistics that you want to filter on. (default None (all stats))
                                Available stats are: 'count', 'filled', 'distinct', 'mean', 'std', 'min', 'max',
@@ -225,7 +224,6 @@ class ArrayStats(LoggingMixin):
         :param bool latex: LaTeX output or list output (default True)
         :returns str: LaTeX code snippet
         """
-
         # create statistics print lines
         if not self.stat_vals:
             self.create_stats()
@@ -240,13 +238,14 @@ class ArrayStats(LoggingMixin):
             return table
 
     def get_x_label(self):
+        """Get x label."""
         x_lab = self.label if self.label else self.name
         if self.unit:
             x_lab += ' [{}]'.format(self.unit)
         return x_lab
 
     def make_histogram(self, var_bins=30, var_range=None, bin_edges=None, create_mpv_stat=True):
-        """Create histogram of column values
+        """Create histogram of column values.
 
         :param int var_bins: Number of histogram bins
         :param tuple var_range: Range of histogram variable
@@ -338,10 +337,11 @@ class ArrayStats(LoggingMixin):
 
 
 class GroupByStats(ArrayStats):
-    """Create summary of an array in groups"""
+
+    """Create summary of an array in groups."""
 
     def __init__(self, data, col_name, groupby=None, weights=None, unit='', label=''):
-        """Initialize for a single column in data frame
+        """Initialize for a single column in dataframe.
 
         :param data: Input array
         :type data: iterable
@@ -356,7 +356,6 @@ class GroupByStats(ArrayStats):
         :param groupby: column name
         :raises: TypeError
         """
-
         if groupby:
             assert groupby in data.columns, 'The groupby column is not in your DataFrame'
             group = data.groupby(by=groupby)
@@ -366,12 +365,11 @@ class GroupByStats(ArrayStats):
             raise Exception('This class is a wrapper for group-by input. Please supply a proper "groupby" key word.')
 
     def get_latex_table(self, get_stats=None):
-        """Get LaTeX code string for group-by table of stats values
+        """Get LaTeX code string for group-by table of stats values.
 
         :param list get_stats: same as ArrayStats.get_latex_table get_stats key word.
         :returns str: LaTeX code snippet
         """
-
         # Explicitly strip the tables of their LaTeX headers and footers, concatenate the strings with a group-header
         # and reattach the LaTeX header and footer so that it parses to proper LaTeX.
         self.table = []
@@ -380,13 +378,13 @@ class GroupByStats(ArrayStats):
             self.table = self.table + [[group_key]] + s  # The double list is needed for proper latex parsing
 
         if len(self.table) > 25:
-            self.log().warning('The table is longer than 25 rows, the latex file will overflow.')
+            self.logger.warning('The table is longer than 25 rows, the latex file will overflow.')
 
         return tabulate.tabulate(self.table, tablefmt='latex')
 
 
 def get_col_props(var_type):
-    """Get column properties
+    """Get column properties.
 
     :returns dict: Column properties
     """
@@ -401,7 +399,7 @@ def get_col_props(var_type):
 
 
 def weighted_quantile(data, weights=None, probability=[0.5]):
-    """Compute the weighted quantile of a 1D numpy array
+    """Compute the weighted quantile of a 1D numpy array.
 
     Weighted quantiles, inspired by:
     https://github.com/nudomarinero/wquantiles/blob/master/wquantiles.py
@@ -414,7 +412,6 @@ def weighted_quantile(data, weights=None, probability=[0.5]):
     :param ndarray probability: array of quantiles to compute. Each probablity must have a value between 0 and 1.
     :returns: list of the output value(s).
     """
-
     # Check the inputs
     if not isinstance(data, np.ndarray):
         data = np.asarray(data)
@@ -424,17 +421,17 @@ def weighted_quantile(data, weights=None, probability=[0.5]):
         probability = np.asarray(probability)
     for p in probability:
         if p > 1 or p < 0:
-            raise ValueError("probability must have a value between 0 and 1")
+            raise ValueError("Probability must have a value between 0 and 1.")
     if data.ndim != 1:
-        raise TypeError("data must be a one dimensional array")
+        raise TypeError("Data must be a one dimensional array")
     if weights is None:
         weights = np.ones(len(data))
     if not isinstance(weights, np.ndarray):
         weights = np.asarray(weights)
     if weights.ndim != 1:
-        raise TypeError("weights must be a one dimensional array")
+        raise TypeError("Weights must be a one dimensional array.")
     if data.shape != weights.shape:
-        raise TypeError("the length of data and weights must be the same")
+        raise TypeError("The length of data and weights must be the same.")
 
     # Sort data and compute auxiliary arrays
     sorted_index = np.argsort(data)

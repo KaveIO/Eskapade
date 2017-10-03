@@ -20,10 +20,7 @@
 import numpy as np
 import pandas as pd
 
-from eskapade import DataStore
-from eskapade import Link
-from eskapade import StatusCode
-from eskapade import process_manager
+from eskapade import process_manager, DataStore, Link, StatusCode
 
 # numeric datatypes get converted to an index, which is then used for value counting
 NUMERIC_SUBSTR = [np.dtype('int'), np.dtype('float'), np.dtype('double')]
@@ -37,7 +34,8 @@ NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 
 class HistogramFillerBase(Link):
-    """Base class link to fill histograms
+
+    """Base class link to fill histograms.
 
     It is possible to do after-filling cleaning of these histograms by rejecting certain
     keys or removing inconsistent data types. Timestamp columns are
@@ -46,7 +44,7 @@ class HistogramFillerBase(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize HistogramFillerBase instance
+        """Initialize link instance.
 
         Store and do basic check on the attributes of link HistogramFillerBase.
 
@@ -73,7 +71,6 @@ class HistogramFillerBase(Link):
                          'y': ['apple', 'pear', 'tomato'],
                          'x:y': [(1, 'apple'), (19, 'tomato')]}
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'HistogramFillerBase'))
 
@@ -102,8 +99,7 @@ class HistogramFillerBase(Link):
         self.dt_cols = []
 
     def initialize(self):
-        """Initialize HistogramFillerBase"""
-
+        """Initialize the link."""
         # check basic attribute settings
         assert isinstance(self.read_key, str) and len(self.read_key), 'read_key has not been set correctly'
         if self.store_key is not None:
@@ -112,7 +108,7 @@ class HistogramFillerBase(Link):
         # default histogram creation is at execute(). Storage at finalize is useful for
         # looping over datasets.
         if self.store_at_finalize:
-            self.log().debug('Storing (and possible post-processing) at finalize, not execute')
+            self.logger.debug('Storing (and possible post-processing) at finalize, not execute.')
 
         # check that columns are set correctly.
         for i, c in enumerate(self.columns):
@@ -133,7 +129,7 @@ class HistogramFillerBase(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute HistogramFillerBase
+        """Execute the link.
 
         Execute() four things:
 
@@ -145,7 +141,7 @@ class HistogramFillerBase(Link):
         ds = process_manager.service(DataStore)
 
         # basic checks on contensts of the data frame
-        if self.read_key not in ds.keys():
+        if self.read_key not in ds:
             raise KeyError('key "{}" not in data store'.format(self.read_key))
         df = ds[self.read_key]
         self.assert_dataframe(df)
@@ -169,7 +165,7 @@ class HistogramFillerBase(Link):
         # 3. do the actual histogram/counter filling
         for c in self.columns:
             name = ':'.join(c)
-            self.log().debug('Processing column(s) "%s"', name)
+            self.logger.debug('Processing column(s) "{col}".', col=name)
             self.fill_histogram(idf, c)
 
         # cleanup temp df
@@ -182,11 +178,10 @@ class HistogramFillerBase(Link):
         return StatusCode.Success
 
     def finalize(self):
-        """Finalize HistogramFillerBase
+        """Finalize the link.
 
         Store Histograms here, if requested.
         """
-
         # convert to histograms and add to datastore
         if self.store_at_finalize:
             self.process_and_store()
@@ -194,39 +189,37 @@ class HistogramFillerBase(Link):
         return StatusCode.Success
 
     def process_and_store(self):
-        """Store (and possibly process) histogram objects"""
+        """Store (and possibly process) histogram objects."""
         ds = process_manager.service(DataStore)
 
         if self.store_key is not None:
             ds[self.store_key] = self._hists
 
     def assert_dataframe(self, df):
-        """Check that input data is a filled pandas data frame
+        """Check that input data is a filled pandas data frame.
 
         :param df: input (pandas) data frame
         """
-
         if not isinstance(df, pd.DataFrame):
             raise TypeError('retrieved object not of type pandas DataFrame')
         assert len(df.index) > 0, 'input dataframe is empty'
 
     def get_all_columns(self, data):
-        """Retrieve all columns / keys from input data
+        """Retrieve all columns / keys from input data.
 
         :param data: input data sample (pandas dataframe or dict)
         :returns: list of columns
         :rtype: list
         """
-
         if isinstance(data, pd.DataFrame):
             all_columns = sorted(data.columns.tolist())
         else:
-            raise RuntimeError('Cannot determine columns in input data found for {}'.format(str(self)))
+            raise RuntimeError('Cannot determine columns in input data found for {!s}'.format(self))
 
         return all_columns
 
     def get_data_type(self, df, col):
-        """Get data type of dataframe column
+        """Get data type of dataframe column.
 
         :param df: input data frame
         :param str col: column
@@ -236,33 +229,32 @@ class HistogramFillerBase(Link):
         return df[col].dtype
 
     def categorize_columns(self, df):
-        """Categorize columns of dataframe by data type
+        """Categorize columns of dataframe by data type.
 
         :param df: input (pandas) data frame
         """
-
         # check presence and data type of requested columns
         # sort columns into numerical, timestamp and category based
         for c in self.columns:
             for col in c:
                 if col not in df.columns:
-                    raise KeyError('column "{0:s}" not in dataframe "{1:s}"'.format(col, self.read_key))
+                    raise KeyError('Column "{0:s}" not in dataframe "{1:s}".'.format(col, self.read_key))
                 dt = self.get_data_type(df, col)
                 if col not in self.var_dtype:
                     self.var_dtype[col] = dt.type
                     if (self.var_dtype[col] is np.string_) or (self.var_dtype[col] is np.object_):
                         self.var_dtype[col] = str
                 if not any(dt in types for types in (STRING_SUBSTR, NUMERIC_SUBSTR, TIME_SUBSTR)):
-                    raise TypeError('cannot process column "{0:s}" of data type "{1:s}"'.format(col, str(dt)))
+                    raise TypeError('Cannot process column "{0:s}" of data type "{1!s}".'.format(col, dt))
                 is_number = isinstance(dt.type(), np.number)
                 is_timestamp = isinstance(dt.type(), np.datetime64)
                 colset = self.num_cols if is_number else self.dt_cols if is_timestamp else self.str_cols
                 if col not in colset:
                     colset.append(col)
-                self.log().debug('Data type of column "%s" is "%s"', col, self.var_dtype[col])
+                self.logger.debug('Data type of column "{col}" is "{type}".', col=col, type=self.var_dtype[col])
 
     def process_columns(self, df):
-        """Process columns before histogram filling
+        """Process columns before histogram filling.
 
         Specifically, convert timestamp columns to integers
 
@@ -270,33 +262,30 @@ class HistogramFillerBase(Link):
         :returns: output (pandas) data frame with converted timestamp columns
         :rtype: pandas DataFrame
         """
-
         # timestamp variables are converted to ns here
         # make temp df for value counting (used below)
-
         idf = df[self.num_cols + self.str_cols].copy(deep=False)
         for col in self.dt_cols:
-            self.log().debug('Converting column "%s" of type "%s" to nanosec', col, self.var_dtype[col])
+            self.logger.debug('Converting column "{col}" of type "{type}" to nanosec.',
+                              col=col, type=self.var_dtype[col])
             idf[col] = df[col].apply(to_ns)
         return idf
 
     def fill_histogram(self, idf, c):
-        """Fill input histogram with column(s) of input dataframe
+        """Fill input histogram with column(s) of input dataframe.
 
         :param idf: input data frame used for filling histogram
         :param list c: histogram column(s)
         """
-
         return
 
     def drop_requested_keys(self, name, counts):
-        """Drop requested keys from counts dictionary
+        """Drop requested keys from counts dictionary.
 
         :param string name: key of drop_keys dict to get array of keys to be dropped
         :param dict counts: counts dictionary to drop specific keys from
         :returns: count dict without dropped keys
         """
-
         # drop requested keys
         if name in self.drop_keys:
             keys_to_drop = self.drop_keys[name]
@@ -304,19 +293,19 @@ class HistogramFillerBase(Link):
                 raise TypeError('drop_keys value needs to be a list of values')
             for key in keys_to_drop:
                 if key in counts:
-                    self.log().debug('Removing key "%s" with value: "%s", as requested', key, counts[key])
+                    self.logger.debug('Removing key "{key}" with value: "{value}", as requested.',
+                                      key=key, value=counts[key])
                     del counts[key]
         return counts
 
 
 def to_ns(x):
-    """Convert input timestamps to nanoseconds (integers)
+    """Convert input timestamps to nanoseconds (integers).
 
     :param x: value to be converted
     :returns: converted value
     :rtype: int
     """
-
     if pd.isnull(x):
         return 0
     try:
@@ -328,13 +317,12 @@ def to_ns(x):
 
 
 def to_str(val):
-    """Convert input to (array of) string(s)
+    """Convert input to (array of) string(s).
 
     :param val: value to be converted
     :returns: converted value
     :rtype: str or np.ndarray
     """
-
     if isinstance(val, str):
         return val
     elif hasattr(val, '__iter__'):
@@ -347,13 +335,12 @@ def to_str(val):
 
 
 def only_str(val):
-    """Pass input value or array only if it is a string
+    """Pass input value or array only if it is a string.
 
     :param val: value to be evaluated
     :returns: evaluated value
     :rtype: str or np.ndarray
     """
-
     if isinstance(val, str):
         return val
     elif hasattr(val, '__iter__'):
@@ -363,49 +350,46 @@ def only_str(val):
 
 
 def only_bool(val):
-    """ Pass input value or array only if it is a bool
+    """Pass input value or array only if it is a bool.
 
     :param val: value to be evaluated
     :returns: evaluated value
     :rtype: np.bool or np.ndarray
     """
-
-    if isinstance(val, np.bool_) or isinstance(val, bool):
+    if isinstance(val, (np.bool_, bool)):
         return np.bool(val)
     elif hasattr(val, '__iter__') and not isinstance(val, str):
-        return np.asarray(list(filter(lambda s: isinstance(s, np.bool_) or isinstance(s, bool), val)))
+        return np.asarray(list(filter(lambda s: isinstance(s, (np.bool_, bool)), val)))
 
     return None
 
 
 def only_int(val):
-    """ Pass input val value or array only if it is an integer
+    """Pass input val value or array only if it is an integer.
 
     :param val: value to be evaluated
     :returns: evaluated value
     :rtype: np.int64 or np.ndarray
     """
-
-    if isinstance(val, np.int64) or isinstance(val, int):
+    if isinstance(val, (np.int64, int)):
         return np.int64(val)
     elif hasattr(val, '__iter__') and not isinstance(val, str):
-        return np.asarray(list(filter(lambda s: isinstance(s, np.int64) or isinstance(s, int), val)))
+        return np.asarray(list(filter(lambda s: isinstance(s, (np.int64, int)), val)))
 
     return None
 
 
 def only_float(val):
-    """ Pass input val value or array only if it is a float
+    """Pass input val value or array only if it is a float.
 
     :param val: value to be evaluated
     :returns: evaluated value
     :rtype: np.float64 or np.ndarray
     """
-
-    if isinstance(val, np.float64) or isinstance(val, float):
+    if isinstance(val, (np.float64, float)):
         return np.float64(val)
     elif hasattr(val, '__iter__') and not isinstance(val, str):
-        return np.asarray(list(filter(lambda s: isinstance(s, np.float64) or isinstance(s, float), val)))
+        return np.asarray(list(filter(lambda s: isinstance(s, (np.float64, float)), val)))
 
     return np.nan
 
@@ -418,14 +402,13 @@ QUANTITY = {str: only_str, np.str_: only_str,
 
 
 def value_to_bin_index(val, **kwargs):
-    """Convert value to bin index
+    """Convert value to bin index.
 
     Convert a numeric or timestamp column to an integer bin index.
 
     :param bin_width: bin_width value needed to convert column to an integer bin index
     :param bin_offset: bin_offset value needed to convert column to an integer bin index
     """
-
     try:
         # NOTE this notation also works for timestamps
         bin_width = kwargs.get('bin_width', 1)
@@ -438,14 +421,13 @@ def value_to_bin_index(val, **kwargs):
 
 
 def value_to_bin_center(val, **kwargs):
-    """Convert value to bin center
+    """Convert value to bin center.
 
     Convert a numeric or timestamp column to a common bin center value.
 
     :param bin_width: bin_width value needed to convert column to a common bin center value
     :param bin_offset: bin_offset value needed to convert column to a common bin center value
     """
-
     try:
         # NOTE this notation also works for timestamps, and does not change the
         # unit

@@ -21,7 +21,8 @@ from eskapade.spark_analysis import SparkManager, data_conversion
 
 
 class SparkDfWriter(Link):
-    """Link to write data from a Spark dataframe
+
+    """Link to write data from a Spark dataframe.
 
     Data are written with the Spark-SQL data-frame writer
     (pyspark.sql.DataFrameWriter).  The write method to be applied (save,
@@ -35,7 +36,7 @@ class SparkDfWriter(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize link instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of input data in data store
@@ -46,7 +47,6 @@ class SparkDfWriter(Link):
         :param int num_files: requested number of output files
         :param bool fail_missing_data: fail execution if data are missing (default is "True")
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'SparkDfWriter'))
 
@@ -56,14 +56,13 @@ class SparkDfWriter(Link):
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
-        """Inititialize SparkDfWriter"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(read_key=str, write_meth_args=dict, write_meth_kwargs=dict)
         self.check_arg_vals('read_key', 'write_methods')
         self.fail_missing_data = bool(self.fail_missing_data)
         if self.num_files < 1:
-            raise RuntimeError('requested number of files is less than 1 ({:d})'.format(self.num_files))
+            raise RuntimeError('Requested number of files is less than 1 ({:d}).'.format(self.num_files))
 
         # process data-frame-writer methods
         self._write_methods = process_transform_funcs(self.write_methods, self.write_meth_args, self.write_meth_kwargs)
@@ -71,16 +70,15 @@ class SparkDfWriter(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute SparkDfWriter"""
-
+        """Execute the link."""
         # get process manager and data store
         ds = process_manager.service(DataStore)
 
         # check if data frame exists in data store
         if self.read_key not in ds:
-            err_msg = 'no input data found in data store with key "{}"'.format(self.read_key)
+            err_msg = 'No input data found in data store with key "{}".'.format(self.read_key)
             if not self.fail_missing_data:
-                self.log().error(err_msg.capitalize())
+                self.logger.error(err_msg.capitalize())
                 return StatusCode.Success
             raise KeyError(err_msg)
 
@@ -88,13 +86,13 @@ class SparkDfWriter(Link):
         data = ds[self.read_key]
         if not isinstance(data, pyspark.sql.DataFrame):
             spark = process_manager.service(SparkManager).get_session()
-            self.log().debug('Converting data of type "%s" to a Spark data frame', type(data))
+            self.logger.debug('Converting data of type "{type}" to a Spark data frame.', type=type(data))
             data = data_conversion.create_spark_df(spark, data, schema=self.schema)
 
         # create data-frame writer with requested number of partitions/output files
         df_writer = data.repartition(self.num_files).write
 
         # call data-frame writer methods
-        df_writer = apply_transform_funcs(df_writer, self._write_methods)
+        apply_transform_funcs(df_writer, self._write_methods)
 
         return StatusCode.Success

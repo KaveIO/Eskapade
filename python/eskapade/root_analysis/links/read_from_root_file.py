@@ -23,17 +23,17 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ReadFromRootFile(Link):
-    """Put objects from a ROOT file in the data store or workspace"""
+
+    """Put objects from a ROOT file in the data store or workspace."""
 
     def __init__(self, **kwargs):
-        """Initialize ReadFromRootFile instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str path: path of your input root file
         :param list keys: keys to pick up from root file
         :param bool into_ws: if true, store in workspace instead of data store (default is False)
         """
-
         # initialize link and process arguments
         Link.__init__(self, kwargs.pop('name', 'ReadFromRootFile'))
         self._process_kwargs(kwargs,
@@ -46,27 +46,25 @@ class ReadFromRootFile(Link):
         self.in_file = None
 
     def initialize(self):
-        """Initialize ReadFromRootFile"""
-
+        """Initialize the link."""
         # check arguments
         self.check_arg_types(path=str)
         self.check_arg_types(recurse=True, keys=str)
 
         # check if input file exists
         if not os.path.exists(self.path):
-            self.log().error('Input file "%s" not found', self.path)
-            raise AssertionError('input file not found')
+            self.logger.error('Input file "{path}" not found.', path=self.path)
+            raise AssertionError('Input file not found.')
 
         self.in_file = ROOT.TFile(self.path)
         if self.in_file.IsZombie():
-            self.log().error('Input file "%s" not a valid ROOT file', self.path)
-            raise AssertionError('input file not a valid ROOT file')
+            self.logger.error('Input file "{path}" not a valid ROOT file.', path=self.path)
+            raise AssertionError('Input file not a valid ROOT file.')
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute ReadFromRootFile"""
-
+        """Execute the link."""
         ds = process_manager.service(DataStore)
         if self.into_ws:
             ws = process_manager.service(RooFitManager).ws
@@ -74,14 +72,14 @@ class ReadFromRootFile(Link):
         for key in self.keys:
             obj = self.in_file.Get(key)
             if not obj:
-                self.log().warning('Object with key "%s" not found in "%s"; skipping', key, self.path)
+                self.logger.warning('Object with key "{key}" not found in "{path}"; skipping.', key=key, path=self.path)
                 continue
             # a. put object into the workspace
             if self.into_ws:
                 try:
                     ws[key] = obj
                 except BaseException:
-                    raise RuntimeError('could not import object "{}" into workspace'.format(key))
+                    raise RuntimeError('Could not import object "{}" into workspace.'.format(key))
             # b. put object into datastore
             else:
                 ds[key] = obj
@@ -89,8 +87,7 @@ class ReadFromRootFile(Link):
         return StatusCode.Success
 
     def finalize(self):
-        """Finalize ReadFromRootFile"""
-
+        """Finalize the link."""
         if self.in_file:
             self.in_file.Close()
 

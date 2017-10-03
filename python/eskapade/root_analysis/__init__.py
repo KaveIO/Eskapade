@@ -1,7 +1,9 @@
+# flake8: noqa
 try:
     import ROOT
 except ImportError:
     from eskapade import MissingRootError
+
     raise MissingRootError()
 
 try:
@@ -12,6 +14,7 @@ except ImportError:
         import ROOT.RooFit
     except ImportError:
         from eskapade import MissingRooFitError
+
         raise MissingRooFitError()
 
 try:
@@ -22,6 +25,7 @@ except ImportError:
         import ROOT.RooStats
     except ImportError:
         from eskapade import MissingRooStatsError
+
         raise MissingRooStatsError()
 
 from eskapade.root_analysis import decorators, style

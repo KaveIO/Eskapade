@@ -15,10 +15,11 @@
 # **********************************************************************************
 
 import glob
-import logging
 import os
 import re
 from collections import defaultdict
+
+from eskapade.logger import Logger
 
 # IO locations
 IO_LOCS = dict(config='config_dir',
@@ -50,49 +51,49 @@ IO_SUB_DIRS = defaultdict(lambda: '',
                           plots='{ana_name:s}/plots/v{ana_version:s}')
 
 # get logging instance
-log = logging.getLogger(__name__)
+logger = Logger()
 
-# function to replace whitespace in names
-repl_whites = lambda name: '_'.join(name.split())
+
+def repl_whites(name):
+    """Replace whitespace in names."""
+    return '_'.join(name.split())
 
 
 def create_dir(dir_path):
-    """Function to create directory
+    """Create directory.
 
     :param str dir_path: directory path
     """
-
     if os.path.exists(dir_path):
         if os.path.isdir(dir_path):
             return
-        log.critical('directory path "%s" exists, but is not a directory', dir_path)
-        raise AssertionError('unable to create IO directory')
-    log.debug('creating directory "%s"', dir_path)
+        logger.fatal('Directory path "{path}" exists, but is not a directory.', path=dir_path)
+        raise AssertionError('Unable to create IO directory.')
+    logger.debug('Creating directory "{path}".', path=dir_path)
     os.makedirs(dir_path)
 
 
 def io_dir(io_type, io_conf):
-    """Functions to construct I/O paths
+    """Construct directory path.
 
     :param str io_type: type of result to store, e.g. data, macro, results.
     :param io_conf: IO configuration object
     :return: directory path
     :rtype: str
     """
-
     # check inputs
     if io_type not in IO_LOCS:
-        log.critical('unknown IO type: "%s"', str(io_type))
-        raise RuntimeError('IO directory found for specified IO type')
-    if not IO_LOCS[io_type] in io_conf:
-        log.critical('directory for io_type (%s->%s) not in io_conf' % (io_type, IO_LOCS[io_type]))
-        raise RuntimeError('io_dir: directory for specified IO type not found in specified IO configuration')
+        logger.fatal('Unknown IO type: "{type!s}".', type=io_type)
+        raise RuntimeError('IO directory found for specified IO type.')
+    if IO_LOCS[io_type] not in io_conf:
+        logger.fatal('Directory for io_type ({type}->{path}) not in io_conf.', type=io_type, path=IO_LOCS[io_type])
+        raise RuntimeError('io_dir: directory for specified IO type not found in specified IO configuration.')
 
     # construct directory path
     base_dir = io_conf[IO_LOCS[io_type]]
     sub_dir = IO_SUB_DIRS[io_type].format(ana_name=repl_whites(io_conf['analysis_name']),
                                           ana_version=repl_whites(str(io_conf['analysis_version'])))
-    dir_path = base_dir + ('/' if sub_dir else '') + sub_dir
+    dir_path = base_dir + ('/' if base_dir[-1] != '/' else '') + sub_dir
 
     # create and return directory path
     create_dir(dir_path)
@@ -100,7 +101,7 @@ def io_dir(io_type, io_conf):
 
 
 def io_path(io_type, io_conf, sub_path):
-    """Functions to construct IO paths
+    """Construct directory path with sub path.
 
     :param str io_type: type of result to store, e.g. data, macro, results.
     :param io_conf: IO configuration object
@@ -108,11 +109,10 @@ def io_path(io_type, io_conf, sub_path):
     :return: full path to directory
     :rtype: str
     """
-
     # check inputs
     if not isinstance(sub_path, str):
-        log.critical('Specified sub path/file name must be a string, but has type "{type!s}"'
-                     .format(type=type(sub_path).__name__))
+        logger.fatal('Specified sub path/file name must be a string, but has type "{type!s}"',
+                     type=type(sub_path).__name__)
         raise TypeError('The sub path/file name in the io_path function must be a string')
     sub_path = repl_whites(sub_path).strip('/')
 
@@ -125,7 +125,7 @@ def io_path(io_type, io_conf, sub_path):
 
 
 def record_file_number(io_conf, file_name_base, file_name_ext):
-    """Function to get next prediction-record file number
+    """Get next prediction-record file number.
 
     :param io_conf: I/O configuration object
     :param str file_name_base: base file name
@@ -133,13 +133,12 @@ def record_file_number(io_conf, file_name_base, file_name_ext):
     :return: next prediction-record file number
     :rtype: int
     """
-
     file_name_base = repl_whites(file_name_base)
     file_name_ext = repl_whites(file_name_ext)
     records_dir = io_dir('records', io_conf)
     max_num = -1
-    regex = re.compile('.*/%s_(\d*?).%s' % (file_name_base, file_name_ext))
-    for file_path in glob.glob('%s/%s_*.%s' % (records_dir, file_name_base, file_name_ext)):
+    regex = re.compile('.*/{}_(\d*?).{}'.format(file_name_base, file_name_ext))
+    for file_path in glob.glob('{}/{}_*.{}'.format(records_dir, file_name_base, file_name_ext)):
         digit = regex.search(file_path)
         if digit:
             max_num = max(max_num, int(digit.group(1)))
@@ -148,7 +147,8 @@ def record_file_number(io_conf, file_name_base, file_name_ext):
 
 
 class IoConfig(dict):
-    """Configuration object for I/O operations"""
+
+    """Configuration object for I/O operations."""
 
     _conf_items = dict(analysis_name=str,
                        analysis_version=None,
@@ -158,17 +158,16 @@ class IoConfig(dict):
                        templates_dir=str)
 
     def __init__(self, **input_config):
-        """Initialize IoConfig instance"""
-
+        """Initialize IoConfig instance."""
         # check required items
         for key, val_type in self._conf_items.items():
             if key not in input_config:
-                log.critical('item "%s" not found in input IO configuration', key)
-                raise KeyError('missing item(s) in input configuration for IoConfig')
+                logger.fatal('Item "{key}" not found in input IO configuration.', key=key)
+                raise KeyError('Missing item(s) in input configuration for IoConfig.')
             if val_type and not isinstance(input_config[key], val_type):
-                log.critical('item "%s" has type "%s" ("%s" required)',
-                             key, type(input_config[key]).__name__, str.__name__)
-                raise TypeError('incorrect type for item(s) in input configuration for IoConfig')
+                logger.fatal('Item "{key}" has type "{type}" ("{name}" required).',
+                             key=key, type=type(input_config[key]).__name__, name=str.__name__)
+                raise TypeError('Incorrect type for item(s) in input configuration for IoConfig.')
 
         # initialize dictionary
         dict.__init__(self, **input_config)

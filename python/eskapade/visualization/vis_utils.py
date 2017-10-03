@@ -1,15 +1,30 @@
-import logging
+# **********************************************************************************
+# * Project: Eskapade - A python-based package for data analysis                   *
+# * Created: 2017/02/28                                                            *
+# * Description:                                                                   *
+# *      Utility functions to collect Eskapade python modules                      *
+# *      e.g. functions to get correct Eskapade file paths and env variables       *
+# *                                                                                *
+# * Authors:                                                                       *
+# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
+# *                                                                                *
+# * Redistribution and use in source and binary forms, with or without             *
+# * modification, are permitted according to the terms listed in the file          *
+# * LICENSE.                                                                       *
+# **********************************************************************************
 
 import numpy as np
 import pandas as pd
 
+from eskapade.logger import Logger
+
 NUM_NS_DAY = 24 * 3600 * int(1e9)
 
-log = logging.getLogger(__name__)
+logger = Logger()
 
 
 def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False, pdf_file_name='', top=20):
-    """Create and plot histogram of column values
+    """Create and plot histogram of column values.
 
     :param hist: input numpy histogram = values, bin_edges
     :param str x_label: Label for histogram x-axis
@@ -24,7 +39,7 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False, pdf_fi
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
 
-    fig = plt.figure(figsize=(7, 5))
+    plt.figure(figsize=(7, 5))
 
     try:
         hist_values = hist[0]
@@ -46,8 +61,8 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False, pdf_fi
         bin_edges = hist_bins
         bin_values = hist_values
         assert len(bin_edges) == len(bin_values) + 1, \
-            'bin edges (+ upper edge) and bin values have inconsistent lengths: %d vs %d.' % \
-            (len(bin_edges), len(bin_values))
+            'bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}.'\
+            .format(len(bin_edges), len(bin_values))
 
         if is_ts:
             # difference in seconds
@@ -70,8 +85,7 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False, pdf_fi
         labels = hist_bins
         values = hist_values
         assert len(labels) == len(values), \
-            'labels and values have different array lengths: %d vs %d.' % \
-            (len(labels), len(values))
+            'labels and values have different array lengths: {:d} vs {:d}.'.format(len(labels), len(values))
 
         # plot histogram
         tick_pos = np.arange(len(labels)) + 0.5
@@ -104,7 +118,7 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False, pdf_fi
 
 
 def plot_2d_histogram(hist, x_lim, y_lim, title, x_label, y_label, pdf_file_name):
-    """Plot 2d histogram with matplotlib
+    """Plot 2d histogram with matplotlib.
 
     :param hist: input numpy histogram = x_bin_edges, y_bin_edges, bin_entries_2dgrid
     :param tuple x_lim: range tuple of x-axis (min,max)
@@ -119,7 +133,7 @@ def plot_2d_histogram(hist, x_lim, y_lim, title, x_label, y_label, pdf_file_name
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
 
-    fig = plt.figure(figsize=(7, 5))
+    plt.figure(figsize=(7, 5))
 
     try:
         x_ranges = hist[0]
@@ -146,7 +160,7 @@ def plot_2d_histogram(hist, x_lim, y_lim, title, x_label, y_label, pdf_file_name
 
 
 def delete_smallstat(df, group_col, statlim=400):
-    """Remove low-statistics groups from data frame
+    """Remove low-statistics groups from dataframe.
 
     Function to make a new DataFrame that removes all groups of group_col that have less than statlim entries.
 
@@ -183,7 +197,7 @@ def delete_smallstat(df, group_col, statlim=400):
 def box_plot(
         df, cause_col, result_col='cost', pdf_file_name='', ylim_quant=0.95, ylim_high=None, ylim_low=0, rot=90,
         statlim=400, label_dict=None, title_add='', top=20):
-    """Make box plot
+    """Make box plot.
 
     Function that plots the boxplot of the column df[result_col] in groups of cause_col. This means that
     the DataFrame is grouped-by on the cause column and then the distribution per group is plotted in a boxplot
@@ -204,7 +218,6 @@ def box_plot(
     :param str title_add: string that is added to the automatic title (the y column name)
     :param int top: only print the top 20 characters of x-labels and y-labels. (default is 20)
     """
-
     # import matplotlib here to prevent import before setting backend in
     # core.execution.run_eskapade
     import matplotlib.pyplot as plt
@@ -212,15 +225,16 @@ def box_plot(
 
     # Check the number of categories in the cause_col, if this is too large, only plot the top 20.
     if len(df[cause_col].unique()) > top:
-        to_px = df[cause_col].value_counts()[:top].index
+        top_x = df[cause_col].value_counts()[:top].index
         df = df[df[cause_col].isin(top_x)]
-        log.warning('The number of categories of column "%s" is too large, boxplot is not generated', cause_col)
+        logger.warning('The number of categories of column "{col}" is too large, boxplot is not generated.',
+                       col=cause_col)
 
     # Build a figure
     fig = plt.figure(figsize=(8, 6))
     ax1 = fig.add_subplot(111)
 
-    df_small, n_removed = delete_smallstat(df, cause_col, statlim=statlim)
+    df_small, _ = delete_smallstat(df, cause_col, statlim=statlim)
 
     # Make boxplots
     df_small.boxplot(column=result_col, by=cause_col, ax=ax1, fontsize=20, rot=rot, grid=True)
@@ -255,7 +269,7 @@ def box_plot(
     sizes = list(df_small.groupby(cause_col).size())
     upper_labels = [str(np.round(s, 2)) for s in sizes]
     weights = ['bold', 'semibold']
-    for tick, label in zip(range(num_boxes), ax1.get_xticklabels()):
+    for tick in range(num_boxes):
         k = tick % 2
         ax1.text(pos[tick], ylim_high - (ylim_high * 0.05), upper_labels[tick], horizontalalignment='center',
                  size='larger', weight=weights[k])
@@ -275,7 +289,7 @@ def box_plot(
 def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
                             title='correlation', vmin=-1, vmax=1, color_map='RdYlGn', x_label='', y_label='', top=20,
                             matrix_numbers=None, print_both_numbers=True):
-    """Create and plot correlation matrix
+    """Create and plot correlation matrix.
 
     :param matrix_colors: input correlation matrix
     :param list x_labels: Labels for histogram x-axis bins
@@ -313,7 +327,7 @@ def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
 
     # set x-axis properties
     def tick(lab):
-        if isinstance(lab, float) or isinstance(lab, int):
+        if isinstance(lab, (float, int)):
             lab = 'NaN' if np.isnan(lab) else '{0:.1e}'.format(lab)
         lab = str(lab)
         if len(lab) > top:
@@ -343,8 +357,8 @@ def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
 
     # annotate with correlation values
     numbers_set = [matrix_numbers] if not print_both_numbers else [matrix_numbers, matrix_colors]
-    for i, xlab in enumerate(x_labels):
-        for j, ylab in enumerate(y_labels):
+    for i, _ in enumerate(x_labels):
+        for j, _ in enumerate(y_labels):
             point_color = float(matrix_colors[j][i])
             white_cond = (point_color < 0.7 * vmin) or (point_color >= 0.7 * vmax) or np.isnan(point_color)
             y_offset = 0.5

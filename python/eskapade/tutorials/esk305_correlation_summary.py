@@ -14,15 +14,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject, resources
 from eskapade import analysis, visualization
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk305_correlation_summary')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk305_correlation_summary')
+logger.debug('Now parsing configuration file esk305_correlation_summary.')
 
 #########################################################################################
 # --- minimal analysis information
@@ -65,4 +64,4 @@ process_manager.get_chain('Summary').add_link(corr_link)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk305_correlation_summary')
+logger.debug('Done parsing configuration file esk305_correlation_summary.')

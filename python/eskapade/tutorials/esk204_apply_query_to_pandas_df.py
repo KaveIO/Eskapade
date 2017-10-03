@@ -13,18 +13,17 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from numpy.random import randn
 from pandas import DataFrame
 
 from eskapade import ConfigObject, DataStore
 from eskapade import core_ops, analysis
 from eskapade import process_manager
+from eskapade.logger import Logger, LogLevel
 
-log = logging.getLogger('macro.esk204_apply_query_to_pandas_df')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk204_apply_query_to_pandas_df')
+logger.debug('Now parsing configuration file esk204_apply_query_to_pandas_df')
 
 #########################################################################################
 # --- minimal analysis information
@@ -49,23 +48,23 @@ ds = process_manager.service(DataStore)
 ds['incoming_records'] = df
 
 #########################################################################################
-# --- Here we apply example selections to a dataframe picked up from the datastore. 
+# --- Here we apply example selections to a dataframe picked up from the datastore.
 
 ch = process_manager.add_chain('DataPrep')
 
-# querySet = seletions that are applies to incoming_records
-# after selections, only keep column in selectColumns ('a', 'c')
-link = analysis.ApplySelectionToDf(readKey='incoming_records',
-                                   storeKey='outgoing_records',
-                                   querySet=['a>0', 'c<b'],
-                                   selectColumns=['a', 'c'])
+# query_set = seletions that are applies to incoming_records
+# after selections, only keep column in select_columns ('a', 'c')
+link = analysis.ApplySelectionToDf(read_key='incoming_records',
+                                   store_key='outgoing_records',
+                                   query_set=['a>0', 'c<b'],
+                                   select_columns=['a', 'c'])
 # Any other kwargs given to ApplySelectionToDf are passed on the the
 # pandas query() function.
-link.set_log_level(logging.DEBUG)
+link.logger.log_level = LogLevel.DEBUG
 ch.add_link(link)
 
 link = core_ops.DsObjectDeleter()
-link.deletionKeys = ['incoming_records']
+link.deletion_keys = ['incoming_records']
 ch.add_link(link)
 
 link = core_ops.PrintDs()
@@ -74,4 +73,4 @@ ch.add_link(link)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk204_apply_query_to_pandas_df')
+logger.debug('Done parsing configuration file esk204_apply_query_to_pandas_df')

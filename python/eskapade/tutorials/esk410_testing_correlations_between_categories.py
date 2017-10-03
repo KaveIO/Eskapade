@@ -28,17 +28,15 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
-from pkg_resources import resource_filename
-
 from eskapade import ConfigObject
 from eskapade import analysis, root_analysis, visualization
 from eskapade import process_manager
+from eskapade import resources
+from eskapade.logger import Logger, LogLevel
 
-log = logging.getLogger('macro.esk410_testing_correlations_between_categories')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk410_testing_correlations_between_categories')
+logger.debug('Now parsing configuration file esk410_testing_correlations_between_categories')
 
 #########################################################################################
 # --- minimal analysis information
@@ -50,7 +48,7 @@ settings['version'] = 0
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
 
-input_files = [resource_filename('eskapade', '/data/mock_accounts.csv.gz')]
+input_files = [resources.fixture('mock_accounts.csv.gz')]
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
@@ -133,7 +131,7 @@ hypotest.sk_residuals_overview = 'residuals_overview'
 # hypotest.default_number_of_bins = 5
 # hypotest.var_default_number_of_bins = ['obs1':10,'obs2':5,'obs1:obs2':[3,3]]
 
-hypotest.set_log_level(logging.DEBUG)
+hypotest.logger.log_level = LogLevel.DEBUG
 ch.add_link(hypotest)
 
 # --- 4. print contents of the datastore
@@ -145,4 +143,4 @@ process_manager.get_chain('Overview').add_link(hist_summary)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk410_testing_correlations_between_categories')
+logger.debug('Done parsing configuration file esk410_testing_correlations_between_categories')

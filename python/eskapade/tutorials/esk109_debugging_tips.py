@@ -12,16 +12,15 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject
 from eskapade import DataStore
 from eskapade import core_ops
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk109_debugging_tips')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk109_debugging_tips')
+logger.debug('Now parsing configuration file esk109_debugging_tips')
 
 #########################################################################################
 # --- minimal analysis information
@@ -35,13 +34,13 @@ settings['version'] = 0
 
 msg = r"""
 
-To end the run_eskapade.py session with an interactive ipython shell,
+To end the eskapade_run session with an interactive ipython shell,
 from the cmd line use the this flag: -i
 """
-log.info(msg)
+logger.info(msg)
 
 # testing false used for running integration tests. do not remove.
-settings['TESTING'] = False if not 'TESTING' in settings else settings['TESTING']
+settings['TESTING'] = False if 'TESTING' not in settings else settings['TESTING']
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
@@ -92,8 +91,8 @@ ch = process_manager.add_chain('End')
 link = core_ops.PrintDs(name='printer3')
 ch.add_link(link)
 
-# 6. run_eskapade.py with cmd line option -i to end the eskapade session with an interactive ipython shell
+# 6. eskapade_run with cmd line option -i to end the eskapade session with an interactive ipython shell
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk109_debugging_tips')
+logger.debug('Done parsing configuration file esk109_debugging_tips')

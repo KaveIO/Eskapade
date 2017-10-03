@@ -20,8 +20,7 @@ import pyspark
 
 
 def is_nan(x):
-    """Test if value is NaN/null/None"""
-
+    """Test if value is NaN/null/None."""
     if pd.isnull(x):
         return True
     if isinstance(x, str):
@@ -32,8 +31,7 @@ def is_nan(x):
 
 
 def is_inf(x):
-    """Test if value is infinite"""
-
+    """Test if value is infinite."""
     try:
         return bool(np.isinf(x))
     except BaseException:
@@ -41,7 +39,7 @@ def is_inf(x):
 
 
 def to_date_time(dt, tz_in=None, tz_out=None):
-    """Convert value to date/time object
+    """Convert value to date/time object.
 
     :param dt: value representing a date/time (parsed by pandas.Timestamp)
     :param tz_in: time zone to localize data/time value to (parsed by pandas.Timestamp.tz_localize)
@@ -49,7 +47,6 @@ def to_date_time(dt, tz_in=None, tz_out=None):
     :returns: date/time object
     :rtype: datetime.datetime
     """
-
     if dt is None:
         return None
     try:
@@ -64,14 +61,13 @@ def to_date_time(dt, tz_in=None, tz_out=None):
 
 
 def to_timestamp(dt, tz_in=None):
-    """Convert value to Unix timestamp (ns)
+    """Convert value to Unix timestamp (ns).
 
     :param dt: value representing a date/time (parsed by pandas.Timestamp)
     :param tz_in: time zone to localize data/time value to (parsed by pandas.Timestamp.tz_localize)
     :returns: Unix timestamp (ns)
     :rtype: int
     """
-
     if dt is None:
         return None
     try:
@@ -84,7 +80,7 @@ def to_timestamp(dt, tz_in=None):
 
 
 def calc_asym(var1, var2):
-    """Calculate asymmetry
+    """Calculate asymmetry.
 
     Calculate asymmetry between variables 1 and 2:
     >>> (var2 - var1) / (abs(var1) + abs(var2))
@@ -92,7 +88,6 @@ def calc_asym(var1, var2):
     :returns: asymmetry value
     :rtype: float
     """
-
     try:
         var1 = np.float64(var1)
         var2 = np.float64(var2)
@@ -114,24 +109,24 @@ SPARK_QUERY_FUNCS = dict(count='count(*)',
                          nunique='count(distinct {0:s})',
                          nnan='count(if(is_nan({0:s}), 1, NULL))',
                          ninf='count(if(is_inf({0:s}), 1, NULL))',
-                         sum='sum(%s)' % _only_finite,
+                         sum='sum({})'.format(_only_finite),
                          possum='sum(if(not is_nan({0:s}) and not is_inf({0:s}) and {0:s}>0, {0:s}, NULL))',
                          negsum='sum(if(not is_nan({0:s}) and not is_inf({0:s}) and {0:s}<0, {0:s}, NULL))',
-                         mean='avg(%s)' % _only_finite,
-                         max='max(%s)' % _only_finite,
-                         min='min(%s)' % _only_finite,
-                         std='stddev_pop(%s)' % _only_finite,
-                         skew='skewness(%s)' % _only_finite,
-                         kurt='kurtosis(%s)' % _only_finite,
-                         var='var_pop(%s)' % _only_finite,
-                         cov='covar_pop(%s,%s)' % (_only_finite, _only_finite.format('{1:s}')),
-                         corr='corr(%s,%s)' % (_only_finite, _only_finite.format('{1:s}')),
+                         mean='avg({})'.format(_only_finite),
+                         max='max({})'.format(_only_finite),
+                         min='min({})'.format(_only_finite),
+                         std='stddev_pop({})'.format(_only_finite),
+                         skew='skewness({})'.format(_only_finite),
+                         kurt='kurtosis({})'.format(_only_finite),
+                         var='var_pop({})'.format(_only_finite),
+                         cov='covar_pop({},{})'.format(_only_finite, _only_finite.format('{1:s}')),
+                         corr='corr({},{})'.format(_only_finite, _only_finite.format('{1:s}')),
                          msd='if(is_nan({0:s}) or is_inf({0:s}) or {0:s}=0, NULL, '
-                              'cast(abs({0:s}) * pow(10, -floor(log10(abs({0:s})))) as int))')
+                             'cast(abs({0:s}) * pow(10, -floor(log10(abs({0:s})))) as int))')
 
 
 def spark_sql_func(name, default_func=None):
-    """Get Spark SQL function
+    """Get Spark SQL function.
 
     Get a function from pyspark.sql.functions by name.  If function does not
     exist in the SQL-functions module, return a default function, if
@@ -142,15 +137,14 @@ def spark_sql_func(name, default_func=None):
     :returns: Spark SQL function
     :raises: RuntimeError if function does not exist
     """
-
     func = getattr(pyspark.sql.functions, str(name), default_func)
     if func:
         return func
-    raise RuntimeError('"%s" not found in Spark SQL functions' % str(name))
+    raise RuntimeError('"{!s}" not found in Spark SQL functions'.format(name))
 
 
 def spark_query_func(spec):
-    """Get Eskapade Spark-query function
+    """Get Eskapade Spark-query function.
 
     Get a function that returns a string to be used as a function in a Spark
     SQL query:
@@ -170,11 +164,10 @@ def spark_query_func(spec):
     :param str spec: function specification: "name" or "name::definition"
     :returns: query function
     """
-
     # split function specification into name and definition
     sep_ind = spec.find('::')
     if sep_ind in (0, len(spec) - 2):
-        raise ValueError('invalid function specification: "{}"'.format(str(spec)))
+        raise ValueError('invalid function specification: "{!s}"'.format(spec))
     name, func_def = (spec[:sep_ind], spec[sep_ind + 2:]) if sep_ind > 0 else (spec, spec)
 
     # get function definition

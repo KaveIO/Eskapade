@@ -15,38 +15,31 @@
 
 from IPython import embed
 
-from eskapade import ConfigObject
-from eskapade import DataStore
 from eskapade import Link
 from eskapade import StatusCode
-from eskapade import process_manager
 
 
 class IPythonEmbed(Link):
-    """Link to start up ipython console
 
-    Start up an ipython console by simply adding this link at any location in a chain.    
+    """Link to start up ipython console.
+
+    Start up an ipython console by simply adding this link at any location in a chain.
     """
 
     def __init__(self, **kwargs):
-        """Init of link IPythonEmbed
+        """Initialize link instance.
 
         :param str name: name of link
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'IPythonEmbed'))
 
-        # check residual kwargs. exit if any present. 
+        # check residual kwargs. exit if any present.
         self.check_extra_kwargs(kwargs)
 
     def execute(self):
-        """Execute IPythonEmbed"""
-
-        settings = process_manager.service(ConfigObject)
-        ds = process_manager.service(DataStore)
-
-        self.log().info("Starting interactive session ... press Ctrl+d to exit.\n")
+        """Execute the link."""
+        self.logger.info("Starting interactive session ... press Ctrl+d to exit.\n")
         # this function calls the interactive ipython session
         # in this session ds, settings, and process_manager are available
         embed()

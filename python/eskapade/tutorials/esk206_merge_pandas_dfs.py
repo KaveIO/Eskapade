@@ -14,17 +14,16 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from pandas import DataFrame
 
 from eskapade import ConfigObject, DataStore
 from eskapade import core_ops, analysis
 from eskapade import process_manager
+from eskapade.logger import Logger, LogLevel
 
-log = logging.getLogger('macro.esk206_merge_pandas_dfs')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk206_merge_pandas_dfs')
+logger.debug('Now parsing configuration file esk206_merge_pandas_dfs')
 
 #########################################################################################
 # --- minimal analysis information
@@ -58,24 +57,24 @@ ds['right'] = DataFrame({'key': ['K0', 'K1', 'K2', 'K3'],
 ch = process_manager.add_chain('DataPrep')
 
 # inner-join the two dataframes with each other on 'key' during link execution
-link = analysis.DfMerger(input_collection1 ='left',
-                         input_collection2 = 'right',
-                         output_collection = 'outgoing',
-                         how = 'inner',
-                         on = 'key')
+link = analysis.DfMerger(input_collection1='left',
+                         input_collection2='right',
+                         output_collection='outgoing',
+                         how='inner',
+                         on='key')
 # Any other kwargs given to DfMerger are passed on the the
 # pandas merge() function.
-link.set_log_level(logging.DEBUG)
+link.logger.log_level = LogLevel.DEBUG
 ch.add_link(link)
 
 link = core_ops.DsObjectDeleter()
-link.deletionKeys = ['left','right']
+link.deletion_keys = ['left', 'right']
 ch.add_link(link)
 
 link = core_ops.PrintDs()
-link.keys = ['n_outgoing','outgoing']
+link.keys = ['n_outgoing', 'outgoing']
 ch.add_link(link)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk206_merge_pandas_dfs')
+logger.debug('Done parsing configuration file esk206_merge_pandas_dfs')

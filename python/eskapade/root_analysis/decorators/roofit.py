@@ -17,8 +17,7 @@ import ROOT
 
 
 def coll_iter(coll):
-    """Iterate over items in RooAbsCollection"""
-
+    """Iterate over items in RooAbsCollection."""
     it = coll.fwdIterator()
     obj = it.next()
     while obj:
@@ -27,20 +26,18 @@ def coll_iter(coll):
 
 
 def ws_contains(ws, key):
-    """Check if RooWorkspace contains an object"""
-
+    """Check if RooWorkspace contains an object."""
     if isinstance(key, str):
         return bool(ws.obj(key))
     try:
         obj = ws.obj(key if isinstance(key, str) else key.GetName())
         return obj == key
-    except:
+    except Exception:
         return False
 
 
 def ws_put(ws, *args):
-    """Put object in RooWorkspace"""
-
+    """Put object in RooWorkspace."""
     ws_import = getattr(ROOT.RooWorkspace, 'import')
     if len(args) == 1 and any(isinstance(args[0], c) for c in (ROOT.RooAbsArg, ROOT.RooArgSet, ROOT.RooAbsData)):
         args += (ROOT.RooCmdArg(),)
@@ -48,17 +45,15 @@ def ws_put(ws, *args):
 
 
 def data_set_iter(self):
-    """Iterate over events in RooDataSet"""
-
+    """Iterate over events in RooDataSet."""
     for it in range(self.numEntries()):
         yield self.get(it)
 
 
 def ws_setitem(ws, key, value):
-    """Put object in RooWorkspace dict-style"""
-
+    """Put object in RooWorkspace dict-style."""
     if not isinstance(value, ROOT.TObject):
-        raise AssertionError('Cannot import object with type "%s" into workspace.' % type(value))
+        raise AssertionError('Cannot import object with type "{}" into workspace.'.format(type(value)))
     getattr(ws, 'import')(value, key)
 
 

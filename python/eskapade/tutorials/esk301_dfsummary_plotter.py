@@ -13,15 +13,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject
 from eskapade import analysis, visualization
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk301_dfsummary_plotter')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk301_dfsummary_plotter')
+logger.debug('Now parsing configuration file esk301_dfsummary_plotter.')
 
 #########################################################################################
 # --- minimal analysis information
@@ -36,9 +35,9 @@ settings['version'] = 0
 msg = r"""
 
 The plots and latex files produced by link df_summary can be found in dir:
-%s
-""" % (settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/report/')
-log.info(msg)
+{path}
+"""
+logger.info(msg, path=settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/report/')
 
 COLUMNS = ['var_a', 'var_b', 'var_c']
 SIZE = 10000
@@ -71,4 +70,4 @@ process_manager.get_chain('Summary').add_link(summarizer)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk301_dfsummary_plotter')
+logger.debug('Done parsing configuration file esk301_dfsummary_plotter')

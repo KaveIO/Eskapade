@@ -32,7 +32,8 @@ NUM_DUMMY_EVENTS = 10000
 
 
 class TruncExpGen(Link):
-    """Generate with truncated exponential PDF
+
+    """Generate with truncated exponential PDF.
 
     Generate data with an exponential PDF in a range with a variable upper
     bound.  That is, the PDF is truncated at a different value for each
@@ -46,14 +47,13 @@ class TruncExpGen(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize the TruncExpGen instance
+        """Initialize link instance.
 
         :param str name: name of link instance
         :param str store_key: data-store key of generated data
         :param str max_var_data_key: data-store key of dataset with range upper-bound values
         :param str model_name: name of truncated-exponential model to use
         """
-
         Link.__init__(self, kwargs.pop('name', 'fit_trunc_exp'))
 
         # process keyword arguments
@@ -62,8 +62,7 @@ class TruncExpGen(Link):
         self._gen_cmd_args = None
 
     def initialize(self):
-        """Inititialize the TruncExpGen execution"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(store_key=str, max_var_data_key=str, model_name=str, event_frac=float)
         self.check_arg_vals('store_key', 'max_var_data_key', 'model_name', 'event_frac')
@@ -72,7 +71,7 @@ class TruncExpGen(Link):
         rfm = process_manager.service(RooFitManager)
         model = rfm.model(self.model_name)
         if not model:
-            self.log().warning('Model "{}" does not exist; creating with default values'.format(self.model_name))
+            self.logger.warning('Model "{model}" does not exist; creating with default values.', model=self.model_name)
             model = rfm.model(self.model_name, model_cls=TruncExponential)
 
         # check if model PDF has been built
@@ -85,8 +84,7 @@ class TruncExpGen(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute TruncExpGen"""
-
+        """Execute the link."""
         # get process manager and services
         ds = process_manager.service(DataStore)
         rfm = process_manager.service(RooFitManager)
@@ -96,7 +94,8 @@ class TruncExpGen(Link):
 
         # check if dataset with upper bounds exists in data store
         if self.max_var_data_key not in ds:
-            self.log().warning('No range upper-bound data in data store; generating %d dummy bounds', NUM_DUMMY_EVENTS)
+            self.logger.warning('No range upper-bound data in data store; generating {n:d} dummy bounds',
+                                n=NUM_DUMMY_EVENTS)
             ds[self.max_var_data_key] = gen_max_var_data(model)
 
         # get max-var data
@@ -116,8 +115,7 @@ class TruncExpGen(Link):
 
 
 def sel_max_var_data(model, max_var_data, event_frac):
-    """Select upper-bound data with PDF integral values"""
-
+    """Select upper-bound data with PDF integral values."""
     # add column with PDF-integral values
     mv_sel_data = ROOT.RooDataSet(max_var_data)
     pdf_int = model.pdf.createIntegral(model.var_set, ROOT.RooArgSet())
@@ -142,8 +140,7 @@ def sel_max_var_data(model, max_var_data, event_frac):
 
 
 def gen_max_var_data(model):
-    """Generate range upper-bound data"""
-
+    """Generate range upper-bound data."""
     # create a dataset for upper bounds
     mv_data = ROOT.RooDataSet('max_var_data', 'Max-var data', model.max_var_set)
     mv_set = mv_data.get()
@@ -155,7 +152,7 @@ def gen_max_var_data(model):
 
     # generate upper bounds
     mv_vals = np.random.uniform(*mv_range, NUM_DUMMY_BOUNDS)
-    for ev_it in range(NUM_DUMMY_EVENTS):
+    for _ in range(NUM_DUMMY_EVENTS):
         mv_var.setVal(np.random.choice(mv_vals, size=1, replace=True))
         mv_data.add(mv_set)
 

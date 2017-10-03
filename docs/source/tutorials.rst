@@ -15,12 +15,11 @@ macro, the classic code example: Hello World!
 Hello World!
 ~~~~~~~~~~~~
 
-If you just want to run it plain and simple, go to the root of the repository and run the following:
+If you just want to run it plain and simple, go to python/eskapade directory in the repository and run the following:
 
 .. code-block:: bash
 
-  $ source setup.sh
-  $ run_eskapade.py ./tutorials/esk101_helloworld.py
+  $ eskapade_run python/eskapade/tutorials/esk101_helloworld.py
 
 This will run the macro that prints out Hello World. There is a lot of output, but try to find back these
 lines (or similar):
@@ -45,7 +44,7 @@ When we go into this macro we find the following piece of code:
 .. code-block:: python
 
   link = core_ops.HelloWorld(name='HelloWorld')
-  link.set_log_level(logging.DEBUG)
+  link.logger.log_level = LogLevel.DEBUG
   link.repeat = settings['n_repeat']
   ch.add_link(link)
 
@@ -61,7 +60,7 @@ Looking into this class in particular, in the code we find in the ``execute()`` 
 
 .. code-block:: python
 
-  self.log().info('Hello {0}'.format(self.hello))
+  self.logger.info('Hello {hello}', hello=self.hello)
 
 where ``self.hello`` is a parameter set in the ``__init__`` of the class. This setting can be overwritten as can be seen
 below. For example, we can make another link, ``link2`` and change the default ``self.hello`` into something else.
@@ -70,7 +69,7 @@ below. For example, we can make another link, ``link2`` and change the default `
 
   link2 = core_ops.HelloWorld(name='Hello2')
   link2.hello = 'Lionel Richie'
-  ch.add_link(hello2)
+  ch.add_link(link2)
 
 Rerunning results in us greeting the famous singer/songwriter.
 
@@ -87,13 +86,13 @@ Before we get started, we have to fetch some data, on your command line, type:
 
 .. code-block:: bash
 
-  $ wget -P $ESKAPADE/data/ https://s3-eu-west-1.amazonaws.com/kpmg-eskapade-share/data/LAozone.data
+  $ wget https://s3-eu-west-1.amazonaws.com/kpmg-eskapade-share/data/LAozone.data
 
 To run the macro type on your CLI:
 
 .. code-block:: bash
 
-  $ run_eskapade.py tutorials/tutorial_1.py
+  $ eskapade_run python/eskapade/tutorials/tutorial_1.py
 
 If you want to add command line arguments, for example to change the output logging level, read the
 page on `command line arguments <command_line_arguments.html>`_.
@@ -141,7 +140,7 @@ inserted into the chain:
 
 .. code-block:: python
 
-  reader = analysis.ReadToDf(name='Read_LA_ozone', path=DATA_FILE_PATH, reader=pd.read_csv, key='data')
+  reader = analysis.ReadToDf(name='Read_LA_ozone', path='LAozone.data', reader=pd.read_csv, key='data')
   process_manager.get_chain('Data').add_link(reader)
 
 This means the Link is added to the chain and when Eskapade runs, it will execute the code in the Link.
@@ -153,7 +152,7 @@ Uncomment the code and run the macro again with:
 
 .. code-block:: bash
 
-  $ run_eskapade.py tutorials/tutorial_1.py
+  $ eskapade_run python/eskapade/tutorials/tutorial_1.py
 
 And notice that it takes a bit longer to run, and the output is longer, since it now executes the Link in chain 2. This Link takes the data from chain 1
 and makes plots of the data in the data set and saves it to your disk. Go to this path and open one of the pdfs found
@@ -188,13 +187,13 @@ Now we are going to add a new link that we create! To make a new link type the f
 
 .. code-block:: bash
 
-  $ make_link.sh python/eskapade/analysis/links YourLink
+  $ eskapade_generate_link --dir python/eskapade/analysis/links YourLink
 
-The script will make a link object named ``YourLink`` in the path specified in the first argument.
+The command will make a link object named ``YourLink`` in the path specified in the first argument.
 The link we wish to add will do some textual transformation, so name it accordingly.
-And be sure to follow the instructions given by the script!
+And be sure to follow the instructions given by the command!
 
-The script creates the skeleton file:
+The command creates the skeleton file:
 
 .. code-block:: bash
 
@@ -252,7 +251,7 @@ The command
 
 .. code-block::  bash
 
-  $ make_macro.sh tutorials/ Tutorial_2
+  $ eskapade_generate_macro --dir python/eskapade/tutorials Tutorial_2
 
 makes a new macro from a template macro.
 When we open the macro we find a lot of options that we can use. For now we will actually not use them, but if you want

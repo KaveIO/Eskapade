@@ -13,15 +13,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject
 from eskapade import core_ops
 from eskapade import process_manager
+from eskapade.logger import Logger, LogLevel
 
-log = logging.getLogger('macro.esk101_helloworld')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk101_helloworld')
+logger.debug('Now parsing configuration file esk101_helloworld')
 
 #########################################################################################
 # --- minimal analysis information
@@ -46,10 +45,10 @@ settings['n_repeat'] = 2
 if settings['do_hello']:
     ch = process_manager.add_chain('Hello')
     link = core_ops.HelloWorld(name='HelloWorld')
-    link.set_log_level(logging.DEBUG)
+    link.logger.log_level = LogLevel.DEBUG
     link.repeat = settings['n_repeat']
     ch.add_link(link)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk101_helloworld')
+logger.debug('Done parsing configuration file esk101_helloworld')

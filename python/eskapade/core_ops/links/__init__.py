@@ -22,6 +22,4 @@ __all__ = ['AssertInDs',
            'SkipChainIfEmpty',
            'ToDsDict',
            'IPythonEmbed',
-           'Break',
-           ]
-
+           'Break', ]

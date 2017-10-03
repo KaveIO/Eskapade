@@ -23,15 +23,15 @@ from collections import Counter
 
 import numpy as np
 
-from eskapade import DataStore
-from eskapade import process_manager
+from eskapade import process_manager, DataStore
 from eskapade.analysis import histogram_filling as hf
 from eskapade.analysis.histogram import Histogram, ValueCounts
 from eskapade.analysis.histogram_filling import HistogramFillerBase
 
 
 class ValueCounter(HistogramFillerBase):
-    """Count values in Pandas data frame
+
+    """Count values in Pandas data frame.
 
     ValueCounter does value_counts() on single columns of a pandas
     dataframe, or groupby().size() on multiple columns.  Results of both are
@@ -48,21 +48,21 @@ class ValueCounter(HistogramFillerBase):
     """
 
     def __init__(self, **kwargs):
-        """Initialize ValueCounter instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of input data to read from data store
         :param str store_key_counts: key of output data to store ValueCounts objects in data store
         :param str store_key_hists: key of output data to store histograms in data store
-        :param list columns: colums to pick up from input data (default is all columns)
+        :param list columns: columns to pick up from input data (default is all columns)
         :param dict bin_specs: dictionaries used for rebinning numeric or timestamp columns
 
         Example bin_specs dictionary is:
 
         >>> bin_specs = {'x': {'bin_width': 1, 'bin_offset': 0},
-                         'y': {'bin_edges': [0, 2, 3, 4, 5, 7, 8]},
-                         'date': {'bin_width': np.timedelta64(30, 'D'),
-                                  'bin_offset': np.datetime64('2010-01-04')}}
+        >>>              'y': {'bin_edges': [0, 2, 3, 4, 5, 7, 8]},
+        >>>              'date': {'bin_width': np.timedelta64(30, 'D'),
+        >>>                       'bin_offset': np.datetime64('2010-01-04')}}
 
         :param dict var_dtype: dict of datatypes of the columns to study from dataframe. If not provided, try to
                                determine datatypes directy from dataframe.
@@ -75,10 +75,9 @@ class ValueCounter(HistogramFillerBase):
         Example drop_keys dictionary is:
 
         >>> drop_keys = {'x': [1, 4, 8, 19],
-                         'y': ['apple', 'pear', 'tomato'],
-                         'x:y': [(1, 'apple'), (19, 'tomato')]}
+        >>>              'y': ['apple', 'pear', 'tomato'],
+        >>>              'x:y': [(1, 'apple'), (19, 'tomato')]}
         """
-
         # initialize Link, pass name from kwargs
         if 'name' not in kwargs:
             kwargs['name'] = 'ValueCounter'
@@ -97,8 +96,7 @@ class ValueCounter(HistogramFillerBase):
         self._valcnts = {}
 
     def initialize(self):
-        """Initialize ValueCounter"""
-
+        """Initialize the link."""
         # check basic attribute settings
         if self.store_key_hists is not None:
             assert isinstance(self.store_key_hists, str) and len(self.store_key_hists), \
@@ -112,7 +110,7 @@ class ValueCounter(HistogramFillerBase):
         return HistogramFillerBase.initialize(self)
 
     def process_columns(self, df):
-        """Process columns before histogram filling
+        """Process columns before histogram filling.
 
         Specifically, convert timestamp columns to integers
         and numeric variables are converted to indices
@@ -121,18 +119,19 @@ class ValueCounter(HistogramFillerBase):
         :returns: output (pandas) data frame with converted timestamp columns
         :rtype: pandas DataFrame
         """
-
         # timestamp variables are converted to ns here
         # make temp df for value counting (used below)
 
         idf = df[self.str_cols].copy(deep=False)
         for col in self.dt_cols:
-            self.log().debug('Converting column "%s" of type "%s" to nanosec', col, self.var_dtype[col])
+            self.logger.debug('Converting column "{column}" of type "{type}" to nanosec.',
+                              column=col, type=self.var_dtype[col])
             idf[col] = df[col].apply(hf.to_ns)
 
         # numerical variables are converted to indices here
         for col in self.num_cols + self.dt_cols:
-            self.log().debug('Converting column "%s" of type "%s" to index', col, self.var_dtype[col])
+            self.logger.debug('Converting column "{column}" of type "{type}" to index.',
+                              column=col, type=self.var_dtype[col])
             # find column specific bin_specs. if not found, use dict of default
             # values.
             dt = df[col].dtype
@@ -145,12 +144,11 @@ class ValueCounter(HistogramFillerBase):
         return idf
 
     def fill_histogram(self, idf, columns):
-        """Fill input histogram with column(s) of input dataframe
+        """Fill input histogram with column(s) of input dataframe.
 
         :param idf: input data frame used for filling histogram
         :param list columns: histogram column(s)
         """
-
         name = ':'.join(columns)
         if name not in self._counts:
             # create an (empty) value counts dict
@@ -164,8 +162,7 @@ class ValueCounter(HistogramFillerBase):
         self._counts[name].update(counts)
 
     def process_and_store(self):
-        """Make, clean, and store ValueCount objects"""
-
+        """Make, clean, and store ValueCount objects."""
         # nothing to do?
         if self.store_key_hists is None and self.store_key_counts is None:
             return
@@ -218,22 +215,19 @@ class ValueCounter(HistogramFillerBase):
             del self._hists
 
     def drop_inconsistent_keys(self, columns, obj):
-        """Drop inconsistent keys
+        """Drop inconsistent keys.
 
         Drop inconsistent keys from a ValueCounts or Histogram object.
 
         :param list columns: columns key to retrieve desired datatypes
         :param object obj: ValueCounts or Histogram object to drop inconsistent keys from
         """
-
         # has array been converted first? if so, set correct comparison
         # datatype
         comp_dtype = []
         for col in columns:
             dt = np.dtype(self.var_dtype[col]).type()
-            is_converted = isinstance(
-                dt, np.number) or isinstance(
-                dt, np.datetime64)
+            is_converted = isinstance(dt, (np.number, np.datetime64))
             if is_converted:
                 comp_dtype.append(np.int64)
             else:

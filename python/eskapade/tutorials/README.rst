@@ -1,7 +1,7 @@
 Eskapade examples
 -----------------
 
-Many Eskapade example macros can be found in the ``tutorials`` directory.
+Many Eskapade example macros can be found in the ``python/eskapade/tutorials`` directory.
 Together they form a knowledge repository of the tools available in Eskapade.
 
 The numbering of the example macros is as follows:

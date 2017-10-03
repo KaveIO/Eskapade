@@ -11,16 +11,15 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
-
 import pyspark
 
 from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
-log = logging.getLogger('macro.esk606_convert_spark_df')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk606_convert_spark_df')
+logger.debug('Now parsing configuration file esk606_convert_spark_df.')
 
 ##########################################################################
 # --- minimal analysis information
@@ -48,22 +47,21 @@ schema = ds['df'].schema
 
 # define function to set number of partitions
 def set_num_parts(df, max_num_parts):
+    """Set number of partitions."""
     if df.rdd.getNumPartitions() > max_num_parts:
         df = df.repartition(max_num_parts)
     return df
 
 
 # define function to select rows from list
-
-
 def filter_list(list_data, min_index):
+    """Filter list by index."""
     return list(filter(lambda r: r[0] >= min_index, list_data))
 
 
-# define function to select rows in a Pandas data frame
-
-
+# define function to select rows in a pandas data frame
 def filter_pd(pd_data, min_index):
+    """Filter pandas dataframe by index."""
     return pd_data[pd_data['index'] >= min_index]
 
 
@@ -100,4 +98,4 @@ for out_format in process_methods:
 
 ##########################################################################
 
-log.debug('Done parsing configuration file esk606_convert_spark_df')
+logger.debug('Done parsing configuration file esk606_convert_spark_df.')

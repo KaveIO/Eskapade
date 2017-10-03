@@ -20,7 +20,7 @@ import pandas as pd
 import tabulate
 from sklearn.feature_selection import mutual_info_regression
 
-from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, resources, ConfigObject, Link, DataStore, StatusCode
 from eskapade import visualization
 from eskapade.core import persistence
 
@@ -29,10 +29,11 @@ LINEAR_CORRS = ['pearson', 'kendall', 'spearman']
 
 
 class CorrelationSummary(Link):
-    """Create a heatmap of correlations between dataframe variables"""
+
+    """Create a heatmap of correlations between dataframe variables."""
 
     def __init__(self, **kwargs):
-        """Initialize CorrelationSummary instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of input dataframe to read from data store
@@ -41,7 +42,6 @@ class CorrelationSummary(Link):
         :param list methods: method(s) of computing correlations
         :param str pages_key: data store key of existing report pages
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'correlation_summary'))
 
@@ -50,8 +50,7 @@ class CorrelationSummary(Link):
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
-        """Initialize CorrelationSummary"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(read_key=str, store_key=str, results_path=str, methods=list, pages_key=str)
         self.check_arg_vals('read_key')
@@ -60,9 +59,9 @@ class CorrelationSummary(Link):
         io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates
-        with open(persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
+        with open(resources.template('df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
-        with open(persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
+        with open(resources.template('df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
 
         # get path to results directory
@@ -73,11 +72,11 @@ class CorrelationSummary(Link):
         if os.path.exists(self.results_path):
             # check if path is a directory
             if not os.path.isdir(self.results_path):
-                self.log().critical('output path "%s" is not a directory', self.results_path)
-                raise AssertionError('output path is not a directory')
+                self.logger.fatal('Output path "{path}" is not a directory.', path=self.results_path)
+                raise AssertionError('Output path is not a directory.')
         else:
             # create directory
-            self.log().debug('Making output directory "%s"', self.results_path)
+            self.logger.debug('Making output directory "{path}".', path=self.results_path)
             os.makedirs(self.results_path)
 
         # check methods
@@ -93,23 +92,22 @@ class CorrelationSummary(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute CorrelationSummary"""
-
+        """Execute the link."""
         ds = process_manager.service(DataStore)
 
         # fetch and check input data frame
         # drop all-nan columns right away
         df = ds.get(self.read_key, None).dropna(how='all', axis=1)
         if not isinstance(df, pd.DataFrame):
-            self.log().critical('no Pandas data frame "%s" found in data store for %s', self.read_key, str(self))
-            raise RuntimeError('no input data found for %s' % str(self))
+            self.logger.fatal('No Pandas data frame "{self.read_key}" found in data store for {self!s}.', self=self)
+            raise RuntimeError('No input data found for {!s}.', self)
         n_df = len(df.index)
-        assert n_df, 'Pandas data frame "%s" frame has zero length' % self.read_key
+        assert n_df, 'Pandas data frame "{}" frame has zero length.'.format(self.read_key)
 
         # create report pages
         if self.pages_key:
             self.pages = ds.get(self.pages_key, [])
-            assert isinstance(self.pages, list), 'Pages key %s does not refer to a list' % self.pages_key
+            assert isinstance(self.pages, list), 'Pages key {} does not refer to a list.'.format(self.pages_key)
 
         # below, create report pages
         # for each correlation create resulting heatmap
@@ -117,7 +115,8 @@ class CorrelationSummary(Link):
 
         for method in self.methods:
             # compute correlations between all numerical variables
-            self.log().debug('Computing "%s" correlations of dataframe "%s"', method, self.read_key)
+            self.logger.debug('Computing "{method}" correlations of dataframe "{key}".',
+                              method=method, key=self.read_key)
 
             # mutual info, from sklearn
             if method == 'mutual_information':
@@ -178,7 +177,7 @@ class CorrelationSummary(Link):
             fpath = os.path.join(self.results_path, fname)
 
             # create nice looking plot
-            self.log().debug('Saving correlation heatmap as {}'.format(fpath))
+            self.logger.debug('Saving correlation heatmap as "{path}".', path=fpath)
             visualization.vis_utils.plot_correlation_matrix(cors, cols, cols, fpath, title, vmin, vmax, color_map)
 
             # statistics table for report page
@@ -205,8 +204,7 @@ class CorrelationSummary(Link):
         return StatusCode.Success
 
     def finalize(self):
-        """Finalize CorrelationSummary"""
-
+        """Finalize the link."""
         # write report file
         with open('{}/report.tex'.format(self.results_path), 'w') as report_file:
             report_file.write(

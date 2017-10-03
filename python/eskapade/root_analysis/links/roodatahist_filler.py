@@ -24,10 +24,7 @@ try:
 except ImportError:
     import ROOT.RooFit as RooFit
 
-from eskapade import process_manager
-from eskapade import Link
-from eskapade import DataStore
-from eskapade import StatusCode
+from eskapade import process_manager, Link, DataStore, StatusCode
 from eskapade.root_analysis import data_conversion
 from eskapade.root_analysis.roofit_manager import RooFitManager
 
@@ -35,7 +32,8 @@ N_BINS_DEFAULT = 40
 
 
 class RooDataHistFiller(Link):
-    """Fill a RooFit histogram with columns from a Pandas dataframe
+
+    """Fill a RooFit histogram with columns from a Pandas dataframe.
 
     Histograms can have any number of dimensions. Only numeric observables
     are picked up.  By default all observables are interpreted as continuous
@@ -61,7 +59,7 @@ class RooDataHistFiller(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize RooDataHistFiller instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of input data to read from data store
@@ -84,7 +82,6 @@ class RooDataHistFiller(Link):
         :param str create_hist_pdf: if filled, create hist pdf from rdh with this name and
                                     add to datastore or workspace. (optional)
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'RooDataHistFiller'))
 
@@ -119,37 +116,36 @@ class RooDataHistFiller(Link):
         self._mto = {}
 
     def initialize(self):
-        """Initialize RooDataHistFiller"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(read_key=str, store_key=str)
         self.check_arg_types(recurse=True, allow_none=True, columns=str)
         self.check_arg_vals('read_key')
 
-        if len(self.store_key) == 0:
+        if not self.store_key:
             self.store_key = 'rdh_' + self.read_key.replace('df_', '')
-        if len(self.store_key_vars) == 0:
+        if not self.store_key_vars:
             self.store_key_vars = self.read_key.replace('df_', '') + '_varset'
-        if len(self.store_key_cats) == 0:
+        if not self.store_key_cats:
             self.store_key_cats = self.read_key.replace('df_', '') + '_catset'
         if not self.sk_map_to_original:
             self.sk_map_to_original = 'map_' + self.store_key + '_to_original'
-            self.log().info('Storage key "sk_map_to_original" has been set to "%s"', self.sk_map_to_original)
+            self.logger.info('Storage key "sk_map_to_original" has been set to "{key}".', key=self.sk_map_to_original)
 
         if not self.map_to_factorized:
-            assert isinstance(self.map_to_factorized, str) or isinstance(self.map_to_factorized, dict), \
-                'map_to_factorized needs to be a dict or string (to fetch a dict from the datastore)'
+            assert isinstance(self.map_to_factorized, (str, dict)), \
+                'map_to_factorized needs to be a dict or string (to fetch a dict from the datastore).'
 
-        assert self.n_max_total_bins >= 1, 'max total number of bins in histogram needs to be greater than one'
+        assert self.n_max_total_bins >= 1, 'Max total number of bins in histogram needs to be greater than one.'
 
         if self.create_hist_pdf:
-            assert isinstance(self.create_hist_pdf, str) and len(self.create_hist_pdf), \
+            assert isinstance(self.create_hist_pdf, str) and self.create_hist_pdf, \
                 'create_hist_pdf needs to be a filled string'
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute RooDataHistFiller
+        """Execute the link.
 
         Fill a roodatahist object with a pandas dataframe.  It it possible to
         fill the roodatahist iteratively, in a loop over dataframes.
@@ -163,52 +159,51 @@ class RooDataHistFiller(Link):
         5. store the roodatahist.
            optionally, at the storage stage a pdf can be created of the roodatahist as well.
         """
-
         ds = process_manager.service(DataStore)
 
         # 1a. basic checks on contensts of the data frame
-        assert self.read_key in list(ds.keys()), 'key "%s" not in DataStore' % self.read_key
+        assert self.read_key in ds, 'key "{key}" not in DataStore'.format(key=self.read_key)
         df = ds[self.read_key]
         if not isinstance(df, pd.DataFrame):
-            raise RuntimeError('retrieved object "%s" not of type pandas DataFrame' % self.read_key)
-        assert len(df.index) > 0, 'dataframe "%s" is empty' % self.read_key
+            raise RuntimeError('retrieved object "{}" not of type pandas DataFrame'.format(self.read_key))
+        assert len(df.index) > 0, 'dataframe "{}" is empty'.format(self.read_key)
 
         # 1b. retrieve map_to_factorized from ds if it's a string
         if self.map_to_factorized:
             if isinstance(self.map_to_factorized, str):
-                assert len(self.map_to_factorized), 'map_to_factorized needs to be a filled string'
-                assert self.map_to_factorized in ds, 'map_to_factorized key "%s" not found in datastore'
+                assert self.map_to_factorized, 'map_to_factorized needs to be a filled string'
+                assert self.map_to_factorized in ds, 'map_to_factorized key "{}" not found in datastore'
                 self.map_to_factorized = ds[self.map_to_factorized]
             assert isinstance(self.map_to_factorized, dict), 'map_to_factorized needs to be a dict'
 
         # 1c. varset, if already set, overrules provided columns
         if self._varset:
-            assert isinstance(self._varset, ROOT.RooArgSet), 'varset is not a rooargset'
+            assert isinstance(self._varset, ROOT.RooArgSet), 'varset is not a rooargset.'
             self.columns = [rv.GetName() for rv in self._varset]
 
         # 1d. check all columns
         if not self.columns:
             self.columns = df.columns.tolist()
         for col in self.columns[:]:
-            assert col in df.columns, 'column "%s" not in dataframe "%s"' % (col, self.read_key)
+            assert col in df.columns, 'Column "{}" not in dataframe "{}".'.format(col, self.read_key)
             dt = df[col].dtype.type
             # keep categorical observables -- convert these to roocategories in conversion to tree
             if pd.core.common.is_categorical(dt):
                 continue
             # reject all string-based columns
             if (dt is np.string_) or (dt is np.object_):
-                self.log().warning('Skipping string-based column "%s"', col)
+                self.logger.warning('Skipping string-based column "{col}".', col=col)
                 self.columns.remove(col)
             if col in self.ignore_columns:
                 self.columns.remove(col)
-        self.log().debug('Picking up columns: %s', self.columns)
+        self.logger.debug('Picking up columns: {cols}.', cols=self.columns)
 
         # 2. do conversion of df to roodataset, pass this to roodatahist below.
         #    self.map_to_factorized are categorical variables to be turned into roocategories
-        rds, obs, mtf, map_to_original = data_conversion.df_to_rds(df[self.columns],
-                                                                   rf_varset=self._varset,
-                                                                   category_vars=self.map_to_factorized,
-                                                                   name=self.read_key)
+        rds, obs, _, map_to_original = data_conversion.df_to_rds(df[self.columns],
+                                                                 rf_varset=self._varset,
+                                                                 category_vars=self.map_to_factorized,
+                                                                 name=self.read_key)
 
         # 3a. determine max number of bin for continuous observables
         #     (do this at first iteration only.)
@@ -219,15 +214,15 @@ class RooDataHistFiller(Link):
                 n_total_bins_in_categories *= len(mto)
             n_total_bins_in_vars = self.n_max_total_bins / n_total_bins_in_categories
             n_vars = len(self.columns) - len(map_to_original)
-            assert n_total_bins_in_vars >= 0, 'total number of bins in vars is negative'
-            assert n_vars >= 0, 'number of roorealvars is negative'
+            assert n_total_bins_in_vars >= 0, 'Total number of bins in vars is negative.'
+            assert n_vars >= 0, 'Number of roorealvars is negative.'
             if n_vars >= 1:
                 n_max_bins = int(math.pow(n_total_bins_in_vars, 1 / n_vars))
                 if n_max_bins < 1:
                     n_max_bins = 1
                 elif n_max_bins > int(self.n_max_total_bins):
                     n_max_bins = int(self.n_max_total_bins)
-                self.log().debug('Max number of variable bins set to: %d', n_max_bins)
+                self.logger.debug('Max number of variable bins set to: {n:d}', n=n_max_bins)
 
         # 3b. instantiate roodatahist, to be filled up below.
         #     secondly, fix the roofit variable set
@@ -248,7 +243,7 @@ class RooDataHistFiller(Link):
                     n_bins = N_BINS_DEFAULT
                 if n_bins > n_max_bins:
                     n_bins = n_max_bins
-                    self.log().info('Capping n_bins of column "%s" to: %d', name, n_max_bins)
+                    self.logger.info('Capping n_bins of column "{col}" to: {n:d}', col=name, n=n_max_bins)
                 rv.setBins(n_bins)
                 if name in self.var_min_value:
                     min_val = self.var_min_value[name]
@@ -257,7 +252,7 @@ class RooDataHistFiller(Link):
                     max_val = self.var_max_value[name]
                     rv.setMax(max_val)
         else:
-            assert isinstance(self._varset, ROOT.RooArgSet) and len(self._varset), 'varset is not a filled rooargset'
+            assert isinstance(self._varset, ROOT.RooArgSet) and len(self._varset), 'varset is not a filled rooargset.'
         if not self._rdh:
             name = str(rds.GetName()).replace('rds_', 'rdh_')
             self._rdh = ROOT.RooDataHist(name, name, self._varset)
@@ -271,7 +266,7 @@ class RooDataHistFiller(Link):
             if not self._mto:
                 self._mto.update(map_to_original)
         except Exception as exc:
-            self.log().critical('Could not fill roodatahist object with roodataset')
+            self.logger.fatal('Could not fill roodatahist object with roodataset.')
             raise exc
 
         # 5. storage of roodatahist and its variables
@@ -281,16 +276,14 @@ class RooDataHistFiller(Link):
         return StatusCode.Success
 
     def finalize(self):
-        """Finalize RooDataHistFiller"""
-
+        """Finalize the link."""
         if self.store_at_finalize:
             self.do_storage()
 
         return StatusCode.Success
 
     def do_storage(self):
-        """Storage of the created RooDataHist object"""
-
+        """Storage of the created RooDataHist object."""
         ds = process_manager.service(DataStore)
 
         # 1. create pdf of dataset as well?
@@ -312,7 +305,7 @@ class RooDataHistFiller(Link):
                 if self.create_hist_pdf:
                     ws.put(hist_pdf, RooFit.RecycleConflictNodes())
             except:
-                raise RuntimeError('could not import object "%s" into rooworkspace' % self.read_key)
+                raise RuntimeError('Could not import object "{}" into rooworkspace.'.format(self.read_key))
         # 3b. put objects into datastore
         else:
             ds[self.store_key] = self._rdh
@@ -323,5 +316,5 @@ class RooDataHistFiller(Link):
 
         n_rdh = int(self._rdh.sumEntries())
         ds['n_' + self.store_key] = n_rdh
-        self.log().debug('Stored roodatahist "%s" with sum of weights: %d', self.store_key, n_rdh)
+        self.logger.debug('Stored roodatahist "{key}" with sum of weights: {sum:d}', key=self.store_key, sum=n_rdh)
         ds[self.sk_map_to_original] = self._mto

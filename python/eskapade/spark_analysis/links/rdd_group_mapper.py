@@ -19,7 +19,8 @@ from eskapade import Link, StatusCode, process_manager, DataStore
 
 
 class RddGroupMapper(Link):
-    """Apply a map function on groups in a Spark RDD
+
+    """Apply a map function on groups in a Spark RDD.
 
     Group rows of key-value pairs in a Spark RDD by key and apply a custom
     map function on the group values.  By default, the group key and the
@@ -33,7 +34,7 @@ class RddGroupMapper(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize link instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of the input data in the data store
@@ -44,7 +45,6 @@ class RddGroupMapper(Link):
         :param bool flatten_output_groups: create a row for each item in the group output values (default is False)
         :param int num_group_partitions: number of partitions for group map (optional, no repartitioning by default)
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'RddGroupMapper'))
 
@@ -54,8 +54,7 @@ class RddGroupMapper(Link):
         self.kwargs = kwargs
 
     def initialize(self):
-        """Inititialize RddGroupMapper"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(read_key=str)
         self.check_arg_types(allow_none=True, store_key=str, num_group_partitions=int)
@@ -68,8 +67,7 @@ class RddGroupMapper(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute RddGroupMapper"""
-
+        """Execute the link."""
         # get process manager and data store
         ds = process_manager.service(DataStore)
 
@@ -78,7 +76,7 @@ class RddGroupMapper(Link):
             raise KeyError('no input data found in data store with key "{}"'.format(self.read_key))
         data = ds[self.read_key]
         if not isinstance(data, pyspark.RDD):
-            raise TypeError('expected a Spark RDD for "{0:s}" (got "{1:s}")'.format(self.read_key, str(type(data))))
+            raise TypeError('expected a Spark RDD for "{0:s}" (got "{1!s}")'.format(self.read_key, type(data)))
 
         # apply input map
         if self.input_map:

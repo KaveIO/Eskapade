@@ -18,15 +18,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject, resources
 from eskapade import analysis, visualization
 from eskapade import process_manager
+from eskapade.logger import Logger, LogLevel
 
+logger = Logger()
 
-log = logging.getLogger('macro.esk306_concatenate_reports')
-log.debug('Now parsing configuration file esk306_concatenate_reports')
+logger.debug('Now parsing configuration file esk306_concatenate_reports.')
 
 #########################################################################################
 # --- minimal analysis information
@@ -60,7 +59,7 @@ ch.add_link(summarizer)
 hf = analysis.HistogrammarFiller()
 hf.read_key = 'accounts'
 hf.store_key = 'hist'
-hf.set_log_level(logging.DEBUG)
+hf.logger.log_level = LogLevel.DEBUG
 hf.columns = [
     ['x1', 'x2'],
     ['x1', 'x3'],
@@ -85,4 +84,4 @@ ch.add_link(corr_link)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk306_concatenate_reports')
+logger.debug('Done parsing configuration file esk306_concatenate_reports.')

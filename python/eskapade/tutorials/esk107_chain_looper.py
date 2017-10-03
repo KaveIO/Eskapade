@@ -14,15 +14,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject
 from eskapade import core_ops
 from eskapade import process_manager
+from eskapade.logger import Logger, LogLevel
 
-log = logging.getLogger('macro.esk107_chain_looper')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk107_chain_looper')
+logger.debug('Now parsing configuration file esk107_chain_looper')
 
 #########################################################################################
 # --- minimal analysis information
@@ -37,7 +36,7 @@ settings['version'] = 0
 #     by default all set to false, unless already configured in
 #     configobject or vars()
 
-# turn on/off the example 
+# turn on/off the example
 settings['do_example'] = True
 
 #########################################################################################
@@ -53,16 +52,16 @@ if settings['do_example']:
     ch = process_manager.add_chain('MyChain')
 
     link = core_ops.HelloWorld(name='HelloWorld')
-    link.set_log_level(logging.DEBUG)
+    link.logger.log_level = LogLevel.DEBUG
     ch.add_link(link)
 
     # --- this link sends out a signal to repeat the execution of the chain.
-    #     It serves as the 'continue' statement of the loop. 
+    #     It serves as the 'continue' statement of the loop.
     #     go back to start of the chain until counter reaches 10.
     repeater = core_ops.RepeatChain()
-    # repeat max of 10 times 
+    # repeat max of 10 times
     repeater.maxcount = 10
-    repeater.set_log_level(logging.DEBUG)
+    repeater.logger.log_level = LogLevel.DEBUG
     ch.add_link(repeater)
 
 # --- print contents of the datastore.
@@ -73,4 +72,4 @@ process_manager.get_chain('Overview').add_link(pds)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk107_chain_looper')
+logger.debug('Done parsing configuration file esk107_chain_looper')

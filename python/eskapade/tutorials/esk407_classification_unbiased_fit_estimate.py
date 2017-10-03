@@ -7,17 +7,17 @@
 # *
 # * This macro illustrates how to get an unbiased estimate of the number of
 # * high risk clients, by doing a template fit to data.
-# * 
+# *
 # * Assume a classifier has been trained and optimized to separate high-risk from
 # * low risk clients. But the high- to low-risk ratio in data is very low and unknown,
-# * so the false-positive rate is non-negligible. 
+# * so the false-positive rate is non-negligible.
 # *
 # * We can use templates of the score of the ML classifier of the high- and low-risk
 # * testing samples to (at least) get an unbiased estimate of the total number of
 # * high-risk clients. This is done by fitting the (unbiased) testing templates
 # * to the score distribution in the actual dataset. The shapes differentiate
 # * the number of high- and low-risk clients.
-# * 
+# *
 # * Authors:                                                                       *
 # *      KPMG Big Data team                                                        *
 # *                                                                                *
@@ -28,18 +28,17 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 import ROOT
 from ROOT import RooFit
 
 from eskapade import ConfigObject
 from eskapade import core_ops, root_analysis
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk407_classification_unbiased_fit_estimate')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk407_classification_unbiased_fit_estimate')
+logger.debug('Now parsing configuration file esk407_classification_unbiased_fit_estimate')
 
 #########################################################################################
 # --- minimal analysis information
@@ -74,7 +73,9 @@ wsu = root_analysis.WsUtils(name='HistMaker')
 
 
 def make_histograms(w):
-    import ROOT
+    """Make histogram."""
+    # Need to be imported here as well, otherwise throws: name 'ROOT' is not defined.
+    import ROOT  # noqa
     from eskapade.root_analysis.decorators.roofit import ws_put
     w.var('score').setBins(40)
     high_risk_hist = ROOT.RooDataHist('high_risk_hist', 'high_risk_hist', ROOT.RooArgSet(w.var('score')),
@@ -92,21 +93,24 @@ ch.add_link(wsu)
 #     meaning: non-continuous distributions.
 #     Sometimes the validation samples has records that give a score that does not fit in one of the
 #     peaks of the testing data.
-#     Here we fix the testing histograms to make sure that all bins have a non-zero value (default 0.01 per bin)
+#     Here we fix the testing histograms  (default 0.01 per bin)
 #     this makes sure that we can use these histograms as fit templates to fit validation records that fall
 #     inside those bins.
 wsu = root_analysis.WsUtils(name='TemplateFixer')
 
 
 def nonzero_templates(w):
+    """Fix histogram to make sure that all bins have a non-zero value."""
     # fix non-zero bins
     def nonzero_hist(rdh, minimum_value=0.01):
-        if rdh.numEntries() == 0: return
-        varset = rdh.get(0)
+        if rdh.numEntries() == 0:
+            return
+        rdh.get(0)
         for i in range(rdh.numEntries()):
             rdh.get(i)
             weight = rdh.weight()
-            if weight > 0: continue
+            if weight > 0:
+                continue
             rdh.set(minimum_value, 0)
 
     high_risk_hist = w.data('high_risk_hist')
@@ -151,4 +155,4 @@ ch.add_link(pds)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk407_classification_unbiased_fit_estimate')
+logger.debug('Done parsing configuration file esk407_classification_unbiased_fit_estimate')

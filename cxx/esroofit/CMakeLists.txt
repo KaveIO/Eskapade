@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0 FATAL_ERROR)
 
 project(esroofit
         VERSION 1.0.0
+        LANGUAGES CXX
         )
 
 # Set CMAKE_MODULE_PATH so that cmake knows where to find our custom cmake modules with helpers/utilities.
@@ -24,9 +25,9 @@ set(ESROOFIT_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -Wmissing-field-initia
 # Set to TRUE to turn ROOT configuration debugging.
 set(ROOT_CONFIG_DEBUG FALSE)
 # The version of ROOT that we require.
-set(REQUIRED_ROOT_VERSION 6.08.06)
+set(REQUIRED_ROOT_VERSION 6.10.04)
 # The set of options that ROOT should have been compiled with.
-set(ROOT_OPTIONS cxx11 fftw3 mathmore python roofit soversion thread tmva)
+set(ROOT_OPTIONS cxx11 fftw3 mathmore python3 roofit soversion thread tmva)
 # The set of components that should be present in ROOT.
 set(ROOT_COMPONENTS Minuit2 PyROOT RooFitCore RooFit RooStats TMVA)
 
@@ -56,36 +57,36 @@ if(ROOT_FOUND)
     info("    ROOT libraries:")
     foreach(root_lib ${ROOT_LIBRARIES})
         info("        ${root_lib}")
-    endforeach(root_lib)
+    endforeach()
 
     # Check that root was compiled with the right set of options.
     foreach(root_option ${ROOT_OPTIONS})
         if(ROOT_${root_option}_FOUND)
             info("    ROOT is compiled with option \"-D${root_option}=ON\" ${HAPPY}")
-        else(ROOT_${root_option}_FOUND)
+        else()
             fatal_info("ROOT is not compiled with option \"-D${root_option}=ON\"!")
             fatal_info("Please reconfigure and recompile root with the following CMake flags:")
-            fatal_info("    -Dfftw3=ON -Dmathmore=ON -Dminuit2=ON -Droofit=ON -Dtmva=ON -Dsoversion=ON -Dthread=ON -Dpython=ON -DPYTHON_EXECUTABLE=path_to_python_exe -DPYTHON_INCLUDE_DIR=path_to_python_include -DPYTHON_LIBRARY=path_to_python_lib")
+            fatal_info("    -Dfftw3=ON -Dmathmore=ON -Dminuit2=ON -Droofit=ON -Dtmva=ON -Dsoversion=ON -Dthread=ON -Dpython3=ON -DPYTHON_EXECUTABLE=path_to_python_exe -DPYTHON_INCLUDE_DIR=path_to_python_include -DPYTHON_LIBRARY=path_to_python_lib")
             fatal_info("You may need to install additional third party libraries, see \"https:://root.cern.ch/building-root\" for more info on building ROOT.")
             fatal_abort("Aborting!")
-        endif(ROOT_${root_option}_FOUND)
-    endforeach(root_option)
+        endif()
+    endforeach()
 
     # Where are the required ROOT components located?
     foreach(root_component ${ROOT_COMPONENTS})
         if(ROOT_${root_component}_LIBRARY)
             info("    ROOT \"${root_component}\" component located at: ${ROOT_${root_component}_LIBRARY} ${HAPPY}")
-        else(ROOT_${root_component}_LIBRARY)
+        else()
             fatal_info("Missing component \"${root_component}\"")
             fatal_abort("Aborting!")
-        endif(ROOT_${root_component}_LIBRARY)
-    endforeach(root_component)
+        endif()
+    endforeach()
 
-else(ROOT_FOUND)
+else()
     fatal_info("   Missing ROOT Data Analysis Framework!")
     fatal_abort(Aborting!)
 
-endif(ROOT_FOUND)
+endif()
 
 # Include ROOT's CMake helpers/utilities.
 include(${ROOT_USE_FILE})
@@ -113,6 +114,8 @@ set(ESROOFIT_INCLUDE_FILES
         ${ESROOFIT_INCLUDE_DIR}/esroofit/Statistics.h
         ${ESROOFIT_INCLUDE_DIR}/esroofit/TMsgLogger.h
         )
+
+# file(RELATIVE_PATH test ${CMAKE_CURRENT_SOURCE_DIR}  ${ESROOFIT_INCLUDE_DIR}/esroofit/ABCDUtils.h)
 
 set(ESROOFIT_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 info("${PROJECT_NAME} src directories: ${ESROOFIT_SRC_DIR}")
@@ -148,17 +151,36 @@ set(ESROOFIT_SOURCE_FILES
 
 # Generate ROOT dictionary.
 # This will generate G__esroofit.cxx that we need to add to the library.
-ROOT_GENERATE_DICTIONARY(G__esroofit ${ESROOFIT_INCLUDE_FILES} LINKDEF ${ESROOFIT_DICT_FILE})
-
+# We want ROOT to use relative paths instead of absolute paths,
+# so that it can pick up the headers from ROOT_INCLUDE_PATH environment
+# variable.
+ROOT_GLOB_HEADERS(ESROOFIT_HEADERS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/include/esroofit/*.h)
+ROOT_GENERATE_DICTIONARY(G__esroofit ${ESROOFIT_HEADERS} MODULE ${project_name} LINKDEF ${ESROOFIT_DICT_FILE}
+        OPTIONS -noIncludePaths)
 
 # Now put it the source together.
 add_library(${PROJECT_NAME} SHARED ${ESROOFIT_SOURCE_FILES} G__esroofit.cxx)
+
+# Set target properties.
+# This will set:
+#    - The library version.
+set_target_properties(${PROJECT_NAME}
+        PROPERTIES
+        VERSION ${PROJECT_VERSION})
+
+# Add custom target to copy headers relative to the lib output directory
+# as part of the build process.
+# The generated ROOT/cling dictionary wants/needs them.
+add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${ESROOFIT_INCLUDE_DIR}/esroofit
+        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/esroofit)
 
 # Link 'em.
 target_link_libraries(${PROJECT_NAME} ${ROOT_LIBRARIES})
 
 info()
-
 info("Run \"cmake --build . -- -jN\", where N is the number of cores to use, to build ${PROJECT_NAME}")
 info("The libraries should be in ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 info("********************************************************************")

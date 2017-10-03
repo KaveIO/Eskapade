@@ -14,21 +14,22 @@
 
 import cProfile
 import io
-import logging
 import pstats
 import sys
 
 import eskapade.utils
 from eskapade.core.process_manager import process_manager
-from .process_services import ConfigObject
+from eskapade.core.process_services import ConfigObject
+from eskapade.logger import Logger
+
+logger = Logger()
 
 
 def reset_eskapade(skip_config=False):
-    """Reset Eskapade objects
+    """Reset Eskapade objects.
 
     :param bool skip_config: skip reset of configuration object
     """
-
     settings = process_manager.service(ConfigObject)
     process_manager.reset()
     if skip_config:
@@ -36,9 +37,9 @@ def reset_eskapade(skip_config=False):
 
 
 def run_eskapade(settings=None):
-    """Run Eskapade
+    """Run Eskapade.
 
-    This function is called in the script scripts/run_eskapade.py when run
+    This function is called in the script eskapade_run when run
     from the cmd line.  The working principle of Eskapade is to run chains of
     custom code chunks (so-called links).
 
@@ -52,7 +53,6 @@ def run_eskapade(settings=None):
     :return: status of the execution
     :rtype: StatusCode
     """
-
     # get config object from process manager
     if settings:
         # use supplied settings as config service in process manager
@@ -61,10 +61,10 @@ def run_eskapade(settings=None):
     settings = process_manager.service(ConfigObject)
 
     # initialize logging
-    logging.basicConfig(level=settings['logLevel'], format=settings.get(
-        'logFormat', '%(asctime)s %(levelname)s [%(module)s/%(funcName)s]: %(message)s'))
-    log = logging.getLogger(__name__)
-    log.info('\n\n * * * Welcome to Eskapade * * *\n')
+    logger.info('*' * 80)
+    greeting = 'Welcome to Eskapade'
+    logger.info(greeting)
+    logger.info('*' * 80)
 
     # check for batch mode
     if settings.get('batchMode'):
@@ -89,7 +89,7 @@ def run_eskapade(settings=None):
 
     # initialize
     status = process_manager.initialize()
-    if status.isFailure():
+    if status.is_failure():
         return status
 
     if settings.get('doCodeProfiling'):
@@ -111,14 +111,17 @@ def run_eskapade(settings=None):
         print(profile_output.getvalue())
 
     # check execution return code
-    if status.isFailure():
+    if status.is_failure():
         return status
 
     # finalization and storage()
     status = process_manager.finalize()
-    if status.isFailure():
+    if status.is_failure():
         return status
 
-    log.info('\n\n * * * Leaving Eskapade. Bye! * * *\n')
+    logger.info('*' * 80)
+    greeting = 'Leaving Eskapade. Bye!'
+    logger.info(greeting)
+    logger.info('*' * 80)
 
     return status

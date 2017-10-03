@@ -17,8 +17,7 @@ The very first step to run the tutorial Spark job is:
 
 .. code-block:: bash
 
-  $ source setup.sh
-  $ run_eskapade.py tutorials/tutorial_5.py
+  $ eskapade_run python/eskapade/tutorials/tutorial_5.py
 
 Eskapade will start a Spark session, do nothing, and quit - there are no chains/links defined yet. The Spark session is created via the ``SparkManager`` which, like the ``DataStore``, is a singleton that configures and controls Spark sessions centrally. It is activated through the magic line:
 
@@ -91,9 +90,9 @@ More complex queries deserve their own links since links provide full flexibilit
 
 .. code-block:: bash
 
-  $ make_link.sh python/eskapade/spark_analysis SparkDfPrinter
+  $ eskapade_generate_link --dir python/eskapade/spark_analysis SparkDfPrinter
 
-This creates the link ``python/eskapade/spark_analysis/sparkdfprinter.py``. Do not forget to include the ``import`` statements in the ``__init__.py`` file as indicated by the ``make_link.sh`` script.
+This creates the link ``python/eskapade/spark_analysis/sparkdfprinter.py``. Do not forget to include the ``import`` statements in the ``__init__.py`` file as indicated by the ``eskapade_generate_link`` command.
 
 The next step is to add the desired functionality to the link. In this case, the Spark dataframe needs to be retrieved from the ``DataStore`` and a ``show()`` method of that dataframe needs to be executed. The ``execute()`` method of the link is the right location for this:
 
@@ -106,7 +105,7 @@ The next step is to add the desired functionality to the link. In this case, the
         ds = process_manager.service(DataStore)
 
         # --- your algorithm code goes here
-        self.log().debug('Now executing link: %s', self.name)
+        self.logger.debug('Now executing link: {name}.', name=self.name)
         df = ds[self.read_key]
         df.show(self.nrows)
 
@@ -119,7 +118,7 @@ In order to configure Eskapade to run this link, the link needs to be added to a
   from eskapade.spark_analysis import SparkDfPrint
   ...
 
-  printer = SparkDfPrint(name='Print_spark_df', read_key=transform.store_key, nrows=42) 
+  printer = SparkDfPrint(name='Print_spark_df', read_key=transform.store_key, nrows=42)
   process_manager.get_chain('Summary').add_link(printer)
 
 The name of the dataframe is the output name of the ``transform`` link and the number of rows to print is specified by the ``nrows`` parameter.
@@ -128,7 +127,7 @@ Eskapade should now be ready to finally execute the macro and provide the desire
 
 .. code-block:: bash
 
-  $ run_eskapade.py tutorials/tutorial_5.py 
+  $ eskapade_run python/eskapade/tutorials/tutorial_5.py
 
   * * * Welcome to Eskapade * * *
   ...
@@ -174,7 +173,7 @@ The word count example using the file stream method can be run by executing in t
 .. code-block:: bash 
 
   terminal 1 $ for ((i=0; i<=100; i++)); do echo "Hello world" > /tmp/dummy_$(printf %05d ${i}); sleep 0.1; done
-  terminal 2 $ run_eskapade -c stream_type='tcp' $ESKAPADE/tutorials/esk610_spark_streaming.py
+  terminal 2 $ eskapade_run -c stream_type='tcp' $ESKAPADE/python/eskapade/tutorials/esk610_spark_streaming.py
 
 Where bash ``for``-loop will create a new file containing ``Hello world`` in the /tmp directory every 0.1 second. Spark Streaming will pick up and process these files and in ``terminal 2`` a word count of the processed data will by dispayed. Output is stored in ``$ESKAPADE/results/esk610_spark_streaming/data/v0/dstream/wordcount``.
 
@@ -187,7 +186,7 @@ The word count example using the TCP stream method can be run by executing in tw
 .. code-block:: bash 
 
   terminal 1 $ nc -lk 9999
-  terminal 2 $ run_eskapade -c stream_type='tcp' $ESKAPADE/tutorials/esk610_spark_streaming.py
+  terminal 2 $ eskapade_run -c stream_type='tcp' $ESKAPADE/python/eskapade/tutorials/esk610_spark_streaming.py
 
 Where ``nc`` (netcat) will stream data to port 9999 and Spark Streaming will listen to this port and process incoming data. In ``terminal 1`` random words can be type (followed by enter) and in ``terminal 2`` a word count of the processed data will by dispayed. Output is stored in ``$ESKAPADE/results/esk610_spark_streaming/data/v0/dstream/wordcount``.
 

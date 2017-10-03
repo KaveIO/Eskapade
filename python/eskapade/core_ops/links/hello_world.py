@@ -3,7 +3,7 @@
 # * Class  : HelloWorld                                                            *
 # * Created: 2017/01/31                                                            *
 # * Description:                                                                   *
-# *      Algorithm to do print Hello %s!                                           *
+# *      Algorithm to do print Hello {}!                                           *
 # *                                                                                *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands                           *
@@ -13,24 +13,21 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ConfigObject
-from eskapade import DataStore
 from eskapade import Link
 from eskapade import StatusCode
-from eskapade import process_manager
 
 
 class HelloWorld(Link):
-    """Defines the content of link HelloWorld"""
+
+    """Defines the content of link HelloWorld."""
 
     def __init__(self, **kwargs):
-        """Store the configuration of link HelloWorld
+        """Store the configuration of link HelloWorld.
 
         :param str name: name assigned to the link
         :param str hello: name to print in Hello World! Defaults to 'World'
         :param int repeat: repeat print statement N times. Default is 1
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'HelloWorld'))
 
@@ -43,12 +40,8 @@ class HelloWorld(Link):
         # self.kwargs = kwargs
 
     def execute(self):
-        """Execute HelloWorld"""
-
-        settings = process_manager.service(ConfigObject)
-        ds = process_manager.service(DataStore)
-
-        for i in range(self.repeat):
-            self.log().info('Hello {0}'.format(self.hello))
+        """Execute the link."""
+        for _ in range(self.repeat):
+            self.logger.info('Hello {hello}', hello=self.hello)
 
         return StatusCode.Success

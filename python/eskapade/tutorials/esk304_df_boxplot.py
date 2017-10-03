@@ -13,15 +13,15 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject
 from eskapade import analysis, visualization
 from eskapade import process_manager
+from eskapade.core import persistence
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk304_df_boxplot')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk304_df_boxplot')
+logger.debug('Now parsing configuration file esk304_df_boxplot.')
 
 #########################################################################################
 # --- minimal analysis information
@@ -36,9 +36,9 @@ settings['version'] = 0
 msg = r"""
 
 The plots and latex files produced by link df_summary can be found in dir:
-%s
-""" % persistence.io_path('results_data', settings.io_conf(), 'report')
-log.info(msg)
+{path}
+"""
+logger.info(msg, path=persistence.io_path('results_data', settings.io_conf(), 'report'))
 
 COLUMNS = ['var_a', 'var_b', 'var_c']
 SIZE = 10000
@@ -77,4 +77,4 @@ process_manager.get_chain('BoxPlot').add_link(box_plot)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk304_df_boxplot')
+logger.debug('Done parsing configuration file esk304_df_boxplot.')

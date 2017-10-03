@@ -11,14 +11,13 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
-
 from eskapade import process_manager, ConfigObject, resources, spark_analysis
+from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
-log = logging.getLogger('macro.esk604_spark_execute_query')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk604_spark_execute_query')
+logger.debug('Now parsing configuration file esk604_spark_execute_query.')
 
 ##########################################################################
 # Minimal analysis information
@@ -75,4 +74,4 @@ process_manager.add_chain('ApplySQL').add_link(sql_link)
 
 ##########################################################################
 
-log.debug('Done parsing configuration file esk604_spark_execute_query')
+logger.debug('Done parsing configuration file esk604_spark_execute_query.')

@@ -20,13 +20,11 @@ from eskapade import process_manager
 
 
 class ToDsDict(Link):
-    """
-    Stores one object in the DataStore dict during run time.
-    """
+
+    """Stores one object in the DataStore dict during run time."""
 
     def __init__(self, **kwargs):
-        """
-        Link to store one external object in the DataStore dict during run time.
+        """Link to store one external object in the DataStore dict during run time.
 
         :param str name: name of link
         :param str store_key: key of object to store in data store
@@ -36,7 +34,6 @@ class ToDsDict(Link):
         :param bool at_execute: store at execute of link. Default is true.
         :param bool copydict: if true and obj is a dict, copy all key value pairs into datastore. Default is false.
         """
-        
         Link.__init__(self, kwargs.pop('name', 'ToDsDict'))
 
         # process keyword arguments
@@ -49,38 +46,34 @@ class ToDsDict(Link):
                              copydict=False)
         self.check_extra_kwargs(kwargs)
 
-        return
-
     def initialize(self):
-        """ Initialize ToDsDict """
-
+        """Initialize the link."""
         # perform basic checks.
         if self.obj is None:
-            raise RuntimeError('object "%s" to store is of type None', self.store_key)
+            raise RuntimeError('object "{}" to store is of type None'.format(self.store_key))
         # storage key needs to be set in nearly all cases
         if not (self.copydict and isinstance(self.obj, dict)):
-            if not (isinstance(self.store_key, str) and len(self.store_key)):
+            if not (isinstance(self.store_key, str) and self.store_key):
                 raise RuntimeError('object storage key has not been set')
 
         ds = process_manager.service(DataStore)
         return StatusCode.Success if not self.at_initialize else self.do_storage(ds)
 
     def execute(self):
-        """ Execute ToDsDict """
-
+        """Execute the link."""
         ds = process_manager.service(DataStore)
 
         return StatusCode.Success if not self.at_execute else self.do_storage(ds)
 
     def do_storage(self, ds):
-        """ perform storage in datastore 
+        """Perform storage in datastore.
 
         Function makes a distinction been dicts and any other object.
         """
         # if dict and copydict==true, store all individual items
-        if self.copydict and isinstance(self.obj,dict):
+        if self.copydict and isinstance(self.obj, dict):
             stats = [(self.store(ds, v, k, force=self.force)).value for k, v in self.obj.items()]
             return StatusCode(max(stats))
 
-        # default: store obj under storekey
+        # default: store obj under store_key
         return self.store(ds, self.obj, force=self.force)

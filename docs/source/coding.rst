@@ -48,7 +48,7 @@ integration into links is straight-forward. The steps to undertake this are *in 
   2. Grab the data you want from the DataStore using ``ds = DataStore`` and ``data = ds[key]``.
   3. Now you can apply the operation you want to do on the data, experiment on it and work towards the end result you
      want to have.
-  4. Create a new link in the appropriate link folder using the make_link script.
+  4. Create a new link in the appropriate link folder using the eskapade_generate_link command.
   5. Copy the operations (code) you want to do to the link.
   6. Add assertions and checks to make sure the Link is safe to run.
   7. Add the Link to your macro and run it!
@@ -88,8 +88,8 @@ In the ``execute`` function you put the actual code in this format:
 
 .. code-block:: python
 
-  settings = ProcessManager().service(ConfigObject)
-  ds = ProcessManager().service(DataStore)
+  settings = process_manager.service(ConfigObject)
+  ds = process_manager.service(DataStore)
 
   ## --- your code follows here
 

@@ -1,6 +1,6 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : Break                                                             *
+# * Class  : Break                                                                 *
 # * Created: 2017/02/26                                                            *
 # * Description:                                                                   *
 # *      Algorithm to send break signal to process manager and halt execution      *
@@ -18,7 +18,8 @@ from eskapade import StatusCode
 
 
 class Break(Link):
-    """Halt execution
+
+    """Halt execution.
 
     Link sends failure signal and halts execution of process manager.  Break
     the execution of the processManager at a specific location by simply
@@ -26,11 +27,10 @@ class Break(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize Break instance
+        """Initialize link instance.
 
         :param str name: name of link
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'Break'))
 
@@ -38,8 +38,7 @@ class Break(Link):
         self.check_extra_kwargs(kwargs)
 
     def execute(self):
-        """Execute Break"""
-
+        """Execute the link."""
         # halt the execution of process_manager by sending a failure signal
-        self.log().info('Now sending break signal to halt execution!')
+        self.logger.info('Now sending break signal to halt execution!')
         return StatusCode.Failure

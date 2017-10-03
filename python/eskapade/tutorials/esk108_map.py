@@ -1,12 +1,12 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk108_map                                                         
+# * Macro  : esk108_map
 # * Created: 2017/02/20                                                            *
 # * Description:                                                                   *
 # *      Macro to illustrate how input lines can be read in,
 # *      processed, and reprinted. E.g. for use in map reduce application.
-# *      Use in combination with: esk108_reduce 
-# *      
+# *      Use in combination with: esk108_reduce
+# *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands
 # *                                                                                *
@@ -16,7 +16,7 @@
 # **********************************************************************************
 
 from eskapade import ConfigObject
-from eskapade import process_manager
+from eskapade import process_manager, resources
 
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
@@ -32,5 +32,4 @@ settings['doNotStoreResults'] = True
 # --- now parse the follow-up macro
 
 # the flag doNotStoreResults is picked up when parsing the following macro
-macro = settings['macrosDir'] + '/' + 'esk108_eventlooper.py'
-process_manager.execute_macro(macro)
+process_manager.execute_macro(resources.tutorial('esk108_eventlooper.py'))

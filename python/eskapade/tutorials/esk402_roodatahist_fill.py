@@ -5,11 +5,11 @@
 # *                                                                                *
 # * Description:
 # *
-# * This macro illustrates how to fill a N-dimensional roodatahist from a 
+# * This macro illustrates how to fill a N-dimensional roodatahist from a
 # * pandas dataframe. (A roodatahist can be filled iteratively, while looping
 # * over multiple pandas dataframes.) The roodatahist can be used to create
 # * a roofit histogram-pdf (roohistpdf).
-# * 
+# *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands                           *
 # *                                                                                *
@@ -20,17 +20,15 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
-from pkg_resources import resource_filename
-
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, root_analysis
 from eskapade import process_manager
+from eskapade import resources
+from eskapade.logger import Logger, LogLevel
 
-log = logging.getLogger('macro.esk402_roodatahist_fill')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk402_roodatahist_fill')
+logger.debug('Now parsing configuration file esk402_roodatahist_fill')
 
 #########################################################################################
 # --- minimal analysis information
@@ -42,7 +40,7 @@ settings['version'] = 0
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
 
-input_files = [resource_filename('eskapade', '/data/mock_accounts.csv.gz')]
+input_files = [resources.fixture('mock_accounts.csv.gz')]
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
@@ -69,7 +67,7 @@ fact.inplace = True
 fact.sk_map_to_original = 'to_original'
 # factorizer also stores a dict with the mappings back to the original observables
 fact.sk_map_to_factorized = 'to_factorized'
-fact.set_log_level(logging.DEBUG)
+fact.logger.log_level = LogLevel.DEBUG
 ch.add_link(fact)
 
 # --- 2. Fill a roodatahist
@@ -90,4 +88,4 @@ process_manager.get_chain('Overview').add_link(pds)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk402_roodatahist_fill')
+logger.debug('Done parsing configuration file esk402_roodatahist_fill')
