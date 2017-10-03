@@ -11,14 +11,13 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk110_code_profiling')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk110_code_profiling')
+logger.debug('Now parsing configuration file esk110_code_profiling.')
 
 #########################################################################################
 # --- minimal analysis information
@@ -39,7 +38,7 @@ For example: -P cumulative
 After running, this prints out a long list of all functions called, including the time it
 took to run each of of them, sorted in the way you have specified.
 """
-log.info(msg)
+logger.info(msg)
 
 # turn on code profiling in the ConfigObject
 # turn off this line if you want to experiment with the profiling from the cmd line!
@@ -56,4 +55,4 @@ settings['doCodeProfiling'] = 'cumulative'
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk110_code_profiling')
+logger.debug('Done parsing configuration file esk110_code_profiling.')

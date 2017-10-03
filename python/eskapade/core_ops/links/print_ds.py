@@ -1,6 +1,6 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : PrintDs                                                        *
+# * Class  : PrintDs                                                               *
 # * Created: 2016/11/08                                                            *
 # * Description:                                                                   *
 # *      Algorithm to do...(fill in here)                                          *
@@ -13,25 +13,19 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import DataStore
-from eskapade import Link
-from eskapade import StatusCode
-from eskapade import process_manager
+from eskapade import process_manager, Link, DataStore, StatusCode
 
 
 class PrintDs(Link):
-    """
-    Print the content of the datastore
-    """
+
+    """Print the content of the datastore."""
 
     def __init__(self, **kwargs):
-        """
-        Print overview of the datastore in current state
+        """Initialize link instance.
 
         :param str name: name of link
         :param list keys: keys of items to print explicitly.
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'PrintDs'))
 
@@ -39,28 +33,26 @@ class PrintDs(Link):
         # second arg is default value for an attribute. key is popped from kwargs.
         self._process_kwargs(kwargs, keys=[])
 
-        # check residual kwargs. exit if any present. 
+        # check residual kwargs. exit if any present.
         self.check_extra_kwargs(kwargs)
 
-        return
-
     def execute(self):
-        """ Execute PrintDs """
+        """Execute the link.
 
+        Print overview of the datastore in current state.
+        """
         ds = process_manager.service(DataStore)
         ds.Print()
 
-        if len(self.keys):
-            self.log().info("*-------------------------------------------------*")
+        if not self.keys:
+            return StatusCode.Success
+        self.logger.info("*-------------------------------------------------*")
         for k in sorted(self.keys):
-            line = "  %s = " % k
-            if not k in ds:
-                self.log().warning('datastore does not contain item "%s". Skipping.' % k)
+            if k not in ds:
+                self.logger.warning('Datastore does not contain key "{key}". Skipping.', key=k)
                 continue
             item = ds[k]
-            line += type(item) if not hasattr(item, '__str__') else str(item)
-            self.log().info(line)
-        if len(self.keys):
-            self.log().info("*-------------------------------------------------*")
-
+            line = "  {key} = {value}".format(key=k, value=type(item) if not hasattr(item, '__str__') else str(item))
+            self.logger.info(line)
+        self.logger.info("*-------------------------------------------------*")
         return StatusCode.Success

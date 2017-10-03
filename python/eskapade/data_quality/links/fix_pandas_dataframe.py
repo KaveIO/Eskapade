@@ -22,16 +22,16 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 
-from eskapade import ConfigObject
 from eskapade import DataStore
 from eskapade import Link
 from eskapade import StatusCode
 from eskapade import process_manager
-from eskapade.data_quality.dq_helper import check_nan, convert, cleanup_string, CONV_FUNCS
+from eskapade.data_quality.dq_helper import bool_to_int, check_nan, convert, cleanup_string, CONV_FUNCS
 
 
 class FixPandasDataFrame(Link):
-    """Fix dirty Pandas dataframe with inconsistent datatypes
+
+    """Fix dirty Pandas dataframe with inconsistent datatypes.
 
     Default settings perform the following clean-up steps on an input
     dataframe:
@@ -63,7 +63,7 @@ class FixPandasDataFrame(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize FixPandasDataFrame instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of input data to read from data store
@@ -95,10 +95,9 @@ class FixPandasDataFrame(Link):
         :param str store_key: key of output data to store in data store
         :param bool drop_dup_rec: if true, drop duplicate records from data frame after other fixes (default is false)
         :param bool strip_string_columns: if true, apply strip command to string columns (default is true)
-        :param list cleanup_string_columns: boolean or list. apply cleaning-up to list of selected or all string columns. 
-                                            More aggressive than strip. Default is empty (= false).
+        :param list cleanup_string_columns: boolean or list. apply cleaning-up to list of selected or
+            all string columns. More aggressive than strip. Default is empty (= false).
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'FixPandasDataFrame'))
 
@@ -153,8 +152,7 @@ class FixPandasDataFrame(Link):
             self.nan_dtype_map[np.bool_] = self.nan_dtype_map[bool]
 
     def initialize(self):
-        """Initialize FixPandasDataFrame"""
-
+        """Initialize the link."""
         self.check_arg_types(read_key=str, store_key=str)
         self.check_arg_types(recurse=True, allow_none=True, original_columns=str)
         self.check_arg_vals('read_key')
@@ -164,15 +162,15 @@ class FixPandasDataFrame(Link):
 
         if self.read_key == self.store_key:
             self.inplace = True
-            self.log().debug('store_key equals read_key; inplace has been set to "True"')
+            self.logger.debug('store_key equals read_key; inplace has been set to "True".')
 
         if self.inplace:
             self.store_key = self.read_key
-            self.log().debug('store_key has been set to read_key "%s"', self.store_key)
+            self.logger.debug('store_key has been set to read_key "{key}".', key=self.store_key)
 
         if not self.store_key:
             self.store_key = self.read_key + '_fix'
-            self.log().debug('store_key has been set to "%s"', self.store_key)
+            self.logger.debug('store_key has been set to "{key}".', key=self.store_key)
 
         # check data types
         for k in self.var_dtype.keys():
@@ -185,12 +183,12 @@ class FixPandasDataFrame(Link):
                     dt = str
                 self.var_dtype[k] = dt
             except BaseException:
-                raise TypeError('unknown assigned datatype to variable "%s"' % k)
+                raise TypeError('Unknown assigned datatype to variable "{}".'.format(k))
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute FixPandasDataFrame
+        """Execute the link.
 
         Fixing the Pandas dataframe consists of four steps:
 
@@ -199,33 +197,31 @@ class FixPandasDataFrame(Link):
         - Assess most consistent datatype for each column (ignoring all nans)
         - Make data types in each row consistent (by default ignoring all nans)
         """
-
-        settings = process_manager.service(ConfigObject)
         ds = process_manager.service(DataStore)
 
         # basic checks on contensts of the data frame
         if self.read_key not in ds:
-            raise KeyError('key "%s" not in DataStore' % self.read_key)
+            raise KeyError('key "{}" not in DataStore.'.format(self.read_key))
         df = ds[self.read_key]
         if not isinstance(df, pd.DataFrame):
-            raise TypeError('retrieved object not of type pandas DataFrame')
+            raise TypeError('Retrieved object not of type pandas DataFrame.')
         if len(df.index) == 0:
-            raise AssertionError('dataframe "%s" is empty' % self.read_key)
+            raise AssertionError('Dataframe "{}" is empty.'.format(self.read_key))
 
         # use all columns from the dataframe?
         if self.copy_columns_from_df and not self.original_columns:
             self.original_columns = df.columns.tolist()
         # check not empty
-        if self.original_columns:
-            self.log().debug('Original columns to be processed:\n%s', str(self.original_columns))
-        else:
-            self.log().warning('Original columns have not been set; nothing to do')
+        if not self.original_columns:
+            self.logger.warning('Original columns have not been set; nothing to do.')
             return StatusCode.Recoverable
+
+        self.logger.debug('Original columns to be processed:\n{cols!s}.', cols=self.original_columns)
 
         # check presence and data types of requested columns
         for col in self.original_columns:
             if col not in df.columns:
-                raise AssertionError('column "{}" not present in input data frame {}'.format(col, self.read_key))
+                raise AssertionError('Column "{}" not present in input data frame {}.'.format(col, self.read_key))
 
         # set string columns to clean up
         if isinstance(self.cleanup_string_columns, bool):
@@ -237,7 +233,7 @@ class FixPandasDataFrame(Link):
         # 1. fix column names
         self.fixed_columns = copy.copy(self.original_columns)
         if self.fix_column_names:
-            regex = re.compile('[%s]' % re.escape(string.punctuation))
+            regex = re.compile('[{}]'.format(re.escape(string.punctuation)))
             all_columns = df_.columns.tolist()
             for i, col in enumerate(all_columns[:]):
                 if col not in self.original_columns:
@@ -257,7 +253,7 @@ class FixPandasDataFrame(Link):
                 # keep only alphanumeric and _
                 new_col = re.sub('[^A-Za-z0-9_]+', '', new_col)
                 if not new_col:
-                    raise ValueError('column name "%s" empty after cleaning' % col)
+                    raise ValueError('Column name "{}" empty after cleaning.'.format(col))
                 # replace column names
                 all_columns[i] = new_col
                 self.fixed_columns[self.fixed_columns.index(col)] = new_col
@@ -271,7 +267,7 @@ class FixPandasDataFrame(Link):
                     if col in vd:
                         vd[new_col] = vd.pop(col)
             df_.columns = all_columns
-            self.log().debug('Fixed column names are:\n%s', str(self.fixed_columns))
+            self.logger.debug('Fixed column names are:\n{cols!s}.', cols=self.fixed_columns)
 
         # --- Next: fix datatypes - all rows in a column get consistent datatype, except for nans
 
@@ -297,7 +293,7 @@ class FixPandasDataFrame(Link):
             is_nan[col] = df_[col].apply(check_nan_func)
             n_nan = is_nan[col].values.sum()
             if n_nan:
-                self.log().debug('Column "%s" contains %d NaNs out of %d', col, n_nan, n_df)
+                self.logger.debug('Column "{col}" contains {n:d} NaNs out of {total:d}.', col=col, n=n_nan, total=n_df)
             dt = self._df_orig_dtype[col]
             # np.nan is a float, so for non-floats nan is considered contamination by pandas
             if n_nan and dt is not np.float64:
@@ -307,7 +303,7 @@ class FixPandasDataFrame(Link):
 
         # 3. multiple datatypes in columns besides nans?
         #    find most common one per column
-        keep = is_nan == False
+        keep = ~is_nan
         for col in self.fixed_columns:
             if col in self.var_dtype:
                 continue
@@ -335,19 +331,20 @@ class FixPandasDataFrame(Link):
             if col not in self.var_dtype:
                 self.var_dtype[col] = preferred_dtype
             if len(dtype_cnt) > 1:
-                self.log().warning('Found multiple types for column "{col!s}"'.format(col=col))
-                self.log().debug('Picked type "%s" for column "%s" (counts: %s)', preferred_dtype, col, str(dtype_cnt))
+                self.logger.warning('Found multiple types for column "{col!s}"', col=col)
+                self.logger.debug('Picked type "{type}" for column "{col}" (counts: {counts!s}).',
+                                  type=preferred_dtype, col=col, counts=dtype_cnt)
                 if col not in self.contaminated_columns:
                     self.contaminated_columns.append(col)
 
-        self.log().debug('Consider setting link.var_dtype = %s', str(self.var_dtype))
-        self.log().info('Fixing contamination in columns %s',
-                        ', '.join('"{}"'.format(c) for c in self.contaminated_columns))
+        self.logger.debug('Consider setting link.var_dtype = {type!s}', type=self.var_dtype)
+        self.logger.info('Fixing contamination in columns {cols}',
+                         cols=', '.join('"{}"'.format(c) for c in self.contaminated_columns))
 
         # 4. fix contamination in each column
         for col in self.contaminated_columns:
             dt = self.var_dtype[col]
-            self.log().debug('Converting rows in column "%s" to type "%s"', col, dt)
+            self.logger.debug('Converting rows in column "{col}" to type "{type}".', col=col, type=dt)
             # pick conversion function of choice
             if col in self.var_convert_func:
                 fnc = self.var_convert_func[col]
@@ -356,7 +353,7 @@ class FixPandasDataFrame(Link):
             elif dt in CONV_FUNCS:
                 fnc = CONV_FUNCS[dt]
             else:
-                raise RuntimeError('Do not know how to convert column "%s"' % col)
+                raise RuntimeError('Do not know how to convert column "{}"'.format(col))
             # convert inconsistent dtypes?
             convert_inconsistent_dtypes = self.var_convert_inconsistent_dtypes[
                 col] if col in self.var_convert_inconsistent_dtypes else self.convert_inconsistent_dtypes
@@ -371,8 +368,9 @@ class FixPandasDataFrame(Link):
                     rdt = dt if col not in self.var_bool_to_int else np.int64
                     if not isinstance(self.var_nan[col], rdt):
                         fnc_kw['nan'] = self.nan_dtype_map[rdt]
-                        self.log().warning('Chosen nan for col "%s" not of type "%s"; reverting to default nan: "%s"',
-                                           col, rdt, self.nan_dtype_map[dt])
+                        self.logger.warning(
+                            'Chosen nan for col "{col}" not of type "{type}"; reverting to default nan: "{nan}".',
+                            col=col, type=rdt, nan=self.nan_dtype_map[dt])
             else:
                 if convert_inconsistent_nans:
                     fnc_kw['nan'] = self.nan_dtype_map[dt]
@@ -408,8 +406,7 @@ class FixPandasDataFrame(Link):
 
 
 def determine_preferred_dtype(dtype_cnt):
-    """Determine preferred column data type"""
-
+    """Determine preferred column data type."""
     # get sorted type counts for column
     type_cnts = dtype_cnt.most_common()
     if not type_cnts:

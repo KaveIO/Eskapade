@@ -19,10 +19,11 @@ from eskapade.spark_analysis import SparkManager, data_conversion
 
 
 class SparkDfCreator(Link):
-    """Link to create a Spark dataframe from generic input data"""
+
+    """Link to create a Spark dataframe from generic input data."""
 
     def __init__(self, **kwargs):
-        """Initialize link instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of the input data in the data store
@@ -33,7 +34,6 @@ class SparkDfCreator(Link):
         :param dict process_meth_kwargs: keyword arguments for process methods
         :param bool fail_missing_data: fail execution if data are missing (default is "True")
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'SparkDfCreator'))
 
@@ -43,8 +43,7 @@ class SparkDfCreator(Link):
         self.kwargs = kwargs
 
     def initialize(self):
-        """Inititialize SparkDfCreator"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(read_key=str, process_meth_args=dict, process_meth_kwargs=dict)
         self.check_arg_types(allow_none=True, store_key=str)
@@ -60,23 +59,22 @@ class SparkDfCreator(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute SparkDfCreator"""
-
+        """Execute the link."""
         # get process manager and data store
         ds = process_manager.service(DataStore)
 
         # fetch data from data store
         if self.read_key not in ds:
-            err_msg = 'no input data found in data store with key "{}"'.format(self.read_key)
+            err_msg = 'No input data found in data store with key "{}".'.format(self.read_key)
             if not self.fail_missing_data:
-                self.log().error(err_msg.capitalize())
+                self.logger.error(err_msg.capitalize())
                 return StatusCode.Success
             raise KeyError(err_msg)
         data = ds[self.read_key]
 
         # create data frame
         spark = process_manager.service(SparkManager).get_session()
-        self.log().debug('Converting data of type "%s" to a Spark data frame', type(data))
+        self.logger.debug('Converting data of type "{type}" to a Spark data frame.', type=type(data))
         ds[self.store_key] = data_conversion.create_spark_df(spark, data, schema=self.schema,
                                                              process_methods=self._process_methods, **self.kwargs)
 

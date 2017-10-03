@@ -1,12 +1,12 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk108_eventlooper                                                         
+# * Macro  : esk108_eventlooper
 # * Created: 2017/02/20                                                            *
 # * Description:                                                                   *
 # *      Macro to illustrate how input lines can be read in,
 # *      processed, and reprinted. E.g. for use in map reduce application.
-# *      Used as input for: esk108_map and esk108_reduce 
-# *      
+# *      Used as input for: esk108_map and esk108_reduce
+# *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands
 # *                                                                                *
@@ -30,14 +30,14 @@ settings['version'] = 0
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
 
-settings['do_map'] = False if not 'do_map' in settings else settings['do_map']
-settings['do_reduce'] = False if not 'do_reduce' in settings else settings['do_reduce']
+settings['do_map'] = False if 'do_map' not in settings else settings['do_map']
+settings['do_reduce'] = False if 'do_reduce' not in settings else settings['do_reduce']
 
-settings['TESTING'] = False if not 'TESTING' in settings else settings['TESTING']
+settings['TESTING'] = False if 'TESTING' not in settings else settings['TESTING']
 
 # --- create dummy example dataset, which is used below
 if settings['TESTING']:
-    tmp = b"""# dataset from: 
+    tmp = b"""# dataset from:
 # https://rajmak.wordpress.com/2013/04/27/clustering-text-map-reduce-in-python/
 Converse All Star PC2 - Boys' Toddler
 HI Nike Sport Girls Golf Dress
@@ -68,17 +68,19 @@ Brooks Nightlife Infiniti 1/2 Zip Jacket - Mens
 
 
 def to_lower(x):
+    """Lower case."""
     return x.lower()
 
 
 def first_word(x):
+    """Take first word."""
     return x.split()[0]
 
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-# This chain does 'mapping'. (macro B does 'reduction'.) 
+# This chain does 'mapping'. (macro B does 'reduction'.)
 
 # --- mapper: chain with event looper
 #     this eventlooper link serves as a mapper.
@@ -101,14 +103,14 @@ if settings['do_reduce']:
     # reducer selects all unique lines
     looper.sort = True
     looper.unique = True
-    looper.storeKey = 'products'
+    looper.store_key = 'products'
     if settings['TESTING']:
         looper.filename = f.name
     ch.add_link(looper)
 
-    # ... do other operations to lines here 
+    # ... do other operations to lines here
 
     # print lines
     link = core_ops.LinePrinter()
-    link.readKey = looper.storeKey
+    link.read_key = looper.store_key
     ch.add_link(link)

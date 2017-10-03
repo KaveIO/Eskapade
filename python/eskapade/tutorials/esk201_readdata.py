@@ -13,16 +13,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject, resources
 from eskapade import core_ops, analysis
 from eskapade import process_manager
+from eskapade.logger import Logger
 
+logger = Logger()
 
-log = logging.getLogger('macro.esk201_readdata')
-
-log.debug('Now parsing configuration file esk201_readdata')
+logger.debug('Now parsing configuration file esk201_readdata')
 
 #########################################################################################
 # --- minimal analysis information
@@ -36,7 +34,7 @@ settings['version'] = 0
 #     by default all set to false, unless already configured in
 #     configobject or vars()
 
-# turn on/off the 2 examples 
+# turn on/off the 2 examples
 settings['do_example1'] = True
 settings['do_example2'] = True
 
@@ -79,4 +77,4 @@ process_manager.get_chain('Overview').add_link(pds)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk201_readdata')
+logger.debug('Done parsing configuration file esk201_readdata')

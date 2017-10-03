@@ -24,73 +24,67 @@ from eskapade import process_manager
 
 
 class DfConcatenator(Link):
-    """
-    Concatenates multiple pandas datadrames.
-    """
+
+    """Concatenates multiple pandas datadrames."""
 
     def __init__(self, **kwargs):
-        """
-        Store the configuration of link DfConcatenator
+        """Initialize link instance.
 
         :param str name: name of link
-        :param str storeKey: key of data to store in data store
-        :param list readKeys: keys of pandas dataframes in the data store
-        :param bool ignore_missing_input: Skip missing input datasets. If all missing, store empty dataset. Default is false.
+        :param str store_key: key of data to store in data store
+        :param list read_keys: keys of pandas dataframes in the data store
+        :param bool ignore_missing_input: Skip missing input datasets.
+            If all missing, store empty dataset. Default is false.
         :param kwargs: all other key word arguments are passed on to pandas concat function.
         """
-        
         Link.__init__(self, kwargs.pop('name', 'DfConcatenator'))
 
         # process and register all relevant kwargs. kwargs are added as attributes of the link.
         # second arg is default value for an attribute. key is popped from kwargs.
-        self._process_kwargs(kwargs, readKeys=[])
-        self._process_kwargs(kwargs, storeKey=None)
+        self._process_kwargs(kwargs, read_keys=[])
+        self._process_kwargs(kwargs, store_key=None)
         self._process_kwargs(kwargs, ignore_missing_input=False)
 
-        # pass on remaining kwargs to pandas reader 
+        # pass on remaining kwargs to pandas reader
         self.kwargs = copy.deepcopy(kwargs)
-        
-        return
 
     def initialize(self):
-        """ Initialize DfConcatenator """
+        """Initialize the link."""
+        assert self.read_keys, 'read_keys have not been set. Error.'
+        assert isinstance(self.store_key, str) and self.store_key, 'storage key not set.'
 
-        assert len(self.readKeys), 'readKeys have not been set. Error.'
-        assert isinstance(self.storeKey, str) and len(self.storeKey), 'storage key not set.'
-
-        self.log().info('kwargs passed on to pandas concat function are: %s' % self.kwargs )
+        self.logger.info('kwargs passed on to pandas concat function are: {kwargs}', kwargs=self.kwargs)
 
         return StatusCode.Success
 
     def execute(self):
-        """ Execute DfConcatenator
+        """Execute the link.
 
         Perform concatenation of multiple pandas datadrames.
         """
-
         ds = process_manager.service(DataStore)
 
         # check if all input dataframes exist. if so configured, skip missing inputs, else raise e.
         data = []
-        for c in self.readKeys:
+        for c in self.read_keys:
             if c not in ds:
                 if self.ignore_missing_input:
-                    self.log().warning("<%s> is not a key in the datastore. Configured to skip it." % c)
+                    self.logger.warning("<{key}> is not a key in the datastore. Configured to skip it.", key=c)
                     continue
-                raise Exception("<%s> is not a key in the datastore" % c)
+                raise Exception("<{}> is not a key in the datastore.".format(c))
             data.append(ds[c])
 
         # concatenate the dataframes
         if len(data):
             df = pd.concat(data, **self.kwargs).reset_index(drop=True)
         elif self.ignore_missing_input:
-            self.log().warning("Nothing to concatenate. Configured to return empty dataframe.")
+            self.logger.warning("Nothing to concatenate. Configured to return empty dataframe.")
             df = pd.DataFrame()
         else:
             raise Exception("Nothing to concatenate. This is not right. Exit.")
 
         # store the result
-        ds[self.storeKey] = df
-        ds['n_'+self.storeKey] = len(df.index)
-        
+        ds[self.store_key] = df
+        ds['n_' + self.store_key] = len(df.index)
+
         return StatusCode.Success

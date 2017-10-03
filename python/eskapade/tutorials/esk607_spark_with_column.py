@@ -13,16 +13,15 @@
 # ********************************************************************************
 
 
-import logging
-
 from pyspark.sql import types, functions
 
 from eskapade import process_manager, ConfigObject, resources, spark_analysis
+from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
-log = logging.getLogger('macro.esk607_spark_with_column')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk607_spark_with_column')
+logger.debug('Now parsing configuration file esk607_spark_with_column')
 
 ##########################################################################
 # Minimal analysis information
@@ -85,4 +84,4 @@ process_manager.get_chain('AddColumn').add_link(col_link)
 
 ##########################################################################
 
-log.debug('Done parsing configuration file esk607_spark_with_column')
+logger.debug('Done parsing configuration file esk607_spark_with_column')

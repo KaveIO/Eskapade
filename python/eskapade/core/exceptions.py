@@ -1,6 +1,8 @@
 class Error(Exception):
-    """Base class for all Eskapade core exceptions"""
+
+    """Base class for all Eskapade core exceptions."""
 
 
 class UnknownSetting(Error):
-    """The user requested an unknown setting"""
+
+    """The user requested an unknown setting."""

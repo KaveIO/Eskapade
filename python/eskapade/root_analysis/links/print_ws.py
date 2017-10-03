@@ -20,14 +20,14 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class PrintWs(Link):
-    """Print the contents of the RooFit workspace"""
+
+    """Print the contents of the RooFit workspace."""
 
     def __init__(self, **kwargs):
-        """Initialize PrintWs instance
+        """Initialize link instance.
 
         :param str name: name of link
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'PrintWs'))
 
@@ -35,8 +35,7 @@ class PrintWs(Link):
         self.check_extra_kwargs(kwargs)
 
     def execute(self):
-        """Execute PrintWs"""
-
+        """Execute the link."""
         ws = process_manager.service(RooFitManager).ws
 
         ws.Print('v')

@@ -24,10 +24,11 @@ from eskapade import process_manager
 
 
 class BasicGenerator(Link):
-    """Generate data with basic distributions"""
+
+    """Generate data with basic distributions."""
 
     def __init__(self, **kwargs):
-        """Initialize link instance
+        """Initialize link instance.
 
         :param str key: key of output data in data store
         :param list columns: output column names
@@ -35,7 +36,6 @@ class BasicGenerator(Link):
         :param dict gen_config: generator configuration for each variable
         :param int gen_seed: generator random seed
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'basic_generator'))
 
@@ -44,8 +44,7 @@ class BasicGenerator(Link):
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
-        """Inititialize BasicGenerator"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_vals('key', 'size', 'columns')
         self.check_arg_types(key=str, size=int, gen_seed=int)
@@ -57,11 +56,10 @@ class BasicGenerator(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute BasicGenerator"""
-
+        """Execute the link."""
         # generate data
-        self.log().debug('Generating %d rows for columns [%s]', self.size,
-                         ', '.join('"{}"'.format(c) for c in self.columns))
+        self.logger.debug('Generating {n:d} rows for columns [{columns}].',
+                          n=self.size, columns=', '.join('"{}"'.format(c) for c in self.columns))
         data = {}
         for col in self.columns:
             # get generator configuration for this variable

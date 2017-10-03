@@ -31,13 +31,12 @@
 # * LICENSE.                                                                  *
 # *****************************************************************************
 
-import logging
-
 import ROOT
 import numpy as np
 
 from eskapade import ConfigObject
 from eskapade import process_manager
+from eskapade.logger import Logger
 from eskapade.root_analysis import RooFitManager, TruncExpGen, TruncExpFit
 from eskapade.root_analysis.roofit_models import TruncExponential
 
@@ -51,8 +50,9 @@ SLOW_REDEEM_RATE = -0.001  # per day
 FAST_FRAC = 0.4
 REDEEM_FRAC = 0.6
 
-log = logging.getLogger('macro.esk409_unredeemed_vouchers')
-log.debug('Now parsing configuration file esk409_unredeemed_vouchers')
+logger = Logger()
+
+logger.debug('Now parsing configuration file esk409_unredeemed_vouchers.')
 
 ###############################################################################
 # --- minimal analysis information
@@ -101,4 +101,4 @@ ch.add_link(fit_link)
 
 ###############################################################################
 
-log.debug('Done parsing configuration file esk409_unredeemed_vouchers')
+logger.debug('Done parsing configuration file esk409_unredeemed_vouchers.')

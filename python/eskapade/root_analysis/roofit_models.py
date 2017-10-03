@@ -23,16 +23,16 @@ from eskapade.root_analysis import roofit_utils
 
 
 class RooFitModel:
-    """Base class for RooFit models"""
+
+    """Base class for RooFit models."""
 
     def __init__(self, ws, name='', load_libesroofit=False):
-        """Initialize model instance
+        """Initialize model instance.
 
         :param ROOT.RooWorkspace ws: RooFit workspace
         :param str name: name of model
         :param bool load_libesroofit: load Eskapade RooFit library upon initialization (default is False)
         """
-
         # check workspace
         if not isinstance(ws, ROOT.RooWorkspace):
             raise TypeError('invalid workspace specified (type "{}")'.format(ws.__class__.__name__))
@@ -49,42 +49,38 @@ class RooFitModel:
 
     @property
     def name(self):
-        """Name of model"""
-
+        """Name of model."""
         return self._name
 
     @property
     def ws(self):
-        """Workspace to create model in"""
-
+        """Workspace to create model in."""
         return self._ws
 
     @property
     def is_built(self):
-        """Is model built in workspace"""
-
+        """Check if model is built in workspace."""
         return self._is_built
 
     @property
     def pdf_name(self):
-        """Name of model PDF"""
-
+        """Name of model PDF."""
         return self._pdf_name
 
     @property
     def pdf(self):
-        """Model PDF"""
-
+        """Model PDF."""
         if not self.pdf_name or self.pdf_name not in self.ws:
             return None
         return self.ws[self.pdf_name]
 
 
 class TruncExponential(RooFitModel):
-    """Exponential model with variable range upper bound"""
+
+    """Exponential model with variable range upper bound."""
 
     def __init__(self, ws, name='', var_range=None, var=None, max_var=None, exp=None, fracs=None):
-        """Initialize TruncExponential instance
+        """Initialize an instance.
 
         :param ROOT.RooWorkspace ws: RooFit workspace
         :param str name: name of model
@@ -94,7 +90,6 @@ class TruncExponential(RooFitModel):
         :param list exp: list of exponential-rate parameters: [(name0, value0), (name1, value1), ...]
         :param list fracs: list of exponential-fraction parameters: [(name0, value0), ...]
         """
-
         # initialize RooFitModel instance
         super(TruncExponential, self).__init__(ws, name=name, load_libesroofit=True)
         self._pdf_name = self.name
@@ -108,55 +103,49 @@ class TruncExponential(RooFitModel):
 
     @property
     def var(self):
-        """PDF variable"""
-
+        """PDF variable."""
         if not self.is_built:
             return None
         return self.ws[self._var[0]]
 
     @property
     def max_var(self):
-        """Range upper bound of PDF variable"""
-
+        """Range upper bound of PDF variable."""
         if not self.is_built:
             return None
         return self.ws[self._max_var[0]]
 
     @property
     def var_set(self):
-        """Set containing PDF variable"""
-
+        """Set containing PDF variable."""
         if not self.is_built:
             return None
         return self.ws.set('var_set')
 
     @property
     def max_var_set(self):
-        """Set containing range upper bound of PDF variable"""
-
+        """Set containing range upper bound of PDF variable."""
         if not self.is_built:
             return None
         return self.ws.set('max_var_set')
 
     @property
     def all_vars_set(self):
-        """Set containing PDF variables"""
-
+        """Set containing PDF variables."""
         if not self.is_built:
             return None
         return self.ws.set('all_vars_set')
 
     def build_model(self):
-        """Build truncated exponential model in workspace"""
-
+        """Build truncated exponential model in workspace."""
         # create variable
-        if not self._var[0] in self.ws:
+        if self._var[0] not in self.ws:
             self.ws.factory('{0:s}[{1:.10g}]'.format(self._var[0], self._var[1]))
         self.ws[self._var[0]].setMin(self._var_range[0])
         self.ws[self._var[0]].setMax(self._var_range[1])
 
         # create variable for upper bound of range
-        if not self._max_var[0] in self.ws:
+        if self._max_var[0] not in self.ws:
             self.ws.factory('{0:s}[{1:.10g}]'.format(self._max_var[0], self._max_var[1]))
         self.ws[self._max_var[0]].setMin(self._var_range[0])
         self.ws[self._max_var[0]].setMax(self._var_range[1])
@@ -168,14 +157,14 @@ class TruncExponential(RooFitModel):
 
         # create rate parameters
         for exp in self._exp:
-            if not exp[0] in self.ws:
+            if exp[0] not in self.ws:
                 self.ws.factory('{0:s}[{1:.10g}]'.format(exp[0], exp[1]))
                 self.ws[exp[0]].setConstant(False)
         exp_names = ','.join(exp[0] for exp in self._exp)
 
         # create fractions
         for frac in self._fracs:
-            if not frac[0] in self.ws:
+            if frac[0] not in self.ws:
                 self.ws.factory('{0:s}[{1:.10g}]'.format(frac[0], frac[1]))
                 self.ws[frac[0]].setConstant(False)
         frac_names = ','.join(frac[0] for frac in self._fracs)
@@ -192,7 +181,7 @@ class TruncExponential(RooFitModel):
         self._is_built = True
 
     def create_norm(self, data=None, range_min=None, range_max=None):
-        """Create PDF normalization-integral objects
+        """Create PDF normalization-integral objects.
 
         Calculate two objects representing normalization integrals of the PDF
         function.  The first integral is calculated in the range determined by
@@ -205,7 +194,6 @@ class TruncExponential(RooFitModel):
         :returns: normalization integrals
         :rtype: tuple
         """
-
         # check if model was built
         if not self.is_built:
             self.build_model()
@@ -261,17 +249,17 @@ class TruncExponential(RooFitModel):
 
 
 class LinearRegression(RooFitModel):
-    """Least-squares linear regression model"""
+
+    """Least-squares linear regression model."""
 
     def __init__(self, ws, name='', fit_intercept=True, minimizer='Minuit2', strategy=2):
-        """Initialize LinearRegression instance
+        """Initialize LinearRegression instance.
 
         :param ROOT.RooWorkspace ws: RooFit workspace
         :param bool fit_intercept: build model with variable intercept parameter
         :param str minimizer: minimization tool for fit (minimizer type for ROOT.RooMinimizer)
         :param int stategy: fit strategy (strategy for ROOT.RooMinimizer)
         """
-
         # initialize RooFitModel instance
         super(LinearRegression, self).__init__(ws, name)
 
@@ -287,8 +275,7 @@ class LinearRegression(RooFitModel):
 
     @property
     def coef_(self):
-        """Return fitted values of coefficients"""
-
+        """Return fitted values of coefficients."""
         if not self.fit_result:
             return None
         fit_pars = self.fit_result.floatParsFinal()
@@ -296,19 +283,17 @@ class LinearRegression(RooFitModel):
 
     @property
     def intercept_(self):
-        """Return fitted intercept value"""
-
+        """Return fitted intercept value."""
         if not self.fit_result:
             return None
         return np.float64(self.fit_result.floatParsFinal()['c_int'])
 
     def fit(self, X, y):
-        """Fit model to specified data
+        """Fit model to specified data.
 
         :param X: samples of features
         :param y: targets
         """
-
         # load data
         self.load_data(X, y)
 
@@ -316,8 +301,7 @@ class LinearRegression(RooFitModel):
         self.fit_dataset()
 
     def fit_dataset(self):
-        """Fit model to pre-loaded data"""
-
+        """Fit model to pre-loaded data."""
         # check if all model inputs are set
         if not (self.ws and self.sample_data and self.target_names and self.feat_names):
             raise RuntimeError('A workspace, sample data, target names, and feature names are needed to do the fit')
@@ -346,8 +330,7 @@ class LinearRegression(RooFitModel):
         self.fit_result = minimizer.save()
 
     def load_data(self, X, y):
-        """Load target and feature data"""
-
+        """Load target and feature data."""
         # get number of targets
         try:
             ntargets = len(y.iloc[0]) if isinstance(y, pd.DataFrame) else len(y[0]) if hasattr(y[0], '__len__') else 1
@@ -370,14 +353,14 @@ class LinearRegression(RooFitModel):
         target_set = ROOT.RooArgSet()
         feat_set = ROOT.RooArgSet()
         for name in self.target_names:
-            tar_var = self.ws.factory('{}[0]'.format(name)) if not name in self.ws else self.ws[name]
+            tar_var = self.ws.factory('{}[0]'.format(name)) if name not in self.ws else self.ws[name]
             target_set.add(tar_var)
         for name in self.feat_names:
-            feat_var = self.ws.factory('{}[0]'.format(name)) if not name in self.ws else self.ws[name]
+            feat_var = self.ws.factory('{}[0]'.format(name)) if name not in self.ws else self.ws[name]
             feat_set.add(feat_var)
-            if not 'c_{}[0]'.format(name) in self.ws:
+            if 'c_{}[0]'.format(name) not in self.ws:
                 self.ws.factory('c_{}[0]'.format(name))
-        if not 'c_int' in self.ws:
+        if 'c_int' not in self.ws:
             self.ws.factory('c_int[0]')
 
         # create data set of samples
@@ -400,8 +383,7 @@ class LinearRegression(RooFitModel):
             self.sample_data.add(sample_set)
 
     def build_model(self):
-        """Build prediction function and corresponding chi^2"""
-
+        """Build prediction function and corresponding chi^2."""
         # check if all model inputs are set
         if not (self.ws and self.sample_data and self.target_names and self.feat_names):
             raise RuntimeError('A workspace, sample data, target names, and feature names are needed to build model')
@@ -414,11 +396,9 @@ class LinearRegression(RooFitModel):
         self._is_built = True
 
     def predict(self, X):
-        """Predict values for given samples of features"""
-
+        """Predict values for given samples of features."""
         raise NotImplementedError('LinearRegression.predict not implemented yet')
 
     def score(self, X, y):
-        """Calculate R^2 coefficient for specified samples"""
-
+        """Calculate R^2 coefficient for specified samples."""
         raise NotImplementedError('LinearRegression.score not implemented yet')

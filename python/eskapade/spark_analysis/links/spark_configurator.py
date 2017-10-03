@@ -19,16 +19,16 @@ from eskapade.spark_analysis import SparkManager
 
 
 class SparkConfigurator(Link):
-    """Set configuration settings of SparkContext"""
+
+    """Set configuration settings of SparkContext."""
 
     def __init__(self, **kwargs):
-        """Initialize SparkConfigurator instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param iterable spark_settings: list of key/value pairs specifying the spark configuration
         :param str log_level: verbosity level of the SparkContext
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'SparkConfigurator'))
 
@@ -37,8 +37,7 @@ class SparkConfigurator(Link):
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
-        """Initialize SparkConfigurator"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(log_level=str)
         self.check_arg_iters('spark_settings', allow_none=True)
@@ -48,8 +47,7 @@ class SparkConfigurator(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute SparkConfigurator"""
-
+        """Execute the link."""
         settings = process_manager.service(ConfigObject)
         sm = process_manager.service(SparkManager)
 
@@ -62,6 +60,7 @@ class SparkConfigurator(Link):
         spark.sparkContext.setLogLevel(self.log_level)
 
         # check config
-        self.log().info('New Spark session started with config: {}'.format(str(spark.sparkContext.getConf().getAll())))
+        self.logger.info('New Spark session started with config: {config!s}',
+                         config=spark.sparkContext.getConf().getAll())
 
         return StatusCode.Success

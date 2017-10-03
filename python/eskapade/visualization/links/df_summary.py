@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 import tabulate
 
-from eskapade import core, visualization
+from eskapade import core, resources, visualization
 from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
 from eskapade.analysis import statistics
 
@@ -29,7 +29,8 @@ NUMBER_OF_BINS = 30
 
 
 class DfSummary(Link):
-    """Create a summary of a dataframe
+
+    """Create a summary of a dataframe.
 
     Creates a report page for each variable in data frame, containing:
 
@@ -43,7 +44,7 @@ class DfSummary(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize the DfSummary link
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of input dataframe (or histogram-dict) to read from data store
@@ -56,7 +57,6 @@ class DfSummary(Link):
         :param str hist_y_label: y-axis label to plot for all columns. Default is 'Bin Counts'.
         :param str pages_key: data store key of existing report pages
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'df_summary'))
 
@@ -72,8 +72,7 @@ class DfSummary(Link):
         self.nan_counts = []
 
     def initialize(self):
-        """Inititialize DfSummary link"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(read_key=str, pages_key=str)
         self.check_arg_types(recurse=True, allow_none=True, columns=str, hist_keys=str, var_labels=str, var_units=str)
@@ -83,9 +82,9 @@ class DfSummary(Link):
         io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
+        with open(resources.template('df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
+        with open(resources.template('df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
 
         # get path to results directory
@@ -96,11 +95,11 @@ class DfSummary(Link):
         if os.path.exists(self.results_path):
             # check if path is a directory
             if not os.path.isdir(self.results_path):
-                self.log().critical('Output path "%s" is not a directory', self.results_path)
-                raise AssertionError('output path is not a directory')
+                self.logger.fatal('Output path "{path}" is not a directory.', path=self.results_path)
+                raise AssertionError('Output path is not a directory.')
         else:
             # create directory
-            self.log().debug('Making output directory %s', self.results_path)
+            self.logger.debug('Making output directory "{path}".', path=self.results_path)
             os.makedirs(self.results_path)
 
         # add hist_keys to columns, ensure sum is a unique set
@@ -110,7 +109,7 @@ class DfSummary(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute DfSummary
+        """Execute the link.
 
         Creates a report page for each variable in data frame.
 
@@ -122,14 +121,13 @@ class DfSummary(Link):
         :returns: execution status code
         :rtype: StatusCode
         """
-
         ds = process_manager.service(DataStore)
 
         # fetch and check input data frame
         data = ds.get(self.read_key, None)
         if data is None:
-            self.log().critical('No input data "%s" found in data store for %s', self.read_key, str(self))
-            raise RuntimeError('no input data found for {}'.format(str(self)))
+            self.logger.fatal('No input data "{self.read_key}" found in data store for {self!s}.', self=self)
+            raise RuntimeError('no input data found for {!s}'.format(self))
         else:
             self.assert_data_type(data)
 
@@ -147,10 +145,10 @@ class DfSummary(Link):
         for name in self.columns[:]:
             # check if column is in data frame
             if name not in all_columns:
-                self.log().warning('Key "%s" not in input data; skipping', name)
+                self.logger.warning('Key "{key}" not in input data; skipping.', key=name)
                 self.columns.remove(self.columns.index(name))
                 continue
-            self.log().debug('Processing "%s"', name)
+            self.logger.debug('Processing "{col}".', col=name)
             sample = self.get_sample(data, name)
             self.process_sample(name, sample)
 
@@ -166,18 +164,7 @@ class DfSummary(Link):
         return StatusCode.Success
 
     def finalize(self):
-        """Finalize DfSummary"""
-
-        # storage
-        if self.pages_key:
-            ds = process_manager.service(DataStore)
-            ds[self.pages_key] = self.pages
-
-        return StatusCode.Success
-
-    def finalize(self):
-        """Finalize DfSummary"""
-
+        """Finalize the link."""
         # write report file
         with open('{}/report.tex'.format(self.results_path), 'w') as report_file:
             report_file.write(self.report_template.replace('INPUT_PAGES', ''.join(self.pages)))
@@ -185,58 +172,53 @@ class DfSummary(Link):
         return StatusCode.Success
 
     def assert_data_type(self, data):
-        """Check type of input data
+        """Check type of input data.
 
         :param data: input data sample (pandas dataframe or dict)
         """
-
         if not isinstance(data, pd.DataFrame) and not isinstance(data, dict):
             raise AssertionError('input data should be pandas dataframe or dict (with histograms)')
 
     def get_all_columns(self, data):
-        """Retrieve all columns / keys from input data
+        """Retrieve all columns / keys from input data.
 
         :param data: input data sample (pandas dataframe or dict)
         :returns: list of columns
         :rtype: list
         """
-
         if isinstance(data, pd.DataFrame):
             all_columns = sorted(data.columns.tolist())
         elif isinstance(data, dict):
             # dict of histograms
             all_columns = sorted(data.keys())
         else:
-            raise RuntimeError('cannot determine columns in input data found for {}'.format(str(self)))
+            raise RuntimeError('cannot determine columns in input data found for {!s}'.format(self))
 
         return all_columns
 
     def get_sample(self, data, key):
-        """Retrieve speficic column or item from input data
+        """Retrieve speficic column or item from input data.
 
         :param data: input data (pandas dataframe or dict)
         :param str key: column key
         :returns: data series or item
         """
-
         return data[key]
 
     def get_length(self, data):
-        """Get length of data set
+        """Get length of data set.
 
         :param data: input data (pandas dataframe or dict)
         :returns: length of data set
         """
-
         return len(data)
 
     def process_sample(self, name, sample):
-        """Process various possible data samples
+        """Process various possible data samples.
 
         :param str name: name of sample
         :param sample: input pandas series object or histogram
         """
-
         # process pandas series (plot and make summary table)
         if isinstance(sample, pd.core.series.Series):
             self.process_series(name, sample)
@@ -248,17 +230,16 @@ class DfSummary(Link):
                 self.process_2d_histogram(name, sample)
 
     def process_series(self, col, sample):
-        """Create statistics of and plot input pandas series
+        """Create statistics of and plot input pandas series.
 
         :param str col: name of the series
         :param sample: input pandas series object
         """
-
         # skip columns consisting entirely of nans
         nan_cnt = sample.isnull().sum()
         self.nan_counts.append(nan_cnt)
         if nan_cnt == len(sample.index):
-            self.log().debug('Column "%s" consists of nans only; skipping', col)
+            self.logger.debug('Column "{col}" consists of nans only; skipping.', col=col)
             return
 
         # 1. create statistics object for column
@@ -287,15 +268,14 @@ class DfSummary(Link):
 
         # create page string for report
         self.pages.append(self.page_template.replace('VAR_LABEL', var_label).replace('VAR_STATS_TABLE', stats_table)
-                                            .replace('VAR_HISTOGRAM_PATH', hist_file_name))
+                          .replace('VAR_HISTOGRAM_PATH', hist_file_name))
 
     def process_1d_histogram(self, name, hist):
-        """Create statistics of and plot input 1d histogram
+        """Create statistics of and plot input 1d histogram.
 
         :param str name: name of the histogram
         :param hist: input histogram object
         """
-
         # datatype properties
         datatype = hist.datatype
         col_props = statistics.get_col_props(datatype)
@@ -305,7 +285,7 @@ class DfSummary(Link):
         # skip empty histograms
         n_bins = hist.n_bins
         if n_bins == 0:
-            self.log().warning('Histogram "%s" is empty; skipping', name)
+            self.logger.warning('Histogram "{name}" is empty; skipping.', name=name)
             return
 
         bin_labels = hist.bin_centers() if is_num else hist.bin_labels()
@@ -351,19 +331,18 @@ class DfSummary(Link):
         self.pages.append(page_templ)
 
     def process_2d_histogram(self, name, hist):
-        """Create statistics of and plot input 2d histogram
+        """Create statistics of and plot input 2d histogram.
 
         :param str name: name of the histogram
         :param hist: input histogram object
         """
-
         if not hasattr(hist, 'xy_ranges_grid'):
-            self.log().warning('No plot for 2d hist "%s"; cannot extract binning and values', name)
+            self.logger.warning('No plot for 2d hist "{name}"; cannot extract binning and values.', name=name)
             return
         try:
             nphist = hist.xy_ranges_grid()
         except BaseException:
-            raise RuntimeError('cannot extract binning and values from input histogram')
+            raise RuntimeError('Cannot extract binning and values from input histogram.')
 
         # calc some basic histogram statistics
         sum_entries = 0
@@ -404,14 +383,13 @@ class DfSummary(Link):
         self.pages.append(page_templ)
 
     def process_nan_histogram(self, nphist, n_data):
-        """Process nans histogram
+        """Process nans histogram.
 
         Add nans histogram to pdf list
 
         :param nphist: numpy-style input histogram, consisting of comma-separaged bin_entries, bin_edges
         :param int n_data: number of entries in the processed data set
         """
-
         var_label = 'NaN count'
         x_label = 'Column name'
         y_label = self.hist_y_label if self.hist_y_label else None

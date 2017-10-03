@@ -22,7 +22,8 @@ from eskapade.analysis.histogram_filling import HistogramFillerBase
 
 
 class RootHistFiller(HistogramFillerBase):
-    """Create ROOT histograms from colums in Pandas dataframe
+
+    """Create ROOT histograms from colums in Pandas dataframe.
 
     Histograms can be up to 3 dimensions. The data type for the histogram
     can be automatically assessed from the column(s), or set as input. For
@@ -34,7 +35,7 @@ class RootHistFiller(HistogramFillerBase):
     """
 
     def __init__(self, **kwargs):
-        """Initialize RootHistFiller instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of input data to read from data store
@@ -51,7 +52,6 @@ class RootHistFiller(HistogramFillerBase):
         :param dict var_dtype: impose data type of variable (optional)
         :param str weight: name of weight column (optional)
         """
-
         # initialize Link, pass name from kwargs
         if 'name' not in kwargs:
             kwargs['name'] = 'RootHistFiller'
@@ -83,8 +83,7 @@ class RootHistFiller(HistogramFillerBase):
         self._default_dtype = np.dtype(float)
 
     def initialize(self):
-        """Initialize RootHistFiller"""
-
+        """Initialize the link."""
         self.check_arg_types(read_key=str, store_key=str)
         self.check_arg_types(recurse=True, allow_none=True, columns=str, pair_up_columns=str)
         self.check_arg_vals('read_key', 'store_key')
@@ -92,7 +91,7 @@ class RootHistFiller(HistogramFillerBase):
         status = HistogramFillerBase.initialize(self)
 
         # pair up any columns and add to self.colums
-        if len(self.pair_up_columns):
+        if self.pair_up_columns:
             assert len(self.pair_up_columns) >= 2, 'pair_up_columns needs at least two column entries.'
         self.pair_up_columns = sorted(self.pair_up_columns)
         for i, c1 in enumerate(self.pair_up_columns):
@@ -102,7 +101,7 @@ class RootHistFiller(HistogramFillerBase):
         # check that columns are set correctly.
         # supports 1d 2d and 3d histograms
         for i, c in enumerate(self.columns):
-            assert len(self.columns[i]) <= 3, 'dimension needs to be 1, 2, or 3, not "%d"' % len(self.columns[i])
+            assert len(c) <= 3, 'dimension needs to be 1, 2, or 3, not "{:d}"'.format(len(c))
 
         # check weight variable
         if self.weight and not isinstance(self.weight, str):
@@ -111,11 +110,10 @@ class RootHistFiller(HistogramFillerBase):
         return status
 
     def categorize_columns(self, df):
-        """Categorize columns of dataframe by data type
+        """Categorize columns of dataframe by data type.
 
         :param df: input (pandas) data frame
         """
-
         # check presence and data type of requested columns
         # sort columns into numerical, timestamp and category based
         HistogramFillerBase.categorize_columns(self, df)
@@ -125,12 +123,11 @@ class RootHistFiller(HistogramFillerBase):
             raise KeyError('weight "{0:s}" not in dataframe "{1:s}"'.format(self.weight, self.read_key))
 
     def fill_histogram(self, idf, columns):
-        """Fill input histogram with column(s) of input dataframe
+        """Fill input histogram with column(s) of input dataframe.
 
         :param idf: input data frame used for filling histogram
         :param list columns: histogram column(s)
         """
-
         name = ':'.join(columns)
         if name not in self._hists:
             # create an (empty) histogram of right type
@@ -222,7 +219,7 @@ class RootHistFiller(HistogramFillerBase):
         return True
 
     def construct_empty_hist(self, columns):
-        """Create an (empty) histogram of right type
+        """Create an (empty) histogram of right type.
 
         Create a multi-dim histogram by iterating through the columns.
 
@@ -230,7 +227,6 @@ class RootHistFiller(HistogramFillerBase):
         :returns: created ROOT histogram
         :rtype: ROOT.TH1
         """
-
         name = ':'.join(columns)
         n_dims = len(columns)
 
@@ -274,7 +270,7 @@ class RootHistFiller(HistogramFillerBase):
                              self._n_bins(columns, 1), self._min(columns, 1), self._max(columns, 1),
                              self._n_bins(columns, 2), self._min(columns, 2), self._max(columns, 2))
         else:
-            raise RuntimeError('number of dimensions not supported: %d' % n_dims)
+            raise RuntimeError('number of dimensions not supported: {:d}'.format(n_dims))
         for i in range(n_dims):
             if self._extend_axis(columns, i):
                 hist.SetCanExtend(ROOT.TH1.kAllAxes)

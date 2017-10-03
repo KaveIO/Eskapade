@@ -10,14 +10,13 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
-
 from eskapade import process_manager, ConfigObject, visualization, resources, spark_analysis
+from eskapade.logger import Logger, LogLevel
 from eskapade.spark_analysis import SparkManager
 
-log = logging.getLogger('macro.esk608_spark_histogrammar')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk608_spark_histogrammar')
+logger.debug('Now parsing configuration file esk608_spark_histogrammar')
 
 ##########################################################################
 # --- minimal analysis information
@@ -74,7 +73,7 @@ ch = process_manager.add_chain('Output')
 hf = spark_analysis.SparkHistogrammarFiller()
 hf.read_key = read_link.store_key
 hf.store_key = 'hist'
-hf.set_log_level(logging.DEBUG)
+hf.logger.log_level = LogLevel.DEBUG
 # colums that are picked up to do value_counting on in the input dataset
 # note: can also be 2-dim: ['x','y']
 # in this example, the rest are one-dimensional histograms
@@ -89,4 +88,4 @@ ch.add_link(hist_summary)
 ###########################################################################
 # --- the end
 
-log.debug('Done parsing configuration file esk608_spark_histogrammar')
+logger.debug('Done parsing configuration file esk608_spark_histogrammar')

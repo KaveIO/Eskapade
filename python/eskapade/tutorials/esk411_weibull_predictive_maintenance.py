@@ -16,8 +16,6 @@
 # *     LICENSE.                                                                 *
 # ********************************************************************************
 
-import logging
-
 import ROOT
 from ROOT import RooFit
 
@@ -25,14 +23,15 @@ from eskapade import ConfigObject
 from eskapade import process_manager
 from eskapade import root_analysis
 from eskapade.core import persistence
+from eskapade.logger import Logger
 from eskapade.root_analysis import roofit_utils
 
 # make sure Eskapade RooFit library is loaded
 roofit_utils.load_libesroofit()
 
-log = logging.getLogger('macro.esk411_weibull_predictive_maintenance')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk411_weibull_predictive_maintenance')
+logger.debug('Now parsing configuration file esk411_weibull_predictive_maintenance')
 
 #########################################################################################
 # --- minimal analysis information
@@ -47,9 +46,9 @@ settings['version'] = 0
 msg = r"""
 
 The plots and latex report produced by link WsUtils can be found in dir:
-%s
-""" % (persistence.io_path('results_data', settings.io_conf(), 'report'))
-log.info(msg)
+{path}
+"""
+logger.info(msg, path=persistence.io_path('results_data', settings.io_conf(), 'report'))
 
 settings['generate'] = True
 # settings['read_data'] = not settings['generate']
@@ -167,4 +166,4 @@ if settings['summary']:
 #########################################################################################
 
 
-log.debug('Done parsing configuration file esk411_weibull_predictive_maintenance')
+logger.debug('Done parsing configuration file esk411_weibull_predictive_maintenance')

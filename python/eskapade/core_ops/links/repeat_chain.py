@@ -14,65 +14,58 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ConfigObject
-from eskapade import Link
-from eskapade import StatusCode
-from eskapade import process_manager
+from eskapade import process_manager, ConfigObject, Link, StatusCode
 
 
 class RepeatChain(Link):
-    """Algorithm that sends signal to processManager to repeat the current chain"""
+
+    """Algorithm that sends signal to processManager to repeat the current chain."""
 
     def __init__(self, **kwargs):
-        """Link that sends signal to processManager to repeat the current chain
+        """Link that sends signal to processManager to repeat the current chain.
 
         Sents a RepeatChain deenums.StatusCode signal.
 
         :param str name: name of link
-        :param list listenTo: repeat this chain if given key is present in ConfigObject and set to true. E.g. this key is set by readtods link when looping over files. 
+        :param list listen_to: repeat this chain if given key is present in ConfigObject and set to true.
+            E.g. this key is set by readtods link when looping over files.
         :param int maxcount: repeat this chain until max count has been reacher. Default is -1 (off).
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'RepeatChain'))
 
         # process keyword arguments
-        self._process_kwargs(kwargs, maxcount=-1, listenTo=[])
+        self._process_kwargs(kwargs, maxcount=-1, listen_to=[])
         self.check_extra_kwargs(kwargs)
 
         self._counter = 0
-        
-    def initialize(self):
-        """Initialize RepeatChain"""
 
-        if self.listenTo is not None:
-            if isinstance(self.listenTo,list): pass
-            elif isinstance(self.listenTo,str) and len(self.listenTo)>0:
-                self.listenTo = [self.listenTo]
-            else:
-                raise Exception('listenTo key of incorrect type.')
+    def initialize(self):
+        """Initialize the link."""
+        if isinstance(self.listen_to, list):
+            pass
+        elif isinstance(self.listen_to, str) and self.listen_to:
+            self.listen_to = [self.listen_to]
         else:
-            raise Exception('listenTo key of incorrect type.')
-        
+            raise Exception('listen_to key of incorrect type.')
+
         return StatusCode.Success
 
     def execute(self):
-        """Execute RepeatChain"""
-
+        """Execute the link."""
         settings = process_manager.service(ConfigObject)
 
-        # search for listenTo key in ConfigObject. if present and true, send signal to repeat current chain.
-        for l in self.listenTo:
+        # search for listen_to key in ConfigObject. if present and true, send signal to repeat current chain.
+        for l in self.listen_to:
             if l in settings and settings[l]:
-                self.log().debug('The repeater count is: {:d}'.format(self._counter))
+                self.logger.debug('The repeater count is: {n:d}.', n=self._counter)
                 self._counter += 1
                 return StatusCode.RepeatChain
-                
+
         # repeat this chain until counter reaches specified maxcount value..
         while self._counter < self.maxcount:
-            self.log().debug('The repeater count is: {:d}. Max count is: {:d}'.format(self._counter, self.maxcount))
+            self.logger.debug('The repeater count is: {n:d}. Max count is: {max:d}', n=self._counter, max=self.maxcount)
             self._counter += 1
             return StatusCode.RepeatChain
 
         return StatusCode.Success
-

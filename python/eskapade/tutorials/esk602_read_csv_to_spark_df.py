@@ -10,14 +10,13 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
-
 from eskapade import process_manager, ConfigObject, resources, spark_analysis
+from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
-log = logging.getLogger('macro.esk602_read_csv_to_spark_df')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk602_read_csv_to_spark_df')
+logger.debug('Now parsing configuration file esk602_read_csv_to_spark_df.')
 
 ##########################################################################
 # --- minimal analysis information
@@ -73,4 +72,4 @@ process_manager.add_chain('Read').add_link(read_link)
 
 ##########################################################################
 
-log.debug('Done parsing configuration file esk602_read_csv_to_spark_df')
+logger.debug('Done parsing configuration file esk602_read_csv_to_spark_df.')

@@ -14,14 +14,14 @@
 # * the all correlations between observables.
 # *
 # * This macro shows how this simulation can be done with roofit, by building a
-# * smooth pdf of the input dataset with kernel estimatation techniques, the so-called 
+# * smooth pdf of the input dataset with kernel estimatation techniques, the so-called
 # * KEYS pdf, which describes the input observables and their correlations.
 # * The technique works very well to describe 1 and 2 dimensional distributions,
 # * but is very cpu intensive and becomes ever more slow for higher number of dimensions.
 # *
 # * This macro has two settings, controlled with settings['high_num_dims'].
 # * When false, the keys pdf contains 2 continuous observables. When true,
-# * the keys pdf 3 dimensional. 
+# * the keys pdf 3 dimensional.
 # *
 # * Licence:
 # *                                                                                *
@@ -30,17 +30,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
-from pkg_resources import resource_filename
-
 from eskapade import ConfigObject
-from eskapade import core_ops, analysis, visualization, root_analysis
+from eskapade import analysis, core_ops, resources, root_analysis, visualization
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk406_simulation_based_on_unbinned_data')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk406_simulation_based_on_unbinned_data')
+logger.debug('Now parsing configuration file esk406_simulation_based_on_unbinned_data')
 
 #########################################################################################
 # --- minimal analysis information
@@ -57,7 +54,7 @@ settings['generate'] = True
 settings['make_plot'] = True
 settings['high_num_dims'] = False
 
-input_files = [resource_filename('eskapade', '/data/correlated_data.sv.gz')]
+input_files = [resources.fixture('correlated_data.sv.gz')]
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
@@ -99,7 +96,7 @@ if settings['generate']:
 
     # clear all from ds
     dl = core_ops.DsObjectDeleter()
-    dl.deletionKeys = ['keys_Ndim']
+    dl.deletion_keys = ['keys_Ndim']
     ch.add_link(dl)
 
 if settings['make_plot']:
@@ -131,4 +128,4 @@ if settings['make_plot']:
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk406_simulation_based_on_unbinned_data')
+logger.debug('Done parsing configuration file esk406_simulation_based_on_unbinned_data')

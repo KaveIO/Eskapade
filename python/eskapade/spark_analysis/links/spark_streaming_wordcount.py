@@ -14,11 +14,12 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, Link, DataStore, StatusCode
 
 
 class SparkStreamingWordCount(Link):
-    """ Counts words in UTF8 encoded delimited text 
+
+    """Counts words in UTF8 encoded delimited text.
 
     Text is received from the network every second.
     To run this on your local machine, you need to first run a Netcat server
@@ -27,19 +28,18 @@ class SparkStreamingWordCount(Link):
 
     and then run the example (in a second terminal)
 
-    `$ run_eskapade tutorials/esk610_spark_streaming_wordcount.py`
+    `$ eskapade_run tutorials/esk610_spark_streaming_wordcount.py`
 
-    NB: hostname and port can be adapted in the macro
+    NB: hostname and port can be adapted in the macro.
     """
 
     def __init__(self, **kwargs):
-        """Initialize SparkStreamingWordCount instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of input data to read from data store
         :param str store_key: key of output data to store in data store
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'SparkStreamingWordCount'))
 
@@ -48,14 +48,11 @@ class SparkStreamingWordCount(Link):
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
-        """Initialize SparkStreamingWordCount"""
-
+        """Initialize the link."""
         return StatusCode.Success
 
     def execute(self):
-        """Execute SparkStreamingWordCount"""
-
-        settings = process_manager.service(ConfigObject)
+        """Execute the link."""
         ds = process_manager.service(DataStore)
 
         lines = ds[self.read_key]
@@ -70,6 +67,5 @@ class SparkStreamingWordCount(Link):
         return StatusCode.Success
 
     def finalize(self):
-        """Finalize SparkStreamingWordCount"""
-
+        """Finalize the link."""
         return StatusCode.Success

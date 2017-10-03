@@ -37,17 +37,15 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
-from pkg_resources import resource_filename
-
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, root_analysis
 from eskapade import process_manager
+from eskapade import resources
+from eskapade.logger import Logger, LogLevel
 
-log = logging.getLogger('macro.esk405_simulation_based_on_binned_data')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk405_simulation_based_on_binned_data')
+logger.debug('Now parsing configuration file esk405_simulation_based_on_binned_data')
 
 #########################################################################################
 # --- minimal analysis information
@@ -61,7 +59,7 @@ settings['version'] = 0
 
 settings['high_num_dims'] = False
 
-input_files = [resource_filename('eskapade','/data/mock_accounts.csv.gz')]
+input_files = [resources.fixture('mock_accounts.csv.gz')]
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
@@ -84,7 +82,7 @@ fact.read_key = 'accounts'
 fact.inplace = True
 fact.sk_map_to_original = 'to_original'
 fact.sk_map_to_factorized = 'to_factorized'
-fact.set_log_level(logging.DEBUG)
+fact.logger.log_level = LogLevel.DEBUG
 ch.add_link(fact)
 
 # --- 2. Fill a roodatahist with the contents of the dataframe
@@ -120,9 +118,9 @@ ch = process_manager.add_chain('WsOps')
 wsu = root_analysis.WsUtils()
 wsu.add_simulate(pdf='hpdf_Ndim', obs='rdh_vars', num=10000, key='simdata')
 wsu.add_plot(obs='age', data='simdata', pdf='hpdf_Ndim', output_file='test.pdf',
-             pdf_kwargs={'ProjWData': ('rdh_cats','simdata')})
+             pdf_kwargs={'ProjWData': ('rdh_cats', 'simdata')})
 ch.add_link(wsu)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk405_simulation_based_on_binned_data')
+logger.debug('Done parsing configuration file esk405_simulation_based_on_binned_data')

@@ -14,20 +14,20 @@
 # * LICENSE.                                                                  *
 # *****************************************************************************
 
-import logging
-
 import ROOT
 import numpy as np
 
 from eskapade import StatusCode, DataStore, Link, process_manager, ConfigObject
 from eskapade.core import persistence
+from eskapade.logger import LogLevel
 from eskapade.root_analysis.roofit_manager import RooFitManager
 from eskapade.root_analysis.roofit_models import TruncExponential
 from eskapade.root_analysis.roofit_utils import ROO_INF, create_roofit_opts
 
 
 class TruncExpFit(Link):
-    """Fit truncated exponential PDF to data
+
+    """Fit truncated exponential PDF to data.
 
     Fit an exponential PDF in a range with a variable upper bound to data.
     That is, the PDF is truncated at a different value for each record in
@@ -44,14 +44,13 @@ class TruncExpFit(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize the TruncExpFit instance
+        """Initialize link instance.
 
         :param str name: name of link instance
         :param str read_key: data-store key of input data
         :param str max_var_data_key: data-store key of dataset with range upper-bound values
         :param str model_name: name of truncated-exponential model to use
         """
-
         Link.__init__(self, kwargs.pop('name', 'fit_trunc_exp'))
 
         # process keyword arguments
@@ -61,8 +60,7 @@ class TruncExpFit(Link):
         self._fit_cmd_args = None
 
     def initialize(self):
-        """Inititialize the TruncExpFit execution"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(read_key=str, max_var_data_key=str, model_name=str, results_path=str)
         self.check_arg_vals('read_key', 'model_name')
@@ -74,7 +72,7 @@ class TruncExpFit(Link):
         # check if model exists
         model = rfm.model(self.model_name)
         if not model:
-            self.log().warning('Model "{}" does not exist; creating with default values'.format(self.model_name))
+            self.logger.warning('Model "{model}" does not exist; creating with default values.', model=self.model_name)
             model = rfm.model(self.model_name, model_cls=TruncExponential)
 
         # check if model PDF has been built
@@ -92,8 +90,7 @@ class TruncExpFit(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute TruncExpFit"""
-
+        """Execute the link."""
         # get process manager and services
         ds = process_manager.service(DataStore)
         rfm = process_manager.service(RooFitManager)
@@ -111,21 +108,21 @@ class TruncExpFit(Link):
 
         # check fit result
         if self.fit_result.status() != 0:
-            self.log().error('Failed fit: status code {:d}'.format(self.fit_result.status()))
+            self.logger.error('Failed fit: status code {status:d}.', status=self.fit_result.status())
             return StatusCode.Failure
 
         # print fit result
-        print_info = self.log().getEffectiveLevel() <= logging.INFO
-        self.log().info('Fitted parameter values:')
+        print_info = self.logger.log_level <= LogLevel.INFO
+        self.logger.info('Fitted parameter values:')
         if print_info:
             self.fit_result.Print('v')
-        self.log().info('Fitted parameter correlation matrix:')
+        self.logger.info('Fitted parameter correlation matrix:')
         if print_info:
             self.fit_result.correlationMatrix().Print()
 
         # check for range upper-bound data
         if not self.max_var_data_key:
-            self.log().debug('No range upper-bound samples provided; not estimating number of events without bounds')
+            self.logger.debug('No range upper-bound samples provided; not estimating number of events without bounds.')
             return StatusCode.Success
         mv_data = ds.get(self.max_var_data_key)
         if not isinstance(mv_data, ROOT.RooAbsData):
@@ -140,16 +137,21 @@ class TruncExpFit(Link):
         ev_frac_val = np.float64(data.sumEntries()) / num_samp
         ev_frac_err = np.sqrt(ev_frac_val * (1. - ev_frac_val) / num_samp)
         n_ev_val = norm_ratio_val * ev_frac_val * num_samp
-        n_ev_err = np.sqrt((ev_frac_val * norm_ratio_err)**2 + (norm_ratio_val * ev_frac_err)**2) * num_samp
+        n_ev_err = np.sqrt((ev_frac_val * norm_ratio_err) ** 2 + (norm_ratio_val * ev_frac_err) ** 2) * num_samp
         self.results = dict(num_samp=num_samp, norm_ratio=(norm_ratio_val, norm_ratio_err),
                             ev_frac=(ev_frac_val, ev_frac_err), n_ev=(n_ev_val, n_ev_err))
 
         # print results
-        self.log().debug('Number of events with current range bounds: %.0f out of %.0f samples (%.1f%% +/- %.1f%%)',
-                         ev_frac_val * num_samp, num_samp, ev_frac_val * 100., ev_frac_err * 100.)
-        self.log().debug('Estimated PDF-normalization ratio: %.3f +/- %.3f', norm_ratio_val, norm_ratio_err)
-        self.log().info('Estimated number of events from these samples in full range: %.0f +/- %.0f (%.0f samples)',
-                        n_ev_val, n_ev_err, num_samp)
+        self.logger.debug(
+            'Number of events with current range bounds: '
+            '{n:.0f} out of {total:.0f} samples ({begin:.1f}% +/- {end:.1f}%)',
+            n=ev_frac_val * num_samp, total=num_samp, begin=ev_frac_val * 100., end=ev_frac_err * 100.)
+        self.logger.debug('Estimated PDF-normalization ratio: {ratio:.3f} +/- {error:.3f}', ratio=norm_ratio_val,
+                          error=norm_ratio_err)
+        self.logger.info(
+            'Estimated number of events from these samples in full range: '
+            '{n:.0f} +/- {error:.0f} ({total:.0f} samples)',
+            n=n_ev_val, error=n_ev_err, total=num_samp)
 
         # plot data and model
         make_plots(data, model, n_ev_val / norm_full.getVal(), '{0:s}/{1:s}.pdf'.format(self.results_path, model.name))
@@ -158,8 +160,7 @@ class TruncExpFit(Link):
 
 
 def make_plots(data, model, full_norm_ratio, plots_path):
-    """Make plots of data and model"""
-
+    """Make plots of data and model."""
     # plot max-var data
     mv_frame = model.max_var.frame(min(50, max(30, data.numEntries() // 100)))
     data.plotOn(mv_frame, create_roofit_opts('data_plot'))
@@ -196,8 +197,7 @@ def make_plots(data, model, full_norm_ratio, plots_path):
 
 
 def est_norm_ratio(norm_full, norm_data, fit_result):
-    """Estimate total number of events without range bounds"""
-
+    """Estimate total number of events without range bounds."""
     # assume norm in full range is equal to one
     norm_full_val = norm_full.getVal()
     if not norm_full_val == 1.:

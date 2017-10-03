@@ -42,7 +42,7 @@ This is demonstrated in the following tutorial macro:
 
 .. code-block:: bash
 
-  $ run_eskapade tutorials/esk601_spark_configuration.py
+  $ eskapade_run python/eskapade/tutorials/esk601_spark_configuration.py
 
 The methods are described in the sections below. For a description of configuration settings, see `Spark Configuration <http://spark.apache.org/docs/latest/configuration.html>`_. In case configuration settings seem not to be picked up correctly, please check `Notes`_ at the end of this section.
 

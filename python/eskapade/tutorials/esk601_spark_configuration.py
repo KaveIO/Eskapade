@@ -10,14 +10,13 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
-
 from eskapade import process_manager, ConfigObject, spark_analysis
+from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
-log = logging.getLogger('macro.esk601_spark_configuration')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk601_spark_configuration')
+logger.debug('Now parsing configuration file esk601_spark_configuration.')
 
 ##########################################################################
 # --- logging in Spark
@@ -28,7 +27,7 @@ log.debug('Now parsing configuration file esk601_spark_configuration')
 #
 # 2) through SparkContext
 #    in Python code set:
-#    ProcessManager().service(SparkManager).get_session().sparkContext.setLogLevel('INFO')
+#    process_manager.service(SparkManager).get_session().sparkContext.setLogLevel('INFO')
 #
 # NB: get a list of loggers through logging.Logger.manager.loggerDict
 #
@@ -52,8 +51,8 @@ sm = process_manager.service(SparkManager)
 spark = sm.create_session(eskapade_settings=settings)
 sc = spark.sparkContext
 
-log.info('---> METHOD 1: configuration file')
-log.info(sc.getConf().getAll())
+logger.info('---> METHOD 1: configuration file')
+logger.info(str(sc.getConf().getAll()))
 
 ##########################################################################
 # --- METHOD 2: link
@@ -64,8 +63,8 @@ conf_link.spark_settings = [('spark.app.name', settings['analysisName'] + '_link
                             ('spark.driver.host', '127.0.0.1')]
 process_manager.add_chain('Config').add_link(conf_link)
 
-log.info('---> METHOD 2: link')
-log.info('NB: settings will be printed at time of link execution')
+logger.info('---> METHOD 2: link')
+logger.info('NB: settings will be printed at time of link execution.')
 
 ##########################################################################
 # --- running spark session will be stopped automatically at end
@@ -74,4 +73,4 @@ log.info('NB: settings will be printed at time of link execution')
 ###########################################################################
 # --- the end
 
-log.debug('Done parsing configuration file esk601_spark_configuration')
+logger.debug('Done parsing configuration file esk601_spark_configuration.')

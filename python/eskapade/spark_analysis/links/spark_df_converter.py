@@ -22,7 +22,8 @@ OUTPUT_FORMATS = ('df', 'rdd', 'list', 'pd')
 
 
 class SparkDfConverter(Link):
-    """Link to convert a Spark data frame into a different format
+
+    """Link to convert a Spark data frame into a different format.
 
     A data frame from the data store is converted into data of a different
     format and/or transformed. The format conversion is controlled by the
@@ -38,7 +39,7 @@ class SparkDfConverter(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize link instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of the input data in the data store
@@ -51,7 +52,6 @@ class SparkDfConverter(Link):
         :param dict process_meth_kwargs: keyword arguments for process methods
         :param bool fail_missing_data: fail execution if the input data frame is missing (default is "True")
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'SparkDfConverter'))
 
@@ -62,8 +62,7 @@ class SparkDfConverter(Link):
         self.kwargs = kwargs
 
     def initialize(self):
-        """Inititialize SparkDfConverter"""
-
+        """Initialize SparkDfConverter."""
         # check input arguments
         self.check_arg_types(read_key=str, output_format=str, process_meth_args=dict, process_meth_kwargs=dict)
         self.check_arg_types(allow_none=True, store_key=str, schema_key=str)
@@ -78,8 +77,8 @@ class SparkDfConverter(Link):
         # check output format
         self.output_format = self.output_format.lower()
         if self.output_format not in OUTPUT_FORMATS:
-            self.log().critical('Specified data output format "%s" is invalid', self.output_format)
-            raise RuntimeError('invalid output format specified')
+            self.logger.fatal('Specified data output format "{format}" is invalid.', format=self.output_format)
+            raise RuntimeError('Invalid output format specified.')
 
         # set process methods
         self._process_methods = process_transform_funcs(self.process_methods, self.process_meth_args,
@@ -88,22 +87,20 @@ class SparkDfConverter(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute SparkDfConverter"""
-
+        """Execute the link."""
         # get process manager and data store
         ds = process_manager.service(DataStore)
 
         # fetch data frame from data store
         if self.read_key not in ds:
-            err_msg = 'no input data found in data store with key "{}"'.format(self.read_key)
+            err_msg = 'No input data found in data store with key "{}".'.format(self.read_key)
             if not self.fail_missing_data:
-                self.log().error(err_msg.capitalize())
+                self.logger.error(err_msg.capitalize())
                 return StatusCode.Success
             raise KeyError(err_msg)
         data = ds[self.read_key]
         if not isinstance(data, pyspark.sql.DataFrame):
-            raise TypeError('expected a Spark data frame for "{0:s}" (got "{1:s}")'.format(self.read_key,
-                                                                                           str(type(data))))
+            raise TypeError('Expected a Spark data frame for "{0:s}" (got "{1!s}").'.format(self.read_key, type(data)))
 
         # store data-frame schema
         ds[self.schema_key] = data.schema

@@ -24,7 +24,8 @@ from eskapade.core import persistence
 
 
 class SparkDataToCsv(Link):
-    """Write Spark data to local CSV files
+
+    """Write Spark data to local CSV files.
 
     Data to write to CSV are provided as a Spark RDD or a Spark data frame.
     The data are written to a configurable number of CSV files in the
@@ -32,7 +33,7 @@ class SparkDataToCsv(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize link instance
+        """Initialize link instance.
 
         :param str name: name of link instance
         :param str read_key: data-store key of the Spark data
@@ -44,14 +45,12 @@ class SparkDataToCsv(Link):
                                   or boolean to indicate if names must be determined from input data frame
         :param int num_files: requested number of output files
         """
-
         Link.__init__(self, kwargs.pop('name', 'SparkDataToCsv'))
         self._process_kwargs(kwargs, read_key=None, output_path=None, mode='error', compression_codec=None,
                              sep=',', header=False, num_files=1)
 
     def initialize(self):
-        """Initialize SparkDataToCsv"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(allow_none=True, read_key=str, output_path=str, compression_codec=str)
         self.check_arg_types(mode=str, sep=str, num_files=int)
@@ -60,7 +59,7 @@ class SparkDataToCsv(Link):
         self.check_arg_vals('output_path', 'compression_codec', allow_none=True)
         self.check_arg_opts(mode=('overwrite', 'ignore', 'error'))
         if self.num_files < 1:
-            raise RuntimeError('requested number of files is less than 1 ({:d})'.format(self.num_files))
+            raise RuntimeError('Requested number of files is less than 1 ({:d}).'.format(self.num_files))
 
         # set other attributes
         self.do_execution = True
@@ -76,7 +75,7 @@ class SparkDataToCsv(Link):
         except TypeError:
             self.header = bool(self.header)
         if isinstance(self.header, tuple) and not self.header:
-            raise RuntimeError('empty header sequence specified')
+            raise RuntimeError('Empty header sequence specified.')
 
         # check output directory
         if self.output_path.startswith('file:/'):
@@ -85,39 +84,38 @@ class SparkDataToCsv(Link):
                 # output data already exist
                 if self.mode == 'ignore':
                     # do not execute link
-                    self.log().debug('Output data already exist; not executing link')
+                    self.logger.debug('Output data already exist; not executing link.')
                     self.do_execution = False
                     return StatusCode.Success
                 elif self.mode == 'error':
                     # raise exception
-                    raise RuntimeError('output data already exist')
+                    raise RuntimeError('Output data already exist.')
 
                 # remove output directory
                 if not os.path.isdir(output_path):
-                    raise RuntimeError('output path "{}" is not a directory'.format(output_path))
+                    raise RuntimeError('Output path "{}" is not a directory.'.format(output_path))
                 shutil.rmtree(output_path)
             elif not os.path.exists(os.path.dirname(output_path)):
                 # create path up to the last component
-                self.log().debug('Creating output path "%s"', output_path)
+                self.logger.debug('Creating output path "{path}".', path=output_path)
                 os.makedirs(os.path.dirname(output_path))
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute SparkDataToCsv"""
-
+        """Execute the link."""
         # do not execute if "do_execution" flag is not set
         if not self.do_execution:
-            self.log().debug('"do_execution" flag not set; skipping execution of link')
+            self.logger.debug('"do_execution" flag not set; skipping execution of link.')
             return StatusCode.Success
 
         # fetch data from data store
         ds = process_manager.service(DataStore)
         if self.read_key not in ds:
-            raise KeyError('no data with key "{}" in data store'.format(self.read_key))
+            raise KeyError('No data with key "{}" in data store'.format(self.read_key))
         data = ds[self.read_key]
         if not isinstance(data, (pyspark.rdd.RDD, pyspark.sql.DataFrame)):
-            raise TypeError('got data of type "{}"; expected a Spark RDD/DataFrame'.format(str(type(data))))
+            raise TypeError('Got data of type "{!s}"; expected a Spark RDD/DataFrame.'.format(type(data)))
 
         # convert row to string
         data = data.map(lambda r: self.sep.join(map(str, r)))

@@ -14,15 +14,12 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
+from eskapade import analysis, core_ops, process_manager, resources, ConfigObject
+from eskapade.logger import Logger
 
-from eskapade import ConfigObject, resources
-from eskapade import core_ops, analysis
-from eskapade import process_manager
+logger = Logger()
 
-log = logging.getLogger('macro.esk209_read_big_data_itr')
-
-log.debug('Now parsing configuration file esk209_read_big_data_itr')
+logger.debug('Now parsing configuration file esk209_read_big_data_itr')
 
 #########################################################################################
 # --- minimal analysis information
@@ -62,9 +59,9 @@ if settings.get('do_example1', True):
     #     if dataset test is empty, which can happen as the very last dataset by readdata,
     #     then skip the rest of this chain.
     skipper = core_ops.SkipChainIfEmpty()
-    skipper.collectionSet = ['test1']
-    skipper.checkAtInitialize = False
-    skipper.checkAtExecute = True
+    skipper.collection_set = ['test1']
+    skipper.check_at_initialize = False
+    skipper.check_at_execute = True
     ch.add_link(skipper)
 
     # --- do something useful with the test dataset here ...
@@ -74,7 +71,7 @@ if settings.get('do_example1', True):
     #     repeater listens to readdata is there are any more datasets coming. if so, continue the loop.
     repeater = core_ops.RepeatChain()
     # repeat until readdata says halt.
-    repeater.listenTo = 'chainRepeatRequestBy_' + read_data.name
+    repeater.listen_to = 'chainRepeatRequestBy_' + read_data.name
     # repeat max of 10 times
     # repeater.maxcount = 10
     ch.add_link(repeater)
@@ -99,32 +96,32 @@ if settings.get('do_example2', True):
     #     if dataset test is empty, which can happen as the very last dataset by readdata,
     #     then skip the rest of this chain.
     skipper = core_ops.SkipChainIfEmpty()
-    skipper.collectionSet = ['test2']
-    skipper.checkAtInitialize = False
-    skipper.checkAtExecute = True
+    skipper.collection_set = ['test2']
+    skipper.check_at_initialize = False
+    skipper.check_at_execute = True
     ch.add_link(skipper)
 
     # --- do something useful with the test dataset here ...
     #     e.g. apply selections, or collect into histograms.
 
-    # querySet = seletions that are applies to incoming_records
-    # after selections, only keep column in selectColumns ('a', 'c')
-    link = analysis.ApplySelectionToDf(readKey='test2', storeKey='reduced_data', querySet=['x>1'])
+    # query_set = seletions that are applies to incoming_records
+    # after selections, only keep column in select_columns ('a', 'c')
+    link = analysis.ApplySelectionToDf(read_key='test2', store_key='reduced_data', query_set=['x>1'])
     # Any other kwargs given to ApplySelectionToDf are passed on the the
     # pandas query() function.
     ch.add_link(link)
 
     # --- As an example, will merge reduced datasets back into a single, merged dataframe.
     concat = analysis.DfConcatenator()
-    concat.readKeys = ['merged', 'reduced_data']
-    concat.storeKey = 'merged'
+    concat.read_keys = ['merged', 'reduced_data']
+    concat.store_key = 'merged'
     concat.ignore_missing_input = True  # in first iteration input 'merged' is missing.
     ch.add_link(concat)
 
     # --- this serves as the continue statement of the loop. go back to start of the chain.
     repeater = core_ops.RepeatChain()
     # repeat until readdata says halt.
-    repeater.listenTo = 'chainRepeatRequestBy_' + read_data.name
+    repeater.listen_to = 'chainRepeatRequestBy_' + read_data.name
     # repeat max of 10 times
     # repeater.maxcount = 10
     ch.add_link(repeater)
@@ -137,4 +134,4 @@ process_manager.get_chain('Overview').add_link(pds)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk209_read_big_data_itr')
+logger.debug('Done parsing configuration file esk209_read_big_data_itr')

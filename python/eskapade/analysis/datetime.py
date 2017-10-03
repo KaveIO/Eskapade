@@ -1,6 +1,7 @@
 import pandas as pd
 
-from eskapade.mixins import ArgumentsMixin, LoggingMixin
+from eskapade.logger import Logger
+from eskapade.mixins import ArgumentsMixin
 
 
 ################
@@ -8,25 +9,28 @@ from eskapade.mixins import ArgumentsMixin, LoggingMixin
 ################
 
 
-class TimePeriod(ArgumentsMixin, LoggingMixin):
+class TimePeriod(ArgumentsMixin):
+
+    """Time period."""
+
+    logger = Logger()
 
     def __init__(self, **kwargs):
-        """ initialize TimePeriod instance
-        """
+        """Initialize TimePeriod instance."""
         pass
 
     def period_index(self, dt):
-        """ get number of periods until date/time "dt"
+        """Get number of periods until date/time "dt".
 
         :param dt: specified date/time
         """
-        self.log().critical('period_index method not implemented for %s; please implement derived class',
-                            self.__class__.__name__)
-        raise NotImplementedError('period_index function is not implemented')
+        self.logger.fatal('period_index method not implemented for {cls}; please implement derived class.',
+                          cls=self.__class__.__name__)
+        raise NotImplementedError('period_index function is not implemented.')
 
     @classmethod
     def parse_time_period(cls, period):
-        """ try to parse specified time period
+        """Try to parse specified time period.
 
         :param period: specified period
         """
@@ -38,27 +42,28 @@ class TimePeriod(ArgumentsMixin, LoggingMixin):
         try:
             return pd.Timedelta(**period).delta
         except Exception as ex:
-            cls.log().critical('unable to parse period: %s', str(period))
+            cls.logger.fatal('Unable to parse period: {period!s}.', period=period)
             raise ex
 
     @classmethod
     def parse_date_time(cls, dt):
-        """ try to parse specified date/time
+        """Try to parse specified date/time.
 
         :param dt: specified date/time
         """
         try:
             return pd.Timestamp(dt).value
         except Exception as ex:
-            cls.log().critical('unable to parse date/time: %s', str(dt))
+            cls.logger.fatal('Unable to parse date/time: {dt!s}', dt=dt)
             raise ex
 
 
 class UniformTsTimePeriod(TimePeriod):
 
+    """Time period with offset."""
+
     def __init__(self, **kwargs):
-        """ initialize TimePeriod instance
-        """
+        """Initialize TimePeriod instance."""
         super(UniformTsTimePeriod, self).__init__(**kwargs)
 
         # get parameters from arguments
@@ -68,12 +73,12 @@ class UniformTsTimePeriod(TimePeriod):
         self.check_extra_kwargs(kwargs)
 
         # check value of period
-        if not self.period > 0:
-            self.log().critical('invalid time period specified: %d ns', self.period)
-            raise AssertionError('time period must be greater than zero')
+        if self.period <= 0:
+            self.logger.fatal('Invalid time period specified: {period:d} ns.', period=self.period)
+            raise AssertionError('Time period must be greater than zero.')
 
     def period_index(self, dt):
-        """ get number of periods until date/time "dt" since "offset", given specified "period"
+        """Get number of periods until date/time "dt" since "offset", given specified "period".
 
         :param dt: specified date/time
         """
@@ -81,13 +86,12 @@ class UniformTsTimePeriod(TimePeriod):
 
     @property
     def period(self):
-        """ get period parameter
-        """
+        """Get period parameter."""
         return self._period
 
     @period.setter
     def period(self, period):
-        """ set period parameter
+        """Set period parameter.
 
         :param period: specified period parameter
         """
@@ -95,13 +99,12 @@ class UniformTsTimePeriod(TimePeriod):
 
     @property
     def offset(self):
-        """ get offset parameter
-        """
+        """Get offset parameter."""
         return self._offset
 
     @offset.setter
     def offset(self, offset):
-        """ set offset parameter
+        """Set offset parameter.
 
         :param offset: specified offset parameter
         """
@@ -110,9 +113,10 @@ class UniformTsTimePeriod(TimePeriod):
 
 class FreqTimePeriod(TimePeriod):
 
+    """Time period with frequency."""
+
     def __init__(self, **kwargs):
-        """ initialize TimePeriod instance
-        """
+        """Initialize TimePeriod instance."""
         super(FreqTimePeriod, self).__init__(**kwargs)
 
         # get parameters from arguments
@@ -122,7 +126,7 @@ class FreqTimePeriod(TimePeriod):
         self.check_extra_kwargs(kwargs)
 
     def period_index(self, dt):
-        """ return number of periods until date/time "dt" since 1970-01-01
+        """Return number of periods until date/time "dt" since 1970-01-01.
 
         :param dt: specified date/time parameter
         """
@@ -130,7 +134,7 @@ class FreqTimePeriod(TimePeriod):
             freq=self.freq, value=pd.Timestamp(dt)).ordinal
 
     def dt_string(self, period_index):
-        """ convert period index into date/time string (start of period)
+        """Convert period index into date/time string (start of period).
 
         :param int period_index: specified period index value.
         """
@@ -139,20 +143,19 @@ class FreqTimePeriod(TimePeriod):
 
     @property
     def freq(self):
-        """ Return frequency
-        """
+        """Return frequency."""
         return self._freq
 
     @freq.setter
     def freq(self, freq):
-        """ Try to construct a period object with specified "frequency"
+        """Try to construct a period object with specified "frequency".
 
         :param freq: specified frequency
         """
         try:
             per = pd.tseries.period.Period(freq=freq, value='1970-01-01')
         except Exception as ex:
-            self.log().critical('invalid "frequency" specified: %s', str(freq))
+            self.logger.fatal('Invalid frequency specified: {freq!s}.', freq=freq)
             raise ex
 
         # set "frequency"

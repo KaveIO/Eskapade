@@ -15,12 +15,11 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
-
-from eskapade import process_manager, ConfigObject, resources
+from eskapade import process_manager, ConfigObject
+from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
-log = logging.getLogger('macro.Tutorial_5')
+logger = Logger()
 
 #########################################################################################
 
@@ -28,9 +27,9 @@ msg = r"""
 
 Be sure to download the input dataset:
 
-$ wget -P $ESKAPADE/data/ https://statweb.stanford.edu/~tibs/ElemStatLearn/datasets/LAozone.data
+$ wget https://s3-eu-west-1.amazonaws.com/kpmg-eskapade-share/data/LAozone.data
 """
-log.info(msg)
+logger.info(msg)
 
 #########################################################################################
 # --- minimal analysis information
@@ -46,21 +45,18 @@ process_manager.service(SparkManager).get_or_create_session()
 #########################################################################################
 # --- analysis values, settings, helper functions, configuration flags.
 
-DATA_FILE_PATH = resources.fixture('LAozone.data')
 VAR_LABELS = dict(doy='Day of year', date='Date', vis='Visibility', vis_km='Visibility')
 VAR_UNITS = dict(vis='mi', vis_km='km')
 
 
 def comp_date(day):
-    """Get date/time from day of year"""
-
+    """Get date/time from day of year."""
     import pandas as pd
     return pd.Timestamp('1976-01-01') + pd.Timedelta('{:d}D'.format(day - 1))
 
 
 def mi_to_km(dist):
-    """Convert miles to kilometres"""
-
+    """Convert miles to kilometres."""
     return dist * 1.60934
 
 
@@ -70,22 +66,22 @@ def mi_to_km(dist):
 # create first chain
 process_manager.add_chain('Data')
 
-## add data-frame reader to "Data" chain
+# # add data-frame reader to "Data" chain
 # reader = spark_analysis.SparkDfReader()
 # process_manager.get_chain('Data').add_link(reader)
 
-## add conversion functions to "Data" chain
+# # add conversion functions to "Data" chain
 # transform = spark_analysis.SparkWithColumn()
 # process_manager.get_chain('Data').add_link(transform)
 
 # create second chain
 process_manager.add_chain('Summary')
 
-## fill spark histograms
+# # fill spark histograms
 # histo = spark_analysis.SparkHistogrammarFiller()
 # process_manager.get_chain('Summary').add_link(histo)
 
-## add data-frame summary link to "Summary" chain
+# # add data-frame summary link to "Summary" chain
 # summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=histo.store_key,
 #                                     var_labels=VAR_LABELS, var_units=VAR_UNITS)
 # process_manager.get_chain('Summary').add_link(summarizer)
@@ -113,6 +109,6 @@ process_manager.add_chain('Summary')
 # 4.
 # Create a new link 'SparkDfPrinter' in the 'Summary' chain that
 # takes a Spark dataframe from the DataStore and shows 42 rows.
-# Hint: use make_link.sh python/eskapade/spark_analysis SparkDfPrinter.
+# Hint: use eskapade_generate_link --dir python/eskapade/spark_analysis SparkDfPrinter.
 
 # The answers can be found in the Tutorial Apache Spark section of the documentation.

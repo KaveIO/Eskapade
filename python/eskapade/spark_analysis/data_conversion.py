@@ -13,19 +13,19 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
 import uuid
 
 import pyspark
 
 from eskapade.helpers import apply_transform_funcs
+from eskapade.logger import Logger
 
 SPARK_SQL_TYPES = pyspark.sql.types._type_mappings
-log = logging.getLogger(__name__)
+logger = Logger()
 
 
 def create_spark_df(spark, data, schema=None, process_methods=None, **kwargs):
-    """Create a Spark data frame from data in a different format
+    """Create a Spark data frame from data in a different format.
 
     A Spark data frame is created with either a specified schema or a schema
     inferred from the input data.  The schema can be specified with the
@@ -58,7 +58,6 @@ def create_spark_df(spark, data, schema=None, process_methods=None, **kwargs):
     :returns: created data frame
     :rtype: pyspark.sql.DataFrame
     """
-
     # check if data-frame schema was provided
     if isinstance(schema, int):
         # infer schema from a single row (prevents Spark >= 1.6.1 from checking schema of all rows)
@@ -70,14 +69,14 @@ def create_spark_df(spark, data, schema=None, process_methods=None, **kwargs):
             try:
                 row = data.first()
                 if ind > 0:
-                    log.warning('Inferring data-frame schema from first row, instead of row with index %d', ind)
+                    logger.warning('Inferring data-frame schema from first row, instead of row with index {i:d}', i=ind)
                 return row
             except AttributeError:
                 pass
             try:
                 return data[ind]
             except TypeError:
-                raise TypeError('unable to get row from data of type "{}" to infer schema'.format(str(type(data))))
+                raise TypeError('Unable to get row from data of type "{!s}" to infer schema.'.format(type(data)))
         row = get_row(data, schema)
 
         def to_python_type(var):
@@ -110,7 +109,7 @@ def create_spark_df(spark, data, schema=None, process_methods=None, **kwargs):
 
 
 def df_schema(schema_spec):
-    """Create Spark data-frame schema
+    """Create Spark data-frame schema.
 
     Create a schema for a Spark data frame from a dictionary of (name, data
     type) pairs, describing the columns.  Data types are specified by Python
@@ -137,10 +136,8 @@ def df_schema(schema_spec):
     :rtype: pyspark.sql.types.StructType
     :raises: TypeError if data type is specified incorrectly
     """
-
     def get_field(name, data_type):
-        """Return a struct field for specified data type"""
-
+        """Return a struct field for specified data type."""
         # treat dictionaries as struct types
         if isinstance(data_type, dict):
             data_type = pyspark.sql.types.StructType([get_field(*spec) for spec in data_type.items()])
@@ -162,14 +159,13 @@ def df_schema(schema_spec):
 
 
 def hive_table_from_df(spark, df, db, table):
-    """Create a Hive table from a Spark data frame
+    """Create a Hive table from a Spark data frame.
 
     :param pyspark.sql.SparkSession spark: SparkSession instance
     :param pyspark.sql.DataFrame df: input data frame
     :param str db: database for table
     :param str table: name of table
     """
-
     # register temporary table
     temp_name = '{0:s}_{1:s}'.format(table, uuid.uuid4().hex)
     df.createOrReplaceTempView(temp_name)
@@ -177,6 +173,6 @@ def hive_table_from_df(spark, df, db, table):
     # create table
     table_spec = '.'.join(s for s in (db, table) if s)
     create_table_query = 'CREATE TABLE {spec} AS SELECT {cols} FROM {name}'\
-            .format(name=temp_name, spec=table_spec, cols=', '.join(c for c in df.columns))
-    log.debug(create_table_query)
+        .format(name=temp_name, spec=table_spec, cols=', '.join(c for c in df.columns))
+    logger.debug(create_table_query)
     spark.sql(create_table_query)

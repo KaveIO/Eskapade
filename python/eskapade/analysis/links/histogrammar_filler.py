@@ -25,7 +25,8 @@ from eskapade.analysis.histogram_filling import HistogramFillerBase
 
 
 class HistogrammarFiller(HistogramFillerBase):
-    """Fill histogrammar sparse-bin histograms
+
+    """Fill histogrammar sparse-bin histograms.
 
     Algorithm to fill histogrammar style sparse-bin and category histograms.
 
@@ -38,7 +39,7 @@ class HistogrammarFiller(HistogramFillerBase):
     """
 
     def __init__(self, **kwargs):
-        """Initialize HistogrammarFiller instance
+        """Initialize link instance.
 
         Store and do basic check on the attributes of link HistogrammarFiller.
 
@@ -71,7 +72,6 @@ class HistogrammarFiller(HistogramFillerBase):
                          'y': ['apple', 'pear', 'tomato'],
                          'x:y': [(1, 'apple'), (19, 'tomato')]}
         """
-
         # initialize Link, pass name from kwargs
         if 'name' not in kwargs:
             kwargs['name'] = 'HistogrammarFiller'
@@ -83,12 +83,11 @@ class HistogrammarFiller(HistogramFillerBase):
                              quantity={})
 
     def fill_histogram(self, idf, columns):
-        """Fill input histogram with column(s) of input dataframe
+        """Fill input histogram with column(s) of input dataframe.
 
         :param idf: input data frame used for filling histogram
         :param list columns: histogram column(s)
         """
-
         name = ':'.join(columns)
         if name not in self._hists:
             # create an (empty) histogram of right type
@@ -102,7 +101,7 @@ class HistogrammarFiller(HistogramFillerBase):
         self._hists[name] = hist
 
     def construct_empty_hist(self, columns):
-        """Create an (empty) histogram of right type
+        """Create an (empty) histogram of right type.
 
         Create a multi-dim histogram by iterating through the columns in
         reverse order and passing a single-dim hist as input to the next
@@ -112,7 +111,6 @@ class HistogrammarFiller(HistogramFillerBase):
         :returns: created histogram
         :rtype: histogrammar.Count
         """
-
         hist = hg.Count()
 
         # create a multi-dim histogram by iterating through the columns in reverse order
@@ -125,11 +123,11 @@ class HistogrammarFiller(HistogramFillerBase):
             f = self.quantity[col] if col in self.quantity else hf.QUANTITY[dt.type]
             if len(columns) == 1:
                 # df[col] is a pd.series
-                quant = lambda x, fnc=f: fnc(x)
+                quant = lambda x, fnc=f: fnc(x)  # noqa
             else:
                 # df[columns] is a pd.Dataframe
                 # fix column to col
-                quant = lambda x, fnc=f, clm=col: fnc(x[clm])
+                quant = lambda x, fnc=f, clm=col: fnc(x[clm])  # noqa
 
             is_number = isinstance(dt.type(), np.number)
             is_timestamp = isinstance(dt.type(), np.datetime64)

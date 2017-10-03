@@ -184,12 +184,9 @@ def setup_package() -> None:
           package_data={
               NAME.lower(): ['templates/*', 'data/*', 'tutorials/*.sh']
           },
-          # We can use data_files to install other stuff to other locations.
-          # data_files=[('./lib/', ['build/'])],
-          include_package_data=True,
           install_requires=[
-              'pendulum==1.2.4',
-              'numba==0.34.0',
+              'pendulum==1.2.5',
+              'numba==0.35.0',
               'jupyter==1.0.0',
               'matplotlib==2.0.2',
               'numpy==1.13.1',
@@ -199,12 +196,11 @@ def setup_package() -> None:
               'pandas==0.20.3',
               'tabulate==0.7.7',
               'sortedcontainers==1.5.7',
-              'histogrammar==1.0.8',
+              'histogrammar==1.0.9',
               'names==0.3.0',
               'fastnumbers==2.0.1',
               'root_numpy==4.7.3',
-              'pyspark>=2.2.0',
-              'pytest==3.2.1',
+              'pytest==3.2.2',
               'pytest-pylint==0.7.1',
           ],
           tests_require=['pytest==3.2.1'],
@@ -222,7 +218,10 @@ def setup_package() -> None:
                   'eskapade_ignite = eskapade.entry_points:eskapade_ignite',
                   'eskapade_run = eskapade.entry_points:eskapade_run',
                   'eskapade_trial = eskapade.entry_points:eskapade_trial',
-                  'eskapade_generate_link = eskapade.entry_points:eskapade_generate_link'
+                  'eskapade_generate_link = eskapade.entry_points:eskapade_generate_link',
+                  'eskapade_generate_macro = eskapade.entry_points:eskapade_generate_macro',
+                  'eskapade_generate_notebook = eskapade.entry_points:eskapade_generate_notebook',
+                  'eskapade_bootstrap = eskapade.entry_points:eskapade_bootstrap'
               ]
           }
           )

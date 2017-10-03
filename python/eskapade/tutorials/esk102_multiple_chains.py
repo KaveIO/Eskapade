@@ -1,10 +1,10 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk101_multiple_chains                                                *
+# * Macro  : esk102_multiple_chains                                                *
 # * Created: 2017/02/20                                                            *
 # * Description:                                                                   *
 # *      Macro to illustrate the use of multiple chains                            *
-# *      
+# *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands
 # *                                                                                *
@@ -13,15 +13,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject
 from eskapade import core_ops
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk102_multiple_chains')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk102_multiple_chains')
+logger.debug('Now parsing configuration file esk102_multiple_chains')
 
 #########################################################################################
 # --- minimal analysis information
@@ -64,4 +63,4 @@ if settings['do_chain2']:
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk102_multiple_chains')
+logger.debug('Done parsing configuration file esk102_multiple_chains')

@@ -23,14 +23,15 @@ import ROOT
 import tabulate
 from ROOT import RooFit
 
-from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
+from eskapade import process_manager, resources, ConfigObject, DataStore, Link, StatusCode
 from eskapade.core import persistence
 from eskapade.root_analysis import roofit_utils
 from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class WsUtils(Link):
-    """Apply standard operations to object in the RooFit workspace
+
+    """Apply standard operations to object in the RooFit workspace.
 
     Operations include:
     - moving object to and from the datastore/workspace
@@ -41,7 +42,7 @@ class WsUtils(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize WsUtils instance
+        """Initialize link instance.
 
         Note:
         - For simulations use the function: add_simulate()
@@ -58,7 +59,6 @@ class WsUtils(Link):
         :param str results_path: output path of plot (optional)
         :param str pages_key: data store key of existing report pages
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'WsUtils'))
 
@@ -84,8 +84,7 @@ class WsUtils(Link):
         self.pages = []
 
     def initialize(self):
-        """Initialize WsUtils"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(pages_key=str)
 
@@ -101,11 +100,11 @@ class WsUtils(Link):
         io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates
-        with open(persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
+        with open(resources.template('df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
-        with open(persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
+        with open(resources.template('df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
-        with open(persistence.io_path('templates', io_conf, 'df_summary_table_page.tex')) as templ_file:
+        with open(resources.template('df_summary_table_page.tex')) as templ_file:
             self.table_template = templ_file.read()
 
         # get path to results directory
@@ -118,11 +117,11 @@ class WsUtils(Link):
         if os.path.exists(self.results_path):
             # check if path is a directory
             if not os.path.isdir(self.results_path):
-                self.log().critical('output path "%s" is not a directory', self.results_path)
-                raise AssertionError('output path is not a directory')
+                self.logger.fatal('Output path "{path}" is not a directory.', path=self.results_path)
+                raise AssertionError('Output path is not a directory.')
         else:
             # create directory
-            self.log().debug('Making output directory %s', self.results_path)
+            self.logger.debug('Making output directory "{path}"', path=self.results_path)
             os.makedirs(self.results_path)
 
         # make sure Eskapade RooFit library is loaded for fitting (for plotting correlation matrix)
@@ -132,7 +131,7 @@ class WsUtils(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute WsUtils
+        """Execute the link.
 
         Operations are executed in this order:
 
@@ -144,8 +143,6 @@ class WsUtils(Link):
         6. make a plot of a dataset, pdf, or function
         7. move objects from the workspace to the datastore
         """
-
-        settings = process_manager.service(ConfigObject)
         ds = process_manager.service(DataStore)
         ws = process_manager.service(RooFitManager).ws
 
@@ -153,20 +150,21 @@ class WsUtils(Link):
         if self.pages_key:
             self.pages = ds.get(self.pages_key, [])
             if not isinstance(self.pages, list):
-                raise TypeError('pages key "{}" does not refer to a list'.format(self.pages_key))
+                raise TypeError('Pages key "{}" does not refer to a list'.format(self.pages_key))
             elif len(self.pages) > 0:
-                self.log().debug('Retrieved %d report pages under key "%s"', len(self.pages), self.pages_key)
+                self.logger.debug('Retrieved {n:d} report pages under key "{key}".', n=len(self.pages),
+                                  key=self.pages_key)
 
         # --- put objects from the datastore into the workspace
         #     by doing this here, the object can be picked up by the factory
         for key in self.copy_into_ws:
-            assert key in ds, 'key "%s" not found in datastore' % key
+            assert key in ds, 'Key "{}" not found in datastore.'.format(key)
             try:
                 ws[key] = ds[key]
                 if self.rm_original:
                     del ds[key]
             except BaseException:
-                raise RuntimeError('could not import object "%s" into rooworkspace' % key)
+                raise RuntimeError('Could not import object "{}" into rooworkspace.'.format(key))
 
         # --- workspace factory commands
         #     by doing this here, the object previously imported objects
@@ -182,53 +180,55 @@ class WsUtils(Link):
         # --- simulation
         #     needs input pdf and observables to generate
         for i, tp in enumerate(self._simulate):
-            assert isinstance(tp, tuple) and len(tp) == 2, 'simulate item "%d" needs to be an args, kwargs tuple' % i
+            assert isinstance(tp, tuple) and len(tp) == 2, \
+                'simulate item "{:d}" needs to be an args, kwargs tuple.'.format(i)
             self.do_simulate(ds, ws, *tp[0], **tp[1])
 
         # --- fitting
         #     needs input pdf and dataset to fit
         for i, tp in enumerate(self._fit):
-            assert isinstance(tp, tuple) and len(tp) == 2, 'fit item "%d" needs to be an args, kwargs tuple' % i
+            assert isinstance(tp, tuple) and len(tp) == 2, \
+                'fit item "{:d}" needs to be an args, kwargs tuple.'.format(i)
             self.do_fit(ds, ws, *tp[0], **tp[1])
 
         # --- plotting
         #     needs single observable, pdf and/or datset
         for i, tp in enumerate(self._plot):
-            assert isinstance(tp, tuple) and len(tp) == 2, 'plot item "%d" needs to be an args, kwargs tuple' % i
+            assert isinstance(tp, tuple) and len(tp) == 2, \
+                'plot item "{:d}" needs to be an args, kwargs tuple.'.format(i)
             self.do_plot(ds, ws, *tp[0], **tp[1])
 
         # --- storage into ws
         #     put objects from the workspace into the datastore
         for key in self.copy_into_ds:
-            assert key in ws, 'key "%s" not found in workspace' % key
+            assert key in ws, 'Key "{}" not found in workspace.'.format(key)
             try:
                 ds[key] = ws[key].Clone()
                 if self.rm_original:
                     self.rm_from_ws.append(key)
             except BaseException:
-                raise RuntimeError('could not import object "%s" from workspace into ds' % key)
+                raise RuntimeError('Could not import object "{}" from workspace into ds.'.format(key))
 
         # --- deletion
         #     try to remove keys from the workspace
         for key in self.rm_from_ws:
             try:
                 ws.cd()
-                ROOT.gDirectory.Delete("%s;*" % key)
+                ROOT.gDirectory.Delete("{};*".format(key))
             except BaseException:
-                self.log().warning('Could not remove "%s" from workspace. Pass', key)
+                self.logger.warning('Could not remove "{key}" from workspace. Pass.', key=key)
 
         # storage
         if self.pages_key:
             ds[self.pages_key] = self.pages
-            self.log().debug('%d report pages stored under key: %s', len(self.pages), self.pages_key)
+            self.logger.debug('{n:d} report pages stored under key: {key}.', n=len(self.pages), key=self.pages_key)
 
         return StatusCode.Success
 
     def finalize(self):
-        """Finalize WsUtils"""
-
+        """Finalize the link."""
         # write report file
-        if len(self.pages) == 0:
+        if not self.pages:
             return StatusCode.Success
         report_name = 'report_fit'
         if self.pages_key:
@@ -236,25 +236,24 @@ class WsUtils(Link):
         report_file_name = '{0}/{1}.tex'.format(self.results_path, report_name)
         with open(report_file_name, 'w') as report_file:
             report_file.write(self.report_template.replace('INPUT_PAGES', ''.join(self.pages)))
-        self.log().debug('%s length: %d pages', report_name, len(self.pages))
+        self.logger.debug('{length} length: {n_pages:d} pages', length=report_name, n_pages=len(self.pages))
 
         return StatusCode.Success
 
     def add_simulate(self, *args, **kwargs):
-        """Add simulation task
+        """Add simulation task.
 
         Stash args and kwargs, to be executed by do_simulate() during execute()
 
         :param args: positional arguments passed on to do_simulate()
         :param kwargs: key word arguments passed on to do_simulate()
         """
-
         a = copy.deepcopy(args)
         kw = copy.deepcopy(kwargs)
         self._simulate.append((a, kw))
 
     def do_simulate(self, ds, ws, pdf, num, obs, key='', into_ws=False, *args, **kwargs):
-        """Simulate data based on input PDF
+        """Simulate data based on input PDF.
 
         :param ds: input data store, from which to retrieve pdf and observables
         :param ROOT.RooWorkspace ws: input workspace, from which to retrieve pdf and observables
@@ -266,7 +265,6 @@ class WsUtils(Link):
         :param args: all other positional arguments are passed on to the roofit generate function.
         :param kwargs: all other key word arguments are passed on to the roofit generate function.
         """
-
         # 1. basic checks
         assert num > 0, 'number of entries needs to be a positive integer'
 
@@ -283,7 +281,7 @@ class WsUtils(Link):
 
         if isinstance(obs, ROOT.RooArgSet):
             theobs = obs
-        elif isinstance(obs, str) and len(obs):
+        elif isinstance(obs, str) and obs:
             theobs = ds[obs] if obs in ds else ws.set(obs)
         else:
             set_name = thepdf.GetName() + '_varset'
@@ -296,9 +294,10 @@ class WsUtils(Link):
                 if not failure:
                     theobs = ws.set(temp_obs)
                 else:
-                    raise RuntimeError('unable to retrieve (/create) observables with name "%s" for simulation' % obs)
+                    raise RuntimeError('Unable to retrieve (/create) observables with name "{}" for simulation.'
+                                       .format(obs))
             else:
-                raise RuntimeError('unable to retrieve (/create) observables for simulation')
+                raise RuntimeError('Unable to retrieve (/create) observables for simulation.')
         else:
             assert isinstance(theobs, ROOT.RooArgSet)
 
@@ -308,16 +307,16 @@ class WsUtils(Link):
 
         # 3. generate data
         try:
-            self.log().debug('Now generating %d records with pdf "%s" ...', num, thepdf.GetName())
+            self.logger.debug('Now generating {n:d} records with pdf "{name}" ...', n=num, name=thepdf.GetName())
             ROOT.RooAbsData.setDefaultStorageType(ROOT.RooAbsData.Tree)
             sim_data = thepdf.generate(theobs, num, *roofit_opts)
-            if len(key) == 0:
+            if not key:
                 key = thepdf.GetName() + '_sim_data'
             sim_data.SetName(key)
-            self.log().debug('Generated %d records with pdf "%s"', num, thepdf.GetName())
+            self.logger.debug('Generated {n:d} records with pdf "{name}".', n=num, name=thepdf.GetName())
         except Exception as exc:
             # re-raise exeption if import failed
-            self.log().error('Failed to generate data with pdf "%s"', thepdf.GetName())
+            self.logger.error('Failed to generate data with pdf "{name}".', name=thepdf.GetName())
             raise exc
 
         # 4. cleanup of temporary observables set
@@ -329,10 +328,10 @@ class WsUtils(Link):
             ws.put(sim_data)
         else:
             ds[key] = sim_data
-        self.log().debug('Simulated data stored under key: %s', key)
+        self.logger.debug('Simulated data stored under key: {key}.', key=key)
 
     def add_fit(self, *args, **kwargs):
-        """Add fit task
+        """Add fit task.
 
         Stash args and kwargs, to be executed by do_fit() during execute()
 
@@ -343,8 +342,8 @@ class WsUtils(Link):
         kw = copy.deepcopy(kwargs)
         self._fit.append((a, kw))
 
-    def do_fit(self, ds, ws, pdf, data, key='', replace_existing=True, into_ws=False, *args, **kwargs):
-        """Fit PDF to data set
+    def do_fit(self, ds, ws, pdf, data, key='', into_ws=False, *args, **kwargs):
+        """Fit PDF to data set.
 
         :param ds: input data store, from which to retrieve pdf and dataset to fit
         :param ROOT.RooWorkspace ws: input workspace, from which to retrieve pdf and dataset to fit
@@ -355,12 +354,11 @@ class WsUtils(Link):
         :param args: all other positional arguments are passed on to the roofit fit function.
         :param kwargs: all other key word arguments are passed on to the roofit fit function.
         """
-
         # basic checks
         if isinstance(pdf, ROOT.RooAbsPdf):
             thepdf = pdf
         else:
-            assert isinstance(pdf, str) and len(pdf), 'pdf name not set'
+            assert isinstance(pdf, str) and pdf, 'pdf name not set'
             thepdf = ds[pdf] if pdf in ds else ws.pdf(pdf)
         if not thepdf:
             raise RuntimeError('unable to retrieve pdf for fitting')
@@ -370,7 +368,7 @@ class WsUtils(Link):
         if isinstance(data, ROOT.RooAbsData):
             thedata = data
         else:
-            assert isinstance(data, str) and len(data), 'data set name not set'
+            assert isinstance(data, str) and data, 'data set name not set'
             thedata = ds[data] if data in ds else ws.data(data)
         if not thedata:
             raise RuntimeError('unable to retrieve dataset for fitting')
@@ -384,12 +382,13 @@ class WsUtils(Link):
         # fit pdf to data and store
         try:
             fit_result = thepdf.fitTo(thedata, RooFit.Save(), *roofit_opts)
-            if len(key) == 0:
+            if not key:
                 key = thepdf.GetName() + '_fitTo_' + thedata.GetName()
             fit_result.SetName(key)
         except Exception as exc:
             # re-raise exeption if import failed
-            self.log().error('Failed to fit data "%s" with pdf "%s"', thedata.GetName(), thepdf.GetName())
+            self.logger.error('Failed to fit data "{data_name}" with pdf "{pdf_name}"', data_name=thedata.GetName(),
+                              pdf_name=thepdf.GetName())
             raise exc
 
         # turn fit_result into latex report
@@ -400,16 +399,15 @@ class WsUtils(Link):
             ws.put(fit_result)
         else:
             ds[key] = fit_result
-        self.log().debug('Fit result stored under key: %s', key)
+        self.logger.debug('Fit result stored under key: {key}.', key=key)
 
     def _add_fit_result_to_report(self, fit_result):
-        """Turn fit_result into latex report
+        """Turn fit_result into latex report.
 
         :param ROOT.RooFitResult fit_result: fit result
         """
-
         if not isinstance(fit_result, ROOT.RooFitResult):
-            raise AssertionError('input fit result object not of type RooFitResult')
+            raise AssertionError('Input fit result object not of type RooFitResult.')
 
         fit_result_name = re.sub('[^A-Za-z0-9_]+', '', fit_result.GetName())
 
@@ -434,7 +432,7 @@ class WsUtils(Link):
         if fp_final.getSize() > 0:
             fp_label = 'floating fit parameters of ' + fit_result_name
             fp_file_name = self.results_path + '/floating_pars_' + fit_result_name + '.tex'
-            fp_table = '\input{%s}' % fp_file_name
+            fp_table = '\input{{{}}}'.format(fp_file_name)
             fp_init = fit_result.floatParsInit()
             fp_final.printLatex(RooFit.Sibling(fp_init), RooFit.OutputFile(fp_file_name))
             self.pages.append(self.table_template.replace('VAR_LABEL', fp_label).replace('VAR_STATS_TABLE', fp_table))
@@ -444,19 +442,18 @@ class WsUtils(Link):
         if const_pars.getSize() > 0:
             cp_label = 'constant fit parameters of ' + fit_result_name
             cp_file_name = self.results_path + '/const_pars_' + fit_result_name + '.tex'
-            cp_table = '\input{%s}' % cp_file_name
+            cp_table = '\input{{{}}}'.format(cp_file_name)
             const_pars.printLatex(RooFit.OutputFile(cp_file_name))
             self.pages.append(self.table_template.replace('VAR_LABEL', cp_label).replace('VAR_STATS_TABLE', cp_table))
 
     def add_plot(self, *args, **kwargs):
-        """Add plotting task
+        """Add plotting task.
 
         Stash args and kwargs, to be executed by do_fit() during execute()
 
         :param args: positional arguments passed on to do_plot()
         :param kwargs: key word arguments passed on to do_plot()
         """
-
         a = copy.deepcopy(args)
         kw = copy.deepcopy(kwargs)
         self._plot.append((a, kw))
@@ -464,7 +461,7 @@ class WsUtils(Link):
     def do_plot(self, ds, ws, obs, data=None, pdf=None, func=None, data_args=(), pdf_args=(), func_args=(),
                 data_kwargs={}, pdf_kwargs={}, func_kwargs={}, key='', into_ws=False, output_file=None, bins=40,
                 logy=False, miny=0, plot_range=None):
-        """Make a plot of data and/or a pdf, or of a function
+        """Make a plot of data and/or a pdf, or of a function.
 
         Either a dataset, pdf, or function needs to be provided as input for plotting.
 
@@ -488,7 +485,6 @@ class WsUtils(Link):
         :param float miny: set minimum value of y-axis to miny value (optional)
         :param tuple plot_range: specify x-axis plot range as (min, max) (optional)
         """
-
         # basic checks
         assert pdf is not None or data is not None or func is not None, 'both pdf, dataset, and func not set'
 
@@ -496,37 +492,37 @@ class WsUtils(Link):
         if isinstance(obs, ROOT.RooRealVar):
             theobs = obs
         else:
-            assert isinstance(obs, str) and len(obs), 'obs name for plotting not set'
+            assert isinstance(obs, str) and obs, 'obs name for plotting not set.'
             theobs = ds[obs] if obs in ds else ws.var(obs)
         if not theobs:
-            raise RuntimeError('unable to retrieve observable for plotting')
+            raise RuntimeError('Unable to retrieve observable for plotting.')
         else:
             assert isinstance(theobs, ROOT.RooRealVar)
 
         if isinstance(data, ROOT.RooAbsData):
             thedata = data
-        elif isinstance(data, str) and len(data):
+        elif isinstance(data, str) and data:
             thedata = ds[data] if data in ds else ws.data(data)
             if not thedata:
-                raise RuntimeError('unable to retrieve dataset with name "%s" from workspace' % data)
+                raise RuntimeError('Unable to retrieve dataset with name "{}" from workspace.'.format(data))
             else:
                 assert isinstance(thedata, ROOT.RooAbsData)
 
         if isinstance(pdf, ROOT.RooAbsPdf):
             thepdf = pdf
-        elif isinstance(pdf, str) and len(pdf):
+        elif isinstance(pdf, str) and pdf:
             thepdf = ds[pdf] if pdf in ds else ws.pdf(pdf)
             if not thepdf:
-                raise RuntimeError('unable to retrieve pdf with name "%s" from workspace' % pdf)
+                raise RuntimeError('Unable to retrieve pdf with name "{}" from workspace.'.format(pdf))
             else:
                 assert isinstance(thepdf, ROOT.RooAbsPdf)
 
         if isinstance(func, ROOT.RooAbsReal):
             thefunc = func
-        elif isinstance(func, str) and len(func):
+        elif isinstance(func, str) and func:
             thefunc = ds[func] if func in ds else ws.function(func)
             if not thefunc:
-                raise RuntimeError('unable to retrieve function with name "%s" from workspace' % func)
+                raise RuntimeError('Unable to retrieve function with name "{}" from workspace.'.format(func))
             else:
                 assert isinstance(thefunc, ROOT.RooAbsReal)
 
@@ -537,11 +533,11 @@ class WsUtils(Link):
         pdf_opts += pdf_args
         data_opts = self._get_roofit_opts_list(ds, ws, **data_kwargs) if data_kwargs else ()
         if len(data_args) == 1:
-            pdf_args = (data_args[0],)
+            data_args = (data_args[0],)
         data_opts += data_args
         func_opts = self._get_roofit_opts_list(ds, ws, **func_kwargs) if func_kwargs else ()
         if len(func_args) == 1:
-            pdf_args = (func_args[0],)
+            func_args = (func_args[0],)
         func_opts += func_args
 
         # plot on existing RooPlot? If so, retrieve.
@@ -552,7 +548,7 @@ class WsUtils(Link):
             if isinstance(key, ROOT.RooPlot):
                 frame = key
             else:
-                assert isinstance(key, str) and len(key), 'key for rooplot needs to be a filled string'
+                assert isinstance(key, str) and key, 'Key for rooplot needs to be a filled string.'
                 frame = ds[key] if key in ds else ws.obj(key)
                 if not frame:
                     frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(plot_range[0], plot_range[1]))
@@ -598,17 +594,16 @@ class WsUtils(Link):
         del c
 
     def _add_plot_to_report(self, file_path):
-        """Add plot to pdflatex report
+        """Add plot to pdflatex report.
 
         :param str file_path: path of pdf input plot
         """
-
         label = os.path.splitext(file_path.split('/')[-1])[0]
         self.pages.append(self.page_template.replace('VAR_LABEL', label).replace('VAR_STATS_TABLE', '')
                           .replace('VAR_HISTOGRAM_PATH', file_path))
 
     def _get_roofit_opts_list(self, ds, ws, *args, **kwargs):
-        """Return RooFit cmd options for fitting and plotting
+        """Return RooFit cmd options for fitting and plotting.
 
         All key-word arguments are parsed as RooFit functions with certain settings.
         A setting can be a tuple or list of arguments.
@@ -623,7 +618,6 @@ class WsUtils(Link):
         :param args: all other positional arguments are appended to interpreted kwargs
         :returns: argument tuple consisting or args and parsed kwargs
         """
-
         # loop through kwargs and parse arguments given to roofit functions.
         # if arg is a string, interpret as a key and try to pick up arg from ds or ws
 
@@ -631,8 +625,8 @@ class WsUtils(Link):
         #        and this string also exists as key in the datastore or workspace
         opts = {}
         for o, v in kwargs.items():
-            assert isinstance(o, str) and len(o), 'RooFit function name not specified'
-            if type(v) not in [list, tuple]:
+            assert isinstance(o, str) and o, 'RooFit function name not specified.'
+            if not isinstance(v, (list, tuple)):
                 v = [v]
             margs = []
             for arg in v:
@@ -662,7 +656,7 @@ class WsUtils(Link):
         return opts_list
 
     def _retrieve(self, key, ds=None, ws=None):
-        """Retrieve object from either datastore or workspace
+        """Retrieve object from either datastore or workspace.
 
         Search order is first datastore, then workspace.
 
@@ -670,10 +664,9 @@ class WsUtils(Link):
         :param ds: reference to datastore
         :param ws: reference to rooworkspace
         """
-
         # key needs to be a filled key I can pick up.
-        assert isinstance(key, str) and len(key), 'key needs to be a filled string'
-        assert ds or ws, 'provide either datastore or workspace to search in'
+        assert isinstance(key, str) and len(key), 'Key needs to be a filled string.'
+        assert ds or ws, 'Provide either datastore or workspace to search in.'
 
         # first try datastore
         if ds:

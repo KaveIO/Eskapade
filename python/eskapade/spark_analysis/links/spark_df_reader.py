@@ -19,7 +19,8 @@ from eskapade.spark_analysis import SparkManager
 
 
 class SparkDfReader(Link):
-    """Link to read data into a Spark dataframe
+
+    """Link to read data into a Spark dataframe.
 
     Data are read with the Spark-SQL data-frame reader
     (pyspark.sql.DataFrameReader).  The read-method to be applied on the
@@ -30,7 +31,7 @@ class SparkDfReader(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize link instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str store_key: key of data to store in data store
@@ -38,7 +39,6 @@ class SparkDfReader(Link):
         :param dict read_meth_args: positional arguments for read methods
         :param dict read_meth_kwargs: keyword arguments for read methods
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'SparkDfReader'))
 
@@ -50,8 +50,7 @@ class SparkDfReader(Link):
         self.schema = None
 
     def initialize(self):
-        """Inititialize SparkDfReader"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(store_key=str, read_meth_args=dict, read_meth_kwargs=dict)
         self.check_arg_vals('store_key', 'read_methods')
@@ -62,8 +61,7 @@ class SparkDfReader(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute SparkDfReader"""
-
+        """Execute the link."""
         # create data-frame reader
         spark = process_manager.service(SparkManager).get_session()
         data = spark.read

@@ -13,19 +13,18 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
+from eskapade.logger import Logger
 
-log = logging.getLogger(__name__)
+logger = Logger()
 
 
 def obj_repr(obj):
-    """Get generic string representation of object"""
-
+    """Get generic string representation of object."""
     return object.__repr__(obj)
 
 
 def apply_transform_funcs(obj, trans_funcs, func_args=None, func_kwargs=None):
-    """Transform object by applying transformation functions
+    """Transform object by applying transformation functions.
 
     Transformation functions are applied sequentially to the output of the
     previous function, starting with the specified object.  The final
@@ -48,7 +47,6 @@ def apply_transform_funcs(obj, trans_funcs, func_args=None, func_kwargs=None):
     :param dict func_kwargs: function keyword arguments, specified as (function, kwargs dict) pairs
     :returns: transformed object
     """
-
     # process input functions
     trans_funcs = process_transform_funcs(trans_funcs, func_args, func_kwargs)
 
@@ -64,19 +62,19 @@ def apply_transform_funcs(obj, trans_funcs, func_args=None, func_kwargs=None):
 
             # check if function is callable
             if not callable(func):
-                raise TypeError('function "{0:s}" for object "{1:s}" not callable'.format(str(func), obj_repr(obj)))
+                raise TypeError('function "{0!s}" for object "{1:s}" not callable'.format(func, obj_repr(obj)))
 
         # apply function
-        log.debug('Applying transformation function "%s" to "%s":', str(func), obj_repr(obj))
-        log.debug('    args:   %s', str(args))
-        log.debug('    kwargs: %s', str(kwargs))
+        logger.debug('Applying transformation function "{func!s}" to "{object}":', func=func, object=obj_repr(obj))
+        logger.debug('    args:   {args!s}', args=args)
+        logger.debug('    kwargs: {kwargs!s}', kwargs=kwargs)
         obj = func(obj, *args, **kwargs)
 
     return obj
 
 
 def process_transform_funcs(trans_funcs, func_args=None, func_kwargs=None):
-    """Process input of the apply_transform_funcs function
+    """Process input of the apply_transform_funcs function.
 
     :param iterable trans_funcs: functions to apply, specified the function or a (function, args, kwargs) tuple
     :param dict func_args: function positional arguments, specified as (function, arguments tuple) pairs
@@ -84,7 +82,6 @@ def process_transform_funcs(trans_funcs, func_args=None, func_kwargs=None):
     :returns: transformation functions for apply_transform_funcs function
     :rtype: list
     """
-
     # copy function arguments and make sure they are in dictionaries
     func_args = dict(func_args) if func_args else {}
     func_kwargs = dict(func_kwargs) if func_kwargs else {}
@@ -98,31 +95,31 @@ def process_transform_funcs(trans_funcs, func_args=None, func_kwargs=None):
         except TypeError:
             func, args, kwargs = func_spec, None, None
         except ValueError:
-            raise ValueError('expected (func, args, kwargs) combination (got {})'.format(str(func_spec)))
+            raise ValueError('expected (func, args, kwargs) combination (got {!s})'.format(func_spec))
 
         # get positional arguments
         args_ = func_args.pop(func, None)
         if args is not None and args_ is not None:
-            raise RuntimeError('arguments for "{}" in both "trans_funcs" and "func_args"'.format(str(func)))
+            raise RuntimeError('arguments for "{!s}" in both "trans_funcs" and "func_args"'.format(func))
         args = tuple(args) if args is not None else tuple(args_) if args_ is not None else ()
 
         # get keyword arguments
         kwargs_ = func_kwargs.pop(func, None)
         if kwargs is not None and kwargs_ is not None:
-            raise RuntimeError('keyword arguments for "{}" in both "trans_funcs" and "func_kwargs"'.format(str(func)))
+            raise RuntimeError('keyword arguments for "{!s}" in both "trans_funcs" and "func_kwargs"'.format(func))
         kwargs = dict(kwargs) if kwargs is not None else dict(kwargs_) if kwargs_ is not None else {}
 
         # check if function is callable
         if not (isinstance(func, str) or callable(func)):
-            raise TypeError('function "{0:s}" is not callable'.format(str(func)))
+            raise TypeError('function "{!s}" is not callable'.format(func))
 
         # append function specification
         proc_funcs.append((func, args, kwargs))
 
     # check if all specified arguments were used
     if func_args:
-        raise ValueError('unused function arguments specified: {}'.format(str(func_args)))
+        raise ValueError('unused function arguments specified: {!s}'.format(func_args))
     if func_kwargs:
-        raise ValueError('unused function keyword arguments specified: {}'.format(str(func_kwargs)))
+        raise ValueError('unused function keyword arguments specified: {!s}'.format(func_kwargs))
 
     return proc_funcs

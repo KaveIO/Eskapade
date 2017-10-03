@@ -16,14 +16,12 @@
 
 import collections
 
-from eskapade import DataStore
-from eskapade import Link
-from eskapade import StatusCode
-from eskapade import process_manager
+from eskapade import process_manager, DataStore, Link, StatusCode
 
 
 class ApplyFuncToDf(Link):
-    """Apply functions to data-frame
+
+    """Apply functions to data-frame.
 
     Applies one or more functions to a (grouped) dataframe column or an
     entire dataframe.  In the latter case, this can be done row wise or
@@ -31,7 +29,7 @@ class ApplyFuncToDf(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize link instance
+        """Initialize link instance.
 
         :param str read_key: data-store input key
         :param str store_key: data-store output key
@@ -46,7 +44,6 @@ class ApplyFuncToDf(Link):
           - 'groupbyColout' (string) output column after the split-apply-combine combination
         :param dict add_columns: columns to add to output (name, column)
         """
-
         Link.__init__(self, kwargs.pop('name', 'apply_func_to_dataframe'))
 
         # process keyword arguments
@@ -54,19 +51,17 @@ class ApplyFuncToDf(Link):
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
-        """Initialize link"""
-
+        """Initialize the link."""
         self.check_arg_vals('read_key')
         if not self.apply_funcs:
-            self.log().warning('No functions to apply')
+            self.logger.warning('No functions to apply')
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute link"""
-
+        """Execute the link."""
         ds = process_manager.service(DataStore)
-        assert self.read_key in list(ds.keys()), 'key <%s> not in DataStore.' % self.read_key
+        assert self.read_key in ds, 'key "{key}" not in DataStore.'.format(key=self.read_key)
         df = ds[self.read_key]
 
         for arr in self.apply_funcs:
@@ -74,7 +69,7 @@ class ApplyFuncToDf(Link):
             keys = list(arr.keys())
             assert 'func' in keys, 'function input is insufficient.'
             func = arr['func']
-            self.log().debug('Applying function %s' % str(func))
+            self.logger.debug('Applying function {function!s}.', function=func)
             args = ()
             kwargs = {}
             if 'kwargs' in keys:
@@ -88,7 +83,7 @@ class ApplyFuncToDf(Link):
                 if 'groupbyColout' in keys:
                     kwargs['groupbyColout'] = arr['groupbyColout']
                 df = self.groupbyapply(df, groupby, func, *args, **kwargs)
-            elif 'storekey' in keys:
+            elif 'store_key' in keys:
                 if 'entire' in keys:
                     result = func(df, *args, **kwargs)
                 elif 'colin' in keys:
@@ -97,7 +92,7 @@ class ApplyFuncToDf(Link):
                     result = df[colin].apply(func, args=args, **kwargs)
                 else:
                     result = df.apply(func, args=args, **kwargs)
-                ds[arr['storekey']] = result
+                ds[arr['store_key']] = result
             else:
                 assert 'colout' in keys, 'function input is insufficient'
                 colout = arr['colout']
@@ -126,38 +121,36 @@ class ApplyFuncToDf(Link):
 
         return StatusCode.Success
 
-    def addApplyFunc(self, func, outColumn, inColumn='', *args, **kwargs):
-        """Add function to be applied to dataframe"""
-
+    def add_apply_func(self, func, out_column, in_column='', *args, **kwargs):
+        """Add function to be applied to dataframe."""
         # check inputs
         if not isinstance(func, collections.Callable):
-            self.log().critical('specified function object is not callable')
+            self.logger.fatal('Specified function object is not callable.')
             raise AssertionError('functions in ApplyFuncToDf link must be callable objects')
-        if not isinstance(outColumn, str) or not isinstance(inColumn, str):
-            self.log().critical('types of specified column names are "%s" and "%s"',
-                                type(outColumn).__name__, type(inColumn).__name__)
-            raise TypeError('column names in ApplyFuncToDf must be strings')
-        if not outColumn:
-            self.log().critical('no output column specified')
-            raise RuntimeError('an output column must be specified to apply function in ApplyFuncToDf')
+        if not isinstance(out_column, str) or not isinstance(in_column, str):
+            self.logger.fatal('Types of specified column names are "{in_type}" and "{out_type}."',
+                              in_type=type(out_column).__name__, out_type=type(in_column).__name__)
+            raise TypeError('Column names in ApplyFuncToDf must be strings.')
+        if not out_column:
+            self.logger.fatal('No output column specified.')
+            raise RuntimeError('An output column must be specified to apply function in ApplyFuncToDf.')
 
         # add function
-        if inColumn == '':
-            self.apply_funcs.append({'func': func, 'colout': outColumn, 'args': args, 'kwargs': kwargs})
+        if in_column == '':
+            self.apply_funcs.append({'func': func, 'colout': out_column, 'args': args, 'kwargs': kwargs})
         else:
-            self.apply_funcs.append({'colin': inColumn, 'func': func, 'colout': outColumn, 'args': args,
+            self.apply_funcs.append({'colin': in_column, 'func': func, 'colout': out_column, 'args': args,
                                      'kwargs': kwargs})
 
-    def groupbyapply(self, df, groupbyColumns, applyfunc, *args, **kwargs):
-        """Apply groupby to dataframe"""
-
+    def groupbyapply(self, df, groupby_columns, applyfunc, *args, **kwargs):
+        """Apply groupby to dataframe."""
         if 'groupbyColout' not in list(kwargs.keys()):
-            return df.groupby(groupbyColumns).apply(applyfunc, *args, **kwargs).reset_index(drop=True)
+            return df.groupby(groupby_columns).apply(applyfunc, *args, **kwargs).reset_index(drop=True)
         else:
             colout = kwargs['groupbyColout']
             kwargs.pop('groupbyColout')
-            t = df.groupby(groupbyColumns).apply(applyfunc, *args, **kwargs)
-            for i in range(0, len(groupbyColumns)):
+            t = df.groupby(groupby_columns).apply(applyfunc, *args, **kwargs)
+            for _ in range(0, len(groupby_columns)):
                 t.index = t.index.droplevel()
             df[colout] = t
             return df

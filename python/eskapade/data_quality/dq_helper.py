@@ -21,7 +21,7 @@ import pandas as pd
 
 
 def cleanup_string(col):
-    """Cleanup input string
+    """Cleanup input string.
 
     :param col: string to be cleaned up
     :returns: cleaned up string
@@ -39,32 +39,30 @@ def cleanup_string(col):
 
 
 def check_nan(val):
-    """Check input value for not a number
+    """Check input value for not a number.
 
     :param val: value to be checked for nan
     :returns: true if nan
     :rtype: bool
     """
-
     if pd.isnull(val):
         return True
     if isinstance(val, str):
         val = val.strip()
         if not val or val.lower() == 'none' or val.lower() == 'nan':
             return True
-    #from numpy import datetime64
+    # from numpy import datetime64
     # if isinstance(val, datetime64):
     #    return val == datetime64('NaT')
     return False
 
 
 def convert(val):
-    """Convert input to interpreted data type
+    """Convert input to interpreted data type.
 
     :param val: value to be interpreted
     :returns: interpreted value
     """
-
     try:
         return ast.literal_eval(val)
     except BaseException:
@@ -73,13 +71,12 @@ def convert(val):
 
 
 def to_str(val, **kwargs):
-    """Convert input to string
+    """Convert input to string.
 
     :param val: value to be converted
     :returns: converted value
     :rtype: str
     """
-
     try:
         if pd.isnull(val):
             return kwargs['nan']
@@ -94,19 +91,18 @@ def to_str(val, **kwargs):
 
 
 def to_int(val, **kwargs):
-    """Convert input to int
+    """Convert input to int.
 
     :param val: value to be evaluated
     :returns: evaluated value
     :rtype: np.int64
     """
-
     try:
         if pd.isnull(val):
             return kwargs['nan']
     except BaseException:
         pass
-    if isinstance(val, np.int64) or isinstance(val, int):
+    if isinstance(val, (np.int64, int)):
         return np.int64(val)
     if kwargs.get('convert_inconsistent_dtypes', True):
         try:
@@ -117,19 +113,18 @@ def to_int(val, **kwargs):
 
 
 def to_float(val, **kwargs):
-    """Convert input to float
+    """Convert input to float.
 
     :param val: value to be evaluated
     :returns: evaluated value
     :rtype: np.float64
     """
-
     try:
         if pd.isnull(val):
             return kwargs['nan']
     except BaseException:
         pass
-    if isinstance(val, np.float64) or isinstance(val, float):
+    if isinstance(val, (np.float64, float)):
         return np.float64(val)
     if kwargs.get('convert_inconsistent_dtypes', True):
         try:
@@ -140,30 +135,28 @@ def to_float(val, **kwargs):
 
 
 def to_date_time(val):
-    """Convert input to numpy.datetime64
+    """Convert input to numpy.datetime64.
 
     :param val: value to be evaluated
     :returns: evaluated value
     :rtype: numpy.datetime64
     """
-
     return pd.to_datetime(val, errors='coerce')
 
 
 def bool_to_str(val, **kwargs):
-    """Convert input boolean to str
+    """Convert input boolean to str.
 
     :param val: value to be evaluated
     :returns: evaluated value
     :rtype: str
     """
-
     try:
         if pd.isnull(val):
             return kwargs['nan']
     except BaseException:
         pass
-    if isinstance(val, np.bool_) or isinstance(val, bool):
+    if isinstance(val, (np.bool_, bool)):
         return str(val)
     if kwargs.get('convert_inconsistent_dtypes', True):
         if hasattr(val, '__str__'):
@@ -171,20 +164,19 @@ def bool_to_str(val, **kwargs):
     return kwargs['nan']
 
 
-def bool_to_int(val):
-    """Convert input boolean to int
+def bool_to_int(val, **kwargs):
+    """Convert input boolean to int.
 
     :param val: value to be evaluated
     :returns: evaluated value
     :rtype: np.int64
     """
-
     try:
         if pd.isnull(val):
             return kwargs['nan']
     except BaseException:
         pass
-    if isinstance(val, np.bool_) or isinstance(val, bool):
+    if isinstance(val, (np.bool_, bool)):
         return np.int64(val)
     if kwargs.get('convert_inconsistent_dtypes', False):
         try:

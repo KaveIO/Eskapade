@@ -15,20 +15,21 @@
 
 import ROOT
 
-from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, Link, DataStore, StatusCode
 from eskapade.root_analysis import data_conversion
 from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertRooDataSet2DataFrame(Link):
-    """Convert an input RooFit dataset into a Pandas dataframe
+
+    """Convert an input RooFit dataset into a Pandas dataframe.
 
     Input roodataset can be picked up from either datastore or rooworkspace.
     The output dataframe is stored in the datastore.
     """
 
     def __init__(self, **kwargs):
-        """Initialize ConvertRooDataSet2DataFrame instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of input roodataset to read from data store or workspace
@@ -36,7 +37,6 @@ class ConvertRooDataSet2DataFrame(Link):
         :param bool from_ws: if true, pick up input roodataset from workspace, not datastore. Default is false.
         :param bool rm_original: if true, input roodataset is removed from ds/ws. Default is false.
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'ConvertRooDataSet2DataFrame'))
 
@@ -52,8 +52,7 @@ class ConvertRooDataSet2DataFrame(Link):
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
-        """Initialize ConvertRooDataSet2DataFrame"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(read_key=str, store_key=str)
         self.check_arg_vals('read_key')
@@ -64,22 +63,20 @@ class ConvertRooDataSet2DataFrame(Link):
         return StatusCode.Success
 
     def execute(self):
-        """Execute ConvertRooDataSet2DataFrame"""
-
-        settings = process_manager.service(ConfigObject)
+        """Execute the link."""
         ds = process_manager.service(DataStore)
         ws = process_manager.service(RooFitManager).ws
 
         # basic checks on contents of the data frame
         if self.from_ws:
             rds = ws.data(self.read_key)
-            assert rds is not None, 'Key %s not in workspace' % self.read_key
+            assert rds is not None, 'Key {} not in workspace.'.format(self.read_key)
         else:
-            assert self.read_key in ds, 'key "%s" not found in datastore' % self.read_key
+            assert self.read_key in ds, 'Key "{}" not found in datastore.'.format(self.read_key)
             rds = ds[self.read_key]
         if not isinstance(rds, ROOT.RooDataSet):
-            raise TypeError('retrieved object "%s" not of type RooDataSet, but: %s' % (self.read_key, type(rds)))
-        assert rds.numEntries() > 0, 'RooDataSet "%s" is empty' % self.read_key
+            raise TypeError('Retrieved object "{}" not of type RooDataSet, but: {}.'.format(self.read_key, type(rds)))
+        assert rds.numEntries() > 0, 'RooDataSet "{}" is empty.'.format(self.read_key)
 
         # do conversion
         df = data_conversion.rds_to_df(rds)
@@ -96,6 +93,6 @@ class ConvertRooDataSet2DataFrame(Link):
         ds[self.store_key] = df
         n_df = len(df.index)
         ds['n_' + self.store_key] = n_df
-        self.log().debug('Stored dataframe "%s" with length: %d', self.store_key, n_df)
+        self.logger.debug('Stored dataframe "{key}" with length: {length:d}', key=self.store_key, length=n_df)
 
         return StatusCode.Success

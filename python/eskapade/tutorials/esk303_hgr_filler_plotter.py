@@ -15,15 +15,12 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
+from eskapade import analysis, core_ops, process_manager, resources, visualization, ConfigObject
+from eskapade.logger import Logger, LogLevel
 
-from eskapade import ConfigObject, resources
-from eskapade import core_ops, analysis, visualization
-from eskapade import process_manager
+logger = Logger()
 
-log = logging.getLogger('macro.esk303_hgr_filler_plotter')
-
-log.debug('Now parsing configuration file esk303_hgr_filler_plotter.py')
+logger.debug('Now parsing configuration file esk303_hgr_filler_plotter.py.')
 
 #########################################################################################
 # --- minimal analysis information
@@ -36,9 +33,9 @@ settings['version'] = 0
 msg = r"""
 
 The plots and latex files produced by link hist_summary can be found in dir:
-%s
-""" % (settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/report/')
-log.info(msg)
+{path}
+"""
+logger.info(msg, path=settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/report/')
 
 # --- Analysis configuration flags.
 #     E.g. use these flags turn on or off certain chains with links.
@@ -57,6 +54,7 @@ input_files = [resources.fixture('mock_accounts.csv.gz')]
 
 
 def to_date(x):
+    """Convert to timestamp."""
     import pandas as pd
     try:
         ts = pd.Timestamp(x.split()[0])
@@ -96,7 +94,7 @@ if settings['do_loop']:
     hf = analysis.HistogrammarFiller()
     hf.read_key = 'rc'
     hf.store_key = 'hist'
-    hf.set_log_level(logging.DEBUG)
+    hf.logger.log_level = LogLevel.DEBUG
     # colums that are picked up to do value_counting on in the input dataset
     # note: can also be 2-dim: ['isActive','age']
     # in this example, the rest are one-dimensional histograms
@@ -113,11 +111,11 @@ if settings['do_loop']:
     # --- this serves as the continue statement of the loop. go back to start of the chain.
     repeater = core_ops.RepeatChain()
     # repeat until readdata says halt.
-    repeater.listenTo = 'chainRepeatRequestBy_' + read_data.name
+    repeater.listen_to = 'chainRepeatRequestBy_' + read_data.name
     ch.add_link(repeater)
 
     link = core_ops.DsObjectDeleter()
-    link.keepOnly = ['hist', 'n_sum_rc', 'rc']
+    link.keep_only = ['hist', 'n_sum_rc', 'rc']
     ch.add_link(link)
 
 # --- print contents of the datastore
@@ -134,4 +132,4 @@ if settings['do_plotting']:
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk303_hgr_filler_plotter.py')
+logger.debug('Done parsing configuration file esk303_hgr_filler_plotter.py.')

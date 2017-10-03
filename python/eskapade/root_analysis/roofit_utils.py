@@ -13,11 +13,14 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
+
+import pathlib
+from enum import IntEnum, unique
 
 import ROOT
 from ROOT import RooFit
 
+from eskapade.logger import LogLevel, Logger
 from eskapade import resources
 
 CUSTOM_ROOFIT_OBJECTS = ('RooComplementCoef',
@@ -26,46 +29,66 @@ CUSTOM_ROOFIT_OBJECTS = ('RooComplementCoef',
                          'RooWeibull',
                          ('Eskapade', 'PlotCorrelationMatrix'))
 
-ROOFIT_LOG_LEVELS = {'DEBUG': 0,
-                     'INFO': 1,
-                     'WARN': 3,
-                     'WARNING': 3,
-                     'ERROR': 4,
-                     'FATAL': 5,
-                     'CRITICAL': 5,
-                     'OFF': 5,
-                     logging.DEBUG: 0,
-                     logging.INFO: 1,
-                     logging.WARNING: 3,
-                     logging.ERROR: 4,
-                     logging.CRITICAL: 5,
-                     logging.FATAL: 5,
-                     logging.OFF: 5}
+
+@unique
+class RooFitLogLevel(IntEnum):
+
+    """RooFit logging level integer enumeration class.
+
+    The enumerations are:
+
+    * DEBUG    (0 == eskapade.logger.LogLevel.NOTSET)
+    * INF0     (1 == eskapade.logger.LogLevel.DEBUG / 10)
+    * PROGRESS (2 == eskapade.logger.LogLevel.INFO / 10)
+    * WARNING  (3 == eskapade.logger.LogLevel.WARNING / 10)
+    * ERROR    (4 == eskapade.logger.LogLevel.ERROR / 10)
+    * FATAL    (5 == eskapade.logger.LogLevel.FATAL / 10)
+
+    They have the same meaning and value as the RooFit MsgLevel Enumerations.
+    """
+
+    DEBUG = LogLevel.NOTSET
+    INFO = LogLevel.DEBUG / 10
+    PROGRESS = LogLevel.INFO / 10
+    WARNING = LogLevel.WARNING / 10
+    ERROR = LogLevel.ERROR / 10
+    FATAL = LogLevel.FATAL / 10
+
+    def __str__(self) -> str:
+        return self.name
+
 
 ROO_INF = ROOT.RooNumber.infinity()
 
-log = logging.getLogger(__name__)
+logger = Logger()
 
 
 def set_rf_log_level(level):
-    """Set RooFit log level"""
-
-    if level not in ROOFIT_LOG_LEVELS:
+    """Set RooFit log level."""
+    if level not in RooFitLogLevel:
         return
-    ROOT.RooMsgService.instance().setGlobalKillBelow(ROOFIT_LOG_LEVELS[level])
+    ROOT.RooMsgService.instance().setGlobalKillBelow(level)
 
 
 def load_libesroofit():
-    """Load Eskapade RooFit library"""
-
+    """Load Eskapade RooFit library."""
     # don't rebuild/reload library if already loaded
-    if any(_.endswith('/libesroofit.so') for _ in ROOT.gSystem.GetLibraries().split()):
+    if any((_.endswith('/libesroofit.so') for _ in ROOT.gSystem.GetLibraries().split())):
         return
 
-    log.debug('(Re-)loading Eskapade RooFit library')
+    logger.debug('(Re-)loading Eskapade RooFit library')
+
+    path_to_esroofit = resources.lib('libesroofit.so')
+    # The ROOT/Cling dictionary needs the esroofit header files.
+    # These are located relative to the libesroofit library.
+    esroofit_parent = str(pathlib.PurePath(path_to_esroofit).parent)
+    # We need to tell the ROOT interpreter where to search for
+    # the esroofit headers.
+    root_interpreter = ROOT.gROOT.GetInterpreter()
+    root_interpreter.AddIncludePath(esroofit_parent)
 
     # load library
-    if ROOT.gSystem.Load(resources.lib('libesroofit.so')) != 0:
+    if ROOT.gSystem.Load(path_to_esroofit) != 0:
         raise RuntimeError('Failed to load Eskapade RooFit library!')
 
     # check if all classes are loaded
@@ -84,7 +107,7 @@ _roo_cmd_args = []
 
 
 def create_roofit_opts(opts_type='', create_linked_list=True, **kwargs):
-    """Build list of options for RooFit functions
+    """Build list of options for RooFit functions.
 
     Additional keyword arguments are appended to default options list for
     specified type.  The keys must be names of functions in the RooFit
@@ -98,9 +121,8 @@ def create_roofit_opts(opts_type='', create_linked_list=True, **kwargs):
     :returns: collection of RooFit options
     :rtype: dict or ROOT.RooLinkedList
     """
-
     # check option type
-    if not opts_type in [None, '', 'fit', 'pdf_plot', 'data_plot', 'obs_frame']:
+    if opts_type not in [None, '', 'fit', 'pdf_plot', 'data_plot', 'obs_frame']:
         raise RuntimeError('unknown options type: "{}"'.format(opts_type))
 
     # create default list for specified type

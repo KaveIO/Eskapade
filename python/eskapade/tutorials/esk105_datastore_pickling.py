@@ -1,11 +1,11 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk105_datastore_pickling                                                         
+# * Macro  : esk105_datastore_pickling
 # * Created: 2017/02/20                                                            *
 # * Description:                                                                   *
 # *      Macro serves as input to other three esk105 example macros.
-# *      
-# *      
+# *
+# *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands
 # *                                                                                *
@@ -14,15 +14,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject
 from eskapade import core_ops
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk105_datastore_pickling')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk105_datastore_pickling')
+logger.debug('Now parsing configuration file esk105_datastore_pickling.')
 
 #########################################################################################
 # --- minimal analysis information
@@ -36,17 +35,17 @@ settings['version'] = 0
 msg = r"""
 
 The setup consists of three simple chains that add progressively more information to the datastore.
-In the examples the datastore gets persisted after the execution of each chain, and can be picked 
+In the examples the datastore gets persisted after the execution of each chain, and can be picked
 up again as input for the next chain.
 
 - The pickled datastore(s) can be found in the data directory:
-%s
+{data_path}
 
 - The pickled configuration object(s) and backed-up configuration file can be found in:
-%s
-""" % (settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/',
-       settings['resultsDir'] + '/' + settings['analysisName'] + '/config/v0/')
-log.info(msg)
+{conf_path}
+"""
+logger.info(msg, data_path=settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/',
+            conf_path=settings['resultsDir'] + '/' + settings['analysisName'] + '/config/v0/')
 
 # dummy information used in this macro, added to each chain below.
 f = {'hello': 'world', 'v': [3, 1, 4, 1, 5], 'n_favorite': 7}
@@ -110,4 +109,4 @@ ch.add_link(link)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk105_datastore_pickling')
+logger.debug('Done parsing configuration file esk105_datastore_pickling.')

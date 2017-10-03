@@ -15,14 +15,15 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import process_manager, StatusCode, DataStore, Link
+from eskapade import process_manager, DataStore, Link, StatusCode
 from eskapade import spark_analysis
 
 OUTPUT_FORMATS = ['df', 'rdd', 'pd']
 
 
 class SparkExecuteQuery(Link):
-    """Defines the content of link SparkExecuteQuery
+
+    """Defines the content of link SparkExecuteQuery.
 
     Applies a SQL-query to one or more objects in the DataStore.
     Such SQL-queries can for instance be used to filter Spark
@@ -32,14 +33,13 @@ class SparkExecuteQuery(Link):
     """
 
     def __init__(self, **kwargs):
-        """Store the configuration of link SparkExecuteQuery
+        """Store the configuration of link SparkExecuteQuery.
 
         :param str name: name of link
         :param str store_key: key of data to store in data store
         :param str output_format: data format to store: {"df" (default), "rdd", "pd"}
         :param str query: a string containing a SQL-query.
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'SparkSQL'))
 
@@ -51,30 +51,28 @@ class SparkExecuteQuery(Link):
         self.schema = None
 
     def initialize(self):
-        """Initialize SparkExecuteQuery"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(store_key=str, query=str, output_format=str)
         self.check_arg_vals('store_key', 'query')
 
         # check output format
         if self.output_format not in OUTPUT_FORMATS:
-            self.log().critical('Specified data output format "{0:s}" is invalid'.format(self.output_format))
-            raise RuntimeError('invalid output format specified')
+            self.logger.fatal('Specified data output format "{format:s}" is invalid.', format=self.output_format)
+            raise RuntimeError('Invalid output format specified.')
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute SparkExecuteQuery"""
-
-        self.log().debug('Applying following SQL-query to object(s) in DataStore: {0:s}'.format(self.query))
+        """Execute the link."""
+        self.logger.debug('Applying following SQL-query to object(s) in DataStore: {query:s}.', query=self.query)
 
         ds = process_manager.service(DataStore)
 
         # register all objects in DataStore as SQL temporary views
-        for ds_key in ds.keys():
-            spark_df = ds[ds_key]
-            spark_df.createOrReplaceTempView(ds_key)
+        for key in ds:
+            spark_df = ds[key]
+            spark_df.createOrReplaceTempView(key)
 
         # get existing SparkSession
         spark = process_manager.service(spark_analysis.SparkManager).get_session()

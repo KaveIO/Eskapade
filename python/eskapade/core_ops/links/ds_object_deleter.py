@@ -13,88 +13,80 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ConfigObject
-from eskapade import DataStore
-from eskapade import Link
-from eskapade import StatusCode
-from eskapade import process_manager
+from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 
 
 class DsObjectDeleter(Link):
-    """Delete objects from data store
+
+    """Delete objects from data store.
 
     Delete objects from the DataStore by the key they are under, or keeps
     only the data by the specified keys.
     """
 
     def __init__(self, **kwargs):
-        """Initialize DsObjectDeleter instance
+        """Initialize link instance.
 
         :param str name: name of link
-        :param list deletionKeys: keys to clear. Overwrites clearAll to false.
-        :param list deletionClasses: delete object(s) by class type.
-        :param lsst keepOnly: keys to keep. Overwrites clearAll to false.
-        :param bool clearAll: clear all key-value pairs in the datastore. Default is true.
+        :param list deletion_keys: keys to clear. Overwrites clear_all to false.
+        :param list deletion_classes: delete object(s) by class type.
+        :param lsst keep_only: keys to keep. Overwrites clear_all to false.
+        :param bool clear_all: clear all key-value pairs in the datastore. Default is true.
         """
-
         Link.__init__(self, kwargs.pop('name', 'DsObjectDeleter'))
 
         # process keyword arguments
-        self._process_kwargs(kwargs, deletionKeys=[], deletionClasses=[], keepOnly=[], clearAll=True)
+        self._process_kwargs(kwargs, deletion_keys=[], deletion_classes=[], keep_only=[], clear_all=True)
         self.check_extra_kwargs(kwargs)
 
-        return
-
     def initialize(self):
-        """Initialize DsObjectDeleter"""
-
-        # Overwrites clearAll to false if individual keys are set.
-        if len(self.deletionKeys):
-            self.clearAll = False
-        if len(self.deletionClasses):
-            self.clearAll = False
-        if len(self.keepOnly):
-            self.clearAll = False
+        """Initialize the link."""
+        # Overwrites clear_all to false if individual keys are set.
+        if len(self.deletion_keys):
+            self.clear_all = False
+        if len(self.deletion_classes):
+            self.clear_all = False
+        if len(self.keep_only):
+            self.clear_all = False
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute DsObjectDeleter"""
-
+        """Execute the link."""
         settings = process_manager.service(ConfigObject)
         ds = process_manager.service(DataStore)
 
         # used in code testing only
         if settings.get('TESTING'):
-            self.log().warning('Running in TESTING mode. NOT clearing datastore for testing purposes.')
+            self.logger.warning('Running in TESTING mode. NOT clearing datastore for testing purposes.')
             return StatusCode.Success
 
         # delete specific items
-        for key in self.deletionKeys:
+        for key in self.deletion_keys:
             if key in ds:
-                self.log().debug('Now deleting datastore object with key "%s"', key)
+                self.logger.debug('Now deleting datastore object with key "{key}".', key=key)
                 del ds[key]
 
         # delete specific class types
-        for cls in self.deletionClasses:
+        for cls in self.deletion_classes:
             for key in ds:
                 if isinstance(ds[key], cls):
-                    self.log().debug('Now deleting datastore object with key "%s"', key)
+                    self.logger.debug('Now deleting datastore object with key "{key}".', key=key)
                     del ds[key]
 
         # delete all but specific items
-        if len(self.keepOnly):
+        if len(self.keep_only):
             keys = list(ds.keys())
             for key in keys:
-                if key not in self.keepOnly:
-                    self.log().debug('Now deleting datastore object with key "%s"', key)
+                if key not in self.keep_only:
+                    self.logger.debug('Now deleting datastore object with key "{key}".', key=key)
                     del ds[key]
 
         # delete all items in datastore
-        if self.clearAll:
+        if self.clear_all:
             keys = list(ds.keys())
             for key in keys:
-                self.log().debug('Now deleting datastore object with key "%s"', key)
+                self.logger.debug('Now deleting datastore object with key "{key}".', key=key)
                 del ds[key]
 
         return StatusCode.Success

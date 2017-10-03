@@ -12,16 +12,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject, resources
 from eskapade import core_ops, analysis
 from eskapade import process_manager
+from eskapade.logger import Logger
 
+logger = Logger()
 
-log = logging.getLogger('macro.esk207_record_vectorizer')
-
-log.debug('Now parsing configuration file esk207_record_vectorizer')
+logger.debug('Now parsing configuration file esk207_record_vectorizer')
 
 #########################################################################################
 # --- minimal analysis information
@@ -67,4 +65,4 @@ ch1.add_link(pds)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk207_record_vectorizer')
+logger.debug('Done parsing configuration file esk207_record_vectorizer')

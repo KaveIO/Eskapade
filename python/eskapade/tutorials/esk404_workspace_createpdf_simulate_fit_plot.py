@@ -27,15 +27,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject
 from eskapade import core_ops, visualization, root_analysis
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk404_workspace_createpdf_simulate_fit_plot')
+logger = Logger('macro.esk404_workspace_createpdf_simulate_fit_plot')
 
-log.debug('Now parsing configuration file esk404_workspace_createpdf_simulate_fit_plot')
+logger.debug('Now parsing configuration file esk404_workspace_createpdf_simulate_fit_plot')
 
 #########################################################################################
 # --- minimal analysis information
@@ -107,7 +106,7 @@ if settings['generate_fit_plot']:
     ch.add_link(rds2df)
 
 if settings['summary']:
-    process_manager.add_chain('Summary')
+    ch = process_manager.add_chain('Summary')
 
     # print contents of the workspace
     pws = root_analysis.PrintWs()
@@ -125,4 +124,4 @@ if settings['summary']:
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk404_workspace_createpdf_simulate_fit_plot')
+logger.debug('Done parsing configuration file esk404_workspace_createpdf_simulate_fit_plot')

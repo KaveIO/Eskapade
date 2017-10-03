@@ -1,10 +1,10 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk202_writedata                                                         
+# * Macro  : esk202_writedata
 # * Created: 2017/02/20                                                            *
 # * Description:                                                                   *
 # *      Macro to illustrate writing pandas dataframes to file.
-# *      
+# *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands
 # *                                                                                *
@@ -13,16 +13,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject, resources
 from eskapade import analysis
 from eskapade import process_manager
+from eskapade.logger import Logger
 
+logger = Logger()
 
-log = logging.getLogger('macro.esk202_writedata')
-
-log.debug('Now parsing configuration file esk202_writedata')
+logger.debug('Now parsing configuration file esk202_writedata')
 
 #########################################################################################
 # --- minimal analysis information
@@ -65,4 +63,4 @@ if settings['do_writedata']:
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk202_writedata')
+logger.debug('Done parsing configuration file esk202_writedata')

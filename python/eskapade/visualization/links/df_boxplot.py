@@ -19,13 +19,14 @@ import os
 import pandas as pd
 
 from eskapade import StatusCode, DataStore, Link, process_manager, ConfigObject
-from eskapade import core, visualization
+from eskapade import core, resources, visualization
 from eskapade.analysis import statistics
 
 NUMBER_OF_RECORDS = 1000
 
 
 class DfBoxplot(Link):
+
     """Create a boxplot of one column of a DataFrame that is grouped by values from a second column.
 
     Creates a report page for each variable in DataFrame, containing:
@@ -37,7 +38,7 @@ class DfBoxplot(Link):
     """
 
     def __init__(self, **kwargs):
-        """Initialize the DfBoxplot link
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of input data to read from data store
@@ -49,7 +50,6 @@ class DfBoxplot(Link):
                defaults to: ['count', 'mean', 'min', 'max']
         :param str pages_key: data store key of existing report pages
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'df_boxplot'))
 
@@ -62,8 +62,7 @@ class DfBoxplot(Link):
         self.pages = []
 
     def initialize(self):
-        """Inititialize DfBoxplot link"""
-
+        """Initialize the link."""
         # check input arguments
         self.check_arg_types(read_key=str, pages_key=str)
         self.check_arg_types(recurse=True, allow_none=True, column=str, cause_columns=list, statistics=list)
@@ -73,9 +72,9 @@ class DfBoxplot(Link):
         io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates, we use the summary_report template from the df summary link
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report.tex')) as templ_file:
+        with open(resources.template('df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
-        with open(core.persistence.io_path('templates', io_conf, 'df_summary_report_page.tex')) as templ_file:
+        with open(resources.template('df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
 
         # get path to results directory
@@ -86,17 +85,17 @@ class DfBoxplot(Link):
         if os.path.exists(self.results_path):
             # check if path is a directory
             if not os.path.isdir(self.results_path):
-                self.log().critical('output path "%s" is not a directory', self.results_path)
+                self.logger.fatal('Output path "{path}" is not a directory.', path=self.results_path)
                 raise AssertionError('output path is not a directory')
         else:
             # create directory
-            self.log().debug('Making output directory %s', self.results_path)
+            self.logger.debug('Making output directory "{path}".', path=self.results_path)
             os.makedirs(self.results_path)
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute DfBoxplot
+        """Execute the link.
 
         Creates a report page for each column that we group-by in the data frame.
 
@@ -105,27 +104,26 @@ class DfBoxplot(Link):
         * plot boxplot of column variable per group
         * store plot
         """
-
         # fetch and check input data frame
         ds = process_manager.service(DataStore)
         data = ds.get(self.read_key, None)
         if not isinstance(data, pd.DataFrame):
-            self.log().critical('No Pandas data frame "%s" found in data store for %s', self.read_key, str(self))
-            raise RuntimeError('no input data found for %s' % str(self))
+            self.logger.fatal('No Pandas data frame "{self.read_key}" found in data store for {self!s}', self=self)
+            raise RuntimeError('No input data found for {!s}.'.format(self))
 
         # fetch any existing report pages
         if self.pages_key:
             self.pages = ds.get(self.pages_key, [])
-            assert isinstance(self.pages, list), 'Pages key %s does not refer to a list' % self.pages_key
+            assert isinstance(self.pages, list), 'Pages key {} does not refer to a list.'.format(self.pages_key)
 
         # create report page for each plot
         for col in self.cause_columns:
             # output column name
-            self.log().debug('processing cause column "%s"', col)
+            self.logger.debug('Processing cause column "{col}".', col=col)
 
             # check if column is in data frame
             if col not in data.columns:
-                self.log().warning('column "%s" not in data frame', col)
+                self.logger.warning('Column "{col}" not in data frame.', col=col)
                 continue
 
             # 1. create statistics object for column
@@ -146,8 +144,8 @@ class DfBoxplot(Link):
 
             # 5. create page string
             self.pages.append(self.page_template.replace('VAR_LABEL', var_label)
-                                                .replace('VAR_STATS_TABLE', stats_table)
-                                                .replace('VAR_HISTOGRAM_PATH', box_file_name))
+                              .replace('VAR_STATS_TABLE', stats_table)
+                              .replace('VAR_HISTOGRAM_PATH', box_file_name))
 
         # storage
         if self.pages_key:
@@ -156,8 +154,7 @@ class DfBoxplot(Link):
         return StatusCode.Success
 
     def finalize(self):
-        """Finalize DfBoxplot"""
-
+        """Finalize the link."""
         # write report file from the strings in self.pages
         with open('{}/report.tex'.format(self.results_path), 'w') as report_file:
             report_file.write(self.report_template.replace('INPUT_PAGES', ''.join(self.pages)))

@@ -20,14 +20,13 @@ from eskapade.core.definitions import USER_OPTS_SHORT
 
 
 def create_arg_parser():
-    """Create parser for user arguments
+    """Create parser for user arguments.
 
     An argparse parser is created and returned, ready to parse
     arguments specified by the user on the command line.
 
     :returns: argparse.ArgumentParser
     """
-
     # create parser and add arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('config_files', nargs='+', metavar='CONFIG_FILE', help='configuration file to execute')

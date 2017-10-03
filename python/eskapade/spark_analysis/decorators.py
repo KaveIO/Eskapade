@@ -16,19 +16,19 @@
 import pyspark
 import pyspark.streaming
 
-CUSTOM_REDUCE_CLASSES = (pyspark.rdd.RDD, pyspark.sql.DataFrame, pyspark.sql.Column, \
-                         pyspark.streaming.dstream.DStream, \
+CUSTOM_REDUCE_CLASSES = (pyspark.rdd.RDD, pyspark.sql.DataFrame, pyspark.sql.Column,
+                         pyspark.streaming.dstream.DStream,
                          pyspark.streaming.dstream.TransformedDStream)
 
+
 def spark_cls_reduce(self):
-    """Reduce function for Spark classes
+    """Reduce function for Spark classes.
 
     Spark objects connected to distributed data cannot be stored in Pickle
     files.  This custom reduce function enables Pickling of a string
     representation of the Spark object.
     """
-
-    return (str, (str(self),))
+    return str, (str(self),)
 
 
 for cls in CUSTOM_REDUCE_CLASSES:

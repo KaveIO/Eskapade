@@ -5,7 +5,7 @@
 # *                                                                                *
 # * Authors:                                                                       *
 # *      KPMG Big Data team                                                        *
-# * 
+# *
 # * Description:
 # *
 # * This macro continues on the idea in esk407_classification_unbiased_fit_estimate.
@@ -15,7 +15,7 @@
 # *
 # * Assume a classifier has been trained and optimized to separate high-risk from
 # * low risk clients. But the high- to low-risk ratio in data is very low and unknown,
-# * so the false-positive rate is non-negligible. 
+# * so the false-positive rate is non-negligible.
 # *
 # * We can use templates of the score of the ML classifier of the high- and low-risk
 # * testing samples to (at least) score the probability that someone is a high risk
@@ -34,18 +34,17 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 import ROOT
 from ROOT import RooFit
 
 from eskapade import ConfigObject
 from eskapade import core_ops, visualization, root_analysis
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk408_classification_error_propagation_after_fit')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk408_classification_error_propagation_after_fit')
+logger.debug('Now parsing configuration file esk408_classification_error_propagation_after_fit')
 
 #########################################################################################
 # --- minimal analysis information
@@ -71,8 +70,8 @@ wsu.factory = ["RooGaussian::high_risk(score[0,1],1,0.15)",
 wsu.add_simulate(pdf='model', obs='score', num=500, key='data', into_ws=True)
 wsu.add_fit(pdf='model', data='data', key='fit_result', into_ws=True)
 wsu.add_plot(obs='score', data='data', pdf='model', key='simplot')
-wsu.add_plot(obs='score', pdf='model', \
-             pdf_args=(RooFit.Components('low_risk'), RooFit.LineColor(ROOT.kRed), \
+wsu.add_plot(obs='score', pdf='model',
+             pdf_args=(RooFit.Components('low_risk'), RooFit.LineColor(ROOT.kRed),
                        RooFit.LineStyle(ROOT.kDashed)),
              output_file='data_with_generator_model.pdf', key='simplot')
 ch.add_link(wsu)
@@ -121,4 +120,4 @@ ch.add_link(pds)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk408_classification_error_propagation_after_fit')
+logger.debug('Done parsing configuration file esk408_classification_error_propagation_after_fit')

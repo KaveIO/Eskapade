@@ -20,14 +20,15 @@
 import os
 import shutil
 
-from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, Link, DataStore, StatusCode
 
 
 class SparkStreamingWriter(Link):
-    """Link to write Spark Stream to disk"""
+
+    """Link to write Spark Stream to disk."""
 
     def __init__(self, **kwargs):
-        """Initialize SparkStreamingWriter instance
+        """Initialize link instance.
 
         :param str name: name of link
         :param str read_key: key of input data to read from data store
@@ -36,7 +37,6 @@ class SparkStreamingWriter(Link):
         :param str suffix: the suffix of the file names in the output directory
         :param int repartition: repartition RDD to number of files (default: single file per batch)
         """
-
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'SparkStreamingWriter'))
 
@@ -46,8 +46,7 @@ class SparkStreamingWriter(Link):
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
-        """Initialize SparkStreamingWriter"""
-
+        """Initialize the link."""
         # check output directory, if local
         if self.output_path.startswith('file:/'):
             local_output_path = os.path.abspath(self.output_path.replace('file:/', '/'))
@@ -55,7 +54,7 @@ class SparkStreamingWriter(Link):
                 # output data already exist
                 if self.mode == 'ignore':
                     # do not execute link
-                    self.log().debug('Output data already exist; not executing link')
+                    self.logger.debug('Output data already exist; not executing link.')
                     self.do_execution = False
                     return StatusCode.Success
                 elif self.mode == 'error':
@@ -64,19 +63,17 @@ class SparkStreamingWriter(Link):
 
                 # remove output directory
                 if not os.path.isdir(local_output_path):
-                    raise RuntimeError('output path "{}" is not a directory'.format(local_output_path))
+                    raise RuntimeError('Output path "{}" is not a directory.'.format(local_output_path))
                 shutil.rmtree(local_output_path)
             elif not os.path.exists(os.path.dirname(local_output_path)):
                 # create path up to the last component
-                self.log().debug('Creating output path "%s"', local_output_path)
+                self.logger.debug('Creating output path "{path}".', path=local_output_path)
                 os.makedirs(os.path.dirname(local_output_path))
 
         return StatusCode.Success
 
     def execute(self):
-        """Execute SparkStreamingWriter"""
-
-        settings = process_manager.service(ConfigObject)
+        """Execute the link."""
         ds = process_manager.service(DataStore)
 
         data = ds[self.read_key]
@@ -88,6 +85,5 @@ class SparkStreamingWriter(Link):
         return StatusCode.Success
 
     def finalize(self):
-        """Finalize SparkStreamingWriter"""
-
+        """Finalize the link."""
         return StatusCode.Success

@@ -12,10 +12,10 @@ The architecture of Eskapade can be summarized in this picture:
 
 .. image:: ../images/eskapade_architecture.png
 
-The example we just discuscced generally shows how the framework works.
+The example we just discussed generally shows how the framework works.
 The steps it takes are the following:
 
-  - run_eskapade.py runs the macro file,
+  - eskapade_run runs the macro file,
   - Macros (python file) contain Chains,
   - Chains (python object) contains Links,
   - Links (python class) contain analysis code.
@@ -52,8 +52,6 @@ subpackages::
    |-eskapade
       |-analysis
          |-links
-         |-tests
-            |-integration
 
 The subpackage contains several modules, which contain classes and
 functions to be applied in links.  The ``eskapade.analysis.statistics``
@@ -65,13 +63,6 @@ separate module for each link, defining the link class instance.  By
 convention, the names of the module and class are both the link name,
 the former in snake case and the latter in camel case.  For example, the
 module ``read_to_df`` defines the link class ``ReadToDf``.
-
-Unit tests are defined in modules in the ``tests`` directory.  Ideally,
-there is a test module for each (link) module in the Eskapade
-subpackage.  Optionally, integration tests are implemented in
-``tests/integration``.  For the ``eskapade.analysis`` package, there is
-the module ``test_tutorial_macros`` with integration tests that run the
-tutorial macros corresponding to this package.
 
 Subpackages
 -----------
@@ -95,7 +86,7 @@ run-process manager are part of the core subpackage, but are imported by
 
 .. code-block:: python
 
-  from eskapade import ConfigObject, ProcessManager
+  from eskapade import process_manager, ConfigObject
 
 Links are imported directly from their subpackage:
 
@@ -121,7 +112,7 @@ structure:
 The data for each of these elements are stored by the analysis version,
 e.g. ``v0``, ``v1``, ``v2``, etc.  For example, the report produced by
 the tutorial ``esk301_dfsummary_plotter`` is saved in the directory
-``results/esk304_df_boxplot/data/v0/report``.
+``results/esk301_dfsummary_plotter/data/v0/report``.
 
 Debugging
 ---------

@@ -4,14 +4,13 @@ Tutorial 3: Jupyter notebook
 This section contains materials on how to use Eskapade in Jupyter Notebooks. There are additional side notes on how certain
 aspects work and where to find parts of the code. For more in depth explanations, try the `API-docs <code.html>`_.
 
-Next we will demonstrate how Eskapade can be run and debugged interactively from within a jupyter notebook.
+Next we will demonstrate how Eskapade can be run and debugged interactively from within a Jupyter notebook.
 Do not forget to set up the environment before starting the notebook (and in case you use a virtual environment
 activate it):
 
 .. code-block:: bash
 
-  $ cd $ESKAPADE
-  $ source setup.sh
+  $ pip install -e $ESKAPADE
   $ cd some-working-dir
   $ jupyter notebook
 
@@ -19,31 +18,26 @@ activate it):
 An Eskapade notebook
 ~~~~~~~~~~~~~~~~~~~~
 
-To run Eskapade use the ``make_notebook.sh`` script in ``scripts/`` to create a template notebook. For example:
+To run Eskapade use the ``eskapade_generate_notebook`` command to create a template notebook. For example:
 
 .. code-block:: bash
 
-  $ make_notebook.sh ./ TestRun
+  $ eskapade_generate_notebook --dir ./ test_notebook
 
 The minimal code you need to run a notebook is the following:
 
 .. code-block:: python
 
-  import imp
-  import logging
-  imp.reload(logging)
-  log = logging.getLogger()
-  log.setLevel(logging.DEBUG) # Set the LogLevel here
-
-  from eskapade.core import execution
-  from eskapade import ConfigObject, DataStore, ProcessManager
+  from eskapade import process_manager, resources, ConfigObject, DataStore
+  from eskapade.core import execution, persistence
+  from eskapade.logger import LogLevel
 
   # --- basic config
-  settings = ProcessManager().service(ConfigObject)
-  settings['macro'] = os.environ['ESKAPADE'] + '/tutorials/tutorial_1.py'
-  settings['analysisName'] = 'Tutorial_1'
+  settings = process_manager.service(ConfigObject)
+  settings['macro'] = resources.tutorial('tutorial_1.py')
+  settings['analysisName'] = 'test_notebook'
   settings['version'] = 0
-  settings['logLevel'] = logging.DEBUG # and set the LogLevel here 
+  settings['logLevel'] = LogLevel.DEBUG
 
   # --- optional running parameters
   #settings['beginWithChain'] = 'startChain'
@@ -52,22 +46,22 @@ The minimal code you need to run a notebook is the following:
   settings['storeResultsEachChain'] = True
 
   # --- other global flags (just some examples)
-  settings['set_mongo'] = False
-  settings['set_training'] = False
+  # settings['set_mongo'] = False
+  # settings['set_training'] = False
 
   # --- run eskapade!
   execution.run_eskapade(settings)
 
   # --- To rerun eskapade, clear the memory state first!
-  #execution.reset_eskapade()
-  
+  # execution.reset_eskapade()
+
 
 Make sure to fill out all the necessary parameters for it to run. The macro has to be set obviously, but not all
 settings in this example are needed to be set to a value. The function ``execution.run_eskapade(settings)`` runs
 Eskapade with the settings your specified.
 
 
-To inspect the state of the Eskapade objects (DataStore and Configurations) after the various chains see the
+To inspect the state of the Eskapade objects (datastore and configurations) after the various chains see the
 command line examples below.
 .. note::
 
@@ -76,13 +70,7 @@ command line examples below.
 
 .. code-block:: python
 
-  import imp
-  import logging
-  imp.reload(logging)
-  log = logging.getLogger()
-  log.setLevel(logging.DEBUG) 
-
-  from eskapade import DataStore, ConfigObject, ProcessManager
+  from eskapade import process_manager, ConfigObject, DataStore
 
   # --- example inspecting the data store after the preprocessing chain
   ds = DataStore.import_from_file(os.environ['ESKAPADE']+'/results/Tutorial_1/proc_service_data/v0/_Summary/eskapade.core.process_services.DataStore.pkl')
@@ -103,17 +91,17 @@ Running in a notebook
 ~~~~~~~~~~~~~~~~~~~~~
 
 In this tutorial we will make a notebook and run the macro from `tutorial 1 <tutorial.html#advanced-macro-s>`_. This
-macro shows the basics of Eskapade. Once we have Eskapade running in a terminal, we can run it also in jupyter.
-Make sure you have properly `installed jupyter <installation#making-jupyter-run-with-the-right-python-kernel>`_.
+macro shows the basics of Eskapade. Once we have Eskapade running in a terminal, we can run it also in Jupyter.
+Make sure you have properly `installed Jupyter <installation#making-jupyter-run-with-the-right-python-kernel>`_.
 
 We start by making a notebook:
 
 .. code-block:: bash
 
-  $ make_notebook.sh tutorials/ tutorial_3_notebook 
+  $ eskapade_generate_notebook --dir tutorials/ tutorial_3_notebook
 
 This will create a notebook in ``tutorials/`` with the name ``tutorial_3_notebook`` running
-macro ``tutorial_1.py``. Now open jupyter and take a look at the notebook.
+macro ``tutorial_1.py``. Now open Jupyter and take a look at the notebook.
 
 .. code-block:: bash
 
@@ -135,7 +123,7 @@ This can be for example:
 
 but in the end it depends on your setup.
 
-*Intermezzo: you can run bash commands in jupyter by prepending the command with a !*
+*Intermezzo: you can run bash commands in Jupyter by prepending the command with a !*
 
 Now run the cells in the notebook and check if the macro runs properly. The output be something like::
 
@@ -161,7 +149,7 @@ The run should fail, and you get the following error::
   RuntimeError: tried to add chain with existing name to process manager
 
 This is because the ProcessManager is a singleton. This means there is only one of this in memory allowed, and since
-the jupyter python kernel was still running the object still existed and running the macro gave an error. The macro
+the Jupyter python kernel was still running the object still existed and running the macro gave an error. The macro
 tried to make a singleton, but it already exists. Therefore the final line in the notebook template has to be ran every
 time you want to rerun Eskapade. So run this line:
 
@@ -179,12 +167,12 @@ If one wants to call the objects used in the run, ``execute`` contains them. For
 
 .. code-block:: python
 
-  ds = ProcessManager().service(DataStore)
+  ds = process_manager.service(DataStore)
 
 is the DataStore, and similarly the other 'master' objects can be called.
 Resetting will clear the process manager singleton from memory, and now the macro can be rerun without any errors.
 
-Note: restarting the jupyter kernel also works, but might take more time because you have to re-execute all of the
+Note: restarting the Jupyter kernel also works, but might take more time because you have to re-execute all of the
 necessary code.
 
 
@@ -208,7 +196,7 @@ otherwise use the default, the last chain of the macro.
 
 Now we are going to load the pickle from tutorial_1.
 
-So make a new cell in jupyter and add:
+So make a new cell in Jupyter and add:
 
 .. code-block:: python
 

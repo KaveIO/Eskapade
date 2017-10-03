@@ -10,16 +10,16 @@
 # * LICENSE.                                                                     *
 # ********************************************************************************
 
-import logging
 from collections import OrderedDict as odict
 
 from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
 from eskapade.core import persistence
+from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
-log = logging.getLogger('macro.esk603_read_csv_to_spark_df')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk603_read_csv_to_spark_df')
+logger.debug('Now parsing configuration file esk603_read_csv_to_spark_df')
 
 ##########################################################################
 # --- minimal analysis information
@@ -92,4 +92,4 @@ for lnk in writers.values():
 
 ##########################################################################
 
-log.debug('Done parsing configuration file esk603_read_csv_to_spark_df')
+logger.debug('Done parsing configuration file esk603_read_csv_to_spark_df')

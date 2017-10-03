@@ -13,17 +13,16 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from pandas import DataFrame
 
 from eskapade import ConfigObject, DataStore
 from eskapade import core_ops, analysis
 from eskapade import process_manager
+from eskapade.logger import Logger, LogLevel
 
-log = logging.getLogger('macro.esk205_concatenate_pandas_dfs')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk205_concatenate_pandas_dfs')
+logger.debug('Now parsing configuration file esk205_concatenate_pandas_dfs.')
 
 #########################################################################################
 # --- minimal analysis information
@@ -64,16 +63,16 @@ ds['df3'] = DataFrame({'A': ['A8', 'A9', 'A10', 'A11'],
 ch = process_manager.add_chain('DataPrep')
 
 # concatenate the three dataframes below each other during link execution
-link = analysis.DfConcatenator(readKeys=['df1', 'df2', 'df3'],
-                               storeKey='outgoing')
+link = analysis.DfConcatenator(read_keys=['df1', 'df2', 'df3'],
+                               store_key='outgoing')
 
 # Any other kwargs given to DfConcatenator are passed on the the
 # pandas concat() function.
-link.set_log_level(logging.DEBUG)
+link.logger.log_level = LogLevel.DEBUG
 ch.add_link(link)
 
 link = core_ops.DsObjectDeleter()
-link.deletionKeys = ['df1', 'df2', 'df3']
+link.deletion_keys = ['df1', 'df2', 'df3']
 ch.add_link(link)
 
 link = core_ops.PrintDs()
@@ -82,4 +81,4 @@ ch.add_link(link)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk205_concatenate_pandas_dfs')
+logger.debug('Done parsing configuration file esk205_concatenate_pandas_dfs.')

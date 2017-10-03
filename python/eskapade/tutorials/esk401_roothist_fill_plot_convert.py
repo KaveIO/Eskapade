@@ -20,17 +20,14 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
-from pkg_resources import resource_filename
-
 from eskapade import ConfigObject
-from eskapade import core_ops, analysis, visualization, root_analysis
+from eskapade import analysis, core_ops, resources, root_analysis, visualization
 from eskapade import process_manager
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk401_roothist_fill_plot_convert')
+logger = Logger()
 
-log.debug('Now parsing configuration file esk401_roothist_fill_plot_convert')
+logger.debug('Now parsing configuration file esk401_roothist_fill_plot_convert.')
 
 #########################################################################################
 # --- minimal analysis information
@@ -47,16 +44,16 @@ settings['make_plot'] = True
 settings['convert_to_rdh'] = True
 settings['convert_to_rds'] = True
 
-input_files = [resource_filename('eskapade', '/data/correlated_data.sv.gz')]
+input_files = [resources.fixture('correlated_data.sv.gz')]
 
 #########################################################################################
 
 msg = r"""
 
 The plots and latex files produced by link hist_summary can be found in dir:
-%s
-""" % (settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/report/')
-log.info(msg)
+{path}
+"""
+logger.info(msg, path=settings['resultsDir'] + '/' + settings['analysisName'] + '/data/v0/report/')
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
@@ -117,4 +114,4 @@ ch.add_link(pds)
 
 #########################################################################################
 
-log.debug('Done parsing configuration file esk401_roothist_fill_plot_convert')
+logger.debug('Done parsing configuration file esk401_roothist_fill_plot_convert.')

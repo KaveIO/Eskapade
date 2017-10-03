@@ -1,13 +1,13 @@
 # **********************************************************************************
 # * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk105_datastore_pickling                                                         
+# * Macro  : esk105_datastore_pickling
 # * Created: 2017/02/20                                                            *
 # * Description:                                                                   *
-# *      Macro illustrates how to start running at any particular chain by 
-# *      picking up the datastore and configuration objects from the 
+# *      Macro illustrates how to start running at any particular chain by
+# *      picking up the datastore and configuration objects from the
 # *      previous chain.
-# *      
-# *      
+# *
+# *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands
 # *                                                                                *
@@ -16,12 +16,11 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-import logging
-
 from eskapade import ConfigObject
-from eskapade import process_manager
+from eskapade import process_manager, resources
+from eskapade.logger import Logger
 
-log = logging.getLogger('macro.esk105_C_begin_at_chain3')
+logger = Logger()
 
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
@@ -50,11 +49,10 @@ From the command line use the options:
 -e END_WITH_CHAIN
 -s SINGLE_CHAIN
 """
-log.info(msg)
+logger.info(msg)
 
 #########################################################################################
 # --- now parse the follow-up macro
 
 # the flag doNotStoreResults is picked up when parsing the following macro
-macro = settings['macrosDir'] + '/' + 'esk105_datastore_pickling.py'
-process_manager.execute_macro(macro)
+process_manager.execute_macro(resources.tutorial('esk105_datastore_pickling.py'))

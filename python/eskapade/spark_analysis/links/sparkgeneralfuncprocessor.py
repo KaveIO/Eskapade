@@ -18,10 +18,12 @@ from eskapade import process_manager, StatusCode, DataStore, Link
 
 
 class SparkGeneralFuncProcessor(Link):
-    """
-    The spark API is not (yet) as rich as the pandas API. Therefore sometimes one needs pandas to implemented the
+
+    """Processor for applying pandas function on a Spark dataframe.
+
+    The spark API is not (yet) as rich as the pandas API. Therefore sometimes one needs pandas to implement the
     desired algorithm. This link defines a general approach for applying an advanced function using pandas on a
-    spark dataframe. The spark dataframe is grouped and the general function is applied on each group in parallel.
+    Spark dataframe. The Spark dataframe is grouped and the general function is applied on each group in parallel.
     In the general function a pandas dataframe can be created as follows:
     pandas_df = pd.DataFrame(list(group), columns=cols)
     For examples, see the function in the deutils.analysishelper module
@@ -31,44 +33,43 @@ class SparkGeneralFuncProcessor(Link):
     """
 
     def __init__(self, **kwargs):
-        """Store the configuration of link SparkToGeneralFuncProcessor
+        """Initialize link instance.
+
+        Store the configuration of link SparkToGeneralFuncProcessor.
 
         :param str name: name of link
-        :param str readKey: key of data to read from data store. It should contain a spark dataframe or spark rdd.
-        :param str storeKey: key of data to store in data store
+        :param str read_key: key of data to read from data store. It should contain a spark dataframe or spark rdd.
+        :param str store_key: key of data to store in data store
         :param list groupby: spark dataframe columns to group by
         :param list columns: The columns of the spark dataframe or rdd. Obligatory for rdd, not for spark dataframe.
-        :param func generalfunc: The general function. Should be defined by the user. Arguments should be list of 
+        :param func generalfunc: The general function. Should be defined by the user. Arguments should be list of
             tuples (rows of rdd), column names and if necessary keyword arguments. Should return a list of native
             python types.
-        :param dict function_args: Keyword arguments for the function 
+        :param dict function_args: Keyword arguments for the function
         :param int nb_partitions: The number of partitions for repartitioning after groupByKey
         :param func return_map: Function used by the map on the rdd after the generalfunc is applied. The default return
             a tuple of the groupby columns (row[0]) and the list returned by the generalfunc (row[1]).
         """
-
         # initialize Link
         Link.__init__(self, kwargs.pop('name', 'SparkToGeneralFuncProcessor'))
 
         # process keyword arguments
-        self._process_kwargs(kwargs, readKey='', storeKey='', groupby=[], columns=None, generalfunc=None,
+        self._process_kwargs(kwargs, read_key='', store_key='', groupby=[], columns=None, generalfunc=None,
                              function_args={}, nb_partitions=1200, return_map=lambda row: tuple(list(row[0]) + row[1]))
-        # check residual kwargs. 
+        # check residual kwargs.
         # (turn line off if you wish to keep these to pass on.)
         self.check_extra_kwargs(kwargs)
         # self.kwargs = kwargs
 
     def initialize(self):
-        """Initialize SparkToGeneralFuncProcessor"""
-
+        """Initialize the link."""
         return StatusCode.Success
 
     def execute(self):
-        """Execute SparkToGeneralFuncProcessor"""
-
+        """Execute the link."""
         ds = process_manager.service(DataStore)
 
-        spark_df = ds[self.readKey]
+        spark_df = ds[self.read_key]
 
         if isinstance(spark_df, DataFrame):
             if not self.columns:
@@ -76,13 +77,13 @@ class SparkGeneralFuncProcessor(Link):
             spark_df = spark_df.rdd
         else:
             if not self.columns:
-                self.log().critical('Columns are not specified for rdd')
-                raise RuntimeError('Columns are not specified for rdd')
+                self.logger.fatal('Columns are not specified for rdd.')
+                raise RuntimeError('Columns are not specified for rdd.')
 
         res = spark_df.map(lambda row: (tuple([row[c] for c in self.groupby]), row)).groupByKey()\
                       .repartition(self.nb_partitions).mapValues(lambda group: self.generalfunc(group, self.columns,
                                                                                                 **self.function_args))\
                       .map(self.return_map)
-        ds[self.storeKey] = res
+        ds[self.store_key] = res
 
         return StatusCode.Success

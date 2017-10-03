@@ -12,10 +12,12 @@ pipeline {
                 echo 'Setting up environment and testing...'
                 withEnv(["PATH+SPARK=${env.SPARK_HOME}/bin"]) {
                     sh '''
+                        export PYTHONPATH=${SPARK_HOME}"/python:"${PYTHONPATH}
                         if [[ ":$PYTHONPATH:" != *"$(ls ${SPARK_HOME}/python/lib/py4j-*-src.zip):"* ]]; then
                             export PYTHONPATH="$(ls ${SPARK_HOME}/python/lib/py4j-*-src.zip):${PYTHONPATH}"
                         fi
-                        source /opt/KaveToolbox/pro/scripts/KaveEnv.sh
+                        source /opt/anaconda/pro/bin/activate
+                        source /opt/root/pro/bin/thisroot.sh
                         if [[ ":$LD_LIBRARY_PATH:" != *"$(dirname $(which python))/../lib:"* ]]; then
                             export LD_LIBRARY_PATH="$(dirname $(which python))/../lib:${LD_LIBRARY_PATH}"
                         fi
@@ -24,11 +26,13 @@ pipeline {
                 }
             }
         }
-        stage('Cleaning') {
-            steps {
-                echo 'Cleaning up...'
-                sh ('rm -rf /tmp/eskapade_stream_test')
-            }
+    }
+    post {
+        always {
+            echo 'Cleaning up...'
+            sh ('rm -rf /tmp/eskapade_stream_test')
+            sh ('rm -rf MyPdfV3.*')
+            sh ('rm -rf MyPdfV3_cxx*')
         }
     }
 }
