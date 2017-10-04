@@ -127,8 +127,3 @@ fi
 export GIT_PS1_SHOWDIRTYSTATE=1
 export GIT_PS1_SHOWSTASHSTATE=1
 export GIT_PS1_SHOWUPSTREAM=verbose
-
-# source eskapade setup scripts if found
-if [ -f /opt/eskapade/setup.sh ]; then
-    . /opt/eskapade/setup.sh
-fi
