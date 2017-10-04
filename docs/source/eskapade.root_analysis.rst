@@ -8,7 +8,6 @@ Subpackages
 
     eskapade.root_analysis.decorators
     eskapade.root_analysis.links
-    eskapade.root_analysis.tests
 
 Submodules
 ----------

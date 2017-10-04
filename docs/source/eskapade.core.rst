@@ -1,13 +1,6 @@
 eskapade.core package
 =====================
 
-Subpackages
------------
-
-.. toctree::
-
-    eskapade.core.tests
-
 Submodules
 ----------
 

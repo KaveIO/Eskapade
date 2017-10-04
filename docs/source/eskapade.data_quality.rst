@@ -7,7 +7,6 @@ Subpackages
 .. toctree::
 
     eskapade.data_quality.links
-    eskapade.data_quality.tests
 
 Submodules
 ----------

@@ -7,7 +7,6 @@ Subpackages
 .. toctree::
 
     eskapade.analysis.links
-    eskapade.analysis.tests
 
 Submodules
 ----------
