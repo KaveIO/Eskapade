@@ -203,7 +203,7 @@ def setup_package() -> None:
               'pytest==3.2.2',
               'pytest-pylint==0.7.1',
           ],
-          tests_require=['pytest==3.2.1'],
+          tests_require=['pytest==3.2.2'],
           ext_modules=EXTERNAL_MODULES,
           cmdclass=CMD_CLASS,
           command_options=COMMAND_OPTIONS,
