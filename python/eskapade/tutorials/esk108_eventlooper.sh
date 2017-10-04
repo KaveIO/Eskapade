@@ -26,13 +26,13 @@ HI Nike Solid Girls Golf Shorts
 "
 echo "$tmp" > products.list
 
-cmd="cat products.list | eskapade_run -L OFF tutorials/esk108_map.py | eskapade_run -L OFF tutorials/esk108_reduce.py"
+cmd="cat products.list | eskapade_run -L FATAL esk108_map.py | eskapade_run -L FATAL esk108_reduce.py"
 echo "Now running command:"
-echo $cmd
+echo "$cmd"
 echo
 
 # run 
-cat products.list | eskapade_run -L OFF ${ESKAPADE}/tutorials/esk108_map.py | eskapade_run -L OFF ${ESKAPADE}/tutorials/esk108_reduce.py
+cat products.list | eskapade_run -L FATAL esk108_map.py | eskapade_run -L FATAL esk108_reduce.py
 
 # clean-up
 rm products.list
