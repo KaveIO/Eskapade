@@ -10,6 +10,8 @@
  *      By default these parameters are normalized wrt the bin count,
  *      except when the number of entries in a bin is zero, in which case
  *      the parameter is the number of entries in the bin.
+ *      Relative or absolute scale parameters are set with the flag: 
+ *      relParams (default is false).
  *      Request these parameters with the function: paramList()
  *      The generation of the scale parameters can be turned off with the
  *      flag: noParams (default is false).
@@ -49,7 +51,7 @@ class RooParamHistPdf : public RooHistPdf
 {
 public:
     RooParamHistPdf(const char *name, const char *title, const RooArgSet &vars, const RooDataHist &dhist,
-                    Int_t intOrder = 0, Bool_t noParams = kFALSE);
+                    Int_t intOrder = 0, Bool_t noParams = kFALSE, Bool_t relParams=kFALSE);
 
     RooParamHistPdf(const RooParamHistPdf &other, const char *name = 0);
 
@@ -132,6 +134,7 @@ protected:
     const RooDataHist &_dh; //! do not persist
     mutable FastHist *_dh_mod; //! do not persist
     Bool_t _noParams;
+    Bool_t _relParams;
     Double_t _sumWnorm;
 
     Double_t evaluate() const;

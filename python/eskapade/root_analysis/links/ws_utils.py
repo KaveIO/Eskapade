@@ -50,6 +50,7 @@ class WsUtils(Link):
         - For plotting use the function: add_plot()
 
         :param str name: name of link
+        :param bool clear_workspace: if true, clear workspace at start of execute.
         :param list copy_into_ws: key of input data to read from data store, to be inserted in rooworkspace
         :param list copy_into_ds: key of input data to read from rooworkspace, to be inserted in data store
         :param bool rm_original: if true, objects inserted in ws/ds are removed from ds/ws. Default is false.
@@ -65,6 +66,7 @@ class WsUtils(Link):
         # process and register all relevant kwargs. kwargs are added as attributes of the link.
         # second arg is default value for an attribute. key is popped from kwargs.
         self._process_kwargs(kwargs,
+                             clear_workspace=False,
                              copy_into_ws=[],
                              copy_into_ds=[],
                              rm_original=False,
@@ -144,7 +146,7 @@ class WsUtils(Link):
         7. move objects from the workspace to the datastore
         """
         ds = process_manager.service(DataStore)
-        ws = process_manager.service(RooFitManager).ws
+        rfm = process_manager.service(RooFitManager)
 
         # --- open existing report pages
         if self.pages_key:
@@ -154,6 +156,11 @@ class WsUtils(Link):
             elif len(self.pages) > 0:
                 self.logger.debug('Retrieved {n:d} report pages under key "{key}".', n=len(self.pages),
                                   key=self.pages_key)
+
+        # --- delete existing workspace?
+        if self.clear_workspace:
+            rfm.delete_workspace()
+        ws = rfm.ws
 
         # --- put objects from the datastore into the workspace
         #     by doing this here, the object can be picked up by the factory
@@ -230,6 +237,7 @@ class WsUtils(Link):
         # write report file
         if not self.pages:
             return StatusCode.Success
+
         report_name = 'report_fit'
         if self.pages_key:
             report_name = re.sub('[^A-Za-z0-9_]+', '', self.pages_key)
@@ -391,25 +399,35 @@ class WsUtils(Link):
                               pdf_name=thepdf.GetName())
             raise exc
 
-        # turn fit_result into latex report
-        self._add_fit_result_to_report(fit_result)
+        # turn fit_result into latex and dataframe report
+        fr_df = self._make_fit_result_report(fit_result)
 
         # storage
         if into_ws:
-            ws.put(fit_result)
+            ws[key] = fit_result
         else:
             ds[key] = fit_result
         self.logger.debug('Fit result stored under key: {key}.', key=key)
 
-    def _add_fit_result_to_report(self, fit_result):
-        """Turn fit_result into latex report.
+        ds[key+'_df'] = fr_df
+        self.logger.debug('Fit result dataframe stored at: {key}', key=key+'_df')
+
+
+    def _make_fit_result_report(self, fit_result):
+        """Turn fit_result into latex and DataFrame report
 
         :param ROOT.RooFitResult fit_result: fit result
+        :returns: fit result turned in to pandas dataframe
+        :rtype: pandas.DataFrame
         """
         if not isinstance(fit_result, ROOT.RooFitResult):
             raise AssertionError('Input fit result object not of type RooFitResult.')
 
         fit_result_name = re.sub('[^A-Za-z0-9_]+', '', fit_result.GetName())
+
+        # results to be kept in pandas dataframe
+        cols = ['covqual', 'status', 'minnll']
+        row = []
 
         # process correlation matrix from fit result
         corr_label = 'correlation matrix of ' + fit_result_name
@@ -417,6 +435,8 @@ class WsUtils(Link):
         cov_qual = fit_result.covQual()
         fit_status = fit_result.status()
         min_nll = fit_result.minNll()
+        row += [cov_qual, fit_status, min_nll]
+
         table = []
         table.append(('number pars', '{:d}'.format(n_pars)))
         table.append(('cov.qual (ok=3)', '{:d}'.format(cov_qual)))
@@ -446,6 +466,16 @@ class WsUtils(Link):
             const_pars.printLatex(RooFit.OutputFile(cp_file_name))
             self.pages.append(self.table_template.replace('VAR_LABEL', cp_label).replace('VAR_STATS_TABLE', cp_table))
 
+        # pandas dataframe of fit result
+        if fp_final.getSize() > 0:
+            for fp in fp_final:
+                par_name = re.sub('[^A-Za-z0-9_]+', '', fp.GetName())
+                cols += [par_name, '%s_err' % par_name]
+                row += [fp.getVal(), fp.getError()]
+        fit_result_df = pd.DataFrame([row], columns=cols)
+
+        return fit_result_df
+
     def add_plot(self, *args, **kwargs):
         """Add plotting task.
 
@@ -460,8 +490,8 @@ class WsUtils(Link):
 
     def do_plot(self, ds, ws, obs, data=None, pdf=None, func=None, data_args=(), pdf_args=(), func_args=(),
                 data_kwargs={}, pdf_kwargs={}, func_kwargs={}, key='', into_ws=False, output_file=None, bins=40,
-                logy=False, miny=0, plot_range=None):
-        """Make a plot of data and/or a pdf, or of a function.
+                logy=False, miny=0, maxy=None, plot_range=None):
+        """Make a plot of data and/or a pdf, or of a function
 
         Either a dataset, pdf, or function needs to be provided as input for plotting.
 
@@ -483,6 +513,7 @@ class WsUtils(Link):
         :param int bins: number of bins in the plot. default is 40. (optional)
         :param bool logy: if true, set y-axis to log scale (optional)
         :param float miny: set minimum value of y-axis to miny value (optional)
+        :param float maxy: set maximum value of y-axis to maxy value (optional)
         :param tuple plot_range: specify x-axis plot range as (min, max) (optional)
         """
         # basic checks
@@ -576,6 +607,9 @@ class WsUtils(Link):
         if output_file:
             if miny != 0:
                 frame.SetMinimum(miny)
+            if maxy is not None:
+                assert isinstance(maxy, float) or isinstance(maxy, int), 'maxy needs to be a float.'
+                frame.SetMaximum(maxy)
             frame.Draw()
 
         # store rooplot

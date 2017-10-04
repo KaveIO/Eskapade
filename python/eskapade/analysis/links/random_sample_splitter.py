@@ -3,7 +3,7 @@
 # * Class  : RandomSampleSplitter                                                  *
 # * Created: 2016/11/08                                                            *
 # * Description:                                                                   *
-# *      RandomSampleSplitter splits an input dataframe into N sub data frames.                                     *
+# *      RandomSampleSplitter splits an input dataframe into N random sub frames.  *
 # *                                                                                *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands                           *
@@ -48,9 +48,9 @@ class RandomSampleSplitter(Link):
                              read_key=None,
                              store_key=None,
                              fractions=None,
-                             nevents=False)
-
-        # check residual kwargs. exit if any present.
+                             nevents=None)
+        
+        # check residual kwargs. exit if any present. 
         self.check_extra_kwargs(kwargs)
 
     def initialize(self):
@@ -106,6 +106,7 @@ class RandomSampleSplitter(Link):
         # there needs to be a random seed set in the configobject
         settings = process_manager.service(ConfigObject)
         assert 'seed' in settings, 'random seed not set in ConfigObject.'
+        self._seed = settings['seed']
 
         return StatusCode.Success
 
@@ -142,7 +143,7 @@ class RandomSampleSplitter(Link):
 
         # random reshuffling of dataframe indices
         settings = process_manager.service(ConfigObject)
-        RNG = RandomState(settings['seed'])
+        RNG = RandomState(self._seed)
         permute = RNG.permutation(df.index)
 
         # apply the random reshuffling, and assign records to the n datasets
@@ -153,4 +154,7 @@ class RandomSampleSplitter(Link):
             self.logger.info('Stored output collection <{key}> with <{n:d}> records in datastore.',
                              key=self.store_key[i], n=len(ds[self.store_key[i]].index))
 
+        # increase seed in case of next iteration
+        self._seed += 1
+        
         return StatusCode.Success

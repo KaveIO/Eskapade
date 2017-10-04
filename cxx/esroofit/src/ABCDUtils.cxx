@@ -112,44 +112,43 @@ Eskapade::ABCD::GenerateAndFit(const RooAbsPdf &genpdf, const RooArgSet &obs, In
 }
 
 
-RooAbsPdf *
-Eskapade::ABCD::MakePoissonConstraint(const char *name, RooArgList &storeList, const RooParamHistPdf &pdf)
+RooAbsPdf*
+Eskapade::ABCD::MakePoissonConstraint(const char* name, RooArgList& storeVarList, RooArgList& storePdfList,
+                                      const RooParamHistPdf& pdf)
 {
-    const RooDataHist &data = pdf.getInitialData();
-    const RooArgList &binList = pdf.binList();
-    return Eskapade::ABCD::MakePoissonConstraint(name, storeList, binList, data);
+  const RooDataHist& data = pdf.getInitialData();
+  Bool_t relParams = pdf.getRelParams();
+  const RooArgList& binList = (relParams ? pdf.binList() : pdf.paramList());
+  return Eskapade::ABCD::MakePoissonConstraint(name, storeVarList, storePdfList, binList, data);
 }
 
 
-RooAbsPdf *
-Eskapade::ABCD::MakePoissonConstraint(const char *name, RooArgList &storeList,
-                                      const RooArgList &binList, const RooDataHist &nomData)
+RooAbsPdf*
+Eskapade::ABCD::MakePoissonConstraint(const char* name, RooArgList& storeVarList, RooArgList& storePdfList,
+                                      const RooArgList& binList, const RooDataHist& nomData)
 {
-    R__ASSERT(binList.getSize() == nomData.numEntries());
+  R__ASSERT(binList.getSize()==nomData.numEntries());
 
-    for (Int_t i = 0; i < binList.getSize(); i++)
-    {
-        // expectation
-        RooAbsReal &bini = (RooAbsReal &) binList[i];
-        // observation
-        nomData.get(i);
-        Double_t w = nomData.weight();
-        const char *nnamei = Form("%s_nominal_%d", name, i);
-        RooRealVar *nomi = new RooRealVar(nnamei, nnamei, w);
-        nomi->setConstant();
-        storeList.addOwned(*nomi);
-        // construct poissons
-        const char *pnamei = Form("%s_%d", name, i);
-        RooPoisson *poisi = new RooPoisson(pnamei, pnamei, *nomi, bini);
-        storeList.addOwned(*poisi);
-    }
+  for (Int_t i=0; i<binList.getSize(); i++) {
+    // expectation
+    RooAbsReal& bini = (RooAbsReal&)binList[i];
+    // observation
+    nomData.get(i);
+    Double_t w = nomData.weight();
+    const char* nnamei = Form("%s_nominal_%d", name, i);
+    RooRealVar* nomi = new RooRealVar(nnamei,nnamei,w,w,w);
+    nomi->setConstant();
+    storeVarList.addOwned(*nomi);
+    // construct poissons
+    const char* pnamei = Form("%s_%d", name, i);
+    RooPoisson* poisi = new RooPoisson(pnamei,pnamei,*nomi,bini);
+    storePdfList.addOwned(*poisi);
+  }
 
-    RooProdPdf *prod(0);
-    if (storeList.getSize() > 0)
-    {
-        prod = new RooProdPdf(name, name, storeList);
-    }
-    return prod;
+  RooProdPdf* prod(0);
+  if (storePdfList.getSize()>0)
+    prod = new RooProdPdf(name,name,storePdfList);
+  return prod;
 }
 
 
