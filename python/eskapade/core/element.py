@@ -12,14 +12,15 @@
 # * modification, are permitted according to the terms listed in the file          *
 # * LICENSE.                                                                       *
 # **********************************************************************************
+from typing import Union
 
 from eskapade.core.definitions import StatusCode
+from eskapade.core.meta import Processor, ProcessorSequence
 from eskapade.logger import Logger
 from eskapade.mixins import ArgumentsMixin, TimerMixin
 
 
 class Link(ArgumentsMixin, TimerMixin):
-
     """Link base class.
 
     A link defines the content of an algorithm.  Any actual link is derived
@@ -339,11 +340,11 @@ class Link(ArgumentsMixin, TimerMixin):
         return StatusCode.Success
 
 
-class Chain(TimerMixin):
+class Chain(Processor, ProcessorSequence, TimerMixin):
 
     """Chain of links.
 
-    A Chain object contains a collection of links with analysis code.  The
+    A Chain object contains a collection of links with analysis code. The
     links in a chain are executed in the order in which the links have been
     added to the chain.  Typically a chain contains all links related to one
     topic, for example 'validation of a model', or 'data preparation', or
@@ -374,175 +375,118 @@ class Chain(TimerMixin):
       If configured, then store datastore and configuration
     """
 
-    logger = Logger()
+    def __init__(self, name, process_manager=None):
+        super().__init__(name)
 
-    def __init__(self, name):
-        """Initialize the new chain with certain name.
+        self.prevChain = ''
+        self.exit_status = StatusCode.Undefined
 
-        :param str name: name of the chain
-        """
-        # initialize timer
-        TimerMixin.__init__(self)
+        # We register ourselves with the process manager.
+        # If none is specified register with the default process
+        # manager.
+        if process_manager is None:
+            pass
+        self.parent = process_manager
 
-        self.name = name
-        self.prevChainName = ''
-        self.links = []
-        self.exitStatus = StatusCode.Undefined
-
-    def initialize(self):
-        """Initialize internal variables and links.
-
-        :returns: status code of initialization attempt
-        :rtype: StatusCode
-        """
+    def _process(self, method: str) -> StatusCode:
         status = StatusCode.Success
 
-        self.logger.debug('Now initializing chain "{name}".', name=self.name)
+        for _ in self:
+            # TODO (janos4276): Maybe we can use callbacks. Need to check mro in Python first ...
+            status = getattr(_, method)()
 
-        # Start the timer directly after the initialize message.
+            # A link may fail during initialization, execution, and finalization.
+            if status == StatusCode.Failure:
+                self.logger.fatal('Failed to {method!s} link "{link!s}" in chain "{chain!s}"!',
+                                  method=method, link=_, chain=self)
+                break
+            # A link may request to skip the rest of the processing during initialization and execution.
+            # Why should a link decide to skip the chain it is in during execution?
+            elif status == StatusCode.SkipChain:
+                self.logger.warning('"{method!s}": Skipping chain "{chain!s} as requested by link "{link!s}"!',
+                                    method=method, chain=self, link=_)
+                break
+            # A link may request that the chain needs to be repeated during execution.
+            # Why should a link decide to skip the chain it is in during execution?
+            elif status == StatusCode.RepeatChain:
+                self.logger.warning('"{method!s}": Repeating chain "{chain!s}" as requested by link "{link!s}"!',
+                                    method=method, chain=self, link=_)
+                break
+            # Default, is to log an unhandled status code from the chain.
+            elif status != StatusCode.Success:
+                self.logger.fatal('"{method!s}": Unhandled StatusCode "{status!s}" from link "{link!s}" in "{chain!s}"!',
+                                  method={method}, status=status, link=_, chain=self)
+                break
+
+        return status
+
+    def add(self, link: Union[Link, Processor]) -> None:
+        """Add a link to the chain.
+
+        :param link: The link to add to the chain.
+        """
+        link.parent = self
+        # TODO (janos4276): Keep this until Link has been 'fixed'.
+        # noinspection PyTypeChecker
+        super().add(link)
+
+    def discard(self, link: Link) -> None:
+        """Remove a link from the chain.
+
+        :param link:
+        :return:
+        """
+        link.parent = None
+        # TODO (janos4276): Keep this until Link has been 'fixed'.
+        # noinspection PyTypeChecker
+        super().discard(link)
+
+    def initialize(self) -> StatusCode:
+        """Initialize chain and links.
+
+        :return: Initialization status code.
+        :rtype: StatusCode
+        """
+        self.logger.debug('Initializing chain "{chain!s}".', chain=self)
+
         self.start_timer()
 
-        # initialization
-        for mod in self.links:
-            status = mod.initialize_link()
-            if status.is_failure():
-                self.logger.fatal('Problem initializing link "{link}" in chain "{chain}".',
-                                  link=mod.name, chain=self.name)
-                return status
-            elif status.is_skip_chain():
-                self.logger.warning('Skipping chain "{chain}", as requested by link "{link}".',
-                                    chain=self.name, link=mod.name)
-                return status
+        status = self._process('initialize')
 
-        self.logger.debug('Done initializing chain "{name}".', name=self.name)
+        if status == StatusCode.Success:
+            self.logger.debug('Successfully initialized chain "{chain!s}".', chain=self)
 
         return status
 
-    def execute(self):
-        """Initialize, execute, finalize links in the chain.
+    def execute(self) -> StatusCode:
+        """Execute links in chain.
 
-        :returns: status code of execution attempt
+        :return: Execution status code.
         :rtype: StatusCode
         """
-        status = StatusCode.Success
+        self.logger.debug('Executing chain "{chain!s}".', chain=self)
 
-        self.logger.debug('Now executing chain "{name}".', name=self.name)
+        status = self._process('execute')
 
-        # execution
-        for mod in self.links:
-            status = mod.execute_link()
-            if status.is_failure():
-                self.logger.fatal('Problem executing link "{link}" in chain "{chain}".',
-                                  link=mod.name, chain=self.name)
-                return status
-            elif status.is_repeat_chain():
-                self.logger.warning('Repeating chain "{chain}", as requested by link "{link}".',
-                                    chain=self.name, link=mod.name)
-                return status
-            elif status.is_skip_chain():
-                self.logger.warning('Skipping chain "{chain}", as requested by link "{link}".',
-                                    chain=self.name, link=mod.name)
-                return status
-
-        self.logger.debug('Done executing chain "{chain}"', chain=self.name)
+        if status == StatusCode.Success:
+            self.logger.debug('Successfully executed chain "[chain!s]".', chain=self)
 
         return status
 
-    def finalize(self):
-        """Finalize the chain and the links in the chain.
+    def finalize(self) -> StatusCode:
+        """Finalize links and chain.
 
-        :returns: status code of finalization attempt
-        :rtype: StatusCode
+        :return: Finalization status code.
+        :rtype StatusCode:
         """
-        status = StatusCode.Success
+        self.logger.debug('Finalizing chain "{chain!s}".', chain=self)
 
-        self.logger.debug('Now finalizing chain "{chain}".', chain=self.name)
+        status = self._process('finalize')
 
-        # finalization
-        for mod in self.links:
-            status = mod.finalize_link()
-            if status.is_failure():
-                self.logger.fatal('Problem finalizing link "{link}" in chain "{chain}".',
-                                  link=mod.name, chain=self.name)
-                return status
-
-        self.logger.debug('Done finalizing chain "{chain}".', chain=self.name)
-
-        # Stop the timer when the chain is done and print.
-        total_time = self.stop_timer()
-        self.logger.debug('{chain}: total runtime: {secs:.2f} seconds.', chain=self.name, secs=total_time)
+        if status == StatusCode.Success:
+            total_time = self.stop_timer()
+            self.logger.debug('Successfully finalized chain "{chain!s}".', chain=self)
+            self.logger.debug('Chain "{chain!s}" took {sec:.2f} seconds to complete.',
+                              chain=self, sec=total_time)
 
         return status
-
-    def add_link(self, obj):
-        """Add link as a pre-built object.
-
-        :param obj: The link to add
-        :returns: the link just added
-        :rtype: Link
-        """
-        if not isinstance(obj, Link):
-            raise RuntimeError('add_link does not support input of type "{}".'.format(type(obj)))
-
-        # Verify that this name is not already used
-        for mod in self.links:
-            if mod.name == obj.name:
-                raise RuntimeError('Link "{}" already exists in Chain "{}"; please use a different name.'
-                                   .format(obj.name, self.name))
-
-        # Reset algorithm parent
-        obj.chain = self
-
-        # Add algorithm to the list
-        self.links.append(obj)
-        return self.links[-1]
-
-    def get_link(self, name):
-        """Find the link with the given name.
-
-        :param str name: The name of the link to search for
-        :returns: the link just found
-        :rtype: Link
-        :raises RuntimeError: if link name not found
-        """
-        for mod in self.links:
-            if mod.name == name:
-                return mod
-
-        raise RuntimeError('No link with name "{}" found.'.format(name))
-
-    def has_link(self, name):
-        """Check if link with name exists in this chain.
-
-        :param str name: The name of the link to search for
-        :returns: boolean answer
-        :rtype: bool
-        """
-        for m in self.links:
-            if m.name == name:
-                return True
-
-        return False
-
-    def remove_links(self):
-        """Remove all links in the chain."""
-        for _ in range(0, len(self.links)):
-            self.links.pop()
-
-    def remove_link(self, mod):
-        """Remove link from this chain.
-
-        :param mod: Link of the chain to remove
-        """
-        if isinstance(mod, Link):
-            a_mod = mod
-        elif isinstance(mod, str):
-            a_mod = self.get_link(mod)
-        else:
-            raise ValueError('Chain: link type "{}" not supported'.format(type(mod)))
-
-        try:
-            self.links.remove(a_mod)
-        except ValueError:
-            self.logger.warning('Unable to remove link "{link}" from chain "{chain}"',
-                                link=a_mod.name, chain=self.name)

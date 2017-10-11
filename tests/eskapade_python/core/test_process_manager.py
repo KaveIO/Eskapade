@@ -5,7 +5,7 @@ from eskapade.core.definitions import StatusCode
 from eskapade.core.process_manager import process_manager, _ProcessManager
 from eskapade.core.process_services import ConfigObject
 from eskapade.core.process_services import ProcessService
-from eskapade.core.run_elements import Chain
+from eskapade.core.element import Chain
 
 
 def _status_side_effect(chain):
@@ -115,7 +115,7 @@ class ProcessManagerTest(unittest.TestCase):
         # Should leave everything unmodified.
         pm.remove_chain('2')
         self.assertTrue(pm.chains, 'Process manager has no chains!')
-        self.assertEquals(len(pm.chains), 1, 'Number of chains is not equal to 1!')
+        self.assertEqual(len(pm.chains), 1, 'Number of chains is not equal to 1!')
 
         # Remove existing chain.
         pm.remove_chain('1')
@@ -234,9 +234,9 @@ class ProcessManagerTest(unittest.TestCase):
         executed_chains = [arg[0][0] for arg in mock_execute.call_args_list]
         self.assertIn(c4, executed_chains)
 
-    @mock.patch('eskapade.core.run_elements.Chain.initialize')
-    @mock.patch('eskapade.core.run_elements.Chain.execute')
-    @mock.patch('eskapade.core.run_elements.Chain.finalize')
+    @mock.patch('eskapade.core.elements.Chain.initialize')
+    @mock.patch('eskapade.core.elements.Chain.execute')
+    @mock.patch('eskapade.core.elements.Chain.finalize')
     def test_execute(self, mock_finalize, mock_execute, mock_initialize):
         pm = process_manager
         c1 = Chain('1')
@@ -259,10 +259,10 @@ class ProcessManagerTest(unittest.TestCase):
         c2 = Chain('skip')
         c3 = Chain('fail')
 
-        with mock.patch('eskapade.core.run_elements.Chain.initialize', side_effect=_status_side_effect, autospec=True):
-            with mock.patch('eskapade.core.run_elements.Chain.execute') as \
+        with mock.patch('eskapade.core.elements.Chain.initialize', side_effect=_status_side_effect, autospec=True):
+            with mock.patch('eskapade.core.elements.Chain.execute') as \
                     mock_execute:
-                with mock.patch('eskapade.core.run_elements.Chain.finalize') as \
+                with mock.patch('eskapade.core.elements.Chain.finalize') as \
                         mock_finalize:
                     status = pm.execute(c2)
                     self.assertEqual(status, StatusCode.SkipChain)
@@ -273,14 +273,14 @@ class ProcessManagerTest(unittest.TestCase):
                     status = pm.execute(c3)
                     self.assertEqual(status, StatusCode.Failure)
 
-        with mock.patch('eskapade.core.run_elements.Chain.initialize', return_value=StatusCode.Success):
-            with mock.patch('eskapade.core.run_elements.Chain.execute', side_effect=_status_side_effect, autospec=True):
+        with mock.patch('eskapade.core.elements.Chain.initialize', return_value=StatusCode.Success):
+            with mock.patch('eskapade.core.elements.Chain.execute', side_effect=_status_side_effect, autospec=True):
                 status = pm.execute(c3)
                 self.assertEqual(status, StatusCode.Failure)
 
-        with mock.patch('eskapade.core.run_elements.Chain.initialize', return_value=StatusCode.Success):
-            with mock.patch('eskapade.core.run_elements.Chain.execute', return_value=StatusCode.Success):
-                with mock.patch('eskapade.core.run_elements.Chain.finalize', side_effect=_status_side_effect,
+        with mock.patch('eskapade.core.elements.Chain.initialize', return_value=StatusCode.Success):
+            with mock.patch('eskapade.core.elements.Chain.execute', return_value=StatusCode.Success):
+                with mock.patch('eskapade.core.elements.Chain.finalize', side_effect=_status_side_effect,
                                 autospec=True):
                     status = pm.execute(c3)
                     self.assertEqual(status, StatusCode.Failure)

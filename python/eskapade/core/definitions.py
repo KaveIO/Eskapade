@@ -29,7 +29,6 @@ from eskapade.logger import LogLevel
 
 @unique
 class StatusCode(IntEnum):
-
     """Return status code enumeration class.
 
     A StatusCode should be returned by the initialize, execute,
@@ -47,12 +46,12 @@ class StatusCode(IntEnum):
       In this case the application should just quit.
     """
 
-    Undefined = -1
-    Success = 0
-    RepeatChain = 1
-    SkipChain = 2
-    Recoverable = 3
-    Failure = 4
+    Undefined = -1  # type: int
+    Success = 0  # type: int
+    RepeatChain = 1  # type: int
+    SkipChain = 2  # type: int
+    Recoverable = 3  # type: int
+    Failure = 4  # type: int
 
     def __str__(self) -> str:
         """Get string representation of :class:`StatusCode`.
@@ -112,7 +111,6 @@ class StatusCode(IntEnum):
 
 
 class RandomSeeds:
-
     """Container for seeds of random generators.
 
     Seeds are stored as key-value pairs and are accessed with getitem and

@@ -1,37 +1,41 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Created: 2017/08/23                                                            *
-# * Description:                                                                   *
-# *      Logging module for Eskapade.                                              *
-# *                                                                                *
-# *      This module is thin layer on top of the Python logging module             *
-# *      that provides a simple interface to the user and PEP-3101                 *
-# *      (Advanced String Formatting) with named placeholders.                     *
-# *                                                                                *
-# *      Sources of inspiration for this module are:                               *
-# *         o The Twisted Logger interface.                                        *
-# *         o The Python logging cookbook and howto.                               *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis
+
+Created: 2017/08/23
+
+Description:
+
+   Logging module for Eskapade.
+
+   This module is thin layer on top of the Python logging module
+   that provides a simple interface to the user and PEP-3101
+   (Advanced String Formatting) with named placeholders.
+
+   Sources of inspiration for this module are:
+
+       - The Twisted Logger interface.
+       - The Python logging cookbook and howto.
+
+Authors:
+   KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import inspect
 import logging
 import sys
 import time
 from enum import IntEnum, unique
+from typing import Union, Any
 
 import pendulum
 
 
 # Protected. Should not be exported.
 class _Message(object):
-    __slots__ = ['fmt', 'kwargs']
+    __slots__ = 'fmt', 'kwargs'
 
     def __init__(self, fmt: str, kwargs) -> None:
         # WARNING is seven characters.
@@ -74,9 +78,10 @@ class LogLevel(IntEnum):
 # Publishers.
 class LogPublisher(logging.getLoggerClass()):
 
-    """Logging publisher that listens for log events."""
+    """Logging publisher that listens for log events.
+    """
 
-    def __init__(self, name: str = '', level: int = LogLevel.INFO):
+    def __init__(self, name: str = '', level: Union[int, LogLevel] = LogLevel.INFO):
         """Initialize the publisher."""
         super().__init__(name, level)
 
@@ -94,7 +99,7 @@ class LogPublisher(logging.getLoggerClass()):
             kwargs['log_level'] = str(kwargs.get('log_level', LogLevel(_level)))
             kwargs['log_namespace'] = kwargs.get('log_namespace', 'publisher')
 
-            _msg = '{log_time!s} - [{log_level!s}] - {log_namespace!s} : ' + _msg
+            _msg = '{log_time!s} [{log_namespace!s}#{log_level!s}] ' + _msg
             self._log(_level,
                       _Message(_msg, kwargs),
                       args,
@@ -102,14 +107,14 @@ class LogPublisher(logging.getLoggerClass()):
                       extra=extra,
                       stack_info=stack_info)
 
-    def add_handler(self, handler) -> None:
+    def add_handler(self, handler: logging.StreamHandler) -> None:
         """Add a log record handler.
 
         :param handler: The log record handler.
         """
         self.addHandler(handler)
 
-    def remove_handler(self, handler):
+    def remove_handler(self, handler: logging.StreamHandler):
         """Remove a log record handler.
 
         :param handler: The log record handler.
@@ -159,7 +164,8 @@ global_log_publisher = logging.getLogger('eskapade')
 # Handlers
 class ConsoleHandler(logging.StreamHandler):
 
-    """A stream handler that sends log messages with levels up to and including WARNING to stdout."""
+    """A stream handler that sends log messages with levels up to and including WARNING to stdout.
+    """
 
     def __init__(self):
         """Initialize the handler."""
@@ -173,7 +179,8 @@ class ConsoleHandler(logging.StreamHandler):
 
 class ConsoleErrHandler(logging.StreamHandler):
 
-    """A stream handler that sends log messages with level ERROR and above to stderr."""
+    """A stream handler that sends log messages with level ERROR and above to stderr.
+    """
 
     def __init__(self):
         """Initialize the stream handler."""
@@ -248,7 +255,7 @@ class Logger(object):
 
         return calling_frame_context
 
-    def __init__(self, name=None, source=None, observer=None):
+    def __init__(self, name: str = None, source: str = None, observer: Union[LogPublisher, logging.Logger] = None):
         """Initialize logger instance."""
         name = name or self.__namespace_from_calling_context()
 
@@ -256,7 +263,7 @@ class Logger(object):
         self.source = source
         self.observer = observer or global_log_publisher
 
-    def __get__(self, instance: object, instance_type=None):
+    def __get__(self, instance: Any, instance_type=None):
         """Create or get a logger.
 
         When used as a descriptor, i.e.::
@@ -269,8 +276,8 @@ class Logger(object):
                      self.logger.info('Hello')
 
         The logger's name will be set to the name of the class it's declared on. In the above example
-        the name of the logger is :class:`amodule.Klass`. Also, :attr:`Klass.log.source` would be
-        :class:`amodule.Klass` and :attr:`Klass().log.source` would be an instance of
+        the name of the logger is :class:`amodule.Klass`. Also, :attr:`Klass.logger.source` would be
+        :class:`amodule.Klass` and :attr:`Klass().logger.source` would be an instance of
         :class:`amodule.Klass`.
 
         Note that :func:`logging.getLogger` will either create or get a logger with said name.
@@ -280,6 +287,9 @@ class Logger(object):
         return self.__class__(name=name,
                               source=source,
                               observer=logging.getLogger(name))
+
+    def __set__(self, instance: Any, value):
+        raise AttributeError('Cannot redefine logger for {instance!s}!'.format(instance=instance))
 
     def __repr__(self):
         return '<{klass!s} ' \
@@ -294,7 +304,7 @@ class Logger(object):
                                        observer_level=self.observer.log_level,
                                        id=id(self), )
 
-    def __log(self, log_level, fmt: str = '', **kwargs):
+    def __log(self, log_level: LogLevel, fmt: str = '', **kwargs):
         # In Python 3.6 the order of kwargs is preserved, see PEP 468.
         # So, we are not going to bother to fix it here.
         event = kwargs

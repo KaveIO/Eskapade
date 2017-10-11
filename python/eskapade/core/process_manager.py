@@ -20,11 +20,11 @@ import importlib
 import os
 
 from eskapade.core import persistence
-from eskapade.core.metas import Singleton
+from eskapade.core.meta import Singleton
 from eskapade.core.definitions import StatusCode
 from eskapade.core.process_services import ConfigObject
 from eskapade.core.process_services import ProcessService
-from eskapade.core.run_elements import Chain
+from eskapade.core.element import Chain
 from eskapade.logger import Logger
 from eskapade.mixins import TimerMixin
 
@@ -406,7 +406,7 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
     def remove_chains(self) -> None:
         """Remove all configured chains."""
         # Remove links from each chain.
-        [_.remove_links() for _ in self.chains]
+        [_.clear() for _ in self.chains]
 
         # Remove all chains.
         self.chains.clear()
@@ -426,7 +426,7 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
 
         if chain_to_pop is not None:
             chain = self.chains.pop(chain_to_pop)
-            chain.remove_links()
+            chain.clear()
         else:
             self.logger.warning('Trying to remove non-existing chain {chain} or there are no chains!', chain=name)
 

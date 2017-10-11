@@ -45,7 +45,7 @@ if settings['do_chain0']:
     ch = process_manager.add_chain('Chain0')
     link = core_ops.HelloWorld(name='hello0')
     link.hello = 'Town'
-    ch.add_link(link)
+    ch.add(link)
 
 # adding more chains is as easy as calling add_chain and passing a new name.
 
@@ -53,13 +53,13 @@ if settings['do_chain1']:
     ch = process_manager.add_chain('Chain1')
     link = core_ops.HelloWorld(name='hello1')
     link.hello = 'World'
-    ch.add_link(link)
+    ch.add(link)
 
 if settings['do_chain2']:
     ch = process_manager.add_chain('Chain2')
     link = core_ops.HelloWorld(name='hello2')
     link.hello = 'Universe'
-    ch.add_link(link)
+    ch.add(link)
 
 #########################################################################################
 

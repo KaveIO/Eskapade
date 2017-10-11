@@ -13,7 +13,7 @@
 # * LICENSE.                                                                       *
 # **********************************************************************************
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops
 from eskapade import process_manager
 from eskapade.logger import Logger, LogLevel
@@ -43,11 +43,12 @@ settings['n_repeat'] = 2
 # --- now set up the chains and links based on configuration flags
 
 if settings['do_hello']:
-    ch = process_manager.add_chain('Hello')
+    hello_chain = Chain(name='Hello')
+    ch = process_manager.add_chain(hello_chain)
     link = core_ops.HelloWorld(name='HelloWorld')
     link.logger.log_level = LogLevel.DEBUG
     link.repeat = settings['n_repeat']
-    ch.add_link(link)
+    ch.add(link)
 
 #########################################################################################
 

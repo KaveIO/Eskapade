@@ -78,20 +78,21 @@ def generate_link(link_dir, link_name, is_create_init=False):
     :param is_create_init: whether to create __init__.py file or no
     """
     # Do not modify the indentation of template!
-    template = """# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : {link_name!s}
-# * Created: {date_generated!s}
-# * Description:                                                                   *
-# *      Algorithm to do...(fill in one-liner here)                                *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+    template = """\"\"\"Project: Eskapade - A python-based package for data analysis
+Class: {link_name!s}
+
+Created: {date_generated!s}
+
+Description:
+    Algorithm to ...(fill in one-liner here)
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+\"\"\"
 
 from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 
@@ -181,20 +182,22 @@ def generate_macro(macro_dir, macro_name, link_module='eskapade.core_ops', link_
     :param is_create_init: whether to create __init__.py file or no
     """
     # Do not modify the indentation of template!
-    template = """# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : {macro_name!s}
-# * Created: {date_generated!s}
-# * Description:                                                                   *
-# *      Macro do...(fill in short description here)                               *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      Your name(s) here                                                         *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+    template = """\"\"\"Project: Eskapade - A python-based package for data analysis
+
+Macro: {macro_name!s}
+
+Created: {date_generated!s}
+
+Description:
+    Macro does ...(fill in short description here)
+
+Authors:
+    Your name(s) here
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+\"\"\"
 
 from eskapade import process_manager, ConfigObject
 from eskapade.logger import Logger, LogLevel
@@ -216,7 +219,7 @@ settings['version'] = 0
 ch = process_manager.add_chain('Start')
 link = {link_name!s}()
 link.logger.log_level = LogLevel.DEBUG
-ch.add_link(link)
+ch.add(link)
 
 logger.debug('Done parsing configuration file {macro_name!s}.')
 """
@@ -276,9 +279,11 @@ NAME = '{project_name}'
 
 
 def setup_package() -> None:
+    \"\"\"The main setup method. 
+    
+    It is responsible for setting up and installing the package.
     \"\"\"
-    The main setup method. It is responsible for setting up and installing the package.
-    \"\"\"
+    
     setup(name=NAME,
           python_requires='>=3.5',
           package_dir={{'': '.'}},
