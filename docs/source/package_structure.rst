@@ -38,7 +38,7 @@ example links or utilities that you want to use.
 The Eskapade framework is contained in the Python package ``eskapade``,
 which lives in the ``python`` directory.  Every specific subject has its
 subpackage in ``eskapade``, containing the utilities it needs, the links
-that are defined for the subject, and the corresponding tests.
+that are defined for the subject.
 
 The core of the framework is implemented in the ``core`` subpackage.
 This subpackage contains the low-level machinery for running analysis
@@ -63,6 +63,18 @@ separate module for each link, defining the link class instance.  By
 convention, the names of the module and class are both the link name,
 the former in snake case and the latter in camel case.  For example, the
 module ``read_to_df`` defines the link class ``ReadToDf``.
+
+The tests are contained separately in the Python package ``eskapade_python``
+under ``tests`` directory. Ideally, there is a test module
+for each (link) module in the Eskapade package.  Optionally, integration tests
+are implemented in ``integration``. For the ``eskapade.analysis`` package, there is
+the module ``test_tutorial_macros`` with integration tests that run the
+tutorial macros corresponding to this subpackage.
+
+   |-eskapade_python
+      |-analysis
+         |-integration
+            |-test_tutorial_macros.py
 
 Subpackages
 -----------

@@ -8,10 +8,10 @@ ESMOUNTID="esrepo"
 TMPDIR="/tmp/esinstall"
 LOGDIR="/var/log/esinstall"
 ESDIR="/opt/eskapade"
-KTBRELEASE="3.5-Beta"
+KTBRELEASE="3.6-Beta"
 KTBDIR="/opt/KaveToolbox"
 ANADIR="/opt/anaconda"
-PYCHARMRELEASE="2017.2.1"
+PYCHARMRELEASE="2017.2.3"
 PYCHARMDIR="/opt/pycharm"
 
 # log function
@@ -68,9 +68,10 @@ bash "kavetoolbox-installer-${KTBRELEASE}.sh" --node &> "${LOGDIR}/install-ktb.l
 log "installing additional packages for Eskapade"
 apt-get install -y --no-install-recommends mongodb-clients &> "${LOGDIR}/install-additional.log"
 
-# install Eskapade Python requirements
-log "installing Eskapade Python requirements"
-"${ANADIR}/pro/bin/pip" install -r /vagrant/python/requirements.txt &> "${LOGDIR}/install-Python-requirements.log"
+# install Eskapade and its Python requirements
+log "installing Eskapade"
+"${ANADIR}/pro/bin/pip" install -e "${ESDIR}" &> "${LOGDIR}/install-Python-requirements.log"
+log "installing Python requirements"
 "${ANADIR}/pro/bin/conda" install -y django pymongo &>> "${LOGDIR}/install-Python-requirements.log"
 "${ANADIR}/pro/bin/pip" install djangorestframework markdown django-filter celery cherrypy names jaydebeapi \
 	&>> "${LOGDIR}/install-Python-requirements.log"
@@ -78,16 +79,6 @@ log "installing Eskapade Python requirements"
 # source KAVE setup in both login and non-login shells (interactive)
 mv /etc/profile.d/kave.sh "${KTBDIR}/pro/scripts/"
 sed -i -e "s|/etc/profile\.d/kave\.sh|${KTBDIR}/pro/scripts/kave.sh|g" /etc/bash.bashrc
-
-# install Python packages for ROOT
-log "installing Python packages for ROOT"
-cd "${TMPDIR}"
-bash -c "source ${KTBDIR}/pro/scripts/KaveEnv.sh && pip install rootpy==0.9.1"\
-    &> "${LOGDIR}/install-rootpy.log"
-
-# install Histogrammar fixes for Spark
-log "installing Histogrammar fixes"
-cp /vagrant/histogrammar/*.py "${ANADIR}/pro/lib/python3.5/site-packages/histogrammar/primitives"/
 
 # setup PyCharm environment
 sed -e "s|PYCHARM_HOME_VAR|${PYCHARMDIR}/pro|g" /vagrant/pycharm/pycharm_env.sh >> "${KTBDIR}/pro/scripts/KaveEnv.sh"

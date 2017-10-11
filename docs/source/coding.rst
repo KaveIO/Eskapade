@@ -20,14 +20,15 @@ Stand-alone
           - The correct Python version (currently 3.5.2 of Anaconda, use the interpreter of your conda environment)
       - Under 'Build, Execution & Deployment' / 'Console' / 'Python Console':
           - The correct Python version (currently 3.5.2 of Anaconda, use the interpreter of your conda environment)
+  * Install Eskapade in editable mode
   * Run/Debug Configuration:
       - Under 'Python' add new configuration
-      - Script: ``scripts/run_eskapade.py``
-      - Script parameters: ``-w ../tutorials/tutorial_1.py``
-      - Working directory: ``$ESKAPADE``
+      - Script: path to the console script ``eskapade_run`` (located in the same directory as the interpreter
+        specified above in 'Project Interpreter')
+      - Script parameters: path to a macro to be debugged, e.g. ``$ESKAPADE/python/eskapade/tutorials/tutorial_1.py``,
+        and ``eskapade_run`` command line arguments, e.g. ``--begin-with=Summary``
       - Python interpreter: check if it is the correct Python version (currently 3.5.2 of Anaconda, corresponding to
         your conda environment)
-      - Environment variables: should contain those defined in ``$ESKAPADE/setup.sh``.
 
 You should now be able to press the 'play button' to run Eskapade with the specified parameters.
 
@@ -37,11 +38,11 @@ Writing a new Link using Jupyter and notebooks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Running the framework works best from the command line (in our experience), but running experiments and trying new
-ideas is better left to an interactive environment like jupyter. How can we reconcile the difference in these work
+ideas is better left to an interactive environment like Jupyter. How can we reconcile the difference in these work
 flows? How can we use them together to get the most out of it?
 
 Well, when using the `data and config import functionality <tutorial_jupyter.html#reading-data-from-a-pickle>`_ of
-Eskapade together with jupyter we can interactively work on our objects and when we are satisfied with the results
+Eskapade together with Jupyter we can interactively work on our objects and when we are satisfied with the results
 integration into links is straight-forward. The steps to undertake this are *in general* the following:
 
   1. Import the DataStore and/or ConfigObject. Once you have imported the ConfigObject, run it to generate the output you want to use.

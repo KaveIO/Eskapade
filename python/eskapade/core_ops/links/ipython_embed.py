@@ -3,7 +3,7 @@
 # * Class  : IPythonEmbed                                                          *
 # * Created: 2017/02/26                                                            *
 # * Description:                                                                   *
-# *      Link that starts up an ipython console during execution for debuggin.     *
+# *      Link that starts up an ipython console during execution for debugging.    *
 # *                                                                                *
 # * Authors:                                                                       *
 # *      KPMG Big Data team, Amstelveen, The Netherlands                           *
