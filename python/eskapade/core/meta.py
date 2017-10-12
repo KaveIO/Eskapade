@@ -67,7 +67,7 @@ class Processor(metaclass=ABCMeta):
         super().__init__()
         self.__name = name  # type: str
         self.__hash = None  # type: int
-        self.__parent = None  # type: ProcessorSequence
+        self.__parent = None
 
     def __str__(self) -> str:
         return self.__name
@@ -115,20 +115,18 @@ class Processor(metaclass=ABCMeta):
         return self.__name
 
     @property
-    def parent(self) -> 'ProcessorSequence':
+    def parent(self):
         """Get the group parent.
 
         :return: The parent/group processor sequence.
-        :rtype: ProcessorSequence
         """
         return self.__parent
 
     @parent.setter
-    def parent(self, the_parent: 'ProcessorSequence') -> None:
+    def parent(self, the_parent) -> None:
         """Set the group parent.
 
         :param the_parent: The parent/group processor sequence.
-        :type the_parent: ProcessorSequence
         """
         self.__parent = None
 
@@ -158,7 +156,6 @@ class _ProcessorNode(object):
 
 
 class ProcessorSequence(object):
-
     """A doubly linked processor sequence.
 
     It remembers the order in which processors are added to the sequence.
@@ -169,11 +166,6 @@ class ProcessorSequence(object):
         super().__init__()
         self.__end = end = _ProcessorNode()  # type: _ProcessorNode
         end.prev = end.next = end  # type: _ProcessorNode
-
-        print(self.__end)
-        print(self.__end.next)
-        print(self.__end.prev)
-
         self.__map = {}
 
     def __len__(self) -> int:
@@ -273,8 +265,5 @@ class ProcessorSequence(object):
         """
         # Reset end node.
         self.__end.prev = self.__end.next = self.__end
-        print(self.__end)
-        print(self.__end.next)
-        print(self.__end.prev)
         # Clear processor to processor node map.
         self.__map.clear()

@@ -91,7 +91,7 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         """
         TimerMixin.__init__(self)
 
-        self.prevChainName = ''
+        self.prev_chain_name = ''
         self.chains = []
         self._services = {}
 
@@ -454,8 +454,8 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         prev_chain_name = ''
         for chain in self.chains:
             self.logger.debug('Configuring chain "{name}".', name=chain.name)
-            if not chain.prevChainName:
-                chain.prevChainName = prev_chain_name
+            if prev_chain_name:
+                chain.prev_chain_name = prev_chain_name
             prev_chain_name = chain.name
 
         # End by print the status of the processManager and the configuration
@@ -531,7 +531,7 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         end = (self.get_chain_idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self.chains)
         for chain in self.chains[begin:end]:
             self.logger.debug('    Chain: {name}', name=chain.name)
-            for link in chain.links:
+            for link in chain:
                 self.logger.debug('      Link: {name}', name=link.name)
 
     def execute_all(self):
@@ -553,10 +553,10 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         if begin > 0:
             # import services from previous chain, persisted in a previous run
             try:
-                self.import_services(io_conf=settings.io_conf(), chain=self.chains[begin].prevChainName, force=False)
+                self.import_services(io_conf=settings.io_conf(), chain=self.chains[begin].prev_chain_name, force=False)
             except Exception as exc:
                 self.logger.error('Unable to import services persisted for "{chain}":',
-                                  chain=self.chains[begin].prevChainName)
+                                  chain=self.chains[begin].prev_chain_name)
                 self.logger.error('Caught exception: "{exc!s}".', exc=exc)
                 return StatusCode.Failure
 
@@ -608,7 +608,7 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         if status.is_failure():
             return status
         elif status.is_skip_chain():
-            self.prevChainName = chain.name
+            self.prev_chain_name = chain.name
             return status
 
         # execute() of a chain can be called to be repeated.
@@ -619,7 +619,7 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         if status.is_failure():
             return status
         elif status.is_skip_chain():
-            self.prevChainName = chain.name
+            self.prev_chain_name = chain.name
             return status
 
         # finalize.
@@ -627,9 +627,9 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         if status.is_failure():
             return status
 
-        # After execution of chain prevChainName is set here so the stores will not be imported from file in
+        # After execution of chain prev_chain_name is set here so the stores will not be imported from file in
         # but retrieved from memory in the execution of next chain.
-        self.prevChainName = chain.name
+        self.prev_chain_name = chain.name
 
         return status
 

@@ -14,7 +14,6 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file
 LICENSE.
 """
-
 from typing import Union
 
 from eskapade.core.definitions import StatusCode
@@ -380,7 +379,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
     def __init__(self, name, process_manager=None):
         super().__init__(name)
 
-        self.prevChain = ''
+        self.prev_chain_name = ''
         self.exit_status = StatusCode.Undefined
 
         # We register ourselves with the process manager.
@@ -405,25 +404,25 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
             # A link may request to skip the rest of the processing during initialization and execution.
             # Why should a link decide to skip the chain it is in during execution?
             elif status == StatusCode.SkipChain:
-                self.logger.warning('"{method!s}": Skipping chain "{chain!s} as requested by link "{link!s}"!',
+                self.logger.warning('Skipping chain "{chain!s} as requested by link "{link!s}" in method "{method!s}"!',
                                     method=method, chain=self, link=_)
                 break
             # A link may request that the chain needs to be repeated during execution.
             # Why should a link decide to skip the chain it is in during execution?
             elif status == StatusCode.RepeatChain:
-                self.logger.warning('"{method!s}": Repeating chain "{chain!s}" as requested by link "{link!s}"!',
-                                    method=method, chain=self, link=_)
+                self.logger.warning('Repeating chain "{chain!s}" as requested by link "{link!s}" in method "{'
+                                    'method!s}"!', method=method, chain=self, link=_)
                 break
             # Default, is to log an unhandled status code from the chain.
             elif status != StatusCode.Success:
                 self.logger.fatal(
-                    '"{method!s}": Unhandled StatusCode "{status!s}" from link "{link!s}" in "{chain!s}"!',
-                    method={method}, status=status, link=_, chain=self)
+                    'Unhandled StatusCode "{status!s}" from link "{link!s}" in "{chain!s}" in method "{method!s}"!',
+                    method=method, status=status, link=_, chain=self)
                 break
 
         return status
 
-    def add(self, link: Union[Link, str]) -> Link:
+    def add(self, link: Union[Link, Processor]) -> None:
         """Add a link to the chain.
 
         In case link is a str, then create and add a link to the chain.
@@ -435,17 +434,13 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         :rtype: Link
         :raise TypeError: When the type of link is unsupported.
         """
-        if not isinstance(link, (Link, str)):
-            raise TypeError('Expected "Link" or "str" not "{wrong!s}"!'.format(wrong=type(link)))
-
-        link = Link(link) if isinstance(link, str) else link
+        if not isinstance(link, (Link, Processor)):
+            raise TypeError('Expected "Link" not "{wrong!s}"!'.format(wrong=type(link)))
 
         link.parent = self
         # TODO (janos4276): Keep this until Link has been 'fixed'.
         # noinspection PyTypeChecker
         super().add(link)
-
-        return link
 
     def discard(self, link: Link) -> None:
         """Remove a link from the chain.
@@ -456,10 +451,8 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         # :rtype: Link
         # :raise TypeError: When the type of link is unsupported.
         """
-        if not isinstance(link, (Link, Processor, str)):
-            raise TypeError('Expected "Link" or "str" not "{wrong!s}"!'.format(wrong=type(link)))
-
-        link = Link(link) if isinstance(link, str) else link
+        if not isinstance(link, (Link, Processor)):
+            raise TypeError('Expected "Link" not "{wrong!s}"!'.format(wrong=type(link)))
 
         # TODO (janos4276): Keep this until Link has been 'fixed'.
         # noinspection PyTypeChecker

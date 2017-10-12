@@ -104,7 +104,7 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual('Chain1', process_manager.chains[0].name)
         self.assertEqual(False, settings.get('do_chain0', True))
         self.assertEqual(True, settings.get('do_chain1', True))
-        self.assertEqual('Universe', process_manager.chains[0].links[0].hello)
+        self.assertEqual('Universe', list(process_manager.chains[0])[0].hello)
 
     # TODO (janos4276): Ugh ... Fix this or remove this. This test relies on the old way of doing things.
     @unittest.skip('Fix or remove this test. This test relies on the old way of doing things!')
@@ -181,7 +181,7 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
 
         # chain is repeated 10 times, with nothing put in datastore
         self.assertEqual(0, len(ds))
-        self.assertEqual(10, process_manager.chains[0].links[1].maxcount)
+        self.assertEqual(10, list(process_manager.chains[0])[1].maxcount)
 
     def test_esk108map(self):
         settings = process_manager.service(ConfigObject)
@@ -205,7 +205,7 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
 
         self.eskapade_run(resources.tutorial('esk109_debugging_tips.py'), StatusCode.Failure)
 
-        self.assertTrue(isinstance(process_manager.chains[0].links[2], Break))
+        self.assertTrue(isinstance(list(process_manager.chains[0])[2], Break))
 
     def test_esk110(self):
         self.eskapade_run(resources.tutorial('esk110_code_profiling.py'))

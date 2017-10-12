@@ -159,9 +159,9 @@ class ProcessManagerTest(unittest.TestCase):
 
         status = pm.initialize()
 
-        self.assertEqual(pm.chains[0].prevChainName, '')
-        self.assertEqual(pm.chains[1].prevChainName, '1')
-        self.assertEqual(pm.chains[2].prevChainName, '2')
+        self.assertEqual(pm.chains[0].prev_chain_name, '')
+        self.assertEqual(pm.chains[1].prev_chain_name, '1')
+        self.assertEqual(pm.chains[2].prev_chain_name, '2')
         assert mock_print.called
         self.assertIsInstance(status, StatusCode)
 
@@ -175,7 +175,7 @@ class ProcessManagerTest(unittest.TestCase):
         mock_execute.return_value = StatusCode.Success
         pm.chains = [Chain(str(it + 1)) for it in range(3)]
         for it, ch in enumerate(pm.chains):
-            ch.prevChainName = str(it)
+            ch.prev_chain_name = str(it)
         status = pm.execute_all()
         self.assertEqual(status, StatusCode.Success)
         mock_import.assert_not_called()
@@ -190,7 +190,7 @@ class ProcessManagerTest(unittest.TestCase):
         pm.reset()
         pm.chains = [Chain(str(it + 1)) for it in range(5)]
         for it, ch in enumerate(pm.chains):
-            ch.prevChainName = str(it)
+            ch.prev_chain_name = str(it)
         settings = pm.service(ConfigObject)
         settings['analysisName'] = 'test_execute_all'
         settings['doNotStoreResults'] = False
@@ -234,9 +234,9 @@ class ProcessManagerTest(unittest.TestCase):
         executed_chains = [arg[0][0] for arg in mock_execute.call_args_list]
         self.assertIn(c4, executed_chains)
 
-    @mock.patch('eskapade.core.elements.Chain.initialize')
-    @mock.patch('eskapade.core.elements.Chain.execute')
-    @mock.patch('eskapade.core.elements.Chain.finalize')
+    @mock.patch('eskapade.core.element.Chain.initialize')
+    @mock.patch('eskapade.core.element.Chain.execute')
+    @mock.patch('eskapade.core.element.Chain.finalize')
     def test_execute(self, mock_finalize, mock_execute, mock_initialize):
         pm = process_manager
         c1 = Chain('1')
@@ -251,7 +251,7 @@ class ProcessManagerTest(unittest.TestCase):
         calls = [mock.call.initialize(), mock.call.execute(), mock.call.finalize()]
         status = pm.execute(c1)
         mock_parent.assert_has_calls(calls, any_order=False)
-        self.assertEqual(pm.prevChainName, c1.name)
+        self.assertEqual(pm.prev_chain_name, c1.name)
         self.assertEqual(status, StatusCode.Success)
 
     def test_execute_status_return(self):
@@ -259,28 +259,28 @@ class ProcessManagerTest(unittest.TestCase):
         c2 = Chain('skip')
         c3 = Chain('fail')
 
-        with mock.patch('eskapade.core.elements.Chain.initialize', side_effect=_status_side_effect, autospec=True):
-            with mock.patch('eskapade.core.elements.Chain.execute') as \
+        with mock.patch('eskapade.core.element.Chain.initialize', side_effect=_status_side_effect, autospec=True):
+            with mock.patch('eskapade.core.element.Chain.execute') as \
                     mock_execute:
-                with mock.patch('eskapade.core.elements.Chain.finalize') as \
+                with mock.patch('eskapade.core.element.Chain.finalize') as \
                         mock_finalize:
                     status = pm.execute(c2)
                     self.assertEqual(status, StatusCode.SkipChain)
-                    self.assertEqual(pm.prevChainName, c2.name)
+                    self.assertEqual(pm.prev_chain_name, c2.name)
                     # assert that chain is indeed skipped
                     assert not mock_execute.called
                     assert not mock_finalize.called
                     status = pm.execute(c3)
                     self.assertEqual(status, StatusCode.Failure)
 
-        with mock.patch('eskapade.core.elements.Chain.initialize', return_value=StatusCode.Success):
-            with mock.patch('eskapade.core.elements.Chain.execute', side_effect=_status_side_effect, autospec=True):
+        with mock.patch('eskapade.core.element.Chain.initialize', return_value=StatusCode.Success):
+            with mock.patch('eskapade.core.element.Chain.execute', side_effect=_status_side_effect, autospec=True):
                 status = pm.execute(c3)
                 self.assertEqual(status, StatusCode.Failure)
 
-        with mock.patch('eskapade.core.elements.Chain.initialize', return_value=StatusCode.Success):
-            with mock.patch('eskapade.core.elements.Chain.execute', return_value=StatusCode.Success):
-                with mock.patch('eskapade.core.elements.Chain.finalize', side_effect=_status_side_effect,
+        with mock.patch('eskapade.core.element.Chain.initialize', return_value=StatusCode.Success):
+            with mock.patch('eskapade.core.element.Chain.execute', return_value=StatusCode.Success):
+                with mock.patch('eskapade.core.element.Chain.finalize', side_effect=_status_side_effect,
                                 autospec=True):
                     status = pm.execute(c3)
                     self.assertEqual(status, StatusCode.Failure)

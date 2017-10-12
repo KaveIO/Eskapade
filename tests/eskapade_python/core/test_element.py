@@ -2,22 +2,8 @@ import unittest
 
 from eskapade.core import execution
 from eskapade.core.definitions import StatusCode
-from eskapade.core.element import Chain, Link
+from eskapade.core.element import Chain
 from eskapade.core.meta import Processor
-
-
-class LinkTest(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        execution.reset_eskapade()
-
-    def test_load(self):
-        pass
-
-    def test_store(self):
-        pass
 
 
 class ChainTest(unittest.TestCase):
@@ -84,6 +70,22 @@ class ChainTest(unittest.TestCase):
                 self.parent.fin.append(self.name + 'FinFail')
                 return StatusCode.Failure
 
+        class UnhandledLink(DummyLink):
+            def __init__(self):
+                super().__init__('UnhandledLink')
+
+            def initialize(self):
+                self.parent.init.append(self.name + 'InitUnhandled')
+                return StatusCode.Undefined
+
+            def execute(self):
+                self.parent.exec.append(self.name + 'ExecUnhandled')
+                return StatusCode.Undefined
+
+            def finalize(self):
+                self.parent.fin.append(self.name + 'FinUnhandled')
+                return StatusCode.Undefined
+
         self.link_one = DummyLink('LinkOne')
         self.link_two = DummyLink('LinkTwo')
         self.link_three = DummyLink('LinkThree')
@@ -94,6 +96,7 @@ class ChainTest(unittest.TestCase):
         self.skip_link = SkipLink()
         self.repeat_link = RepeatLink()
         self.fail_link = FailLink()
+        self.unhandled_link = UnhandledLink()
 
         self.dummy_chain = DummyChain('DummyChain')
         [self.dummy_chain.add(_) for _ in self.links]
@@ -192,6 +195,25 @@ class ChainTest(unittest.TestCase):
                          expected,
                          msg='Initialization order and number mismatch!')
 
+        # Test Unhandled
+        self.dummy_chain.clear()
+
+        links = [self.link_one, self.link_two, self.unhandled_link, self.link_three, self.link_four]
+        [self.dummy_chain.add(_) for _ in links]
+
+        status = self.dummy_chain.initialize()
+
+        self.assertEqual(status,
+                         StatusCode.Undefined,
+                         msg='Initialization did not handle!')
+
+        expected = [_.name + 'Init' for _ in links[:3]]
+        expected[-1] = expected[-1] + 'Unhandled'
+
+        self.assertEqual(self.dummy_chain.init,
+                         expected,
+                         msg='Initialization order and number mismatch!')
+
     def test_execute(self):
         status = self.dummy_chain.execute()
 
@@ -255,6 +277,25 @@ class ChainTest(unittest.TestCase):
 
         expected = [_.name + 'Exec' for _ in links[:3]]
         expected[-1] = expected[-1] + 'Repeat'
+
+        self.assertEqual(self.dummy_chain.exec,
+                         expected,
+                         msg='Execution order and number mismatch!')
+
+        # Test Unhandled
+        self.dummy_chain.clear()
+
+        links = [self.link_one, self.link_two, self.unhandled_link, self.link_three, self.link_four]
+        [self.dummy_chain.add(_) for _ in links]
+
+        status = self.dummy_chain.execute()
+
+        self.assertEqual(status,
+                         StatusCode.Undefined,
+                         msg='Execution did handle!')
+
+        expected = [_.name + 'Exec' for _ in links[:3]]
+        expected[-1] = expected[-1] + 'Unhandled'
 
         self.assertEqual(self.dummy_chain.exec,
                          expected,
