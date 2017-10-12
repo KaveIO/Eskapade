@@ -1,17 +1,17 @@
-# **************************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                       *
-# * Created : 2017-09-20                                                               *
-# *                                                                                    *
-# * Description:                                                                       *
-# *      Helper functions for eskapade_bootstrap                                       *
-# *                                                                                    *
-# * Authors:                                                                           *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                               *
-# *                                                                                    *
-# * Redistribution and use in source and binary forms, with or without                 *
-# * modification, are permitted according to the terms listed in the file              *
-# * LICENSE.                                                                           *
-# **************************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created : 2017-09-20
+
+Description:
+    Helper functions for eskapade_bootstrap
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import datetime
 import os
@@ -78,7 +78,8 @@ def generate_link(link_dir, link_name, is_create_init=False):
     :param is_create_init: whether to create __init__.py file or no
     """
     # Do not modify the indentation of template!
-    template = """\"\"\"Project: Eskapade - A python-based package for data analysis
+    template = """\"\"\"Project: Eskapade - A python-based package for data analysis.
+    
 Class: {link_name!s}
 
 Created: {date_generated!s}
@@ -182,7 +183,7 @@ def generate_macro(macro_dir, macro_name, link_module='eskapade.core_ops', link_
     :param is_create_init: whether to create __init__.py file or no
     """
     # Do not modify the indentation of template!
-    template = """\"\"\"Project: Eskapade - A python-based package for data analysis
+    template = """\"\"\"Project: Eskapade - A python-based package for data analysis.
 
 Macro: {macro_name!s}
 

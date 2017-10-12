@@ -1,20 +1,22 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Classes: ArgumentsMixin, TimerMixin                            *
-# * Created: 2016/11/08                                                          *
-# * Description:                                                                 *
-# *     Mixin classes:                                                           *
-# *     * ArgumentsMixin: processes/checks arguments and sets them as attributes *
-# *     * TimerMixin:     keeps track of execution time                          *
-# *     * ConfigMixin:    reads and handles settings from configuration files    *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created: 2016/11/08
+
+Classes: ArgumentsMixin, TimerMixin
+
+Description:
+    Mixin classes:
+        - ArgumentsMixin: processes/checks arguments and sets them as attributes
+        - TimerMixin:     keeps track of execution time
+        - ConfigMixin:    reads and handles settings from configuration files
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import configparser
 import timeit
@@ -105,7 +107,6 @@ class ArgumentsMixin:
 
     def check_arg_types(self, recurse=False, allow_none=False, **name_type):
         """Check if set of arguments has correct types."""
-
         def check_attr(self, attr, a_name, a_type):
             if allow_none and attr is None:
                 return

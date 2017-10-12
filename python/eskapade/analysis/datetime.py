@@ -1,7 +1,7 @@
 import pandas as pd
 
+from eskapade.core.mixin import ArgumentsMixin
 from eskapade.logger import Logger
-from eskapade.mixins import ArgumentsMixin
 
 
 ################

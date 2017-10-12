@@ -5,7 +5,8 @@ Created: 2017/02/27
 Description:
     Base classes for the building blocks of an Eskapade analysis run:
 
-        - Chains and Links
+        - Link:
+        - Chain:
 
 Authors:
     KPMG Big Data team, Amstelveen, The Netherlands
@@ -15,92 +16,31 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from typing import Union
-
 from eskapade.core.definitions import StatusCode
 from eskapade.core.meta import Processor, ProcessorSequence
-from eskapade.logger import Logger
-from eskapade.mixins import ArgumentsMixin, TimerMixin
+from eskapade.core.mixin import ArgumentsMixin, TimerMixin
 
 
-class Link(ArgumentsMixin, TimerMixin):
-    """Link base class.
-
-    A link defines the content of an algorithm.  Any actual link is derived
-    from this base class.
-
-    A link usually does three things:
-    - takes data from the datastore
-    - does something to it
-    - writes data back
-
-    To take from the data store there is a simple function load()
-    To write to the data store there is a simple function store()
-
-    Links are added to a chain as follows:
-
-    >>> from eskapade import process_manager
-    >>> # add a chain first
-    >>> overview = process_manager.add_chain('Overview')
-    >>>
-    >>> # add a link to the chain
-    >>> from eskapade import analysis
-    >>> reader = analysis.ReadToDf(name='CsvReader', key='foo')
-    >>> reader.path = 'foo.csv'
-    >>> overview.add(reader)
-
-    A link has an initialize, execute, and finalize method.  execute() is the
-    central function that executes the algorithm code.  initialize() and
-    finalize() are supporting functions before and after execute().
-
-    * initialize():
-      Initialise internal link variables, if needed
-
-    >>> # done here by hand, but normally done in the process manager
-    >>> pds.initialize()
-
-    * execute():
-      Execute the algorithm
-
-    >>> # by hand
-    >>> pds.execute()
-
-    * finalize():
-      Finalize the link, if needed
-
-    >>> # by hand
-    >>> pds.finalize()
-
-    See the documentation of these methods, or example links for more info.
-
-    :param name: The name of the link
-    """
-
-    logger = Logger()
-
+class Link(Processor, ArgumentsMixin, TimerMixin):
     def __init__(self, name):
-        """Initialize link instance."""
-        # initialize timer
-        TimerMixin.__init__(self)
+        super().__init__(name)
 
-        self.name = name
-        # read_key is typically the name string of the object picked up from the datastore
-        # read_key can be a string or list of strings
+        # read_key is typically the name of the object picked
+        # up from the data store read_key can be a string or
+        # list of strings.
         self.read_key = None
-        # store_key is typically the name string of the object put back in the datastore
-        self.store_key = name
+
+        # store_key is typically the name of the object put back
+        # in the data tore.
+        self.store_key = None
+
         # required kwargs. filled by _process_kwargs
         self._required_vars = []
-        # chain is a reference to the chain that executes this link.
-        self.chain = None
-        # return code by load()
-        self.if_input_missing = StatusCode.Failure
-        # return code by store()
-        self.if_output_exists = StatusCode.Success
 
-    def __str__(self):
-        """Get string representation of the link."""
-        return '{} link "{}"'.format(self.__class__.__name__, self.name)
+        # load() return code.
+        self.if_input_missing = StatusCode.Failure
+        # store() return code.
+        self.if_output_exists = StatusCode.Success
 
     def _process_kwargs(self, kwargs, **name_val):
         """Process the key word arguments.
@@ -108,7 +48,7 @@ class Link(ArgumentsMixin, TimerMixin):
         :param kwargs: key word arguments to process
         :param str name_val: name of a required kw arg/setting
         """
-        super(Link, self)._process_kwargs(kwargs, **name_val)
+        super()._process_kwargs(kwargs, **name_val)
         if name_val:
             self._required_vars += list(name_val.keys())
 
@@ -135,26 +75,27 @@ class Link(ArgumentsMixin, TimerMixin):
                 dats.append(ds[r])
                 stats.append(StatusCode.Success.value)
             except KeyError:
-                self.logger.warn('Some input data did not exist {r!s} {name}', r=r, name=self.name)
+                self.logger.warning('Some input data did not exist {r!s} {name}', r=r, name=self.name)
                 stats.append(self.if_input_missing.value)
                 dats.append(None)
+
         return StatusCode(max(stats)), dats
 
     def load(self, ds, read_key=None):
         """Read all data from specified source.
 
-        read_key can either be:
+        Read_key can either be:
 
-        * one Link: return statuscode, [data_from_link,...]
-        * A list of locations: return statuscode, [data,...]
-        * A list of links with only one output location: return statuscode, [data,...]
-        * A list of links with multiple output locations: return statuscode, [data,[moredata]...]
-        * Any mixture of the above
+            * one Link: return statuscode, [data_from_link,...]
+            * A list of locations: return statuscode, [data,...]
+            * A list of links with only one output location: return statuscode, [data,...]
+            * A list of links with multiple output locations: return statuscode, [data,[moredata]...]
+            * Any mixture of the above
 
         Do something logical with a statuscode if this data does not exist
         link.if_input_missing = statuscode
 
-        :returns: a tuple statuscode, [data in same order as read_key]
+        :return: a tuple statuscode, [data in same order as read_key]
         :rtype: (StatusCode,list)
         """
         if read_key is not None:
@@ -164,11 +105,10 @@ class Link(ArgumentsMixin, TimerMixin):
         else:
             self.logger.debug('No read_key defined for {name}.', name=self.name)
             return self.if_input_missing, []
-
         # Handle the case where this is only one link
         if isinstance(rk, Link):
             if rk.store_key is None:
-                self.logger.warn('Link has no store_key {link} {name}.', link=rk.name, name=self.name)
+                self.logger.warning('Link has no store_key {link} {name}.', link=rk.name, name=self.name)
                 return self.if_input_missing, [None]
             rk = rk.store_key
         # Always treat it as a list
@@ -182,7 +122,7 @@ class Link(ArgumentsMixin, TimerMixin):
                 # Handle links which appear in lists ...
                 if isinstance(r, Link):
                     if r.store_key is None:
-                        self.logger.warn('Link has no store_key {link} {name}.', link=r.name, name=self.name)
+                        self.logger.warning('Link has no store_key {link} {name}.', link=r.name, name=self.name)
                         stats.append(self.if_input_missing.value)
                         dats.append(None)
                         continue
@@ -195,9 +135,10 @@ class Link(ArgumentsMixin, TimerMixin):
                 dats.append(ds[r])
                 stats.append(StatusCode.Success.value)
             except KeyError:
-                self.logger.warn('Some input data did not exist {link!s} {name}.', link=r, name=self.name)
+                self.logger.warning('Some input data did not exist {link!s} {name}.', link=r, name=self.name)
                 stats.append(self.if_input_missing.value)
                 dats.append(None)
+
         return StatusCode(max(stats)), dats
 
     def __check_store_loc(self, ds, loc):
@@ -206,17 +147,17 @@ class Link(ArgumentsMixin, TimerMixin):
         If yes, return a status code, if no, print an error and return
         link.if_output_exists
 
-        :returns: status code if location exists
+        :return: status code if location exists
         :rtype: StatusCode
         """
         if not self.if_output_exists.is_success() and loc in ds:
             self.logger.error('Store key already exists, I am not overwriting {loc} {name}.', loc=loc, name=self.name)
             return self.if_output_exists
+
         return StatusCode.Success
 
     def store(self, ds, data, store_key=None, force=False):
         """Store data back to datastore.
-
         Do something logical with a statuscode if this data already exists
         link.if_output_exists = statuscode uses self.store_key.  If self.store_key is
         a list of locations, I must sent a list of the same length here
@@ -227,7 +168,6 @@ class Link(ArgumentsMixin, TimerMixin):
             sk = self.store_key
         else:
             raise AttributeError('store_key has not been set for this link, so I cannot store! {}.'.format(self.name))
-
         if not isinstance(sk, str):
             if len(data) != len(self.store_key):
                 raise ValueError('If you want to store multiple things at once, then the length of the things'
@@ -244,107 +184,42 @@ class Link(ArgumentsMixin, TimerMixin):
                 continue
             ds[k] = d
             self.logger.debug('Put object "{key}" in data store with type "{type}".', key=k, type=type(d))
+
         return StatusCode(max(stats))
 
-    @property
-    def name(self):
-        """Name of the link."""
-        return self._name if self._name else ''
+    def initialize(self) -> StatusCode:
+        """Initialize the Link.
 
-    @name.setter
-    def name(self, name):
-        """Set the name of the link."""
-        try:
-            self._name = str(name)
-        except Exception:
-            self.logger.warning('Name could not be set')
+        This method may be overridden by the user.
 
-    def initialize_link(self):
-        """Initialize the link.
-
-        :returns: status code of initialize attempt
-        :rtype: StatusCode
+        :return: Status code.
+        :type: StatusCode
         """
-        # initialize
-        self.logger.debug('Now initializing link "{link}".', link=self.name)
-        # print summary of main members
-        self.summary()
-        # run initialize function of actual link
-        status = self.initialize()
-        self.logger.debug('Done initializing link "{link}".', link=self.name)
+        return StatusCode.Success
 
-        return status
+    def execute(self) -> StatusCode:
+        """Execute the Link.
 
-    def execute_link(self):
-        """Execute the link.
+        This method may be overridden by the user.
 
-        :returns: status code of execute attempt
-        :rtype: StatusCode
-        """
-        # run execute function of actual link
-        self.logger.debug('Now executing link "{link}".', link=self.name)
-
-        # Start the timer directly after the message.
-        self.start_timer()
-
-        status = self.execute()
-
-        self.logger.debug('Done executing link "{link}".', link=self.name)
-
-        # Stop the timer when the link is done
-        self.stop_timer()
-
-        return status
-
-    def finalize_link(self):
-        """Finalize the link.
-
-        :returns: status code of finalize attempt
-        :rtype: StatusCode
-        """
-        # run finalize function of actual link
-        self.logger.debug('Now finalizing link "{link}".', link=self.name)
-        status = self.finalize()
-
-        self.logger.debug('{link}: execute() took {secs:.2f} seconds.', link=self.name, secs=self.total_time())
-
-        self.logger.debug('Done finalizing link "{link}".', link=self.name)
-
-        return status
-
-    def initialize(self):
-        """Initialize the link.
-
-        This function is supposed to be overloaded by the actual link.
-
-        :returns: status code of initialize attempt
+        :return: Status code.
         :rtype: StatusCode
         """
         return StatusCode.Success
 
-    def execute(self):
-        """Execute the link.
+    def finalize(self) -> StatusCode:
+        """Finalize the Link.
 
-        This function is supposed to be overloaded by the actual link.
+        This method may be overridden by the user.
 
-        :returns: status code of execute attempt
-        :rtype: StatusCode
-        """
-        return StatusCode.Success
-
-    def finalize(self):
-        """Finalize the link.
-
-        This function is supposed to be overloaded by the actual link.
-
-        :returns: status code of finalize attempt
+        :return: Status code.
         :rtype: StatusCode
         """
         return StatusCode.Success
 
 
 class Chain(Processor, ProcessorSequence, TimerMixin):
-    """Chain of links.
+    """Execution Chain.
 
     A Chain object contains a collection of links with analysis code. The
     links in a chain are executed in the order in which the links have been
@@ -352,29 +227,22 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
     topic, for example 'validation of a model', or 'data preparation', or
     'data quality checks'.
 
-    Chains are added to the process_manager (PM) thusly:
+    Chains are added to the process_manager as follows:
 
     >>> from eskapade import process_manager
-    >>> overview = process_manager.add_chain('Overview')
+    >>> from eskapade import Chain
+    >>>
+    >>>
+    >>> overview = Chain('Overview')
+    >>> overview = process_manager.add_chain(overview)
 
     And Links are added to a chain as follows:
 
     >>> # add a link to the chain
     >>> from eskapade import analysis
+    >>>
+    >>>
     >>> overview.add(analysis.ReadToDf(path='foo.csv', key='foo'))
-
-    A Chain has an initialize, execute, and finalize method.
-
-    * initialize():
-      Initialise internal chain variables
-      Then initialize the links in the chain.
-
-    * execute():
-      Execute the links in the chain
-
-    * finalize():
-      Finalize the links in the chain
-      If configured, then store datastore and configuration
     """
 
     def __init__(self, name, process_manager=None):
@@ -383,66 +251,58 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         super().__init__(name)
 
         self.prev_chain_name = ''
-        self.exit_status = StatusCode.Undefined
 
         # We register ourselves with the process manager.
         # If none is specified register with the default process
         # manager.
         if process_manager is None:
             pass
-        self.parent = process_manager
+            # self.parent = process_manager
 
-    def _exec(self, method: str) -> StatusCode:
+    def _exec(self, phase_callback) -> StatusCode:
         status = StatusCode.Success
 
         for _ in self:
-            # TODO (janos4276): Maybe we can use callbacks. Need to check mro in Python first ...
-            status = getattr(_, method)()
+            status = phase_callback(_)
 
             # A link may fail during initialization, execution, and finalization.
             if status == StatusCode.Failure:
-                self.logger.fatal('Failed to {method!s} link "{link!s}" in chain "{chain!s}"!',
-                                  method=method, link=_, chain=self)
+                self.logger.fatal('Link "{link!s}" returned "{code!s}" in chain "{chain!s}"!',
+                                  link=_, code=status, chain=self)
                 break
             # A link may request to skip the rest of the processing during initialization and execution.
             # Why should a link decide to skip the chain it is in during execution?
             elif status == StatusCode.SkipChain:
-                self.logger.warning('Skipping chain "{chain!s} as requested by link "{link!s}" in method "{method!s}"!',
-                                    method=method, chain=self, link=_)
+                self.logger.warning('Skipping chain "{chain!s} as requested by link "{link!s}"!',
+                                    chain=self, link=_)
                 break
             # A link may request that the chain needs to be repeated during execution.
             # Why should a link decide to skip the chain it is in during execution?
             elif status == StatusCode.RepeatChain:
-                self.logger.warning('Repeating chain "{chain!s}" as requested by link "{link!s}" in method "{'
-                                    'method!s}"!', method=method, chain=self, link=_)
+                self.logger.warning('Repeating chain "{chain!s}" as requested by link "{link!s}"!',
+                                    chain=self, link=_)
                 break
             # Default, is to log an unhandled status code from the chain.
             elif status != StatusCode.Success:
-                self.logger.fatal(
-                    'Unhandled StatusCode "{status!s}" from link "{link!s}" in "{chain!s}" in method "{method!s}"!',
-                    method=method, status=status, link=_, chain=self)
+                self.logger.fatal('Unhandled StatusCode "{status!s}" from link "{link!s}" in "{chain!s}"!',
+                                  status=status, link=_, chain=self)
                 break
 
         return status
 
-    def add(self, link: Union[Link, Processor]) -> None:
+    def add(self, link: Link) -> None:
         """Add a link to the chain.
 
         In case link is a str, then create and add a link to the chain.
 
 
         :param link: The link to add to the chain.
-        :type link: Link str
-        :return: Reference to the link.
-        :rtype: Link
-        :raise TypeError: When the type of link is unsupported.
+        :type link: Link
         """
-        if not isinstance(link, (Link, Processor)):
-            raise TypeError('Expected "Link" not "{wrong!s}"!'.format(wrong=type(link)))
+        if not issubclass(type(link), Link):
+            raise TypeError('Expected (sub-class of) "Link" and not "{wrong!s}"!'.format(wrong=type(link)))
 
         link.parent = self
-        # TODO (janos4276): Keep this until Link has been 'fixed'.
-        # noinspection PyTypeChecker
         super().add(link)
 
     def discard(self, link: Link) -> None:
@@ -450,17 +310,11 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
 
         :param link:
         :type link: Link str
-        # :return: Reference to the link.
-        # :rtype: Link
-        # :raise TypeError: When the type of link is unsupported.
         """
-        if not isinstance(link, (Link, Processor)):
-            raise TypeError('Expected "Link" not "{wrong!s}"!'.format(wrong=type(link)))
+        if not issubclass(type(link), Link):
+            raise TypeError('Expected (sub-class of) "Link" not "{wrong!s}"!'.format(wrong=type(link)))
 
-        # TODO (janos4276): Keep this until Link has been 'fixed'.
-        # noinspection PyTypeChecker
         super().discard(link)
-
         link.parent = None
 
     def initialize(self) -> StatusCode:
@@ -473,7 +327,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
 
         self.start_timer()
 
-        status = self._exec('initialize')
+        status = self._exec(Processor._initialize)
 
         if status == StatusCode.Success:
             self.logger.debug('Successfully initialized chain "{chain!s}".', chain=self)
@@ -488,7 +342,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         """
         self.logger.debug('Executing chain "{chain!s}".', chain=self)
 
-        status = self._exec('execute')
+        status = self._exec(Processor._execute)
 
         if status == StatusCode.Success:
             self.logger.debug('Successfully executed chain "{chain!s}".', chain=self)
@@ -503,7 +357,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         """
         self.logger.debug('Finalizing chain "{chain!s}".', chain=self)
 
-        status = self._exec('finalize')
+        status = self._exec(Processor._finalize)
 
         if status == StatusCode.Success:
             total_time = self.stop_timer()

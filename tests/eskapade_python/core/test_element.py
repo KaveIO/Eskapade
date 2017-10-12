@@ -2,8 +2,7 @@ import unittest
 
 from eskapade.core import execution
 from eskapade.core.definitions import StatusCode
-from eskapade.core.element import Chain
-from eskapade.core.meta import Processor
+from eskapade.core.element import Chain, Link
 
 
 class ChainTest(unittest.TestCase):
@@ -21,7 +20,7 @@ class ChainTest(unittest.TestCase):
                 self.exec.clear()
                 self.fin.clear()
 
-        class DummyLink(Processor):
+        class DummyLink(Link):
             def initialize(self):
                 self.parent.init.append(self.name + 'Init')
                 return StatusCode.Success

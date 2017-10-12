@@ -5,8 +5,8 @@ import pyspark
 
 import eskapade
 from eskapade.core import persistence
+from eskapade.core.mixin import ConfigMixin
 from eskapade.core.process_services import ProcessService
-from eskapade.mixins import ConfigMixin
 from eskapade.spark_analysis.functions import SPARK_UDFS
 
 logging.getLogger('py4j.java_gateway').setLevel('INFO')

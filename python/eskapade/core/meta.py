@@ -22,6 +22,7 @@ LICENSE.
 from abc import ABCMeta, abstractmethod
 from weakref import proxy
 
+from eskapade import StatusCode
 from eskapade.logger import Logger
 
 
@@ -88,15 +89,48 @@ class Processor(metaclass=ABCMeta):
 
         return self.__hash
 
+    def _initialize(self):
+        """Wrapper to call user implemented initialize."""
+        self.logger.debug('Initializing link "{link!s}".', link=self)
+
+        status = self.initialize()
+
+        if status == StatusCode.Success:
+            self.logger.debug('Successfully initialized link "{link!s}".', link=self)
+
+        return status
+
     @abstractmethod
     def initialize(self):
         """Initialization logic for processor."""
         raise NotImplementedError
 
+    def _execute(self):
+        """Wrapper to call user implemented execute."""
+        self.logger.debug('Executing link "{link!s}".', link=self)
+
+        status = self.execute()
+
+        if status == StatusCode.Success:
+            self.logger.debug('Successfully executed link "{link!s}".', link=self)
+
+        return status
+
     @abstractmethod
     def execute(self):
         """Execution logic for processor."""
         raise NotImplementedError
+
+    def _finalize(self):
+        """Wrapper to call user implemented finalize."""
+        self.logger.debug('Finalizing link "{link!s}".', link=self)
+
+        status = self.finalize()
+
+        if status == StatusCode.Success:
+            self.logger.debug('Successfully finalized link "{link!s}".', link=self)
+
+        return status
 
     @abstractmethod
     def finalize(self):
@@ -262,8 +296,7 @@ class ProcessorSequence(object):
         return processor
 
     def clear(self) -> None:
-        """Clear the sequence.
-        """
+        """Clear the sequence."""
         # Reset end node.
         self.__end.prev = self.__end.next = self.__end
         # Clear processor to processor node map.

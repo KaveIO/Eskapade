@@ -20,13 +20,12 @@ import importlib
 import os
 
 from eskapade.core import persistence
-from eskapade.core.meta import Singleton
 from eskapade.core.definitions import StatusCode
-from eskapade.core.process_services import ConfigObject
-from eskapade.core.process_services import ProcessService
 from eskapade.core.element import Chain
+from eskapade.core.meta import Singleton
+from eskapade.core.mixin import TimerMixin
+from eskapade.core.process_services import ConfigObject, ProcessService
 from eskapade.logger import Logger
-from eskapade.mixins import TimerMixin
 
 
 class _ProcessManager(TimerMixin, metaclass=Singleton):
