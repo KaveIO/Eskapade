@@ -1,4 +1,4 @@
-"""Project: Eskapade - A python-based package for data analysis
+"""Project: Eskapade - A python-based package for data analysis.
 
 Created: 2017/08/23
 
@@ -48,7 +48,6 @@ class _Message(object):
 
 @unique
 class LogLevel(IntEnum):
-
     """Logging level integer enumeration class.
 
     The enumerations are:
@@ -77,9 +76,7 @@ class LogLevel(IntEnum):
 
 # Publishers.
 class LogPublisher(logging.getLoggerClass()):
-
-    """Logging publisher that listens for log events.
-    """
+    """Logging publisher that listens for log events."""
 
     def __init__(self, name: str = '', level: Union[int, LogLevel] = LogLevel.INFO):
         """Initialize the publisher."""
@@ -163,12 +160,10 @@ global_log_publisher = logging.getLogger('eskapade')
 
 # Handlers
 class ConsoleHandler(logging.StreamHandler):
-
-    """A stream handler that sends log messages with levels up to and including WARNING to stdout.
-    """
+    """A stream handler that sends log messages with levels up to and including WARNING to stdout."""
 
     def __init__(self):
-        """Initialize the handler."""
+        """Initialize the ConsoleHandler object."""
         super().__init__(sys.stdout)
         self.max_log_level = LogLevel.WARNING
 
@@ -178,18 +173,15 @@ class ConsoleHandler(logging.StreamHandler):
 
 
 class ConsoleErrHandler(logging.StreamHandler):
-
-    """A stream handler that sends log messages with level ERROR and above to stderr.
-    """
+    """A stream handler that sends log messages with level ERROR and above to stderr."""
 
     def __init__(self):
-        """Initialize the stream handler."""
+        """Initialize the ConsoleHandler object."""
         super().__init__(sys.stderr)
         self.setLevel(LogLevel.ERROR)
 
 
 class Logger(object):
-
     """A logger that emits log messages to an observer.
 
     The logger can be instantiated as a module or class attribute, e.g.

@@ -1,4 +1,5 @@
-"""Project: Eskapade - A python-based package for data analysis
+"""Project: Eskapade - A python-based package for data analysis.
+
 Created: 2017/09/14
 
 Description:
@@ -58,12 +59,12 @@ class Singleton(type):
 
 
 class Processor(metaclass=ABCMeta):
-    """Processor metaclass.
-    """
+    """Processor metaclass."""
 
     logger = Logger()  # type: Logger
 
     def __init__(self, name: str):
+        """Initialize the Processor object."""
         super().__init__()
         self.__name = name  # type: str
         self.__hash = None  # type: int
@@ -89,20 +90,17 @@ class Processor(metaclass=ABCMeta):
 
     @abstractmethod
     def initialize(self):
-        """Initialization logic for processor.
-        """
+        """Initialization logic for processor."""
         raise NotImplementedError
 
     @abstractmethod
     def execute(self):
-        """Execution logic for processor.
-        """
+        """Execution logic for processor."""
         raise NotImplementedError
 
     @abstractmethod
     def finalize(self):
-        """Finalization logic for processor.
-        """
+        """Finalization logic for processor."""
         raise NotImplementedError
 
     @property
@@ -147,9 +145,11 @@ class _ProcessorNode(object):
     :attr next: The next processor in the chain.
     :attr value: The current processor.
     """
+
     __slots__ = 'prev', 'next', 'value', '__weakref__'
 
     def __init__(self):
+        """Initialize the ProcessorNode object."""
         self.prev = None  # type: Processor
         self.next = None  # type: Processor
         self.value = None  # type: Processor
@@ -163,6 +163,7 @@ class ProcessorSequence(object):
     """
 
     def __init__(self):
+        """Initialize the ProcessorSequence object."""
         super().__init__()
         self.__end = end = _ProcessorNode()  # type: _ProcessorNode
         end.prev = end.next = end  # type: _ProcessorNode

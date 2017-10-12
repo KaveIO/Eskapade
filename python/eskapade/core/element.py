@@ -1,4 +1,4 @@
-"""Project: Eskapade - A python-based package for data analysis
+"""Project: Eskapade - A python-based package for data analysis.
 
 Created: 2017/02/27
 
@@ -14,6 +14,7 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file
 LICENSE.
 """
+
 from typing import Union
 
 from eskapade.core.definitions import StatusCode
@@ -377,6 +378,8 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
     """
 
     def __init__(self, name, process_manager=None):
+        """Initialize chain"""
+
         super().__init__(name)
 
         self.prev_chain_name = ''
