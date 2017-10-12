@@ -13,7 +13,6 @@ NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 
 class ArrayStats:
-
     """Create summary of an array.
 
     Class to calculate statistics (mean, standard deviation, percentiles,
@@ -337,7 +336,6 @@ class ArrayStats:
 
 
 class GroupByStats(ArrayStats):
-
     """Create summary of an array in groups."""
 
     def __init__(self, data, col_name, groupby=None, weights=None, unit='', label=''):

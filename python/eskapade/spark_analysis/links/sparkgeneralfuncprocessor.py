@@ -18,7 +18,6 @@ from eskapade import process_manager, StatusCode, DataStore, Link
 
 
 class SparkGeneralFuncProcessor(Link):
-
     """Processor for applying pandas function on a Spark dataframe.
 
     The spark API is not (yet) as rich as the pandas API. Therefore sometimes one needs pandas to implement the

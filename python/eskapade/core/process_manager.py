@@ -30,7 +30,6 @@ from eskapade.mixins import TimerMixin
 
 
 class _ProcessManager(TimerMixin, metaclass=Singleton):
-
     """Eskapade run-process manager.
 
     The processManager singleton class forms the core of Eskapade.  It
@@ -505,6 +504,7 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
 
     def print_services(self):
         """Print registered process services."""
+
         def _print_level(level, prefix, depth):
             """Print services and get next level in service-tree."""
             # print service names on this level

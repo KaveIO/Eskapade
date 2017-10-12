@@ -24,7 +24,6 @@ from eskapade import process_manager
 
 
 class BasicGenerator(Link):
-
     """Generate data with basic distributions."""
 
     def __init__(self, **kwargs):

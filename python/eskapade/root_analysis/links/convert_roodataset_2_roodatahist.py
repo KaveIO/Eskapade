@@ -23,7 +23,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertRooDataSet2RooDataHist(Link):
-
     """Convert input RooFit dataset into a Pandas dataframe.
 
     Input RooDataSet can be picked up from either the data store or the

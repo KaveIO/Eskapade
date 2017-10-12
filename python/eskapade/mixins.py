@@ -21,7 +21,6 @@ import timeit
 
 
 class ArgumentsMixin:
-
     """Mixin base class for argument parsing.
 
     Class allows attributes to be accessed as dict items.  Plus several
@@ -106,6 +105,7 @@ class ArgumentsMixin:
 
     def check_arg_types(self, recurse=False, allow_none=False, **name_type):
         """Check if set of arguments has correct types."""
+
         def check_attr(self, attr, a_name, a_type):
             if allow_none and attr is None:
                 return
@@ -143,7 +143,6 @@ class ArgumentsMixin:
 
 
 class TimerMixin:
-
     """Mixin base class for timing."""
 
     def __init__(self):
@@ -192,7 +191,6 @@ class TimerMixin:
 
 
 class ConfigMixin:
-
     """Mixin base class for configuration settings."""
 
     def __init__(self, config_path=None):

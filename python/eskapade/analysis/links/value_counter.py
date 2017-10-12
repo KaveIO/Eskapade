@@ -30,7 +30,6 @@ from eskapade.analysis.histogram_filling import HistogramFillerBase
 
 
 class ValueCounter(HistogramFillerBase):
-
     """Count values in Pandas data frame.
 
     ValueCounter does value_counts() on single columns of a pandas

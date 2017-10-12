@@ -23,7 +23,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ReadFromRootFile(Link):
-
     """Put objects from a ROOT file in the data store or workspace."""
 
     def __init__(self, **kwargs):

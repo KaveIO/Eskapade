@@ -19,7 +19,6 @@ from eskapade import process_manager, StatusCode, DataStore, Link
 
 
 class SparkHister(Link):
-
     """Defines the content of link SparkHister."""
 
     def __init__(self, name='HiveHister'):

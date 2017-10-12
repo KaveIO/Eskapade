@@ -20,7 +20,6 @@ from eskapade import process_manager
 
 
 class LinePrinter(Link):
-
     """LinePrinter picks up lines from the datastore and prints them."""
 
     def __init__(self, **kwargs):

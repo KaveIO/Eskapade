@@ -19,7 +19,6 @@ from eskapade.spark_analysis import SparkManager, data_conversion
 
 
 class SparkDfCreator(Link):
-
     """Link to create a Spark dataframe from generic input data."""
 
     def __init__(self, **kwargs):

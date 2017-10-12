@@ -24,7 +24,6 @@ from eskapade import process_manager
 
 
 class DsToDs(Link):
-
     """Link to move, copy, or remove an object in the datastore."""
 
     def __init__(self, **kwargs):

@@ -97,6 +97,7 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False, pdf_fi
             if len(lab) > top:
                 lab = lab[:17] + '...'
             return lab
+
         plt.xlim((0., float(len(labels))))
         plt.xticks(tick_pos, [xtick(lab)
                               for lab in labels], fontsize=12, rotation=90)

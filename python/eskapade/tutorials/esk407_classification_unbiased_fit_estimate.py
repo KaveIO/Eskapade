@@ -101,6 +101,7 @@ wsu = root_analysis.WsUtils(name='TemplateFixer')
 
 def nonzero_templates(w):
     """Fix histogram to make sure that all bins have a non-zero value."""
+
     # fix non-zero bins
     def nonzero_hist(rdh, minimum_value=0.01):
         if rdh.numEntries() == 0:

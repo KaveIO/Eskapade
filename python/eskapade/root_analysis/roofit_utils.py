@@ -32,7 +32,6 @@ CUSTOM_ROOFIT_OBJECTS = ('RooComplementCoef',
 
 @unique
 class RooFitLogLevel(IntEnum):
-
     """RooFit logging level integer enumeration class.
 
     The enumerations are:

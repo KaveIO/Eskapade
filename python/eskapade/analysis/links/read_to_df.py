@@ -45,7 +45,6 @@ pd_readers = {'csv': pd.read_csv,
 
 
 class ReadToDf(Link):
-
     """Reads input file(s) to a pandas dataframe.
 
     You give the link a path where your file is located and some kwargs that go into

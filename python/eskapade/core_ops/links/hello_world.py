@@ -18,7 +18,6 @@ from eskapade import StatusCode
 
 
 class HelloWorld(Link):
-
     """Defines the content of link HelloWorld."""
 
     def __init__(self, **kwargs):

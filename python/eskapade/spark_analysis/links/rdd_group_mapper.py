@@ -19,7 +19,6 @@ from eskapade import Link, StatusCode, process_manager, DataStore
 
 
 class RddGroupMapper(Link):
-
     """Apply a map function on groups in a Spark RDD.
 
     Group rows of key-value pairs in a Spark RDD by key and apply a custom

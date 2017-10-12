@@ -30,7 +30,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class WsUtils(Link):
-
     """Apply standard operations to object in the RooFit workspace.
 
     Operations include:

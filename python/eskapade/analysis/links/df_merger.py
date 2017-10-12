@@ -24,7 +24,6 @@ from eskapade import process_manager
 
 
 class DfMerger(Link):
-
     """Merges two pandas dataframes."""
 
     def __init__(self, **kwargs):

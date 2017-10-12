@@ -24,7 +24,6 @@ from eskapade import process_manager, Link, DataStore, StatusCode
 
 
 class SparkStreamingWriter(Link):
-
     """Link to write Spark Stream to disk."""
 
     def __init__(self, **kwargs):

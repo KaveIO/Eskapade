@@ -18,7 +18,6 @@ from eskapade.spark_analysis import SparkManager
 
 
 class SparkStreamingController(Link):
-
     """Defines the content of link SparkStreamingController."""
 
     def __init__(self, **kwargs):

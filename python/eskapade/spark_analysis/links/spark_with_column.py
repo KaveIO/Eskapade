@@ -20,7 +20,6 @@ from eskapade import process_manager, DataStore, Link, StatusCode
 
 
 class SparkWithColumn(Link):
-
     """Create a new column from columns in a Spark dataframe.
 
     SparkWithColumn applies a (user-defined) function to column(s) in a

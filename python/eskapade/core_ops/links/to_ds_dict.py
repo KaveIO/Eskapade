@@ -20,7 +20,6 @@ from eskapade import process_manager
 
 
 class ToDsDict(Link):
-
     """Stores one object in the DataStore dict during run time."""
 
     def __init__(self, **kwargs):

@@ -20,7 +20,6 @@ from eskapade.root_analysis.roofit_models import RooFitModel
 
 
 class RooFitManager(ProcessService):
-
     """Process service for managing RooFit operations."""
 
     _persist = True

@@ -48,7 +48,6 @@ class _Message(object):
 
 @unique
 class LogLevel(IntEnum):
-
     """Logging level integer enumeration class.
 
     The enumerations are:
@@ -77,7 +76,6 @@ class LogLevel(IntEnum):
 
 # Publishers.
 class LogPublisher(logging.getLoggerClass()):
-
     """Logging publisher that listens for log events.
     """
 
@@ -163,7 +161,6 @@ global_log_publisher = logging.getLogger('eskapade')
 
 # Handlers
 class ConsoleHandler(logging.StreamHandler):
-
     """A stream handler that sends log messages with levels up to and including WARNING to stdout.
     """
 
@@ -178,7 +175,6 @@ class ConsoleHandler(logging.StreamHandler):
 
 
 class ConsoleErrHandler(logging.StreamHandler):
-
     """A stream handler that sends log messages with level ERROR and above to stderr.
     """
 
@@ -189,7 +185,6 @@ class ConsoleErrHandler(logging.StreamHandler):
 
 
 class Logger(object):
-
     """A logger that emits log messages to an observer.
 
     The logger can be instantiated as a module or class attribute, e.g.

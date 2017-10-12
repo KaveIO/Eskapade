@@ -28,7 +28,6 @@ def _check_num_vals(cnts_iter):
 
 
 class ValueCounts(object):
-
     """A dictionary of value counts.
 
     The dictionary of value counts comes out of pandas.series.value_counts()
@@ -349,7 +348,6 @@ class ValueCounts(object):
 
 
 class BinningUtil(object):
-
     """Helper for interpreting bin specifications.
 
     BinningUtil is a helper class used for interpreting bin specification
@@ -614,7 +612,6 @@ class BinningUtil(object):
 
 
 class Histogram(BinningUtil, ArgumentsMixin):
-
     """Generic 1D Histogram class.
 
     Histogram holds bin labels (name of each bin), value_counts (values of

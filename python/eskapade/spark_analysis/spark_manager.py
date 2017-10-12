@@ -15,7 +15,6 @@ CONF_PREFIX = 'spark'
 
 
 class SparkManager(ProcessService, ConfigMixin):
-
     """Process service for managing Spark operations."""
 
     _persist = False

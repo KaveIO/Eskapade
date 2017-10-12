@@ -19,7 +19,6 @@ from eskapade.spark_analysis import SparkManager
 
 
 class SparkDfReader(Link):
-
     """Link to read data into a Spark dataframe.
 
     Data are read with the Spark-SQL data-frame reader

@@ -20,7 +20,6 @@ from eskapade import StatusCode
 
 
 class IPythonEmbed(Link):
-
     """Link to start up ipython console.
 
     Start up an ipython console by simply adding this link at any location in a chain.

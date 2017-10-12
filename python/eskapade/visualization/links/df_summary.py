@@ -29,7 +29,6 @@ NUMBER_OF_BINS = 30
 
 
 class DfSummary(Link):
-
     """Create a summary of a dataframe.
 
     Creates a report page for each variable in data frame, containing:

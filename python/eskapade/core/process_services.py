@@ -29,7 +29,6 @@ from eskapade.logger import Logger
 
 
 class ProcessServiceMeta(type):
-
     """Meta class for process-services base class."""
 
     def __str__(self):
@@ -43,7 +42,6 @@ class ProcessServiceMeta(type):
 
 
 class ProcessService(metaclass=ProcessServiceMeta):
-
     """Base class for process services."""
 
     logger = Logger()
@@ -144,7 +142,6 @@ class ProcessService(metaclass=ProcessServiceMeta):
 
 
 class ConfigObject(ProcessService):
-
     """Configuration settings for Eskapade.
 
     The ConfigObject is a dictionary meant for containing global settings of
@@ -339,7 +336,6 @@ class ConfigObject(ProcessService):
 
 
 class DataStore(ProcessService, dict):
-
     """Store for transient data sets and related objects.
 
     The data store is a dictionary meant for storing transient data sets or

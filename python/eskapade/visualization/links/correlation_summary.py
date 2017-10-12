@@ -29,7 +29,6 @@ LINEAR_CORRS = ['pearson', 'kendall', 'spearman']
 
 
 class CorrelationSummary(Link):
-
     """Create a heatmap of correlations between dataframe variables."""
 
     def __init__(self, **kwargs):

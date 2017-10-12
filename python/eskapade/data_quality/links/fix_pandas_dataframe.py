@@ -30,7 +30,6 @@ from eskapade.data_quality.dq_helper import bool_to_int, check_nan, convert, cle
 
 
 class FixPandasDataFrame(Link):
-
     """Fix dirty Pandas dataframe with inconsistent datatypes.
 
     Default settings perform the following clean-up steps on an input

@@ -25,7 +25,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertDataFrame2RooDataSet(Link):
-
     """Convert Pandas dataframe into a RooFit dataset.
 
     By default all observables of the dataframe are interpreted as

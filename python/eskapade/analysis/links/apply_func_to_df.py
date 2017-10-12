@@ -20,7 +20,6 @@ from eskapade import process_manager, DataStore, Link, StatusCode
 
 
 class ApplyFuncToDf(Link):
-
     """Apply functions to data-frame.
 
     Applies one or more functions to a (grouped) dataframe column or an

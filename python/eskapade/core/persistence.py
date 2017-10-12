@@ -147,7 +147,6 @@ def record_file_number(io_conf, file_name_base, file_name_ext):
 
 
 class IoConfig(dict):
-
     """Configuration object for I/O operations."""
 
     _conf_items = dict(analysis_name=str,

@@ -10,7 +10,6 @@ from eskapade.mixins import ArgumentsMixin
 
 
 class TimePeriod(ArgumentsMixin):
-
     """Time period."""
 
     logger = Logger()
@@ -59,7 +58,6 @@ class TimePeriod(ArgumentsMixin):
 
 
 class UniformTsTimePeriod(TimePeriod):
-
     """Time period with offset."""
 
     def __init__(self, **kwargs):
@@ -112,7 +110,6 @@ class UniformTsTimePeriod(TimePeriod):
 
 
 class FreqTimePeriod(TimePeriod):
-
     """Time period with frequency."""
 
     def __init__(self, **kwargs):

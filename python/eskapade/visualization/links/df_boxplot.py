@@ -26,7 +26,6 @@ NUMBER_OF_RECORDS = 1000
 
 
 class DfBoxplot(Link):
-
     """Create a boxplot of one column of a DataFrame that is grouped by values from a second column.
 
     Creates a report page for each variable in DataFrame, containing:

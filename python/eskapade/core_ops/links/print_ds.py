@@ -17,7 +17,6 @@ from eskapade import process_manager, Link, DataStore, StatusCode
 
 
 class PrintDs(Link):
-
     """Print the content of the datastore."""
 
     def __init__(self, **kwargs):

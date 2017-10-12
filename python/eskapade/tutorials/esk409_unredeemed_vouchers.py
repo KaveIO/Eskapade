@@ -61,7 +61,6 @@ settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk409_unredeemed_vouchers'
 settings['version'] = 0
 
-
 ###############################################################################
 # --- create voucher redeem model
 
@@ -77,7 +76,6 @@ if not settings.get('beginWithChain'):
     model.var.setUnit('days')
     model.max_var.setUnit('days')
 
-
 ###############################################################################
 # --- create chain for generating voucher redeem data
 
@@ -89,7 +87,6 @@ ch.add(gen_link)
 np.random.seed(settings['seeds']['NumPy'])
 ROOT.RooRandom.randomGenerator().SetSeed(settings['seeds']['RooFit'])
 
-
 ###############################################################################
 # --- create chain for fitting voucher redeem model to generated data
 
@@ -97,7 +94,6 @@ ch = process_manager.add_chain('Fitting')
 fit_link = TruncExpFit(name='Fit', read_key=gen_link.store_key, max_var_data_key=gen_link.max_var_data_key,
                        model_name=gen_link.model_name)
 ch.add(fit_link)
-
 
 ###############################################################################
 

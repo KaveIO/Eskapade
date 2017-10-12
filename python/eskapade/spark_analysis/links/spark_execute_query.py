@@ -22,7 +22,6 @@ OUTPUT_FORMATS = ['df', 'rdd', 'pd']
 
 
 class SparkExecuteQuery(Link):
-
     """Defines the content of link SparkExecuteQuery.
 
     Applies a SQL-query to one or more objects in the DataStore.

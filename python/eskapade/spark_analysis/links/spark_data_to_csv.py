@@ -24,7 +24,6 @@ from eskapade.core import persistence
 
 
 class SparkDataToCsv(Link):
-
     """Write Spark data to local CSV files.
 
     Data to write to CSV are provided as a Spark RDD or a Spark data frame.

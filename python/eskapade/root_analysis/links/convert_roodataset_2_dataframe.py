@@ -21,7 +21,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertRooDataSet2DataFrame(Link):
-
     """Convert an input RooFit dataset into a Pandas dataframe.
 
     Input roodataset can be picked up from either datastore or rooworkspace.

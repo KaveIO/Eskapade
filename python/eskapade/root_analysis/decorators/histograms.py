@@ -20,6 +20,7 @@ from ROOT import TH1C, TH1S, TH1I, TH1F, TH1D
 from ROOT import TH2C, TH2S, TH2I, TH2F, TH2D
 from ROOT import TH3C, TH3S, TH3I, TH3F, TH3D
 
+
 # TH1 (Note: all root histograms inherit from TH1)
 
 
@@ -250,7 +251,6 @@ for T in [TH2C, TH2S, TH2I, TH2F, TH2D]:
     T.y_lim = lambda self: bin_range(self, q=1)
     T.bin_entries = bin_entries_2dgrid
     T.xy_ranges_grid = xy_ranges_grid
-
 
 for T in [TH3C, TH3S, TH3I, TH3F, TH3D]:
     T.x_bin_centers = lambda self: bin_centers(self, q=0)

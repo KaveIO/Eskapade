@@ -38,7 +38,6 @@ def unit_func(x):
 
 
 class SparkHistogrammarFiller(HistogrammarFiller):
-
     """Fill histogrammar sparse-bin histograms with Spark.
 
     Algorithm to fill histogrammar style sparse-bin and category histograms
@@ -157,6 +156,7 @@ class SparkHistogrammarFiller(HistogrammarFiller):
                 return self.size
             else:
                 raise RuntimeError('Cannot retrieve number of bins from hgr hist')
+
         hist.n_bins = n_bins
 
         return hist
@@ -206,9 +206,11 @@ class SparkHistogrammarFiller(HistogrammarFiller):
         :returns: output data frame with converted timestamp columns
         :rtype: DataFrame
         """
+
         # histogrammar does not yet support long integers
         def to_ns(x):
             return float(hf.to_ns(x))
+
         udf_to_ns = udf(to_ns, FloatType())
 
         # udf_to_ns = udf(hf.to_ns, LongType())

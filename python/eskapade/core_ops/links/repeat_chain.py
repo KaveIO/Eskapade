@@ -18,7 +18,6 @@ from eskapade import process_manager, ConfigObject, Link, StatusCode
 
 
 class RepeatChain(Link):
-
     """Algorithm that sends signal to processManager to repeat the current chain."""
 
     def __init__(self, **kwargs):
