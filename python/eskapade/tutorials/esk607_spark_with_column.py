@@ -56,7 +56,7 @@ read_link.read_meth_args['csv'] = (file_path,)
 read_link.read_meth_kwargs['csv'] = dict(sep='|', header=True, inferSchema=True)
 
 # add link to chain
-process_manager.get_chain('Read').add_link(read_link)
+process_manager.get_chain('Read').add(read_link)
 
 # create link to create new column
 col_link = spark_analysis.SparkWithColumn(name='UdfPower', read_key=read_link.store_key, store_key='new_spark_df')
@@ -68,7 +68,7 @@ col_link.func = functions.udf(lambda a, b: float(a) ** float(b), returnType=type
 col_link.new_column = 'pow_xy1'
 
 # add link to chain
-process_manager.add_chain('AddColumn').add_link(col_link)
+process_manager.add_chain('AddColumn').add(col_link)
 
 # create link to create new column
 col_link = spark_analysis.SparkWithColumn(name='BuiltPower', read_key=col_link.store_key, store_key=col_link.store_key)
@@ -80,7 +80,7 @@ col_link.func = functions.pow  # Power of two columns
 col_link.new_column = 'pow_xy2'
 
 # add link to chain
-process_manager.get_chain('AddColumn').add_link(col_link)
+process_manager.get_chain('AddColumn').add(col_link)
 
 ##########################################################################
 

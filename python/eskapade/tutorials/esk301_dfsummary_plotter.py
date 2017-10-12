@@ -58,7 +58,7 @@ generator = analysis.BasicGenerator(name='Generate_data',
                                     columns=COLUMNS,
                                     size=SIZE,
                                     gen_config=GEN_CONF)
-process_manager.get_chain('Data').add_link(generator)
+process_manager.get_chain('Data').add(generator)
 
 # add data-frame summary link to "Summary" chain
 # can provide labels and units for the variables in the dataset
@@ -66,7 +66,7 @@ summarizer = visualization.DfSummary(name='Create_stats_overview',
                                      read_key=generator.key,
                                      var_labels=VAR_LABELS,
                                      var_units=VAR_UNITS)
-process_manager.get_chain('Summary').add_link(summarizer)
+process_manager.get_chain('Summary').add(summarizer)
 
 #########################################################################################
 

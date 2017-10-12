@@ -53,7 +53,7 @@ if settings.get('do_example1', True):
     read_data = analysis.ReadToDf(name='dflooper1', key='test1', sep='|', reader='csv', usecols=['x', 'y'])
     read_data.path = [data_path] * 3
     read_data.itr_over_files = True
-    ch.add_link(read_data)
+    ch.add(read_data)
 
     # --- this serves as the break statement from this loop.
     #     if dataset test is empty, which can happen as the very last dataset by readdata,
@@ -62,7 +62,7 @@ if settings.get('do_example1', True):
     skipper.collection_set = ['test1']
     skipper.check_at_initialize = False
     skipper.check_at_execute = True
-    ch.add_link(skipper)
+    ch.add(skipper)
 
     # --- do something useful with the test dataset here ...
     #     e.g. apply selections, or collect into histograms.
@@ -74,7 +74,7 @@ if settings.get('do_example1', True):
     repeater.listen_to = 'chainRepeatRequestBy_' + read_data.name
     # repeat max of 10 times
     # repeater.maxcount = 10
-    ch.add_link(repeater)
+    ch.add(repeater)
 
 # --- example 2: readdata loops over the input files, with file chunking.
 
@@ -90,7 +90,7 @@ if settings.get('do_example2', True):
     read_data = analysis.ReadToDf(name='dflooper2', key='test2', sep='|', reader='csv', usecols=['x', 'y'],
                                   chunksize=chunk_size)
     read_data.path = [data_path] * 3
-    ch.add_link(read_data)
+    ch.add(read_data)
 
     # --- this serves as the break statement from this loop.
     #     if dataset test is empty, which can happen as the very last dataset by readdata,
@@ -99,7 +99,7 @@ if settings.get('do_example2', True):
     skipper.collection_set = ['test2']
     skipper.check_at_initialize = False
     skipper.check_at_execute = True
-    ch.add_link(skipper)
+    ch.add(skipper)
 
     # --- do something useful with the test dataset here ...
     #     e.g. apply selections, or collect into histograms.
@@ -109,14 +109,14 @@ if settings.get('do_example2', True):
     link = analysis.ApplySelectionToDf(read_key='test2', store_key='reduced_data', query_set=['x>1'])
     # Any other kwargs given to ApplySelectionToDf are passed on the the
     # pandas query() function.
-    ch.add_link(link)
+    ch.add(link)
 
     # --- As an example, will merge reduced datasets back into a single, merged dataframe.
     concat = analysis.DfConcatenator()
     concat.read_keys = ['merged', 'reduced_data']
     concat.store_key = 'merged'
     concat.ignore_missing_input = True  # in first iteration input 'merged' is missing.
-    ch.add_link(concat)
+    ch.add(concat)
 
     # --- this serves as the continue statement of the loop. go back to start of the chain.
     repeater = core_ops.RepeatChain()
@@ -124,13 +124,13 @@ if settings.get('do_example2', True):
     repeater.listen_to = 'chainRepeatRequestBy_' + read_data.name
     # repeat max of 10 times
     # repeater.maxcount = 10
-    ch.add_link(repeater)
+    ch.add(repeater)
 
 # --- print contents of the datastore
 process_manager.add_chain('Overview')
 pds = core_ops.PrintDs(name='End')
 pds.keys = ['n_test1', 'n_sum_test1', 'n_test2', 'n_sum_test2', 'test2', 'n_merged']
-process_manager.get_chain('Overview').add_link(pds)
+process_manager.get_chain('Overview').add(pds)
 
 #########################################################################################
 

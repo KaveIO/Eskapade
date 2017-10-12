@@ -74,15 +74,15 @@ link = analysis.ApplyFuncToDf(name='Transform',
 # Any other kwargs given to ApplyFuncToDf are passed on the the
 # pandas query() function.
 link.logger.log_level = LogLevel.DEBUG
-ch.add_link(link)
+ch.add(link)
 
 link = core_ops.DsObjectDeleter()
 link.deletion_keys = ['incoming_data']
-ch.add_link(link)
+ch.add(link)
 
 link = core_ops.PrintDs()
 link.keys = ['transformed_data']
-ch.add_link(link)
+ch.add(link)
 
 #########################################################################################
 

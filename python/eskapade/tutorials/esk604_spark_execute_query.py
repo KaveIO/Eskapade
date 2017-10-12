@@ -57,7 +57,7 @@ for index, key in enumerate(STORE_KEYS):
     read_link.read_meth_kwargs['csv'] = dict(sep='|', header=True, inferSchema=True)
 
     # add link to chain
-    process_manager.get_chain('Read').add_link(read_link)
+    process_manager.get_chain('Read').add(read_link)
 
 # create SQL-query link
 sql_link = spark_analysis.SparkExecuteQuery(name='SparkSQL',
@@ -70,7 +70,7 @@ sql_link.query = 'SELECT loc, sum(x) as sumx, sum(y) as sumy ' \
                  'GROUP BY loc'.format(STORE_KEYS[0], STORE_KEYS[1])
 
 # add link to chain
-process_manager.add_chain('ApplySQL').add_link(sql_link)
+process_manager.add_chain('ApplySQL').add(sql_link)
 
 ##########################################################################
 

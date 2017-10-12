@@ -65,7 +65,7 @@ if num_partitions:
     read_link.read_meth_args['repartition'] = (num_partitions,)
 
 # add link to chain
-process_manager.add_chain('Read').add_link(read_link)
+process_manager.add_chain('Read').add(read_link)
 
 ch = process_manager.add_chain('Output')
 
@@ -78,12 +78,12 @@ hf.logger.log_level = LogLevel.DEBUG
 # note: can also be 2-dim: ['x','y']
 # in this example, the rest are one-dimensional histograms
 hf.columns = ['x', 'y', 'loc', ['x', 'y'], 'date']
-ch.add_link(hf)
+ch.add(hf)
 
 # make a nice summary report of the created histograms
 hist_summary = visualization.DfSummary(name='HistogramSummary',
                                        read_key=hf.store_key)
-ch.add_link(hist_summary)
+ch.add(hist_summary)
 
 ###########################################################################
 # --- the end

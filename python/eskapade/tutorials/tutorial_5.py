@@ -68,23 +68,23 @@ process_manager.add_chain('Data')
 
 # # add data-frame reader to "Data" chain
 # reader = spark_analysis.SparkDfReader()
-# process_manager.get_chain('Data').add_link(reader)
+# process_manager.get_chain('Data').add(reader)
 
 # # add conversion functions to "Data" chain
 # transform = spark_analysis.SparkWithColumn()
-# process_manager.get_chain('Data').add_link(transform)
+# process_manager.get_chain('Data').add(transform)
 
 # create second chain
 process_manager.add_chain('Summary')
 
 # # fill spark histograms
 # histo = spark_analysis.SparkHistogrammarFiller()
-# process_manager.get_chain('Summary').add_link(histo)
+# process_manager.get_chain('Summary').add(histo)
 
 # # add data-frame summary link to "Summary" chain
 # summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=histo.store_key,
 #                                     var_labels=VAR_LABELS, var_units=VAR_UNITS)
-# process_manager.get_chain('Summary').add_link(summarizer)
+# process_manager.get_chain('Summary').add(summarizer)
 
 
 #########################################################################################

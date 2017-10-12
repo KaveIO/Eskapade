@@ -73,7 +73,7 @@ read_data = analysis.ReadToDf(key='vrh',
                               path=f.name,
                               error_bad_lines=False,
                               encoding='latin1')
-ch.add_link(read_data)
+ch.add(read_data)
 
 # --- 1. standard setting:
 #     o convert all nans to np.nan (= float)
@@ -81,14 +81,14 @@ ch.add_link(read_data)
 fixer = data_quality.FixPandasDataFrame(name='fixer1')
 fixer.read_key = 'vrh'
 fixer.store_key = 'vrh_fix1'
-ch.add_link(fixer)
+ch.add(fixer)
 
 # --- 2. force certain columns to specified datatype
 fixer = data_quality.FixPandasDataFrame(name='fixer2')
 fixer.read_key = 'vrh'
 fixer.store_key = 'vrh_fix2'
 fixer.var_dtype = {'B': int, 'C': str}
-ch.add_link(fixer)
+ch.add(fixer)
 
 # --- 3. convert all nans to data type consistent with rest of column
 fixer = data_quality.FixPandasDataFrame(name='fixer3')
@@ -97,19 +97,19 @@ fixer.store_key = 'vrh_fix3'
 fixer.convert_inconsistent_nans = True
 # set a specific nan (GREPME) for a given column (G)
 fixer.var_nan = {'G': 'GREPME'}
-ch.add_link(fixer)
+ch.add(fixer)
 
 # --- 4. compare results
 pds = core_ops.PrintDs(name='pds2')
 pds.keys = ['vrh', 'vrh_fix1', 'vrh_fix2', 'vrh_fix3']
-ch.add_link(pds)
+ch.add(pds)
 
 # --- 5. write out fixed dataframe - turned off in this example
 writedata = analysis.WriteFromDf(name='writer',
                                  key='vrh_fix1',
                                  path='tmp.csv',
                                  writer='csv')
-# ch.add_link(writedata)
+# ch.add(writedata)
 
 #########################################################################################
 

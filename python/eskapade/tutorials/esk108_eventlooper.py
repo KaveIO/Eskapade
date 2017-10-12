@@ -92,7 +92,7 @@ if settings['do_map']:
     looper.line_processor_set = [first_word, to_lower]
     if settings['TESTING']:
         looper.filename = f.name
-    ch.add_link(looper)
+    ch.add(looper)
 
 # --- reducer: chain with event looper
 #     this eventlooper link serves as a reducer
@@ -106,11 +106,11 @@ if settings['do_reduce']:
     looper.store_key = 'products'
     if settings['TESTING']:
         looper.filename = f.name
-    ch.add_link(looper)
+    ch.add(looper)
 
     # ... do other operations to lines here
 
     # print lines
     link = core_ops.LinePrinter()
     link.read_key = looper.store_key
-    ch.add_link(link)
+    ch.add(link)

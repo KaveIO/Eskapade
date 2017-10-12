@@ -64,7 +64,7 @@ if settings['read_data']:
     # --- 0. read input data
     readdata = analysis.ReadToDf(name='reader', key='correlated_data', reader='csv', sep=' ')
     readdata.path = input_files
-    ch.add_link(readdata)
+    ch.add(readdata)
 
     # --- 1. Fill root histograms
     #        For now, RootHistFiller only accepts numeric observables
@@ -75,14 +75,14 @@ if settings['read_data']:
     hf.store_key = 'hist'
     hf.var_min_value = {'x2': -5, 'x3': -5, 'x4': -5, 'x5': -5}
     hf.var_max_value = {'x2': 5, 'x3': 5, 'x4': 5, 'x5': 5}
-    ch.add_link(hf)
+    ch.add(hf)
 
 if settings['make_plot']:
     ch = process_manager.add_chain('Plotting')
 
     # --- 2. make a nice summary report of the created histograms
     hs = visualization.DfSummary(name='HistogramSummary', read_key=hf.store_key)
-    ch.add_link(hs)
+    ch.add(hs)
 
 if settings['convert_to_rdh']:
     ch = process_manager.add_chain('Convert1')
@@ -93,7 +93,7 @@ if settings['convert_to_rdh']:
     h2rdh.hist_dict_key = 'hist'
     h2rdh.create_hist_pdf = 'hpdf'
     # h2rds.into_ws = True
-    ch.add_link(h2rdh)
+    ch.add(h2rdh)
 
 if settings['convert_to_rds']:
     ch = process_manager.add_chain('Convert2')
@@ -103,14 +103,14 @@ if settings['convert_to_rds']:
     h2rds.read_key = 'x2:x3'
     h2rds.hist_dict_key = 'hist'
     # h2rds.into_ws = True
-    ch.add_link(h2rds)
+    ch.add(h2rds)
 
 # --- summary
 ch = process_manager.add_chain('Summary')
 
 pds = core_ops.PrintDs()
 pds.keys = ['hist', 'n_rdh_x1', 'n_rds_x2_vs_x3']
-ch.add_link(pds)
+ch.add(pds)
 
 #########################################################################################
 

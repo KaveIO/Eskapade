@@ -41,12 +41,12 @@ ch1 = process_manager.add_chain('Factorize')
 
 # --- read dummy dataset
 readdata = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
-ch1.add_link(readdata)
+ch1.add(readdata)
 
 # --- print contents of the datastore
 pds = core_ops.PrintDs(name='printer1')
 pds.keys = ['test1']
-ch1.add_link(pds)
+ch1.add(pds)
 
 # --- add the record factorizer
 #     Here the columns dummy and loc of the input dataset are factorized
@@ -59,12 +59,12 @@ fact.read_key = 'test1'
 fact.store_key = 'test1_fact'
 fact.sk_map_to_original = 'to_original'
 fact.logger.log_level = LogLevel.DEBUG
-ch1.add_link(fact)
+ch1.add(fact)
 
 # --- print contents of the datastore
 pds = core_ops.PrintDs(name='printer2')
 pds.keys = ['to_original', 'test1', 'test1_fact']
-ch1.add_link(pds)
+ch1.add(pds)
 
 ch2 = process_manager.add_chain('ReFactorize')
 
@@ -75,12 +75,12 @@ refact.read_key = fact.store_key
 refact.store_key = 'test1_refact'
 refact.map_to_original = fact.sk_map_to_original
 refact.logger.log_level = LogLevel.DEBUG
-ch2.add_link(refact)
+ch2.add(refact)
 
 # --- print contents of the datastore
 pds = core_ops.PrintDs(name='printer3')
 pds.keys = ['test1', 'test1_fact', 'test1_refact']
-ch2.add_link(pds)
+ch2.add(pds)
 
 #########################################################################################
 

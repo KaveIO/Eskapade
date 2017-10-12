@@ -75,7 +75,7 @@ for ds_key, lnk_schema in zip(('rows', 'rdd', 'df', 'pd'), (list(schema.keys()),
     lnk.process_meth_kwargs[set_num_parts] = dict(max_num_parts=2)  # set maximum number of partitions to 2
 
     # add link to chain
-    chain.add_link(lnk)
+    chain.add(lnk)
 
 ##########################################################################
 

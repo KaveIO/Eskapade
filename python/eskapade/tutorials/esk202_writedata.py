@@ -49,7 +49,7 @@ if settings['do_readdata']:
     # --- readdata keeps on opening the next file in the file list.
     #     all kwargs are passed on to pandas file reader.
     read_data = analysis.ReadToDf(name='reader', key='test', sep='|', reader='csv', path=[data_path] * 3)
-    ch.add_link(read_data)
+    ch.add(read_data)
 
 if settings['do_writedata']:
     ch = process_manager.add_chain('WriteData')
@@ -59,7 +59,7 @@ if settings['do_writedata']:
     #     'key' is picked up from the datastore. 'path' is the output filename.
     #     all other kwargs are passed on to pandas file writer.
     write_data = analysis.WriteFromDf(name='writer', key='test', path='tmp3.csv', writer='csv')
-    ch.add_link(write_data)
+    ch.add(write_data)
 
 #########################################################################################
 

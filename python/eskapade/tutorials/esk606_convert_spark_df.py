@@ -94,7 +94,7 @@ for out_format in process_methods:
                                           process_meth_kwargs=process_meth_kwargs[out_format])
 
     # add link to chain
-    chain.add_link(lnk)
+    chain.add(lnk)
 
 ##########################################################################
 

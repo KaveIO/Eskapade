@@ -65,15 +65,15 @@ link = analysis.DfMerger(input_collection1='left',
 # Any other kwargs given to DfMerger are passed on the the
 # pandas merge() function.
 link.logger.log_level = LogLevel.DEBUG
-ch.add_link(link)
+ch.add(link)
 
 link = core_ops.DsObjectDeleter()
 link.deletion_keys = ['left', 'right']
-ch.add_link(link)
+ch.add(link)
 
 link = core_ops.PrintDs()
 link.keys = ['n_outgoing', 'outgoing']
-ch.add_link(link)
+ch.add(link)
 
 #########################################################################################
 

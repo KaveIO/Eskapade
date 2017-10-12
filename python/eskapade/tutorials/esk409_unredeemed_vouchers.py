@@ -84,7 +84,7 @@ if not settings.get('beginWithChain'):
 ch = process_manager.add_chain('Generation')
 gen_link = TruncExpGen(name='Generate', store_key=REDEEM_DATA_KEY, max_var_data_key=AGE_DATA_KEY,
                        model_name=MODEL_NAME, event_frac=REDEEM_FRAC)
-ch.add_link(gen_link)
+ch.add(gen_link)
 
 np.random.seed(settings['seeds']['NumPy'])
 ROOT.RooRandom.randomGenerator().SetSeed(settings['seeds']['RooFit'])
@@ -96,7 +96,7 @@ ROOT.RooRandom.randomGenerator().SetSeed(settings['seeds']['RooFit'])
 ch = process_manager.add_chain('Fitting')
 fit_link = TruncExpFit(name='Fit', read_key=gen_link.store_key, max_var_data_key=gen_link.max_var_data_key,
                        model_name=gen_link.model_name)
-ch.add_link(fit_link)
+ch.add(fit_link)
 
 
 ###############################################################################

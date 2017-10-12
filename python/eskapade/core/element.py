@@ -1,17 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Created: 2017/02/27                                                            *
-# * Description:                                                                   *
-# *      Base classes for the building blocks of an Eskapade analysis run:         *
-# *      Chains and Links                                                          *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis
+
+Created: 2017/02/27
+
+Description:
+    Base classes for the building blocks of an Eskapade analysis run:
+
+        - Chains and Links
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
 from typing import Union
 
 from eskapade.core.definitions import StatusCode
@@ -44,7 +47,7 @@ class Link(ArgumentsMixin, TimerMixin):
     >>> from eskapade import analysis
     >>> reader = analysis.ReadToDf(name='CsvReader', key='foo')
     >>> reader.path = 'foo.csv'
-    >>> overview.add_link(reader)
+    >>> overview.add(reader)
 
     A link has an initialize, execute, and finalize method.  execute() is the
     central function that executes the algorithm code.  initialize() and
@@ -341,7 +344,6 @@ class Link(ArgumentsMixin, TimerMixin):
 
 
 class Chain(Processor, ProcessorSequence, TimerMixin):
-
     """Chain of links.
 
     A Chain object contains a collection of links with analysis code. The
@@ -359,7 +361,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
 
     >>> # add a link to the chain
     >>> from eskapade import analysis
-    >>> overview.add_link(analysis.ReadToDf(path='foo.csv', key='foo'))
+    >>> overview.add(analysis.ReadToDf(path='foo.csv', key='foo'))
 
     A Chain has an initialize, execute, and finalize method.
 
@@ -388,7 +390,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
             pass
         self.parent = process_manager
 
-    def _process(self, method: str) -> StatusCode:
+    def _exec(self, method: str) -> StatusCode:
         status = StatusCode.Success
 
         for _ in self:
@@ -414,32 +416,56 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
                 break
             # Default, is to log an unhandled status code from the chain.
             elif status != StatusCode.Success:
-                self.logger.fatal('"{method!s}": Unhandled StatusCode "{status!s}" from link "{link!s}" in "{chain!s}"!',
-                                  method={method}, status=status, link=_, chain=self)
+                self.logger.fatal(
+                    '"{method!s}": Unhandled StatusCode "{status!s}" from link "{link!s}" in "{chain!s}"!',
+                    method={method}, status=status, link=_, chain=self)
                 break
 
         return status
 
-    def add(self, link: Union[Link, Processor]) -> None:
+    def add(self, link: Union[Link, str]) -> Link:
         """Add a link to the chain.
 
+        In case link is a str, then create and add a link to the chain.
+
+
         :param link: The link to add to the chain.
+        :type link: Link str
+        :return: Reference to the link.
+        :rtype: Link
+        :raise TypeError: When the type of link is unsupported.
         """
+        if not isinstance(link, (Link, str)):
+            raise TypeError('Expected "Link" or "str" not "{wrong!s}"!'.format(wrong=type(link)))
+
+        link = Link(link) if isinstance(link, str) else link
+
         link.parent = self
         # TODO (janos4276): Keep this until Link has been 'fixed'.
         # noinspection PyTypeChecker
         super().add(link)
 
+        return link
+
     def discard(self, link: Link) -> None:
         """Remove a link from the chain.
 
         :param link:
-        :return:
+        :type link: Link str
+        # :return: Reference to the link.
+        # :rtype: Link
+        # :raise TypeError: When the type of link is unsupported.
         """
-        link.parent = None
+        if not isinstance(link, (Link, Processor, str)):
+            raise TypeError('Expected "Link" or "str" not "{wrong!s}"!'.format(wrong=type(link)))
+
+        link = Link(link) if isinstance(link, str) else link
+
         # TODO (janos4276): Keep this until Link has been 'fixed'.
         # noinspection PyTypeChecker
         super().discard(link)
+
+        link.parent = None
 
     def initialize(self) -> StatusCode:
         """Initialize chain and links.
@@ -451,7 +477,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
 
         self.start_timer()
 
-        status = self._process('initialize')
+        status = self._exec('initialize')
 
         if status == StatusCode.Success:
             self.logger.debug('Successfully initialized chain "{chain!s}".', chain=self)
@@ -466,10 +492,10 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         """
         self.logger.debug('Executing chain "{chain!s}".', chain=self)
 
-        status = self._process('execute')
+        status = self._exec('execute')
 
         if status == StatusCode.Success:
-            self.logger.debug('Successfully executed chain "[chain!s]".', chain=self)
+            self.logger.debug('Successfully executed chain "{chain!s}".', chain=self)
 
         return status
 
@@ -481,7 +507,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         """
         self.logger.debug('Finalizing chain "{chain!s}".', chain=self)
 
-        status = self._process('finalize')
+        status = self._exec('finalize')
 
         if status == StatusCode.Success:
             total_time = self.stop_timer()

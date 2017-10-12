@@ -41,12 +41,12 @@ ch1 = process_manager.add_chain('MyChain1')
 
 # --- read dummy dataset
 read_data = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
-ch1.add_link(read_data)
+ch1.add(read_data)
 
 # --- print contents of the datastore
 pds = core_ops.PrintDs(name='printer1')
 pds.keys = ['test1']
-ch1.add_link(pds)
+ch1.add(pds)
 
 # --- add the record vectorizer
 #     Here the columns x and y of the input dataset are vectorized
@@ -56,12 +56,12 @@ vect.columns = ['x', 'y']
 vect.read_key = 'test1'
 vect.store_key = 'vect_test'
 vect.astype = int
-ch1.add_link(vect)
+ch1.add(vect)
 
 # --- print contents of the datastore
 pds = core_ops.PrintDs(name='printer2')
 pds.keys = ['vect_test']
-ch1.add_link(pds)
+ch1.add(pds)
 
 #########################################################################################
 

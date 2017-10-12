@@ -63,11 +63,11 @@ ch = process_manager.add_chain('chain1')
 link = core_ops.ToDsDict(name='intods_1')
 link.store_key = 'f'
 link.obj = f
-ch.add_link(link)
+ch.add(link)
 
 # print contents of datastore
 link = core_ops.PrintDs()
-ch.add_link(link)
+ch.add(link)
 
 #########
 # chain 2
@@ -77,16 +77,16 @@ ch = process_manager.add_chain('chain2')
 # of certain objects in the datastore
 link = core_ops.AssertInDs()
 link.keySet = ['f']
-ch.add_link(link)
+ch.add(link)
 
 # the link ToDsDict adds objects to the datastore at link execution.
 link = core_ops.ToDsDict(name='intods_2')
 link.store_key = 'g'
 link.obj = g
-ch.add_link(link)
+ch.add(link)
 
 link = core_ops.PrintDs()
-ch.add_link(link)
+ch.add(link)
 
 #########
 # chain 3
@@ -96,16 +96,16 @@ ch = process_manager.add_chain('chain3')
 # of certain objects in the datastore
 link = core_ops.AssertInDs()
 link.keySet = ['f', 'g']
-ch.add_link(link)
+ch.add(link)
 
 # the link ToDsDict adds objects to the datastore at link execution.
 link = core_ops.ToDsDict(name='intods_3')
 link.store_key = 'h'
 link.obj = h
-ch.add_link(link)
+ch.add(link)
 
 link = core_ops.PrintDs()
-ch.add_link(link)
+ch.add(link)
 
 #########################################################################################
 

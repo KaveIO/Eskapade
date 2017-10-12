@@ -47,13 +47,13 @@ if settings.get('do_chain0', True):
     ch = process_manager.add_chain('Chain0')
     link = core_ops.HelloWorld(name='hello0')
     link.hello = 'Town'
-    ch.add_link(link)
+    ch.add(link)
 
 if settings.get('do_chain1', True):
     ch = process_manager.add_chain('Chain1')
     link = core_ops.HelloWorld(name='hello1')
     link.hello = 'Universe'
-    ch.add_link(link)
+    ch.add(link)
 
 #########################################################################################
 

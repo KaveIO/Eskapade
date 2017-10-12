@@ -69,15 +69,15 @@ link = analysis.DfConcatenator(read_keys=['df1', 'df2', 'df3'],
 # Any other kwargs given to DfConcatenator are passed on the the
 # pandas concat() function.
 link.logger.log_level = LogLevel.DEBUG
-ch.add_link(link)
+ch.add(link)
 
 link = core_ops.DsObjectDeleter()
 link.deletion_keys = ['df1', 'df2', 'df3']
-ch.add_link(link)
+ch.add(link)
 
 link = core_ops.PrintDs()
 link.keys = ['n_outgoing', 'outgoing']
-ch.add_link(link)
+ch.add(link)
 
 #########################################################################################
 

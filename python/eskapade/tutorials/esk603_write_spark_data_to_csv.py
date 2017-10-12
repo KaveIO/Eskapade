@@ -88,7 +88,7 @@ for input_format in ('df', 'rdd'):
 # add links to chain
 chain = process_manager.add_chain('Write')
 for lnk in writers.values():
-    chain.add_link(lnk)
+    chain.add(lnk)
 
 ##########################################################################
 

@@ -47,7 +47,7 @@ link = core_ops.PrintDs()
 # keys are the items for which the contents of the actual item is printed.
 # if the key is not known ('foo'), then it is skipped.
 link.keys = ['foo', 'hello', 'd']
-ch.add_link(link)
+ch.add(link)
 
 #########################################################################################
 

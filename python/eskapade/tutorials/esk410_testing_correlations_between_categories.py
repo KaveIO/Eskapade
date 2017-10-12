@@ -59,7 +59,7 @@ ch = process_manager.add_chain('Data')
 #     all kwargs are passed on to pandas file reader.
 read_data = analysis.ReadToDf(name='dflooper', key='accounts', reader='csv')
 read_data.path = input_files
-ch.add_link(read_data)
+ch.add(read_data)
 
 # --- 1. add the record factorizer to convert categorical observables into integers
 #     Here the columns dummy and loc of the input dataset are factorized
@@ -74,7 +74,7 @@ fact.inplace = True
 fact.sk_map_to_original = 'to_original'
 # factorizer also stores a dict with the mappings back to the original observables
 fact.sk_map_to_factorized = 'to_factorized'
-ch.add_link(fact)
+ch.add(fact)
 
 # --- 2. turn the dataframe into a roofit dataset (= roodataset)
 df2rds = root_analysis.ConvertDataFrame2RooDataSet()
@@ -89,7 +89,7 @@ df2rds.columns = fact.columns + ['age']  # + ['longitude', 'latitude']
 df2rds.sk_map_to_original = 'rds_to_original'
 # store results in roofitmanager workspace?
 # df2rds.into_ws = True
-ch.add_link(df2rds)
+ch.add(df2rds)
 
 # --- 3. run hypothesis tester
 hypotest = root_analysis.UncorrelationHypothesisTester()
@@ -132,14 +132,14 @@ hypotest.sk_residuals_overview = 'residuals_overview'
 # hypotest.var_default_number_of_bins = ['obs1':10,'obs2':5,'obs1:obs2':[3,3]]
 
 hypotest.logger.log_level = LogLevel.DEBUG
-ch.add_link(hypotest)
+ch.add(hypotest)
 
 # --- 4. print contents of the datastore
 process_manager.add_chain('Overview')
 hist_summary = visualization.DfSummary(name='HistogramSummary',
                                        read_key=hypotest.hist_dict_key,
                                        pages_key=hypotest.pages_key)
-process_manager.get_chain('Overview').add_link(hist_summary)
+process_manager.get_chain('Overview').add(hist_summary)
 
 #########################################################################################
 

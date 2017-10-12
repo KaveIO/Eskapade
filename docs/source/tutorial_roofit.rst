@@ -161,7 +161,7 @@ found `here <https://root.cern.ch/doc/master/RooFactoryWSTool_8cxx_source.html#l
    # --- instantiate a pdf
    wsu = root_analysis.WsUtils(name = 'modeller')
    wsu.factory = ["MyPdfV3::testpdf(y[-10,10],A[10,0,100],B[2,-10,10])"]
-   ch.add_link(wsu)
+   ch.add(wsu)
 
 Here we use the pdf class we just created (``MyPdfV3``) to create a pdf called ``testpdf``, with observable ``y`` and parameter ``A`` and ``B``,
 having ranges ``(-10,10)``, ``(0,100)`` and ``(-10,10)`` respectively, and with initial values for ``A`` and ``B`` of ``10`` and ``2`` respectively.
@@ -175,7 +175,7 @@ The link ``WsUtils`` is then used to simulate records according to the shape of 
 
    wsu = root_analysis.WsUtils(name = 'simulater')
    wsu.add_simulate(pdf='testpdf', obs='y', num=400, key='simdata')
-   ch.add_link(wsu)
+   ch.add(wsu)
 
 Here we simulate ``400`` records of observable ``y`` with pdf ``testpdf`` (which is of type MyPdfV3).
 The simulated data is stored in the datastore under key ``simdata``.
@@ -191,7 +191,7 @@ Another version of the link ``WsUtils`` is then used to fit the simulated record
    wsu = root_analysis.WsUtils(name = 'fitter')
    wsu.pages_key='report_pages'
    wsu.add_fit(pdf='testpdf', data='simdata', key='fit_result')
-   ch.add_link(wsu)
+   ch.add(wsu)
 
 The link performs a fit of pdf ``testpdf`` to dataset ``simdata``.
 We store the fit result object in the datastore under key ``fit_result``.
@@ -210,7 +210,7 @@ Finally, the last version of the link ``WsUtils`` is used to plot the result of 
    wsu.pages_key='report_pages'
    wsu.add_plot(obs='y', data='simdata', pdf='testpdf', pdf_kwargs={'VisualizeError': 'fit_result', 'MoveToBack': ()}, key='simdata_plot')
    wsu.add_plot(obs='y', pdf='testpdf', file='fit_of_simdata.pdf', key='simdata_plot')
-   ch.add_link(wsu)
+   ch.add(wsu)
 
 This link is configured to do two things.
 First it plots the observable ``y`` of the the dataset ``simdata`` and then plots the fitted uncertainy band of the pdf ``testpdf`` on top of this.

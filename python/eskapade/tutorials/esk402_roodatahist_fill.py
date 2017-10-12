@@ -52,7 +52,7 @@ ch = process_manager.add_chain('Data')
 read_data = analysis.ReadToDf(name='dflooper', key='accounts', reader='csv')
 read_data.path = input_files
 # readdata.itr_over_files = True
-ch.add_link(read_data)
+ch.add(read_data)
 
 # --- 1. add the record factorizer to convert categorical observables into integers
 #     Here the columns dummy and loc of the input dataset are factorized
@@ -68,7 +68,7 @@ fact.sk_map_to_original = 'to_original'
 # factorizer also stores a dict with the mappings back to the original observables
 fact.sk_map_to_factorized = 'to_factorized'
 fact.logger.log_level = LogLevel.DEBUG
-ch.add_link(fact)
+ch.add(fact)
 
 # --- 2. Fill a roodatahist
 df2rdh = root_analysis.RooDataHistFiller()
@@ -78,13 +78,13 @@ df2rdh.store_key = 'rdh_' + read_data.key
 df2rdh.map_to_factorized = 'to_factorized'
 df2rdh.columns = ['transaction', 'latitude', 'longitude', 'age', 'eyeColor', 'favoriteFruit']
 # df2rdh.into_ws = True
-ch.add_link(df2rdh)
+ch.add(df2rdh)
 
 # --- print contents of the datastore
 process_manager.add_chain('Overview')
 pds = core_ops.PrintDs()
 pds.keys = ['n_rdh_accounts', 'n_accounts']
-process_manager.get_chain('Overview').add_link(pds)
+process_manager.get_chain('Overview').add(pds)
 
 #########################################################################################
 

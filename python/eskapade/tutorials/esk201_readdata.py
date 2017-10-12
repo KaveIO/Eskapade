@@ -50,7 +50,7 @@ if settings['do_example1']:
     ch1 = process_manager.add_chain('MyChain1')
 
     readdata = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
-    ch1.add_link(readdata)
+    ch1.add(readdata)
 
     # --- do something useful with the test dataset here ...
 
@@ -67,13 +67,13 @@ if settings['do_example2']:
     #     all kwargs are passed on to pandas file reader.
     readdata = analysis.ReadToDf(name='reader2', key='test2', sep='|', reader='csv', usecols=['x', 'y'])
     readdata.path = [data_path] * 3
-    ch2.add_link(readdata)
+    ch2.add(readdata)
 
 # --- print contents of the datastore
 process_manager.add_chain('Overview')
 pds = core_ops.PrintDs(name='End')
 pds.keys = ['n_test1', 'n_test2']
-process_manager.get_chain('Overview').add_link(pds)
+process_manager.get_chain('Overview').add(pds)
 
 #########################################################################################
 

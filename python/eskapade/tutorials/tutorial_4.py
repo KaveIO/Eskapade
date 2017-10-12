@@ -176,13 +176,13 @@ ch = process_manager.add_chain('WsOps')
 #     10 and 2 respectively.
 wsu = root_analysis.WsUtils(name='modeller')
 wsu.factory = ["MyPdfV3::testpdf(y[-10,10],A[10,0,100],B[2,-10,10])"]
-ch.add_link(wsu)
+ch.add(wsu)
 
 # --- 2. simulation: 400 records of observable 'y' with pdf 'testpdf' (of type MyPdfV3).
 #        the simulated data is stored in the datastore under key 'simdata'
 wsu = root_analysis.WsUtils(name='simulater')
 wsu.add_simulate(pdf='testpdf', obs='y', num=400, key='simdata')
-ch.add_link(wsu)
+ch.add(wsu)
 
 # --- 3. fit: perform fit of pdf 'testpdf' to dataset 'simdata'.
 #        store the fit result object in the datastore under key 'fit_result'
@@ -191,7 +191,7 @@ ch.add_link(wsu)
 wsu = root_analysis.WsUtils(name='fitter')
 wsu.pages_key = 'report_pages'
 wsu.add_fit(pdf='testpdf', data='simdata', key='fit_result')
-ch.add_link(wsu)
+ch.add(wsu)
 
 # --- 4. plot the fit result:
 #        a. plot the observable 'y' of the the dataset 'simdata' and plot the
@@ -204,7 +204,7 @@ wsu.pages_key = 'report_pages'
 wsu.add_plot(obs='y', data='simdata', pdf='testpdf', pdf_kwargs={'VisualizeError': 'fit_result', 'MoveToBack': ()},
              key='simdata_plot')
 wsu.add_plot(obs='y', pdf='testpdf', output_file='fit_of_simdata.pdf', key='simdata_plot')
-ch.add_link(wsu)
+ch.add(wsu)
 
 #########################################################################################
 

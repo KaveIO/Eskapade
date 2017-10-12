@@ -77,7 +77,7 @@ if settings['model']:
                "SUM::sum3pdf(N1[580000,0,2e6]*wb1,N2[895000,0,2e6]*wb2,N3[150500,0,2e6]*wb3)",
                "SUM::sum4pdf(N1[580000,0,2e6]*wb1,N2[895000,0,2e6]*wb2,N3[150500,0,2e6]*wb3,N4[1e5,0,2e6]*wb4)"]
     wsu.factory += factory
-    ch.add_link(wsu)
+    ch.add(wsu)
 
 if settings['generate']:
     # --- generate pdf
@@ -85,7 +85,7 @@ if settings['generate']:
 
     wsu = root_analysis.WsUtils(name='generator')
     wsu.add_simulate(pdf=fitpdf, obs='t', num=1625500, key='rds')
-    ch.add_link(wsu)
+    ch.add(wsu)
 
 # # --- example of how to import a roodataset from a root file
 # if settings['read_data']:
@@ -93,7 +93,7 @@ if settings['generate']:
 #     read_data = root_analysis.ReadFromRootFile()
 #     read_data.path = '/opt/eskapade/data/tsv_renamed_data.root'
 #     read_data.keys = ['rds']
-#     ch.add_link(read_data)
+#     ch.add(read_data)
 
 if settings['process']:
     ch = process_manager.add_chain('ProcessData')
@@ -103,7 +103,7 @@ if settings['process']:
     pb.read_key = 'rds'
     pb.var_number_of_bins = {'t': n_percentile_bins}
     pb.binning_name = 'percentile'
-    ch.add_link(pb)
+    ch.add(pb)
 
     # --- b. create rebinned roodatahist for fitting below
     conv = root_analysis.ConvertRooDataSet2RooDataHist()
@@ -111,7 +111,7 @@ if settings['process']:
     conv.store_key = 'binnedData'
     conv.columns = ['t']
     conv.binning_name = 'percentile'
-    ch.add_link(conv)
+    ch.add(conv)
 
 if settings['fit_plot']:
     ch = process_manager.add_chain('FitAndPlot')
@@ -120,7 +120,7 @@ if settings['fit_plot']:
     #        store the fit result object in the datastore under key 'fit_result'
     wsu = root_analysis.WsUtils(name='fitter', pages_key='weibull_fit_report')
     wsu.add_fit(pdf=fitpdf, data='binnedData', key='fit_result')
-    ch.add_link(wsu)
+    ch.add(wsu)
 
     # --- 2. plot the fit result
     wsu = root_analysis.WsUtils(name='plotter1', pages_key='weibull_fit_report')
@@ -132,7 +132,7 @@ if settings['fit_plot']:
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot1',
                  pdf_args=(RooFit.Components('wb2'), RooFit.LineColor(ROOT.kAzure), RooFit.LineStyle(ROOT.kDashed)),
                  output_file='fit_of_time_difference_full_range.pdf', logy=True, miny=1)
-    ch.add_link(wsu)
+    ch.add(wsu)
 
     wsu = root_analysis.WsUtils(name='plotter2', pages_key='weibull_fit_report')
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot2', bins=100, plot_range=(0, 3e6))
@@ -143,7 +143,7 @@ if settings['fit_plot']:
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot2',
                  pdf_args=(RooFit.Components('wb2'), RooFit.LineColor(ROOT.kAzure), RooFit.LineStyle(ROOT.kDashed)),
                  output_file='fit_of_time_difference_medium_range.pdf', logy=True, miny=10)
-    ch.add_link(wsu)
+    ch.add(wsu)
 
     wsu = root_analysis.WsUtils(name='plotter3', pages_key='weibull_fit_report')
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot3', bins=100, plot_range=(0, 20000))
@@ -154,14 +154,14 @@ if settings['fit_plot']:
     wsu.add_plot(obs='t', data='rds', pdf=fitpdf, key='plot3',
                  pdf_args=(RooFit.Components('wb2'), RooFit.LineColor(ROOT.kAzure), RooFit.LineStyle(ROOT.kDashed)),
                  output_file='fit_of_time_difference_short_range.pdf', logy=True, miny=100)
-    ch.add_link(wsu)
+    ch.add(wsu)
 
 if settings['summary']:
     ch = process_manager.add_chain('Summary')
 
     # print contents of the workspace
     pws = root_analysis.PrintWs()
-    ch.add_link(pws)
+    ch.add(pws)
 
 #########################################################################################
 

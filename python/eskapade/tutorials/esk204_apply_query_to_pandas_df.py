@@ -61,15 +61,15 @@ link = analysis.ApplySelectionToDf(read_key='incoming_records',
 # Any other kwargs given to ApplySelectionToDf are passed on the the
 # pandas query() function.
 link.logger.log_level = LogLevel.DEBUG
-ch.add_link(link)
+ch.add(link)
 
 link = core_ops.DsObjectDeleter()
 link.deletion_keys = ['incoming_records']
-ch.add_link(link)
+ch.add(link)
 
 link = core_ops.PrintDs()
 link.keys = ['n_outgoing_records', 'outgoing_records']
-ch.add_link(link)
+ch.add(link)
 
 #########################################################################################
 

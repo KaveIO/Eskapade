@@ -110,21 +110,25 @@ class Processor(metaclass=ABCMeta):
         """Get the name of processor.
 
         :return: The name of the processor.
-        :rtype str:
+        :rtype: str
         """
         return self.__name
 
     @property
-    def parent(self):
+    def parent(self) -> 'ProcessorSequence':
         """Get the group parent.
+
+        :return: The parent/group processor sequence.
+        :rtype: ProcessorSequence
         """
         return self.__parent
 
     @parent.setter
-    def parent(self, the_parent) -> None:
+    def parent(self, the_parent: 'ProcessorSequence') -> None:
         """Set the group parent.
 
-        :param the_parent: The parent.
+        :param the_parent: The parent/group processor sequence.
+        :type the_parent: ProcessorSequence
         """
         self.__parent = None
 
@@ -154,6 +158,7 @@ class _ProcessorNode(object):
 
 
 class ProcessorSequence(object):
+
     """A doubly linked processor sequence.
 
     It remembers the order in which processors are added to the sequence.
@@ -163,7 +168,12 @@ class ProcessorSequence(object):
     def __init__(self):
         super().__init__()
         self.__end = end = _ProcessorNode()  # type: _ProcessorNode
-        end.prev = end.next = end  # type: Processor
+        end.prev = end.next = end  # type: _ProcessorNode
+
+        print(self.__end)
+        print(self.__end.next)
+        print(self.__end.prev)
+
         self.__map = {}
 
     def __len__(self) -> int:
@@ -225,17 +235,21 @@ class ProcessorSequence(object):
             node.prev, node.next, node.value = last, end, processor
             last.next = end.prev = proxy(node)
         else:
-            raise KeyError('Processor "{processor!s}" already exists!'.format(processor=processor))
+            raise KeyError('Processor "{processor!r}" already exists!'.format(processor=processor))
 
     def discard(self, processor: Processor) -> None:
         """Remove a processor from the sequence.
 
         :param processor: The processor to remove.
+        :type processor: Processor
+        :raise KeyError: When processors is unknown.
         """
         if processor in self.__map:
             node = self.__map.pop(processor)
             node.prev.next = node.next
             node.next.prev = node.prev
+        else:
+            raise KeyError('Unknown processor "{processor!r} to discard"!'.format(processor=processor))
 
     def pop(self, last: bool = True) -> Processor:
         """Return the popped processor. Raise KeyError if empty.
@@ -258,7 +272,9 @@ class ProcessorSequence(object):
         """Clear the sequence.
         """
         # Reset end node.
-        self.__end = end = _ProcessorNode()
-        end.prev = end.next = end
+        self.__end.prev = self.__end.next = self.__end
+        print(self.__end)
+        print(self.__end.next)
+        print(self.__end.prev)
         # Clear processor to processor node map.
         self.__map.clear()

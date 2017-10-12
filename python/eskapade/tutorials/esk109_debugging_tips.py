@@ -60,7 +60,7 @@ ch = process_manager.add_chain('Overview')
 link = core_ops.PrintDs(name='printer1')
 # keys are the items for which the contents of the actual item is printed.
 link.keys = ['hello', 'd']
-ch.add_link(link)
+ch.add(link)
 
 # 2. This link will start an interactive ipython session.
 # from this session, one can access the datastore and the configobject with:
@@ -71,25 +71,25 @@ ch.add_link(link)
 # >>> ds['foo'] = 'bar'
 if not settings['TESTING']:
     link = core_ops.IPythonEmbed()
-    ch.add_link(link)
+    ch.add(link)
 
 # 3. let's see what has been added to the datastore ...
 link = core_ops.PrintDs(name='printer2')
 # keys are the items for which the contents of the actual item is printed.
 link.keys = ['foo', 'hello', 'd']
-ch.add_link(link)
+ch.add(link)
 
 # 4. This link sends out a break signal!
 # eskapade execution or any remaining links and chains is skipped.
 link = core_ops.Break()
 # keys are the items for which the contents of the actual item is printed.
-ch.add_link(link)
+ch.add(link)
 link.keys = ['foo', 'hello', 'd']
 
 # 5. this link should not be reached because of the Break!
 ch = process_manager.add_chain('End')
 link = core_ops.PrintDs(name='printer3')
-ch.add_link(link)
+ch.add(link)
 
 # 6. eskapade_run with cmd line option -i to end the eskapade session with an interactive ipython shell
 

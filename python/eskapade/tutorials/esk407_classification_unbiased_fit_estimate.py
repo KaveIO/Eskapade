@@ -66,7 +66,7 @@ wsu.add_plot(obs='score', data='data', pdf='model', key='simplot')
 wsu.add_plot(obs='score', pdf='model',
              pdf_args=(RooFit.Components('low_risk'), RooFit.LineColor(ROOT.kRed), RooFit.LineStyle(ROOT.kDashed)),
              output_file='data_with_generator_model.pdf', key='simplot')
-ch.add_link(wsu)
+ch.add(wsu)
 
 # 2a. turn data into roofit histograms
 wsu = root_analysis.WsUtils(name='HistMaker')
@@ -87,7 +87,7 @@ def make_histograms(w):
 
 
 wsu.apply = [make_histograms]
-ch.add_link(wsu)
+ch.add(wsu)
 
 # 2b. classification algorithms often return rather spiky scoring or probability distributions
 #     meaning: non-continuous distributions.
@@ -120,7 +120,7 @@ def nonzero_templates(w):
 
 
 wsu.apply = [nonzero_templates]
-ch.add_link(wsu)
+ch.add(wsu)
 
 # 3. create pdfs out of roofit histograms
 wsu = root_analysis.WsUtils(name='TemplateMaker')
@@ -131,7 +131,7 @@ wsu.add_plot(obs='score', data='unbiased_high_risk_testdata', pdf='high_risk_pdf
              output_file='high_risk_data_template.pdf')
 wsu.add_plot(obs='score', data='unbiased_low_risk_testdata', pdf='low_risk_pdf',
              output_file='low_risk_data_template.pdf')
-ch.add_link(wsu)
+ch.add(wsu)
 
 # 4. fit combined pdf to actual dataset and show results
 wsu = root_analysis.WsUtils(name='TemplateFitter')
@@ -144,14 +144,14 @@ wsu.add_plot(obs='score', pdf='hist_model', key='data_plot')
 wsu.add_plot(obs='score', pdf='hist_model',
              pdf_args=(RooFit.Components('low_risk_pdf'), RooFit.LineColor(ROOT.kRed), RooFit.LineStyle(ROOT.kDashed)),
              output_file='template_fit_to_data.pdf', key='data_plot')
-ch.add_link(wsu)
+ch.add(wsu)
 
 # 5. Print overview
 pws = root_analysis.PrintWs()
-ch.add_link(pws)
+ch.add(pws)
 
 pds = core_ops.PrintDs()
-ch.add_link(pds)
+ch.add(pds)
 
 #########################################################################################
 

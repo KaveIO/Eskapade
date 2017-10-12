@@ -61,7 +61,7 @@ conf_link = spark_analysis.SparkConfigurator(name='SparkConfigurator', log_level
 conf_link.spark_settings = [('spark.app.name', settings['analysisName'] + '_link'),
                             ('spark.master', 'local[42]'),
                             ('spark.driver.host', '127.0.0.1')]
-process_manager.add_chain('Config').add_link(conf_link)
+process_manager.add_chain('Config').add(conf_link)
 
 logger.info('---> METHOD 2: link')
 logger.info('NB: settings will be printed at time of link execution.')

@@ -50,7 +50,7 @@ ch = process_manager.add_chain('Data')
 #     all kwargs are passed on to pandas file reader.
 read_data = analysis.ReadToDf(name='dflooper', key='accounts', reader='csv')
 read_data.path = input_files
-ch.add_link(read_data)
+ch.add(read_data)
 
 ch = process_manager.add_chain('Conversion1')
 
@@ -68,7 +68,7 @@ fact.sk_map_to_original = 'to_original'
 # factorizer also stores a dict with the mappings that have been applied to all observables
 fact.sk_map_to_factorized = 'to_factorized'
 fact.logger.log_level = LogLevel.DEBUG
-ch.add_link(fact)
+ch.add(fact)
 
 # --- 2. turn the dataframe into a roofit dataset (= roodataset)
 df2rds = root_analysis.ConvertDataFrame2RooDataSet()
@@ -82,11 +82,11 @@ df2rds.columns = ['gender', 'eyeColor', 'favoriteFruit', 'isActive']
 df2rds.sk_map_to_original = 'rds_to_original'
 # store results in roofitmanager workspace?
 # df2rds.into_ws = True
-ch.add_link(df2rds)
+ch.add(df2rds)
 
 pds = core_ops.PrintDs(name='pds1')
 pds.keys = [fact.sk_map_to_factorized, df2rds.sk_map_to_original]
-ch.add_link(pds)
+ch.add(pds)
 
 # --- you should do something to the roodataset here,
 #     possibly producting a new roodataset
@@ -99,7 +99,7 @@ ch = process_manager.add_chain('Conversion2')
 rds2df = root_analysis.ConvertRooDataSet2DataFrame()
 rds2df.read_key = df2rds.store_key
 rds2df.store_key = 'df_from_rds'
-ch.add_link(rds2df)
+ch.add(rds2df)
 
 # --- add second record factorizer, which now maps all roocategory columns
 #     back to their original format.
@@ -109,11 +109,11 @@ refact.read_key = rds2df.store_key
 refact.store_key = 'df_refact'
 refact.map_to_original = df2rds.sk_map_to_original
 refact.logger.log_level = LogLevel.DEBUG
-ch.add_link(refact)
+ch.add(refact)
 
 pds = core_ops.PrintDs(name='pds2')
 pds.keys = ['n_df_from_rds', 'df_refact']
-ch.add_link(pds)
+ch.add(pds)
 
 #########################################################################################
 

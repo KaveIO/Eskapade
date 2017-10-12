@@ -52,7 +52,7 @@ reader = analysis.ReadToDf(name='reader',
                            key='input_data',
                            reader=settings['reader'])
 
-process_manager.get_chain('Data').add_link(reader)
+process_manager.get_chain('Data').add(reader)
 
 # make visualizations of correlations
 corr_link = visualization.CorrelationSummary(name='correlation_summary',
@@ -60,7 +60,7 @@ corr_link = visualization.CorrelationSummary(name='correlation_summary',
                                              store_key='correlations',
                                              methods=settings['correlations'])
 
-process_manager.get_chain('Summary').add_link(corr_link)
+process_manager.get_chain('Summary').add(corr_link)
 
 #########################################################################################
 

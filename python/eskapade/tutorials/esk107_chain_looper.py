@@ -53,7 +53,7 @@ if settings['do_example']:
 
     link = core_ops.HelloWorld(name='HelloWorld')
     link.logger.log_level = LogLevel.DEBUG
-    ch.add_link(link)
+    ch.add(link)
 
     # --- this link sends out a signal to repeat the execution of the chain.
     #     It serves as the 'continue' statement of the loop.
@@ -62,13 +62,13 @@ if settings['do_example']:
     # repeat max of 10 times
     repeater.maxcount = 10
     repeater.logger.log_level = LogLevel.DEBUG
-    ch.add_link(repeater)
+    ch.add(repeater)
 
 # --- print contents of the datastore.
 #    which in this case is empty.
 process_manager.add_chain('Overview')
 pds = core_ops.PrintDs(name='End')
-process_manager.get_chain('Overview').add_link(pds)
+process_manager.get_chain('Overview').add(pds)
 
 #########################################################################################
 

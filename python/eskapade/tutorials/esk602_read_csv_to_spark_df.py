@@ -68,7 +68,7 @@ if num_partitions:
     read_link.read_meth_args['repartition'] = (num_partitions,)
 
 # add link to chain
-process_manager.add_chain('Read').add_link(read_link)
+process_manager.add_chain('Read').add(read_link)
 
 ##########################################################################
 

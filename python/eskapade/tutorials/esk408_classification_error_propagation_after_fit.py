@@ -74,7 +74,7 @@ wsu.add_plot(obs='score', pdf='model',
              pdf_args=(RooFit.Components('low_risk'), RooFit.LineColor(ROOT.kRed),
                        RooFit.LineStyle(ROOT.kDashed)),
              output_file='data_with_generator_model.pdf', key='simplot')
-ch.add_link(wsu)
+ch.add(wsu)
 
 ch = process_manager.add_chain('SignalPValue')
 
@@ -86,7 +86,7 @@ wsu.add_plot(obs='score', func='high_risk_pvalue',
              func_kwargs={'VisualizeError': 'fit_result'},
              key='ratio_plot')
 wsu.add_plot(obs='score', func='high_risk_pvalue', output_file='high_risk_probability.pdf', key='ratio_plot')
-ch.add_link(wsu)
+ch.add(wsu)
 
 # 3. calculate p-values and uncertainties thereon
 ape = root_analysis.AddPropagatedErrorToRooDataSet()
@@ -95,7 +95,7 @@ ape.data = 'data'
 ape.function = 'high_risk_pvalue'
 ape.fit_result = 'fit_result'
 ape.function_error_name = 'high_risk_perror'
-ch.add_link(ape)
+ch.add(ape)
 
 ch = process_manager.add_chain('Summary')
 
@@ -104,19 +104,19 @@ rds2df = root_analysis.ConvertRooDataSet2DataFrame()
 rds2df.read_key = 'data'
 rds2df.from_ws = True
 rds2df.store_key = 'df_pvalues'
-ch.add_link(rds2df)
+ch.add(rds2df)
 
 # 5. make summary plots
 summarizer = visualization.DfSummary(name='Create_stats_overview',
                                      read_key=rds2df.store_key)
-ch.add_link(summarizer)
+ch.add(summarizer)
 
 # 6. Print overview
 pws = root_analysis.PrintWs()
-ch.add_link(pws)
+ch.add(pws)
 
 pds = core_ops.PrintDs()
-ch.add_link(pds)
+ch.add(pds)
 
 #########################################################################################
 

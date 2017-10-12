@@ -103,7 +103,7 @@ process_manager.add_chain('SparkStreaming')
 # the word count example
 wordcount_link = spark_analysis.SparkStreamingWordCount(
     name='SparkStreamingWordCount', read_key='dstream', store_key='wordcounts')
-process_manager.get_chain('SparkStreaming').add_link(wordcount_link)
+process_manager.get_chain('SparkStreaming').add(wordcount_link)
 
 # store output
 writer_link = spark_analysis.SparkStreamingWriter(
@@ -112,11 +112,11 @@ writer_link = spark_analysis.SparkStreamingWriter(
     output_path='file:' + persistence.io_dir('results_data', settings.io_conf()) + '/dstream/wordcount', suffix='txt',
     repartition=1)
 
-process_manager.get_chain('SparkStreaming').add_link(writer_link)
+process_manager.get_chain('SparkStreaming').add(writer_link)
 
 # start/stop of Spark Streaming
 control_link = spark_analysis.SparkStreamingController(name='SparkStreamingController', timeout=10)
-process_manager.get_chain('SparkStreaming').add_link(control_link)
+process_manager.get_chain('SparkStreaming').add(control_link)
 
 ##########################################################################
 

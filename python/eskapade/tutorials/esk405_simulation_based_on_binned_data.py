@@ -69,7 +69,7 @@ ch = process_manager.add_chain('Data')
 # --- 0. read input data
 read_data = analysis.ReadToDf(name='dflooper', key='accounts', reader='csv')
 read_data.path = input_files
-ch.add_link(read_data)
+ch.add(read_data)
 
 # --- 1. add the record factorizer
 #     Here the columns dummy and loc of the input dataset are factorized
@@ -83,7 +83,7 @@ fact.inplace = True
 fact.sk_map_to_original = 'to_original'
 fact.sk_map_to_factorized = 'to_factorized'
 fact.logger.log_level = LogLevel.DEBUG
-ch.add_link(fact)
+ch.add(fact)
 
 # --- 2. Fill a roodatahist with the contents of the dataframe
 df2rdh = root_analysis.RooDataHistFiller()
@@ -104,14 +104,14 @@ df2rdh.n_max_total_bins = 1e6
 df2rdh.create_hist_pdf = 'hpdf_Ndim'
 # all output is stored in the workspace, not datastore
 df2rdh.into_ws = True
-ch.add_link(df2rdh)
+ch.add(df2rdh)
 
 # --- Print overview
 pws = root_analysis.PrintWs()
-ch.add_link(pws)
+ch.add(pws)
 
 pds = core_ops.PrintDs()
-ch.add_link(pds)
+ch.add(pds)
 
 # --- 3. resimulate the data with the created hist-pdf, and plot these data and the pdf
 ch = process_manager.add_chain('WsOps')
@@ -119,7 +119,7 @@ wsu = root_analysis.WsUtils()
 wsu.add_simulate(pdf='hpdf_Ndim', obs='rdh_vars', num=10000, key='simdata')
 wsu.add_plot(obs='age', data='simdata', pdf='hpdf_Ndim', output_file='test.pdf',
              pdf_kwargs={'ProjWData': ('rdh_cats', 'simdata')})
-ch.add_link(wsu)
+ch.add(wsu)
 
 #########################################################################################
 

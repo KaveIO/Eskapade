@@ -81,14 +81,14 @@ if settings['do_loop']:
     read_data = analysis.ReadToDf(name='dflooper', key='rc', reader='csv')
     read_data.chunksize = chunk_size
     read_data.path = input_files
-    ch.add_link(read_data)
+    ch.add(read_data)
 
     # add conversion functions to "Data" chain
     # here, convert column 'registered', an integer, to an actual timestamp.
     conv_funcs = [{'func': to_date, 'colin': 'registered', 'colout': 'date'}]
     transform = analysis.ApplyFuncToDf(name='Transform', read_key=read_data.key,
                                        apply_funcs=conv_funcs)
-    ch.add_link(transform)
+    ch.add(transform)
 
     # --- As an example, will fill histogram iteratively over the file loop
     hf = analysis.HistogrammarFiller()
@@ -106,29 +106,29 @@ if settings['do_loop']:
     #                                       'bin_offset': np.datetime64('2010-01-04') } }
     hf.bin_specs = {'longitude': {'bin_width': 5, 'bin_offset': 0},
                     'latitude': {'bin_width': 5, 'bin_offset': 0}}
-    ch.add_link(hf)
+    ch.add(hf)
 
     # --- this serves as the continue statement of the loop. go back to start of the chain.
     repeater = core_ops.RepeatChain()
     # repeat until readdata says halt.
     repeater.listen_to = 'chainRepeatRequestBy_' + read_data.name
-    ch.add_link(repeater)
+    ch.add(repeater)
 
     link = core_ops.DsObjectDeleter()
     link.keep_only = ['hist', 'n_sum_rc', 'rc']
-    ch.add_link(link)
+    ch.add(link)
 
 # --- print contents of the datastore
 if settings['do_plotting']:
     ch = process_manager.add_chain('Overview')
     pds = core_ops.PrintDs(name='End')
     pds.keys = ['n_sum_rc']
-    ch.add_link(pds)
+    ch.add(pds)
 
     # --- make a nice summary report of the created histograms
     hist_summary = visualization.DfSummary(name='HistogramSummary',
                                            read_key=hf.store_key)
-    ch.add_link(hist_summary)
+    ch.add(hist_summary)
 
 #########################################################################################
 

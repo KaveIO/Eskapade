@@ -61,7 +61,7 @@ generator = analysis.BasicGenerator(name='Generate_data',
                                     columns=COLUMNS,
                                     size=SIZE,
                                     gen_config=GEN_CONF)
-process_manager.get_chain('Data').add_link(generator)
+process_manager.get_chain('Data').add(generator)
 
 # add data-frame summary link to "Boxplot" chain
 # can provide labels and units for the variables in the dataset, and set the statistics to print in output file
@@ -73,7 +73,7 @@ box_plot = visualization.DfBoxplot(name='Create_stats_overview',
                                    column='var_b',
                                    cause_columns=['var_a', 'var_c'],
                                    results_path=persistence.io_path('results_data', settings.io_conf(), 'report'))
-process_manager.get_chain('BoxPlot').add_link(box_plot)
+process_manager.get_chain('BoxPlot').add(box_plot)
 
 #########################################################################################
 

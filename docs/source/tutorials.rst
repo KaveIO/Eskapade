@@ -46,7 +46,7 @@ When we go into this macro we find the following piece of code:
   link = core_ops.HelloWorld(name='HelloWorld')
   link.logger.log_level = LogLevel.DEBUG
   link.repeat = settings['n_repeat']
-  ch.add_link(link)
+  ch.add(link)
 
 Which is the code that does the actual analysis (in this case, print out the statement). In this case ``link`` is an
 instance of the class HelloWorld, which itself is a Link. The Link class is the fundamental building block in Eskapade that
@@ -69,7 +69,7 @@ below. For example, we can make another link, ``link2`` and change the default `
 
   link2 = core_ops.HelloWorld(name='Hello2')
   link2.hello = 'Lionel Richie'
-  ch.add_link(link2)
+  ch.add(link2)
 
 Rerunning results in us greeting the famous singer/songwriter.
 
@@ -141,7 +141,7 @@ inserted into the chain:
 .. code-block:: python
 
   reader = analysis.ReadToDf(name='Read_LA_ozone', path='LAozone.data', reader=pd.read_csv, key='data')
-  process_manager.get_chain('Data').add_link(reader)
+  process_manager.get_chain('Data').add(reader)
 
 This means the Link is added to the chain and when Eskapade runs, it will execute the code in the Link.
 

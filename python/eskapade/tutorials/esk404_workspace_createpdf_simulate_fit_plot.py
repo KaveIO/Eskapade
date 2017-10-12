@@ -69,20 +69,20 @@ if settings['generate_fit_plot']:
                    "Chebychev::bkg(x,{a0[0.5,0.,1],a1[-0.2,-1,1]})",
                    "SUM::sig(sig1frac[0.8,0.,1.]*sig1,sig2)",
                    "SUM::model(bkgfrac[0.5,0.,1.]*bkg,sig)"]
-    ch.add_link(wsu)
+    ch.add(wsu)
 
     # --- 2. simulation: 1000 records of observable 'x' with pdf 'model'.
     #        in case pdf covers several observables use comma-separated string obs='x,y,z'
     #        the simulated data is stored in the datastore under key 'simdata'
     wsu = root_analysis.WsUtils(name='simulater')
     wsu.add_simulate(pdf='model', obs='x', num=1000, key='simdata')
-    ch.add_link(wsu)
+    ch.add(wsu)
 
     # --- 3. fit: perform fit of pdf 'model' to dataset 'simdata'.
     #        store the fit result object in the datastore under key 'fit_result'
     wsu = root_analysis.WsUtils(name='fitter')
     wsu.add_fit(pdf='model', data='simdata', key='fit_result')
-    ch.add_link(wsu)
+    ch.add(wsu)
 
     # --- 4. plot the fit result:
     #        a. plot the observable 'x' of the the dataset 'simdata' and plot the
@@ -94,7 +94,7 @@ if settings['generate_fit_plot']:
     wsu.add_plot(obs='x', data='simdata', pdf='model', pdf_kwargs={'VisualizeError': 'fit_result', 'MoveToBack': ()},
                  key='simdata_plot')
     wsu.add_plot(obs='x', pdf='model', output_file='fit_of_simdata.pdf', key='simdata_plot')
-    ch.add_link(wsu)
+    ch.add(wsu)
 
     # --- 5. convert simulated data to dataframe
     ch = process_manager.add_chain('Conversion2')
@@ -103,24 +103,24 @@ if settings['generate_fit_plot']:
     rds2df.read_key = 'simdata'
     rds2df.store_key = 'df_simdata'
     rds2df.remove_original = True
-    ch.add_link(rds2df)
+    ch.add(rds2df)
 
 if settings['summary']:
     ch = process_manager.add_chain('Summary')
 
     # print contents of the workspace
     pws = root_analysis.PrintWs()
-    ch.add_link(pws)
+    ch.add(pws)
 
     # print contents of datastore
     pds = core_ops.PrintDs(name='pds2')
     # pds.keys = ['accounts']
-    ch.add_link(pds)
+    ch.add(pds)
 
     # --- make a summary document of simulated dataframe
     summarizer = visualization.DfSummary(name='Create_stats_overview',
                                          read_key=rds2df.store_key)
-    process_manager.get_chain('Summary').add_link(summarizer)
+    process_manager.get_chain('Summary').add(summarizer)
 
 #########################################################################################
 
