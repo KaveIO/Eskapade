@@ -4,14 +4,10 @@ Tutorial 3: Jupyter notebook
 This section contains materials on how to use Eskapade in Jupyter Notebooks. There are additional side notes on how certain
 aspects work and where to find parts of the code. For more in depth explanations, try the `API-docs <code.html>`_.
 
-Next we will demonstrate how Eskapade can be run and debugged interactively from within a Jupyter notebook.
-Do not forget to set up the environment before starting the notebook (and in case you use a virtual environment
-activate it):
+Next we will demonstrate how Eskapade can be run and debugged interactively from within a Jupyter notebook:
 
 .. code-block:: bash
 
-  $ pip install -e $ESKAPADE
-  $ cd some-working-dir
   $ jupyter notebook
 
 

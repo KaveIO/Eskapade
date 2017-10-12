@@ -5,6 +5,7 @@ Tutorials
 This section contains materials on how to use Eskapade. There are additional side notes on how certain
 aspects work and where to find parts of the code. For more in depth explanations on the functionality of the code-base,
 try the `API-docs <eskapade_index.html>`_.
+All command examples are run from the root of the repository if not otherwise stated.
 
 Running your first macro
 ------------------------
@@ -15,7 +16,7 @@ macro, the classic code example: Hello World!
 Hello World!
 ~~~~~~~~~~~~
 
-If you just want to run it plain and simple, go to python/eskapade directory in the repository and run the following:
+If you just want to run it plain and simple, go to the root of the repository and run the following:
 
 .. code-block:: bash
 
@@ -35,7 +36,7 @@ Congratulations, you have just successfully run Eskapade!
 Internal workings
 ~~~~~~~~~~~~~~~~~
 
-To see what is actually happening under the hood, go ahead and open up ``/tutorials/esk101_helloworld.py``.
+To see what is actually happening under the hood, go ahead and open up ``tutorials/esk101_helloworld.py``.
 The macro is like a recipe and it contains all of your analysis. It has all the 'high level' operations that are to be
 executed by Eskapade.
 
@@ -54,7 +55,7 @@ contains our analysis steps. The code for HelloWorld can be found at:
 
 .. code-block:: bash
 
-  $ less $ESKAPADE/python/eskapade/core_ops/links/hello_world.py
+  $ less python/eskapade/core_ops/links/hello_world.py
 
 Looking into this class in particular, in the code we find in the ``execute()`` function:
 
@@ -120,7 +121,7 @@ Short introduction to the Framework
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 At this point we will not go into the underlying structure of the code that is underneath the macro, but later in this
-tutorial we will. For now we will take a look in the macro. So open ``tutorials/tutorial_1.py`` in your
+tutorial we will. For now we will take a look in the macro. So open ``python/eskapade/tutorials/tutorial_1.py`` in your
 favorite editor. We notice the structure: first imports, then defining all the settings, and finally the actual
 analysis: Chains and Links. There are two chains added to the macro, with following line you can add a chain:
 
@@ -199,7 +200,9 @@ The command creates the skeleton file:
 
   $ python/eskapade/analysis/links/yourlink.py
 
-This skeleton file can be modified with your custom editor and then be imported and called inside a macro with ``analysis.YourLink()``. Notice that the name of the class is CamelCase and that the name of the file is lowercase to conform to coding guidelines.
+This skeleton file can be modified with your custom editor and then be imported and called inside a macro with
+``analysis.YourLink()``. Notice that the name of the class is CamelCase and that the name of the file is lowercase
+to conform to coding guidelines.
 
 Now open up the link in your editor.
 In the ``execute`` function of the Link, we see that a DataStore is called. This is the central in-memory object in
@@ -224,7 +227,7 @@ Now run the entire macro with the new code and compile the output .tex file. Thi
 
 .. code-block:: bash
 
-  $ cd $ESKAPADE/results/Tutorial_1/data/v0/report/
+  $ cd results/Tutorial_1/data/v0/report/
   $ pdflatex report.tex
 
 If you have pdflatex installed on your machine.
@@ -277,7 +280,8 @@ This tutorial will be quite straight-forward, it has 3 short steps, which is why
 2. In the second chain: Copy the DataFrame you created in the DataStore using the core_ops subpackage.
 3. In the third chain: Delete the entire DataStore using a Link in the core_ops subpackage.
 
-To find the right Links you have to go through the Eskapade documentation (or code!), and to find within its subpackages the proper Links you have to understand the package structure.
+To find the right Links you have to go through the Eskapade documentation (or code!), and to find within its subpackages
+the proper Links you have to understand the package structure.
 Every package is specific for a certain task, such as analysis, core tasks (like the ``ProcessManager``), or data
 quality. Every subpackage contains links in its ``links/`` subdirectory.
 See for example the subpackages ``core_ops``, ``analysis`` or ``visualization``.
@@ -286,6 +290,7 @@ In `All available examples`_ we give some tips to find the right Links your anal
 
 
 .. include:: tutorial_jupyter.rst
+.. include:: tutorial_bootstrap.rst
 .. include:: tutorial_roofit.rst
 .. include:: tutorial_spark.rst
 
@@ -305,11 +310,11 @@ Every subpackage of Eskapade contains links in its ``links/`` subdirectory.
   
 The name of every link indicates its basic function. If you want to know explicitly you can read the
 `API-docs <eskapade_index.html>`_.
-If that does not help, read and try to understand the example macros in ``tutorials/``, which show the basic usage
+If that does not help, read and try to understand the example macros in ``python/eskapade/tutorials/``, which show the basic usage
 of most Eskapade functionality. (See also the `Examples <tutorial.html#examples>`_ section right below.)
 If still unclear, go into the link's code to find out how it exactly works.
 
-Many Eskapade example macros can be found in the ``tutorials`` directory.
+Many Eskapade example macros can be found in the ``python/eskapade/tutorials`` directory.
 The numbering of the example macros follows the package structure:
 
 * ``esk100+``: basic macros describing the chains, links, and datastore functionality of Eskapade.
