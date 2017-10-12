@@ -124,7 +124,7 @@ set(ESROOFIT_CXX_FILES
         ${ESROOFIT_SRC_DIR}/ABCDUtils.cxx
         ${ESROOFIT_SRC_DIR}/DataUtils.cxx
         ${ESROOFIT_SRC_DIR}/DrawUtils.cxx
-        ${ESROOFIT_SRC_DIR}/RooNDKeysPdf.cxx
+        ${ESROOFIT_SRC_DIR}/RhhNDKeysPdf.cxx
         ${ESROOFIT_SRC_DIR}/RooABCDHistPdf.cxx
         ${ESROOFIT_SRC_DIR}/RooComplementCoef.cxx
         ${ESROOFIT_SRC_DIR}/RooExpandedFitResult.cxx
