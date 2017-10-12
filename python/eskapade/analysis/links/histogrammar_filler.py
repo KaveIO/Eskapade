@@ -25,7 +25,6 @@ from eskapade.analysis.histogram_filling import HistogramFillerBase
 
 
 class HistogrammarFiller(HistogramFillerBase):
-
     """Fill histogrammar sparse-bin histograms.
 
     Algorithm to fill histogrammar style sparse-bin and category histograms.
@@ -153,6 +152,7 @@ class HistogrammarFiller(HistogramFillerBase):
                 return self.size
             else:
                 raise RuntimeError('Cannot retrieve number of bins from hgr hist')
+
         hist.n_bins = n_bins
 
         return hist

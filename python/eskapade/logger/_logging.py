@@ -13,7 +13,7 @@ Description:
    Sources of inspiration for this module are:
 
        - The Twisted Logger interface.
-       - The Python logging cookbook and howto.
+       - The Python logging cookbook and how to.
 
 Authors:
    KPMG Big Data team, Amstelveen, The Netherlands
@@ -260,7 +260,7 @@ class Logger(object):
 
         When used as a descriptor, i.e.::
 
-            # File: amodule.py
+            # File: a_module.py
             class Klass(object):
                  logger = Logger()
 
@@ -268,9 +268,9 @@ class Logger(object):
                      self.logger.info('Hello')
 
         The logger's name will be set to the name of the class it's declared on. In the above example
-        the name of the logger is :class:`amodule.Klass`. Also, :attr:`Klass.logger.source` would be
-        :class:`amodule.Klass` and :attr:`Klass().logger.source` would be an instance of
-        :class:`amodule.Klass`.
+        the name of the logger is :class:`a_module.Klass`. Also, :attr:`Klass.logger.source` would be
+        :class:`a_module.Klass` and :attr:`Klass().logger.source` would be an instance of
+        :class:`a_module.Klass`.
 
         Note that :func:`logging.getLogger` will either create or get a logger with said name.
         """

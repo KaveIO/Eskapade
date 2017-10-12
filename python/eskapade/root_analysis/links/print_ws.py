@@ -20,7 +20,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class PrintWs(Link):
-
     """Print the contents of the RooFit workspace."""
 
     def __init__(self, **kwargs):

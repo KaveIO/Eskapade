@@ -21,7 +21,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertRootHist2RooDataSet(Link):
-
     """Convert a ROOT histogram into a RooFit dataset.
 
     Input histograms can have up to three dimensions. RooFit observables are

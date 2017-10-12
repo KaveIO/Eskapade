@@ -21,7 +21,6 @@ from eskapade.spark_analysis import SparkManager, data_conversion
 
 
 class SparkDfWriter(Link):
-
     """Link to write data from a Spark dataframe.
 
     Data are written with the Spark-SQL data-frame writer

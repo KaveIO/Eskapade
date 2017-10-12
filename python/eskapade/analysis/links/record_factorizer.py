@@ -27,7 +27,6 @@ try:
 except ImportError:
     from pandas.core.dtypes.dtypes import CategoricalDtypeType
 
-
 from eskapade import process_manager
 from eskapade import Link
 from eskapade import StatusCode
@@ -35,7 +34,6 @@ from eskapade import DataStore
 
 
 class RecordFactorizer(Link):
-
     """Factorize data-frame columns.
 
     Perform factorization of input column of an input dataframe.  E.g. a

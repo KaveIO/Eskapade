@@ -77,6 +77,7 @@ def create_spark_df(spark, data, schema=None, process_methods=None, **kwargs):
                 return data[ind]
             except TypeError:
                 raise TypeError('Unable to get row from data of type "{!s}" to infer schema.'.format(type(data)))
+
         row = get_row(data, schema)
 
         def to_python_type(var):
@@ -84,6 +85,7 @@ def create_spark_df(spark, data, schema=None, process_methods=None, **kwargs):
                 return var.item()
             except AttributeError:
                 return var
+
         schema = pyspark.sql.types._infer_schema(tuple(to_python_type(it) for it in row))
         try:
             for t, n in zip(schema.fields, data.columns):
@@ -136,6 +138,7 @@ def df_schema(schema_spec):
     :rtype: pyspark.sql.types.StructType
     :raises: TypeError if data type is specified incorrectly
     """
+
     def get_field(name, data_type):
         """Return a struct field for specified data type."""
         # treat dictionaries as struct types

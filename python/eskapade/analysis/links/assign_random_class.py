@@ -20,7 +20,6 @@ from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 
 
 class AssignRandomClass(Link):
-
     """Link that randomly chooses records.
 
     AssignRandomClass randomly chooses a number of records that are to be added to the top X records that are
@@ -88,8 +87,8 @@ class AssignRandomClass(Link):
                 sumf = sum(f for f in self.fractions)
                 self.fractions.append(1. - sumf)
             assert (len(self.fractions) == self.nclasses), \
-                'number of fractions <{:d}> doesnt equal number of classes <{:d}>.'\
-                .format(len(self.fractions), self.nclasses)
+                'number of fractions <{:d}> doesnt equal number of classes <{:d}>.'.format(
+                    len(self.fractions), self.nclasses)
             for i, f in enumerate(self.fractions):
                 assert f >= 0, '<{:d}> assigned fraction <{:f}> needs to be greater than zero.'.format(i, f)
             # normalize fractions

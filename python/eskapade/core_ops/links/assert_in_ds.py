@@ -20,7 +20,6 @@ from eskapade import process_manager
 
 
 class AssertInDs(Link):
-
     """Asserts that specified item(s) exists in the datastore."""
 
     def __init__(self, **kwargs):

@@ -23,7 +23,6 @@ from eskapade.root_analysis import roofit_utils
 
 
 class RooFitModel:
-
     """Base class for RooFit models."""
 
     def __init__(self, ws, name='', load_libesroofit=False):
@@ -76,7 +75,6 @@ class RooFitModel:
 
 
 class TruncExponential(RooFitModel):
-
     """Exponential model with variable range upper bound."""
 
     def __init__(self, ws, name='', var_range=None, var=None, max_var=None, exp=None, fracs=None):
@@ -249,7 +247,6 @@ class TruncExponential(RooFitModel):
 
 
 class LinearRegression(RooFitModel):
-
     """Least-squares linear regression model."""
 
     def __init__(self, ws, name='', fit_intercept=True, minimizer='Minuit2', strategy=2):

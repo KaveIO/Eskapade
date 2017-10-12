@@ -18,7 +18,6 @@ from eskapade import StatusCode
 
 
 class Break(Link):
-
     """Halt execution.
 
     Link sends failure signal and halts execution of process manager.  Break

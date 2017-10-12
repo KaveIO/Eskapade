@@ -14,7 +14,6 @@
 
 
 class MissingPackageError(Exception):
-
     """Exception raised if third-party package is missing."""
 
     def __init__(self, message='', required_by=''):
@@ -30,7 +29,6 @@ class MissingPackageError(Exception):
 
 
 class MissingRootError(MissingPackageError):
-
     """Exception raised if ROOT is missing."""
 
     def __init__(self, message='', required_by=''):
@@ -44,7 +42,6 @@ class MissingRootError(MissingPackageError):
 
 
 class MissingRooFitError(MissingPackageError):
-
     """Exception raised if RooFit is missing."""
 
     def __init__(self, message='', required_by=''):
@@ -58,7 +55,6 @@ class MissingRooFitError(MissingPackageError):
 
 
 class MissingSparkError(MissingPackageError):
-
     """Exception raised if Spark is missing."""
 
     def __init__(self, message='', required_by=''):
@@ -72,7 +68,6 @@ class MissingSparkError(MissingPackageError):
 
 
 class MissingPy4jError(MissingPackageError):
-
     """Exception raised if Py4J is missing."""
 
     def __init__(self, message='', required_by=''):
@@ -86,7 +81,6 @@ class MissingPy4jError(MissingPackageError):
 
 
 class MissingRooStatsError(MissingPackageError):
-
     """Exception raised if RooStats is missing."""
 
     def __init__(self, message='', required_by=''):

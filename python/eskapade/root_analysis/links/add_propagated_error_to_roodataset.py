@@ -24,7 +24,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class AddPropagatedErrorToRooDataSet(Link):
-
     """Evaluates errors on a provided roofit function.
 
     The evaluated errors are added as a new column to the input dataset.

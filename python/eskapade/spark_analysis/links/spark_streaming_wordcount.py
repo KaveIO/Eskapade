@@ -18,7 +18,6 @@ from eskapade import process_manager, Link, DataStore, StatusCode
 
 
 class SparkStreamingWordCount(Link):
-
     """Counts words in UTF8 encoded delimited text.
 
     Text is received from the network every second.

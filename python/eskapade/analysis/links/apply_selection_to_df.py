@@ -21,7 +21,6 @@ from eskapade import process_manager, DataStore, Link, StatusCode
 
 
 class ApplySelectionToDf(Link):
-
     """Applies queries with sub-selections to a pandas dataframe."""
 
     def __init__(self, **kwargs):

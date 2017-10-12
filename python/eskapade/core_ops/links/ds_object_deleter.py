@@ -17,7 +17,6 @@ from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 
 
 class DsObjectDeleter(Link):
-
     """Delete objects from data store.
 
     Delete objects from the DataStore by the key they are under, or keeps

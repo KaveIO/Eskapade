@@ -25,7 +25,6 @@ from eskapade import process_manager
 
 
 class EventLooper(Link):
-
     """Event looper algorithm processes input lines and reprints or stores them.
 
     Input lines are taken from sys.stdin, processed, and printed on screen.

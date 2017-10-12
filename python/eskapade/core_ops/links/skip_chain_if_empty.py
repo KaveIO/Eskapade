@@ -17,7 +17,6 @@ from eskapade import process_manager, DataStore, Link, StatusCode
 
 
 class SkipChainIfEmpty(Link):
-
     """Sents a SkipChain deenums.StatusCode signal when an appointed dataset is empty.
 
     This signal causes that the processsManager to step immediately to the next Chain.

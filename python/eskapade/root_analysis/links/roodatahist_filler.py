@@ -32,7 +32,6 @@ N_BINS_DEFAULT = 40
 
 
 class RooDataHistFiller(Link):
-
     """Fill a RooFit histogram with columns from a Pandas dataframe.
 
     Histograms can have any number of dimensions. Only numeric observables

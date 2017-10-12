@@ -26,7 +26,6 @@ from eskapade import process_manager
 
 
 class RecordVectorizer(Link):
-
     """Vectorize data-frame columns.
 
     Perform vectorization of input column of an input dataframe.  E.g. a

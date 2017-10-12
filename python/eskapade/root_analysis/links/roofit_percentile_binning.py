@@ -25,7 +25,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class RooFitPercentileBinning(Link):
-
     """Evaluate percentile binning for given variable set."""
 
     def __init__(self, **kwargs):

@@ -20,7 +20,6 @@ from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 
 
 class RandomSampleSplitter(Link):
-
     """Link that splits an input dataframe into a number of sub data-frames.
 
     Records are assigned randomly.

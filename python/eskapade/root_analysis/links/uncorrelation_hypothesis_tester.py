@@ -33,7 +33,6 @@ from eskapade.visualization import vis_utils
 
 
 class UncorrelationHypothesisTester(Link):
-
     """Link to test for correlations between categorical observables.
 
     Test of correlation between categorical observables taking into account the effects
@@ -320,7 +319,7 @@ class UncorrelationHypothesisTester(Link):
         self.client_pages = []
         if self.client_pages_key:
             self.client_pages = ds.get(self.client_pages_key, [])
-            assert isinstance(self.client_pages, list),\
+            assert isinstance(self.client_pages, list), \
                 'Client pages key "{key}" does not refer to a list'.format(key=self.client_pages_key)
 
         # 1g. initialize significance_matrix

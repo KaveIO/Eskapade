@@ -24,7 +24,6 @@ from eskapade import process_manager
 
 
 class DfConcatenator(Link):
-
     """Concatenates multiple pandas datadrames."""
 
     def __init__(self, **kwargs):

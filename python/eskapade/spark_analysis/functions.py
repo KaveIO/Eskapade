@@ -178,6 +178,7 @@ def spark_query_func(spec):
     # build function
     def query_func(*args):
         return str(func_def).format(*args)
+
     query_func.__name__ = str(name)
 
     return query_func

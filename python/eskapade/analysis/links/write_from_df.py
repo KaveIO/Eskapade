@@ -37,7 +37,6 @@ logger = Logger()
 
 
 class WriteFromDf(Link):
-
     """Write a DataFrame from the DataStore to disk."""
 
     def __init__(self, **kwargs):

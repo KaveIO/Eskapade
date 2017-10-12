@@ -19,7 +19,6 @@ from eskapade.spark_analysis import SparkManager
 
 
 class SparkConfigurator(Link):
-
     """Set configuration settings of SparkContext."""
 
     def __init__(self, **kwargs):

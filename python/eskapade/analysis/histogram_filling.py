@@ -34,7 +34,6 @@ NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 
 class HistogramFillerBase(Link):
-
     """Base class link to fill histograms.
 
     It is possible to do after-filling cleaning of these histograms by rejecting certain

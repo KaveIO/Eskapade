@@ -26,7 +26,6 @@ from eskapade.root_analysis.roofit_utils import ROO_INF, create_roofit_opts
 
 
 class TruncExpFit(Link):
-
     """Fit truncated exponential PDF to data.
 
     Fit an exponential PDF in a range with a variable upper bound to data.

@@ -22,7 +22,6 @@ OUTPUT_FORMATS = ('df', 'rdd', 'list', 'pd')
 
 
 class SparkDfConverter(Link):
-
     """Link to convert a Spark data frame into a different format.
 
     A data frame from the data store is converted into data of a different
