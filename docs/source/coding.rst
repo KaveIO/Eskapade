@@ -46,7 +46,7 @@ Eskapade together with Jupyter we can interactively work on our objects and when
 integration into links is straight-forward. The steps to undertake this are *in general* the following:
 
   1. Import the DataStore and/or ConfigObject. Once you have imported the ConfigObject, run it to generate the output you want to use.
-  2. Grab the data you want from the DataStore using ``ds = DataStore`` and ``data = ds[key]``.
+  2. Grab the data you want from the DataStore using ``ds = DataStore.import_from_file`` and ``data = ds[key]``.
   3. Now you can apply the operation you want to do on the data, experiment on it and work towards the end result you
      want to have.
   4. Create a new link in the appropriate link folder using the eskapade_generate_link command.

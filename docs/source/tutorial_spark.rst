@@ -1,4 +1,4 @@
-Tutorial 5: going Spark
+Tutorial 6: going Spark
 -----------------------
 
 This section provides a tutorial on how to use Apache Spark in Eskapade. Spark works 'out of the box' in the Eskapade docker/vagrant image. For details on how to setup a custom Spark setup, see the `Spark <spark.html>`_ section in the Appendix.
@@ -7,7 +7,7 @@ In this tutorial we will basically redo Tutorial 1 but use Spark instead of Pand
 
 .. note::
 
-  To get familiar with Spark in Eskapade you can follow the exercises in ``tutorials/tutorial_5.py``.
+  To get familiar with Spark in Eskapade you can follow the exercises in ``python/eskapade/tutorials/tutorial_5.py``.
 
 
 Running the tutorial macro
@@ -173,9 +173,9 @@ The word count example using the file stream method can be run by executing in t
 .. code-block:: bash 
 
   terminal 1 $ for ((i=0; i<=100; i++)); do echo "Hello world" > /tmp/dummy_$(printf %05d ${i}); sleep 0.1; done
-  terminal 2 $ eskapade_run -c stream_type='tcp' $ESKAPADE/python/eskapade/tutorials/esk610_spark_streaming.py
+  terminal 2 $ eskapade_run -c stream_type='tcp' python/eskapade/tutorials/esk610_spark_streaming.py
 
-Where bash ``for``-loop will create a new file containing ``Hello world`` in the /tmp directory every 0.1 second. Spark Streaming will pick up and process these files and in ``terminal 2`` a word count of the processed data will by dispayed. Output is stored in ``$ESKAPADE/results/esk610_spark_streaming/data/v0/dstream/wordcount``.
+Where bash ``for``-loop will create a new file containing ``Hello world`` in the /tmp directory every 0.1 second. Spark Streaming will pick up and process these files and in ``terminal 2`` a word count of the processed data will by dispayed. Output is stored in ``results/esk610_spark_streaming/data/v0/dstream/wordcount``.
 
 
 TCP stream
@@ -186,8 +186,8 @@ The word count example using the TCP stream method can be run by executing in tw
 .. code-block:: bash 
 
   terminal 1 $ nc -lk 9999
-  terminal 2 $ eskapade_run -c stream_type='tcp' $ESKAPADE/python/eskapade/tutorials/esk610_spark_streaming.py
+  terminal 2 $ eskapade_run -c stream_type='tcp' python/eskapade/tutorials/esk610_spark_streaming.py
 
-Where ``nc`` (netcat) will stream data to port 9999 and Spark Streaming will listen to this port and process incoming data. In ``terminal 1`` random words can be type (followed by enter) and in ``terminal 2`` a word count of the processed data will by dispayed. Output is stored in ``$ESKAPADE/results/esk610_spark_streaming/data/v0/dstream/wordcount``.
+Where ``nc`` (netcat) will stream data to port 9999 and Spark Streaming will listen to this port and process incoming data. In ``terminal 1`` random words can be type (followed by enter) and in ``terminal 2`` a word count of the processed data will by dispayed. Output is stored in ``results/esk610_spark_streaming/data/v0/dstream/wordcount``.
 
 

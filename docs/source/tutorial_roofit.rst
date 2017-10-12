@@ -1,4 +1,4 @@
-Tutorial 4: using RooFit
+Tutorial 5: using RooFit
 ------------------------
 
 This section provides a tutorial on how to use RooFit in Eskapade. RooFit is an advanced fitting library in ROOT, which is great
@@ -23,7 +23,7 @@ Move to the directory:
 
 .. code-block:: bash
 
-   $ cd $ESKAPADE/cxx/esroofit/src/
+   $ cd cxx/esroofit/src/
 
 Start an interactive python session and type:
 
@@ -61,15 +61,15 @@ itself. (Of course this is a costly operation.) If you wish, since we know the a
 go ahead and edit ``MyPdfV2.cxx`` to add the expression of the analytical integral to the class.
 
 As another example of a simple pdf class, take a look at the expressions in the file:
-``$ESKAPADE/cxx/esroofit/src/RooWeibull.cxx``.
+``cxx/esroofit/src/RooWeibull.cxx``.
 
 Now move the header files to their correct location:
 
 .. code-block:: bash
 
-   $ mv MyPdfV*.h $ESKAPADE/cxx/esroofit/include/
+   $ mv MyPdfV*.h ../include/
 
-To make sure that these classes get picked up in Eskapade roofit libary, open the file ``$ESKAPADE/cxx/esroofit/dict/esroofit/LinkDef.h`` and add the lines:
+To make sure that these classes get picked up in Eskapade roofit libary, open the file ``cxx/esroofit/dict/esroofit/LinkDef.h`` and add the lines:
 
 .. code-block:: c
 
@@ -101,7 +101,7 @@ In fact, this last snippet of code is used in the tutorial macro right below.
 Running the tutorial macro
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's take a look at the steps in tutorial macro  ``$ESKAPADE/python/eskapade/tutorials/tutorial_4.py``.
+Let's take a look at the steps in tutorial macro  ``python/eskapade/tutorials/tutorial_4.py``.
 The macro illustrates how do basic statistical data analysis with roofit, by making use of the ``RooWorkspace`` functionality.
 A ``RooWorkspace`` is a persistable container for RooFit projects. A workspace can contain and own variables, p.d.f.s, functions and datasets.
 The example shows how to define a pdf, simulate data, fit this data, and then plot the fit result.
@@ -111,7 +111,7 @@ The next step is to run the tutorial macro.
 
 .. code-block:: bash
 
-  $ eskapade_run $ESKAPADE/python/eskapade/tutorials/tutorial_4.py
+  $ eskapade_run python/eskapade/tutorials/tutorial_4.py
 
 Let's discuss what we are seeing on the screen.
 
@@ -231,7 +231,7 @@ The fit report can be found at:
 
 .. code-block:: bash
 
-  $ cd $ESKAPADE/results/tutorial_4/data/v0/report/
+  $ cd results/tutorial_4/data/v0/report/
   $ pdflatex report.tex
 
 Take a look at the resulting fit report: ``report.pdf``.
@@ -243,5 +243,5 @@ summary tables of the floating and fixed parameters in the fit, as well as the p
 Other ROOT Examples in Eskapade
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Other example Eskapade macros using ROOT and RooFit can be found in the ``$ESKAPADE/python/eskapade/tutorials``
+Other example Eskapade macros using ROOT and RooFit can be found in the ``python/eskapade/tutorials``
 directory, e.g. see ``esk401_roothist_fill_plot_convert.py`` and all other 400 numbered macros.
