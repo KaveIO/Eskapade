@@ -267,16 +267,16 @@ def generate_notebook(notebook_dir, notebook_name, macro_path=None):
                     content=content)
 
 
-def generate_setup(root_dir, project_name):
-    """Generate project's setup.py.
+def generate_setup(root_dir, package_name):
+    """Generate project setup.py.
 
     :param root_dir: absolute path to an analysis project root dir
-    :param project_name: project's name
+    :param package_name: package name
     """
     # Do not modify the indentation of template!
     template = """from setuptools import setup, find_packages
 
-NAME = '{project_name}'
+NAME = '{package_name}'
 
 
 def setup_package() -> None:
@@ -296,5 +296,5 @@ def setup_package() -> None:
 if __name__ == '__main__':
     setup_package()
 """
-    content = template.format(project_name=project_name)
+    content = template.format(package_name=package_name)
     create_file(path=root_dir, file_name='setup.py', content=content)
