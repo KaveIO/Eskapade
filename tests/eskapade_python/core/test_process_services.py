@@ -131,14 +131,12 @@ class ConfigObjectTest(unittest.TestCase):
     @unittest.skip('This test needs to fixed or removed!')
     @mock.patch.dict('eskapade.core.definitions.CONFIG_DEFAULTS', clear=True)
     @mock.patch.dict('eskapade.core.definitions.CONFIG_VARS', clear=True)
-    @mock.patch('eskapade.utils.get_dir_path')
     @mock.patch('eskapade.utils.get_env_var')
-    def test_init(self, mock_get_env_var, mock_get_dir_path):
+    def test_init(self, mock_get_env_var):
         """Test initialization of config object"""
 
         # set return values of project utility functions
         mock_get_env_var.side_effect = lambda *a, **k: ':0.0' if a and a[0] == 'display' else mock.DEFAULT
-        mock_get_dir_path.side_effect = lambda *a, **k: 'es_path' if a and a[0] == 'es_root' else mock.DEFAULT
 
         # create mock config object
         mock_config_object = mock.MagicMock(name='ConfigObject_instance')

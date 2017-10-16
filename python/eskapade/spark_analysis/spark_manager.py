@@ -1,3 +1,20 @@
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created: 2017/02/27
+
+Class: SparkManager
+
+Description:
+     Process service for managing Spark operations
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
 import logging
 import os
 
@@ -51,8 +68,7 @@ class SparkManager(ProcessService, ConfigMixin):
 
         # include Eskapade modules in Spark job submission
         if include_eskapade_modules:
-            eskapade.utils.collect_python_modules()
-            py_mods = eskapade.utils.get_file_path('py_mods')
+            py_mods = eskapade.utils.collect_python_modules()
             for key in ['spark.submit.pyFiles', 'spark.files']:
                 files = spark_conf.get(key, '')
                 if py_mods not in files:

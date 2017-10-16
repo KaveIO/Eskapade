@@ -1,16 +1,17 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Created: 2017/02/27                                                            *
-# * Description:                                                                   *
-# *      Base class and core implementations of run-process services               *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created: 2017/02/27
+
+Description:
+     Base class and core implementations of run-process services
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import os
 import pickle
@@ -196,9 +197,6 @@ class ConfigObject(ProcessService):
         # initialize batch-mode setting with display variable from environment
         display = eskapade.utils.get_env_var('display')
         self.__settings['batchMode'] = display is None or not re.search(':\d', display)
-
-        # initialize file I/O paths with repository directories with repo root from environment
-        self.__settings['esRoot'] = eskapade.utils.get_dir_path('es_root')
 
     def __repr__(self):
         return repr(self.__settings)

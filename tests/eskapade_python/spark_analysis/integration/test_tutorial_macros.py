@@ -252,12 +252,6 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
             sc.getConf().get('spark.jars.packages', ''),
             'org.diana-hep:histogrammar-sparksql_2.11:1.0.4',
             'org.diana-hep:histogrammar-sparksql_2.11:1.0.4 missing from spark.jars.packages, test_esk608 will fail')
-        if re.search('spark://', sc.getConf().get('spark.master', '')):
-            py_mods = utils.get_file_path('py_mods')
-            self.assertRegex(sc.getConf().get('spark.submit.pyFiles', ''), py_mods,
-                             'Eskapade modules missing from spark.submit.pyFiles, needed in Spark cluster mode')
-            self.assertRegex(sc.getConf().get('spark.files', ''), py_mods,
-                             'Eskapade modules missing from spark.files, needed in Spark cluster mode')
 
         # run Eskapade
         self.eskapade_run(resources.tutorial('esk608_spark_histogrammar.py'))

@@ -1,34 +1,29 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Utility functions to collect Eskapade python modules                      *
-# *      e.g. functions to get correct Eskapade file paths and env variables       *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created: 2016/11/08
+
+Description:
+    Utility functions to collect Eskapade python modules
+    e.g. functions to get correct Eskapade file paths and env variables
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import os
-import subprocess
 import sys
 
 import matplotlib
 
 from eskapade.logger import Logger
 
-ENV_VARS = dict(es_root='ESKAPADE', wd_root='WORKDIRROOT', spark_args='PYSPARK_SUBMIT_ARGS',
+ENV_VARS = dict(spark_args='PYSPARK_SUBMIT_ARGS',
                 docker='DE_DOCKER', display='DISPLAY')
-PROJECT_DIRS = dict(es_root=('es_root', ''), es_python=('es_root', 'python'), es_scripts=('es_root', 'scripts'),
-                    es_lib=('es_root', 'lib'), wd_root=('wd_root', ''), es_cxx_make=('es_root', ''))
-PROJECT_FILES = dict(py_mods=('es_root', 'es_python_modules.zip'),
-                     run_eskapade=('es_scripts', 'run_eskapade.py'),
-                     coll_py_mods=('es_scripts', 'collect_python_modules.sh'))
-CXX_LIBRARIES = ('', 'roofit')
+ZIP_FILE = 'es_python_modules.egg'
 
 logger = Logger()
 
@@ -97,68 +92,21 @@ def get_env_var(key):
     return os.environ.get(var_name)
 
 
-def get_dir_path(key):
-    """Retrieve Eskapade specific directory path.
-
-    :param str key: Eskapade specific project directory key
-    :return: directory path
-    :rtype: str
-    """
-    dir_comps = PROJECT_DIRS[key]
-    if get_env_var(dir_comps[0]):
-        path = get_env_var(dir_comps[0]) + (('/{}'.format(dir_comps[1])) if dir_comps[1] else '')
-    else:
-        path = os.getcwd() + (('/{}'.format(dir_comps[1])) if dir_comps[1] else '')
-
-    return path
-
-
-def get_file_path(key):
-    """Retrieve Eskapade specific directory file path.
-
-    :param str key: Eskapade specific project file key
-    :return: file path
-    :rtype: str
-    """
-    file_comps = PROJECT_FILES[key]
-    return get_dir_path(file_comps[0]) + (('/{}'.format(file_comps[1])) if file_comps[1] else '')
-
-
 def collect_python_modules():
     """Collect Eskapade Python modules."""
-    mods_file = get_file_path('py_mods')
-    coll_script = get_file_path('coll_py_mods')
-    if subprocess.call(['bash', coll_script, mods_file]) != 0:
-        raise RuntimeError('Unable to collect python modules.')
+    import pathlib
+    from pkg_resources import resource_filename
+    from zipfile import PyZipFile
 
+    import eskapade
 
-def build_cxx_library(lib_key='', accept_existing=False):
-    """Build Eskapade C++ library.
+    package_dir = resource_filename(eskapade.__name__, '')
+    lib_path = pathlib.Path(package_dir).joinpath('lib')
+    lib_path.mkdir(exist_ok=True)
+    zip_path = str(lib_path.joinpath(ZIP_FILE))
 
-    :param str lib_key: key of the library to build (build all if empty)
-    :param bool accept_existing: accept existing library if build fails
-    """
-    # check library key
-    lib_key = str(lib_key) if lib_key else ''
-    if lib_key not in CXX_LIBRARIES:
-        raise AssertionError('Library key must be one of {!s}.'.format(CXX_LIBRARIES))
-
-    # determine build target
-    target = 'install'
-    if lib_key:
-        target = '{0!s}-{1:s}'.format(lib_key, target)
-
-    # build library
-    make_dir = get_dir_path('es_cxx_make')
-    make_res = subprocess.run(['make', '-C', make_dir, target], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                              universal_newlines=True)
-
-    # check result
-    if make_res.returncode != 0:
-        lib_path = '{0:s}/libes{1:s}.so'.format(get_dir_path('es_lib'), lib_key)
-        if accept_existing and lib_key and os.path.isfile(lib_path):
-            logger.warning('Failed to build library with target "{target}"; using existing version.', target=target)
-        else:
-            raise RuntimeError('Failed to build library with target "{0:s}":\n{1:s}.'.format(target, make_res.stderr))
-    else:
-        logger.debug('Built library with target "{target}":\n{out}.', target=target, out=make_res.stdout)
+    zip_file = PyZipFile(zip_path, 'w')
+    logger.info('Adding Python modules to ZIP archive {path}.'.format(path=zip_path))
+    zip_file.writepy(package_dir)
+    zip_file.close()
+    return zip_path

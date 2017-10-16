@@ -49,7 +49,7 @@ class SparkManagerTest(unittest.TestCase):
         mock_builder.config.return_value = created_session
         mock_builder.enableHiveSupport.return_value = created_session
         mock_sm._create_spark_conf.return_value = created_config
-        mock_es_utils.get_file_path.side_effect = lambda k: 'py_mods_path' if k == 'py_mods' else 'no_path'
+        mock_es_utils.collect_python_modules.return_value = 'py_mods_path'
 
         # create mock UDFs
         SPARK_UDFS['foo'] = dict(func='foo_func', ret_type='foo_type')

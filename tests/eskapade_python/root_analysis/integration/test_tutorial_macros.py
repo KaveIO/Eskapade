@@ -382,8 +382,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
             self.assertGreater(statinfo.st_size, 0)
 
     def test_tutorial4(self):
-        """Test Tutorial 3: Workspace create PDF, simulate, fit, plot"""
-
+        """Test Tutorial 4: Workspace create PDF, simulate, fit, plot."""
         # turn on creation and loading of MyPdfV3
         settings = process_manager.service(ConfigObject)
         settings['onthefly'] = True
