@@ -79,7 +79,7 @@ def generate_link(link_dir, link_name, is_create_init=False):
     """
     # Do not modify the indentation of template!
     template = """\"\"\"Project: Eskapade - A python-based package for data analysis.
-    
+
 Class: {link_name!s}
 
 Created: {date_generated!s}
@@ -280,11 +280,11 @@ NAME = '{package_name}'
 
 
 def setup_package() -> None:
-    \"\"\"The main setup method. 
-    
+    \"\"\"The main setup method.
+
     It is responsible for setting up and installing the package.
     \"\"\"
-    
+
     setup(name=NAME,
           python_requires='>=3.5',
           package_dir={{'': '.'}},

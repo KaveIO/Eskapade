@@ -22,7 +22,38 @@ from eskapade.core.mixin import ArgumentsMixin, TimerMixin
 
 
 class Link(Processor, ArgumentsMixin, TimerMixin):
+    """Link base class.
+
+    A link defines the content of an algorithm.  Any actual link is derived
+    from this base class.
+
+    A link usually does three things:
+    - takes data from the datastore
+    - does something to it
+    - writes data back
+
+    To take from the data store there is a simple function load()
+    To write to the data store there is a simple function store()
+
+    Links are added to a chain as follows:
+
+    >>> from eskapade import process_manager
+    >>>
+    >>>
+    >>> # add a chain first
+    >>> overview = process_manager.add_chain('Overview')
+    >>>
+    >>> # add a link to the chain
+    >>> from eskapade import analysis
+    >>>
+    >>>
+    >>> reader = analysis.ReadToDf(name='CsvReader', key='foo')
+    >>> reader.path = 'foo.csv'
+    >>> overview.add(reader)
+    """
+
     def __init__(self, name):
+        """Initialize link."""
         super().__init__(name)
 
         # read_key is typically the name of the object picked
@@ -158,6 +189,7 @@ class Link(Processor, ArgumentsMixin, TimerMixin):
 
     def store(self, ds, data, store_key=None, force=False):
         """Store data back to datastore.
+
         Do something logical with a statuscode if this data already exists
         link.if_output_exists = statuscode uses self.store_key.  If self.store_key is
         a list of locations, I must sent a list of the same length here
@@ -246,8 +278,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
     """
 
     def __init__(self, name, process_manager=None):
-        """Initialize chain"""
-
+        """Initialize chain."""
         super().__init__(name)
 
         self.prev_chain_name = ''

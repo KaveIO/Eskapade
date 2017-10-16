@@ -211,7 +211,7 @@ class RootHistFiller(HistogramFillerBase):
     def _extend_axis(self, c, idx):
         n = ':'.join(c)
         if len(c) > 1 and n in self.var_min_value and n in self.var_max_value and \
-                        len(self.var_min_value[n]) == len(c) and len(self.var_max_value[n]) == len(c):
+           len(self.var_min_value[n]) == len(c) and len(self.var_max_value[n]) == len(c):
             return False
         elif c[idx] in self.var_min_value and c[idx] in self.var_max_value:
             return False

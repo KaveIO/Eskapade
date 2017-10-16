@@ -40,7 +40,7 @@ class UncorrelationHypothesisTester(Link):
 
     Significance test: tests correlation between observables.
     This test calculates the (significance of the) p-value of the hypothesis that
-    the observables in the input dataset are not correlated. A detailed discription
+    the observables in the input dataset are not correlated. A detailed description
     of the method can be found in ABCDutils.h
 
     Residuals test: tests correlation between values of observables.
