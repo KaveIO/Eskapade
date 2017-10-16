@@ -1,16 +1,17 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Created: 2017/08/08                                                          *
-# * Description:                                                                 *
-# *     Statistics functionality for data-quality                                *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis
+
+Created: 2017/08/08
+
+Description:
+    setup script.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import logging
 import sys
@@ -70,31 +71,20 @@ release = {is_release!s}
         version_file.close()
 
 
-# noinspection PyUnresolvedReferences
-def exclude_packages() -> list:
-    """Determine which packages we would like to install.
+# Determine if ROOT analysis modules will be installed.
+# If ROOT is not set up, ROOT analysis modules are excluded.
+EXCLUDE_PACKAGES = []
+EXTERNAL_MODULES = []
+try:
+    import ROOT
+    import ROOT.RooFit
+    import ROOT.RooStats
 
-    This depends on whether certain dependencies are available or not.
-
-    TODO: Probably need to rethink this.
-
-    :return: A list of packages to exclude.
-    :rtype: list
-    """
-    # Tests are excluded by default.
-    exclude = ['*tests*']
-
-    try:
-        import ROOT
-        import ROOT.RooFit
-        import ROOT.RooStats
-    except ImportError:
-        logger.fatal('PyROOT and RooFit are missing! Not going to install ROOT analysis modules!')
-        # This does not really work. Tests are excluded though.
-        exclude.append('*root_analysis*')
-
-    return exclude
-
+    EXTERNAL_MODULES.append(CMakeExtension('eskapade.lib.esroofit', 'cxx/esroofit'))
+    CMD_CLASS['build_ext'] = CMakeBuild
+except ImportError:
+    logger.fatal('PyROOT and RooFit are missing! Not going to install ROOT analysis modules!')
+    EXCLUDE_PACKAGES.append('*root_analysis*')
 
 # This is for auto-generating documentation.
 # One can generate documentation by executing:
@@ -117,7 +107,6 @@ except ImportError:
 
 
 class PyTest(TestCommand):
-
     """A pytest runner helper."""
 
     user_options = [('pytest-args=', 'a', 'Arguments to pass to pytest')]
@@ -135,9 +124,6 @@ class PyTest(TestCommand):
 
 
 CMD_CLASS['test'] = PyTest
-
-EXTERNAL_MODULES = [CMakeExtension('eskapade.lib.esroofit', 'cxx/esroofit')]
-CMD_CLASS['build_ext'] = CMakeBuild
 
 
 def setup_package() -> None:
@@ -176,7 +162,7 @@ def setup_package() -> None:
           description='Eskapade modular analytics',
           python_requires='>=3.5',
           package_dir={'': 'python'},
-          packages=find_packages(where='python', exclude=exclude_packages()),
+          packages=find_packages(where='python', exclude=EXCLUDE_PACKAGES),
           # Setuptools requires that package data are located inside the package.
           # This is a feature and not a bug, see
           # http://setuptools.readthedocs.io/en/latest/setuptools.html#non-package-data-files
