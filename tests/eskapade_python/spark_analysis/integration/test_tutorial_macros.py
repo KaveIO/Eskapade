@@ -1,7 +1,6 @@
 import glob
 import os
 import random
-import re
 import shutil
 import string
 import subprocess
@@ -12,7 +11,7 @@ import pandas as pd
 import pyspark
 from pyspark.sql.types import StructField, LongType, DoubleType, StringType
 
-from eskapade import process_manager, resources, utils, ConfigObject, DataStore
+from eskapade import process_manager, resources, ConfigObject, DataStore
 from eskapade.core import persistence
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
