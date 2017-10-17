@@ -4,11 +4,7 @@ Tutorial 3: Jupyter notebook
 This section contains materials on how to use Eskapade in Jupyter Notebooks. There are additional side notes on how certain
 aspects work and where to find parts of the code. For more in depth explanations, try the `API-docs <code.html>`_.
 
-Next we will demonstrate how Eskapade can be run and debugged interactively from within a Jupyter notebook:
-
-.. code-block:: bash
-
-  $ jupyter notebook
+Next we will demonstrate how Eskapade can be run and debugged interactively from within a Jupyter notebook.
 
 
 An Eskapade notebook
@@ -18,7 +14,7 @@ To run Eskapade use the ``eskapade_generate_notebook`` command to create a templ
 
 .. code-block:: bash
 
-  $ eskapade_generate_notebook --dir ./ test_notebook
+  $ eskapade_generate_notebook --dir ./ notebook_name
 
 The minimal code you need to run a notebook is the following:
 
@@ -31,14 +27,13 @@ The minimal code you need to run a notebook is the following:
   # --- basic config
   settings = process_manager.service(ConfigObject)
   settings['macro'] = resources.tutorial('tutorial_1.py')
-  settings['analysisName'] = 'test_notebook'
   settings['version'] = 0
   settings['logLevel'] = LogLevel.DEBUG
 
   # --- optional running parameters
-  #settings['beginWithChain'] = 'startChain'
-  #settings['endWithChain'] = 'endChain'
-  #settings['resultsDir'] = 'resultsdir'
+  # settings['beginWithChain'] = 'startChain'
+  # settings['endWithChain'] = 'endChain'
+  # settings['resultsDir'] = 'resultsdir'
   settings['storeResultsEachChain'] = True
 
   # --- other global flags (just some examples)
@@ -54,7 +49,7 @@ The minimal code you need to run a notebook is the following:
 
 Make sure to fill out all the necessary parameters for it to run. The macro has to be set obviously, but not all
 settings in this example are needed to be set to a value. The function ``execution.run_eskapade(settings)`` runs
-Eskapade with the settings your specified.
+Eskapade with the settings you specified.
 
 
 To inspect the state of the Eskapade objects (datastore and configurations) after the various chains see the
@@ -66,17 +61,15 @@ command line examples below.
 
 .. code-block:: python
 
-  from eskapade import process_manager, ConfigObject, DataStore
-
   # --- example inspecting the data store after the preprocessing chain
-  ds = DataStore.import_from_file(os.environ['ESKAPADE']+'/results/Tutorial_1/proc_service_data/v0/_Summary/eskapade.core.process_services.DataStore.pkl')
+  ds = DataStore.import_from_file('./results/Tutorial_1/proc_service_data/v0/_Summary/eskapade.core.process_services.DataStore.pkl')
   ds.keys()
   ds.Print()
   ds['data'].head()
 
   # --- example showing Eskapade settings
-  co = ConfigObject.import_from_file(os.environ['ESKAPADE']+'/results/Tutorial_1/proc_service_data/v0/_Summary/eskapade.core.process_services.ConfigObject.pkl')
-  co.Print()
+  settings = ConfigObject.import_from_file('./results/Tutorial_1/proc_service_data/v0/_Summary/eskapade.core.process_services.ConfigObject.pkl')
+  settings.Print()
 
 The ``import_from_file`` function imports a pickle file that was written out by Eskapade, containing the DataStore.
 This can be used to start from an intermediate state of your Eskapade. For example, you do some operations on your
@@ -94,28 +87,26 @@ We start by making a notebook:
 
 .. code-block:: bash
 
-  $ eskapade_generate_notebook --dir tutorials/ tutorial_3_notebook
+  $ eskapade_generate_notebook tutorial_3_notebook
 
-This will create a notebook in ``tutorials/`` with the name ``tutorial_3_notebook`` running
-macro ``tutorial_1.py``. Now open Jupyter and take a look at the notebook.
+This will create a notebook in the current directory with the name ``tutorial_3_notebook`` running
+macro ``tutorial_1.py``. You can set a destination directory by specifying the command argument ``--dir``.
+Now open Jupyter and take a look at the notebook.
 
 .. code-block:: bash
 
   $ jupyter notebook
 
 Try to run the notebook. You might get an error if the notebook can not find the data for the data reader. Unless
-you luckily are in the right folder. Use:
+you luckily are in the right folder. By default, ``tutorial_1.py`` looks for the data file ``LAozone.data`` in
+the working directory. Use:
 
 ::
 
   !pwd
 
-In Jupyter to find which path you are working on, and change the load path in the macro to the proper one.
-This can be for example:
-
-.. code-block:: python
-
-  os.environ['ESKAPADE'] + '/data/LAozone.data'
+In Jupyter to find which path you are working on, and put the data to the path.
+Or change the load path in the macro to the proper one.
 
 but in the end it depends on your setup.
 
@@ -181,7 +172,7 @@ runs. First we must locate the folder where it is saved. By default this is in:
 
 ::
 
-  ESKAPADE/results/$MACRO/proc_service_data/v$VERSION/latest/eskapade.core.process_services.DataStore.pkl'
+  ./results/$MACRO/proc_service_data/v$VERSION/latest/eskapade.core.process_services.DataStore.pkl'
 
 Where ``$MACRO`` is the macro name you specified in the settings, ``$VERSION`` is the version you specified and
 ``latest`` refers to the last chain you wrote to disk. By default, the version is ``0`` and the name is ``v0`` and the chain is
@@ -202,7 +193,7 @@ to import the DataStore module. Now to import the actual pickle and convert it b
 
 .. code-block:: python
 
-  ds = DataStore.import_from_file(os.environ['ESKAPADE']+'/results/Tutorial_1/proc_service_data/v0/latest/eskapade.core.process_services.DataStore.pkl')
+  ds = DataStore.import_from_file('./results/Tutorial_1/proc_service_data/v0/latest/eskapade.core.process_services.DataStore.pkl')
 
 to open the saved DataStore into variable ``ds``. Now we can call the keys of the DataStore with
 
@@ -214,13 +205,13 @@ We see there are two keys: ``data`` and ``transformed_data``. Call one of them a
 of course the pandas DataFrames that we used in the tutorial. Now you can use them in the notebook environment
 and directly interact with the objects without running the entirety of Eskapade.
 
-Similarly you can open old ConfigObject and DataStore objects if they are available.
+Similarly you can open old ConfigObject objects if they are available.
 By importing and calling:
 
 .. code-block:: python
 
   from eskapade import ConfigObject
-  settings = ConfigObject.import_from_file(os.environ['ESKAPADE']+'/results/Tutorial_1/proc_service_data/v0/latest/eskapade.core.process_services.ConfigObject.pkl')
+  settings = ConfigObject.import_from_file('./results/Tutorial_1/proc_service_data/v0/latest/eskapade.core.process_services.ConfigObject.pkl')
 
 one can import the saved singleton at the path. The singleton can be any of the above mentioned stores/objects.
 Finally, by default there are soft-links in the results directory at ``results/$MACRO/proc_service_data/$VERSION/latest/``

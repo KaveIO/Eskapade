@@ -260,7 +260,7 @@ def generate_notebook(notebook_dir, notebook_name, macro_path=None):
     with open(resources.template('notebook_template.ipynb')) as file:
         template = file.read()
         content = template.format(macro_path=macro_path,
-                                  analysis_name=notebook_name,
+                                  notebook_name=notebook_name,
                                   python_version=platform.python_version())
         create_file(path=notebook_dir,
                     file_name='{notebook_name!s}.ipynb'.format(notebook_name=notebook_name),
