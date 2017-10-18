@@ -126,7 +126,7 @@ class SparkManager(ProcessService, ConfigMixin):
         cfg_path = str(config_path) if config_path else str(eskapade_settings.get('sparkCfgFile')) \
             if eskapade_settings and eskapade_settings.get('sparkCfgFile') else None
         if cfg_path and eskapade_settings and not os.path.isabs(cfg_path):
-            cfg_path = persistence.io_path('config_spark', eskapade_settings.io_conf(), cfg_path)
+            cfg_path = persistence.io_path('config_spark', cfg_path, eskapade_settings.io_conf())
         if cfg_path and cfg_path != self.config_path:
             self.logger.debug('Setting configuration file path to "{path}".', path=cfg_path)
             self.config_path = cfg_path

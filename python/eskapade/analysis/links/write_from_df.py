@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : WriteFromDf                                                    *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm to write a DataFrame from the DataStore to disk                 *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: WriteFromDf
+
+Created: 2016/11/08
+
+Description:
+    Algorithm to write a DataFrame from the DataStore to disk
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 import os
@@ -95,8 +97,7 @@ class WriteFromDf(Link):
             for k in self.dictionary.keys():
                 p = self.dictionary[k]
                 if not p.__contains__('/'):
-                    io_conf = process_manager.service(ConfigObject).io_conf()
-                    self.dictionary[k] = persistence.io_path('results_data', io_conf, p)
+                    self.dictionary[k] = persistence.io_path('results_data', p)
                     self.logger.debug('Output filename for key <{key}> has been reset to {new_key}.',
                                       key=k, new_key=self.dictionary[k])
 

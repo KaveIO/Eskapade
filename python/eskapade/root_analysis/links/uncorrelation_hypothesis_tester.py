@@ -1,21 +1,22 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : UncorrelationHypothesisTester
-# * Created: 2017/05/27
-# * Description:                                                                   *
-# *      Algorithm to test for correlations between categorical observables.       *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: UncorrelationHypothesisTester
+
+Created: 2017/05/27
+
+Description:
+    Algorithm to test for correlations between categorical observables
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 import fnmatch
-import os
 from collections import OrderedDict
 
 import ROOT
@@ -25,7 +26,7 @@ import root_numpy
 import tabulate
 from numba import jit
 
-from eskapade import process_manager, resources, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, resources, Link, DataStore, StatusCode
 from eskapade.core import persistence
 from eskapade.root_analysis import data_conversion, roofit_utils
 from eskapade.root_analysis.roofit_manager import RooFitManager
@@ -134,6 +135,21 @@ class UncorrelationHypothesisTester(Link):
         self.residuals_map = {}
         self.mto = {}
 
+    def _process_results_path(self):
+        """Process results_path argument."""
+        if not self.results_path:
+            self.results_path = persistence.io_path('results_data', 'report')
+        persistence.create_dir(self.results_path)
+
+    def _process_prefix(self):
+        """Process prefix argument."""
+        # prefix for file storage
+        if self.prefix:
+            if not self.prefix.startswith('/'):
+                self.prefix = '/' + self.prefix
+            if not self.prefix.endswith('_'):
+                self.prefix += '_'
+
     def initialize(self):
         """Initialize the link."""
         # check input arguments
@@ -153,9 +169,6 @@ class UncorrelationHypothesisTester(Link):
                 and not isinstance(self.map_to_original, dict):
             raise TypeError('map_to_original needs to be a dict or string (to fetch a dict from the datastore)')
 
-        # get I/O configuration
-        io_conf = process_manager.service(ConfigObject).io_conf()
-
         # read report templates
         with open(resources.template('df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
@@ -164,26 +177,8 @@ class UncorrelationHypothesisTester(Link):
         with open(resources.template('df_summary_table_page.tex')) as templ_file:
             self.table_template = templ_file.read()
 
-        # get path to results directory
-        if not self.results_path:
-            self.results_path = persistence.io_path('results_data', io_conf, 'report')
-        if self.results_path and not self.results_path.endswith('/'):
-            self.results_path += '/'
-
-        # check if output directory exists
-        if os.path.exists(self.results_path):
-            # check if path is a directory
-            if not os.path.isdir(self.results_path):
-                self.logger.fatal('Output path "{path}" is not a directory.', path=self.results_path)
-                raise AssertionError('Output path is not a directory.')
-        else:
-            # create directory
-            self.logger.debug('Making output directory "{path}".', path=self.results_path)
-            os.makedirs(self.results_path)
-
-        # prefix for file storage
-        if self.prefix and not self.prefix.endswith('_'):
-            self.prefix += '_'
+        self._process_results_path()
+        self._process_prefix()
 
         # check provided columns
         if self.columns:

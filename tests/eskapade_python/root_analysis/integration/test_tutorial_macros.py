@@ -48,10 +48,9 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIsInstance(ds['vars_x2_vs_x3'], ROOT.RooArgSet)
 
         # data-summary checks
-        io_conf = process_manager.service(ConfigObject).io_conf()
         file_names = ['report.tex'] + ['hist_{}.pdf'.format(col.replace(':', '_vs_')) for col in columns]
         for fname in file_names:
-            path = persistence.io_path('results_data', io_conf, 'report/{}'.format(fname))
+            path = persistence.io_path('results_data', 'report/{}'.format(fname))
             self.assertTrue(os.path.exists(path))
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
@@ -305,9 +304,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertLess(n_ev_pull, 3.)
 
         # check plot output
-        plot_path = persistence.io_path('results_data',
-                                        process_manager.service(ConfigObject).io_conf(),
-                                        'voucher_redeem.pdf')
+        plot_path = persistence.io_path('results_data', 'voucher_redeem.pdf')
         self.assertTrue(os.path.exists(plot_path))
         statinfo = os.stat(plot_path)
         self.assertGreater(statinfo.st_size, 0)
@@ -372,11 +369,10 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertGreater(n3.getVal(), 5.e4)
 
         # data-summary checks
-        io_conf = process_manager.service(ConfigObject).io_conf()
         file_names = ['weibull_fit_report.tex', 'correlation_matrix_fit_result.pdf', 'floating_pars_fit_result.tex',
                       'fit_of_time_difference_medium_range.pdf']
         for fname in file_names:
-            path = persistence.io_path('results_data', io_conf, 'report/{}'.format(fname))
+            path = persistence.io_path('results_data', 'report/{}'.format(fname))
             self.assertTrue(os.path.exists(path))
             statinfo = os.stat(path)
             self.assertGreater(statinfo.st_size, 0)

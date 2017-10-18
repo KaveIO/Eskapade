@@ -22,7 +22,7 @@ LICENSE.
 from abc import ABCMeta, abstractmethod
 from weakref import proxy
 
-from eskapade import StatusCode
+from eskapade.core.definitions import StatusCode
 from eskapade.logger import Logger
 
 

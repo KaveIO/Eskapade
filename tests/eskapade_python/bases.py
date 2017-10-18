@@ -24,7 +24,7 @@ class IntegrationTest(unittest.TestCase):
         """Tear down test"""
 
         # remove persisted results for this test
-        path = persistence.io_dir('ana_results', process_manager.service(ConfigObject).io_conf())
+        path = persistence.io_dir('ana_results')
         if os.path.exists(path):
             shutil.rmtree(path)
 

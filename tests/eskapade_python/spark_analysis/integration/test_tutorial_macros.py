@@ -101,7 +101,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.eskapade_run(resources.tutorial('esk603_write_spark_data_to_csv.py'))
 
         # read output data
-        results_data_path = persistence.io_dir('results_data', process_manager.service(ConfigObject).io_conf())
+        results_data_path = persistence.io_dir('results_data')
         names = []
         headers = []
         contents = []
@@ -255,7 +255,6 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         # run Eskapade
         self.eskapade_run(resources.tutorial('esk608_spark_histogrammar.py'))
         ds = process_manager.service(DataStore)
-        settings = process_manager.service(ConfigObject)
 
         # check data frame
         self.assertIn('spark_df', ds, 'no object with key "spark_df" in data store')
@@ -274,7 +273,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         f_bases = ['date', 'x', 'y', 'loc', 'x_vs_y']
         file_names = ['report.tex'] + ['hist_{}.pdf'.format(col) for col in f_bases]
         for fname in file_names:
-            path = persistence.io_path('results_data', settings.io_conf(), 'report/{}'.format(fname))
+            path = persistence.io_path('results_data', 'report/{}'.format(fname))
             self.assertTrue(os.path.exists(path))
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
@@ -342,7 +341,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIsInstance(ds['dstream'], pyspark.streaming.DStream)
 
         # read and check output data
-        results_data_path = persistence.io_dir('results_data', process_manager.service(ConfigObject).io_conf())
+        results_data_path = persistence.io_dir('results_data')
         names = []
         contents = []
         csv_dirs = glob.glob('{}/dstream/wordcount-*.txt'.format(results_data_path))

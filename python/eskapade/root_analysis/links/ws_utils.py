@@ -1,18 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : WsUtils                                                               *
-# * Created: 2017/03/25                                                            *
-# * Description:                                                                   *
-# *      Algorithm to fill a RooWorkspace with useful objects and apply
-# *      operations to them, such as simulation, fitting, and plotting.            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class : WsUtils
+
+Created: 2017/03/25
+
+Description:
+    Algorithm to fill a RooWorkspace with useful objects and apply
+    operations to them, such as simulation, fitting, and plotting.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 import os
@@ -23,7 +25,7 @@ import ROOT
 import tabulate
 from ROOT import RooFit
 
-from eskapade import process_manager, resources, ConfigObject, DataStore, Link, StatusCode
+from eskapade import process_manager, resources, DataStore, Link, StatusCode
 from eskapade.core import persistence
 from eskapade.root_analysis import roofit_utils
 from eskapade.root_analysis.roofit_manager import RooFitManager
@@ -82,6 +84,12 @@ class WsUtils(Link):
         self._plot = []
         self.pages = []
 
+    def _process_results_path(self):
+        """Process results_path argument."""
+        if not self.results_path:
+            self.results_path = persistence.io_path('results_data', 'report')
+        persistence.create_dir(self.results_path)
+
     def initialize(self):
         """Initialize the link."""
         # check input arguments
@@ -95,9 +103,6 @@ class WsUtils(Link):
             self.copy_into_ds = [self.copy_into_ds]
         assert isinstance(self.copy_into_ds, list), 'copy_into_ds needs to be a string or list of strings.'
 
-        # get I/O configuration
-        io_conf = process_manager.service(ConfigObject).io_conf()
-
         # read report templates
         with open(resources.template('df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
@@ -106,22 +111,7 @@ class WsUtils(Link):
         with open(resources.template('df_summary_table_page.tex')) as templ_file:
             self.table_template = templ_file.read()
 
-        # get path to results directory
-        if not self.results_path:
-            # get I/O configuration
-            io_conf = process_manager.service(ConfigObject).io_conf()
-            self.results_path = persistence.io_path('results_data', io_conf, 'report')
-
-        # check if output directory exists
-        if os.path.exists(self.results_path):
-            # check if path is a directory
-            if not os.path.isdir(self.results_path):
-                self.logger.fatal('Output path "{path}" is not a directory.', path=self.results_path)
-                raise AssertionError('Output path is not a directory.')
-        else:
-            # create directory
-            self.logger.debug('Making output directory "{path}"', path=self.results_path)
-            os.makedirs(self.results_path)
+        self._process_results_path()
 
         # make sure Eskapade RooFit library is loaded for fitting (for plotting correlation matrix)
         if self._fit:

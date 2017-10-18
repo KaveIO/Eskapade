@@ -1,14 +1,16 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk603_read_csv_to_spark_df                                         *
-# * Created: 2017/06/08                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for writing Spark data to a CSV file                      *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro : esk603_read_csv_to_spark_df
+
+Created: 2017/06/08
+
+Description:
+    Tutorial macro for writing Spark data to a CSV file.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from collections import OrderedDict as odict
 
@@ -36,7 +38,7 @@ spark = process_manager.service(SparkManager).create_session(eskapade_settings=s
 ##########################################################################
 # --- CSV and data settings
 
-output_dir = 'file:' + persistence.io_dir('results_data', settings.io_conf())
+output_dir = 'file:' + persistence.io_dir('results_data')
 num_files = 1
 separator = ','
 write_header = True

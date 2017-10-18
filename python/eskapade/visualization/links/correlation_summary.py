@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : correlation_summary                                                   *
-# * Created: 2017/03/13                                                            *
-# * Description:                                                                   *
-# *      Algorithm to do create correlation heatmaps                               *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class : correlation_summary
+
+Created: 2017/03/13
+
+Description:
+    Algorithm to do create correlation heatmaps.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import os
 
@@ -20,7 +22,7 @@ import pandas as pd
 import tabulate
 from sklearn.feature_selection import mutual_info_regression
 
-from eskapade import process_manager, resources, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, resources, Link, DataStore, StatusCode
 from eskapade import visualization
 from eskapade.core import persistence
 
@@ -48,14 +50,17 @@ class CorrelationSummary(Link):
         self._process_kwargs(kwargs, read_key='', store_key='', results_path='', methods=ALL_CORRS, pages_key='')
         self.check_extra_kwargs(kwargs)
 
+    def _process_results_path(self):
+        """Process results_path argument."""
+        if not self.results_path:
+            self.results_path = persistence.io_path('results_data', 'report')
+        persistence.create_dir(self.results_path)
+
     def initialize(self):
         """Initialize the link."""
         # check input arguments
         self.check_arg_types(read_key=str, store_key=str, results_path=str, methods=list, pages_key=str)
         self.check_arg_vals('read_key')
-
-        # get I/O configuration
-        io_conf = process_manager.service(ConfigObject).io_conf()
 
         # read report templates
         with open(resources.template('df_summary_report.tex')) as templ_file:
@@ -63,20 +68,7 @@ class CorrelationSummary(Link):
         with open(resources.template('df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
 
-        # get path to results directory
-        if not self.results_path:
-            self.results_path = persistence.io_path('results_data', io_conf, 'report')
-
-        # check if output directory exists
-        if os.path.exists(self.results_path):
-            # check if path is a directory
-            if not os.path.isdir(self.results_path):
-                self.logger.fatal('Output path "{path}" is not a directory.', path=self.results_path)
-                raise AssertionError('Output path is not a directory.')
-        else:
-            # create directory
-            self.logger.debug('Making output directory "{path}".', path=self.results_path)
-            os.makedirs(self.results_path)
+        self._process_results_path()
 
         # check methods
         for method in self.methods:

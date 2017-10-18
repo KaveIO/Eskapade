@@ -20,7 +20,6 @@ from collections import defaultdict
 from typing import Any
 
 import eskapade.utils
-from eskapade.core import persistence
 from eskapade.core.definitions import CONFIG_DEFAULTS
 from eskapade.core.definitions import CONFIG_OPTS_SETTERS
 from eskapade.core.definitions import CONFIG_VARS
@@ -279,9 +278,9 @@ class ConfigObject(ProcessService):
         :return: I/O configuration
         :rtype: IoConfig
         """
-        return persistence.IoConfig(analysis_name=self['analysisName'],
-                                    analysis_version=self['version'],
-                                    **self.io_base_dirs())
+        return ConfigObject.IoConfig(analysis_name=self['analysisName'],
+                                     analysis_version=self['version'],
+                                     **self.io_base_dirs())
 
     def Print(self):
         """Print a summary of the settings."""
@@ -332,6 +331,32 @@ class ConfigObject(ProcessService):
             # call setter function for this user option
             CONFIG_OPTS_SETTERS[opt_key](opt_key, self, args)
 
+    class IoConfig(dict):
+        """Configuration object for I/O operations."""
+
+        _conf_items = dict(analysis_name=str,
+                           analysis_version=None,
+                           results_dir=str,
+                           data_dir=str,
+                           macros_dir=str,
+                           templates_dir=str)
+
+        def __init__(self, **input_config):
+            """Initialize IoConfig instance."""
+            # check required items
+            for key, val_type in self._conf_items.items():
+                if key not in input_config:
+                    ConfigObject.logger.fatal('Item "{key}" not found in input IO configuration.', key=key)
+                    raise KeyError('Missing item(s) in input configuration for IoConfig.')
+                if val_type and not isinstance(input_config[key], val_type):
+                    ConfigObject.logger.fatal('Item "{key}" has type "{type}" ("{name}" required).',
+                                              key=key, type=type(input_config[key]).__name__, name=str.__name__)
+                    raise TypeError('Incorrect type for item(s) in input configuration for IoConfig.')
+
+            # initialize dictionary
+            dict.__init__(self, **input_config)
+            self['analysis_version'] = str(self['analysis_version'])
+
 
 class DataStore(ProcessService, dict):
     """Store for transient data sets and related objects.
@@ -372,7 +397,6 @@ class DataStore(ProcessService, dict):
     >>> ds = DataStore.import_from_file(file_path)
     """
 
-    logger = Logger()
     _persist = True
 
     def Print(self):
