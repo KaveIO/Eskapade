@@ -18,7 +18,7 @@ LICENSE.
 import ROOT
 import numpy as np
 
-from eskapade import StatusCode, DataStore, Link, process_manager, ConfigObject
+from eskapade import StatusCode, DataStore, Link, process_manager
 from eskapade.core import persistence
 from eskapade.logger import LogLevel
 from eskapade.root_analysis.roofit_manager import RooFitManager

@@ -84,7 +84,7 @@ def io_dir(io_type, io_conf=None):
     :rtype: str
     """
     if not io_conf:
-        io_conf=process_manager.service(ConfigObject).io_conf()
+        io_conf = process_manager.service(ConfigObject).io_conf()
     # check inputs
     if io_type not in IO_LOCS:
         logger.fatal('Unknown IO type: "{type!s}".', type=io_type)
@@ -114,7 +114,7 @@ def io_path(io_type, sub_path, io_conf=None):
     :rtype: str
     """
     if not io_conf:
-        io_conf=process_manager.service(ConfigObject).io_conf()
+        io_conf = process_manager.service(ConfigObject).io_conf()
     # check inputs
     if not isinstance(sub_path, str):
         logger.fatal('Specified sub path/file name must be a string, but has type "{type!s}"',
@@ -140,7 +140,7 @@ def record_file_number(file_name_base, file_name_ext, io_conf=None):
     :rtype: int
     """
     if not io_conf:
-        io_conf=process_manager.service(ConfigObject).io_conf()
+        io_conf = process_manager.service(ConfigObject).io_conf()
     file_name_base = repl_whites(file_name_base)
     file_name_ext = repl_whites(file_name_ext)
     records_dir = io_dir('records', io_conf)

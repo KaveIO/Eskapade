@@ -15,8 +15,6 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-import os
-
 import pandas as pd
 
 from eskapade import StatusCode, DataStore, Link, process_manager

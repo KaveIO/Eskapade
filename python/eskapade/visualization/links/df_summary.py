@@ -16,8 +16,6 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-import os
-
 import numpy as np
 import pandas as pd
 import tabulate
