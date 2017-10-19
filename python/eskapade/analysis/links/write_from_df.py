@@ -20,7 +20,7 @@ import os
 
 import pandas as pd
 
-from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
+from eskapade import process_manager, DataStore, Link, StatusCode
 from eskapade.core import persistence
 from eskapade.logger import Logger
 

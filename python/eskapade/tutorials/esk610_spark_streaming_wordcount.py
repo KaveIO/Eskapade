@@ -19,7 +19,7 @@ Description:
          `$ nc -lk 9999`
         and then run the example (in a second terminal):
          `$ eskapade_run -c stream_type='tcp' \
-                tutorials/esk610_spark_streaming_wordcount.py`
+                python/eskapade/tutorials/esk610_spark_streaming_wordcount.py`
 
         NB: hostname and port can be adapted in this macro
 
@@ -30,13 +30,13 @@ Description:
            done`
         and then run the example (in a second terminal):
          `$ eskapade_run -c stream_type='file' \
-                tutorials/esk610_spark_streaming_wordcount.py`
+                python/eskapade/tutorials/esk610_spark_streaming_wordcount.py`
 
         NB: only new files in /tmp/eskapade_stream_test are processed,
             do not forget to delete this directory
 
     In both cases, the output stream is stored in flat files in
-    $ESKAPADE/results/esk610_spark_streaming/data/v0/dstream/
+    ./results/esk610_spark_streaming/data/v0/dstream/
 
     Do not forget to clean the results directory when testing.
 
