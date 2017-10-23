@@ -286,7 +286,6 @@ class ConfigObject(ProcessService):
         """Print a summary of the settings."""
         # print standard settings
         self.logger.info('Run configuration')
-        max_key_len = 0
         for sec, sec_keys in CONFIG_VARS.items():
             if not sec_keys:
                 continue
@@ -323,7 +322,7 @@ class ConfigObject(ProcessService):
         # loop over arguments
         args = vars(parsed_args)
         known_opts = set(opt for sec_opts in USER_OPTS.values() for opt in sec_opts)
-        for opt_key in args.keys():
+        for opt_key in args:
             # only process known config options
             if opt_key not in known_opts:
                 continue

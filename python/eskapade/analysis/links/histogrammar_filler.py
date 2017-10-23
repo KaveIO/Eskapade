@@ -119,7 +119,7 @@ class HistogrammarFiller(HistogramFillerBase):
             dt = np.dtype(self.var_dtype[col])
 
             # processing function, e.g. only accept boolians during filling
-            f = self.quantity[col] if col in self.quantity else hf.QUANTITY[dt.type]
+            f = self.quantity.get(col, hf.QUANTITY[dt.type])
             if len(columns) == 1:
                 # df[col] is a pd.series
                 quant = lambda x, fnc=f: fnc(x)  # noqa

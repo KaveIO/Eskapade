@@ -120,7 +120,7 @@ class AddPropagatedErrorToRooDataSet(Link):
         if self.from_ws:
             theobs = ws.set(obs)
         else:
-            theobs = ds[obs] if obs in ds else None
+            theobs = ds.get(obs, None)
         if not theobs:
             # try to create a temporary observables set
             temp_obs = uuid.uuid4().hex

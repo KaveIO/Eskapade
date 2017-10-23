@@ -28,7 +28,7 @@ from numba import jit
 
 from eskapade import process_manager, resources, Link, DataStore, StatusCode
 from eskapade.core import persistence
-from eskapade.root_analysis import data_conversion, roofit_utils
+from eskapade.root_analysis import data_conversion, roofit_utils, helpers
 from eskapade.root_analysis.roofit_manager import RooFitManager
 from eskapade.visualization import vis_utils
 
@@ -362,7 +362,7 @@ class UncorrelationHypothesisTester(Link):
             cat_cut_str = '1'
             for j, var in enumerate(obsset):
                 if isinstance(var, ROOT.RooRealVar):
-                    n_bins = self._n_bins(combo, j)
+                    n_bins = helpers.get_variable_value(self.var_number_of_bins, combo, j, self.default_number_of_bins)
                     var.setBins(n_bins)
                 elif isinstance(var, ROOT.RooCategory):
                     ignore_categories = self._ignore_categories(combo, j)
@@ -426,7 +426,7 @@ class UncorrelationHypothesisTester(Link):
                           .replace('VAR_STATS_TABLE', stats_table)
                           .replace('VAR_HISTOGRAM_PATH', f_path))
         significance = self.significance_map.copy()
-        for key in list(significance.keys()):
+        for key in significance:
             significance[key] = [significance[key]]
         dfsignificance = pd.DataFrame(significance).stack().reset_index(level=1) \
             .rename(columns={'level_1': 'Questions', 0: 'Significance'}) \
@@ -443,7 +443,7 @@ class UncorrelationHypothesisTester(Link):
             # create one dataframe containing all data
             resid_list = []
             ndim_max = 2
-            for key in list(self.residuals_map.keys()):
+            for key in self.residuals_map:
                 if abs(self.significance_map[key]) < self.z_threshold:
                     continue
                 dftmp = self.residuals_map[key].copy()
@@ -559,23 +559,6 @@ class UncorrelationHypothesisTester(Link):
 
         return StatusCode.Success
 
-    def _n_bins(self, c, idx=0):
-        """Determine number of bins for continues variables.
-
-        :param list c: list of variables, or string variable
-        :param int idx: index of the variable in c for which to return number of bins
-        :return: number of bins
-        """
-        if isinstance(c, str):
-            c = [c]
-        n = ':'.join(c)
-        if len(c) > 1 and n in self.var_number_of_bins and len(self.var_number_of_bins[n]) == len(c):
-            return self.var_number_of_bins[n][idx]
-        elif c[idx] in self.var_number_of_bins:
-            return self.var_number_of_bins[c[idx]]
-        # fall back on defaults
-        return self.default_number_of_bins
-
     def _ignore_categories(self, c, idx=0):
         """Determine list of categories to ignore.
 
@@ -583,16 +566,7 @@ class UncorrelationHypothesisTester(Link):
         :param int idx: index of the variable in c, for which to return categories to ignore
         :return: list of categories to ignore
         """
-        if isinstance(c, str):
-            c = [c]
-        n = ':'.join(c)
-        if len(c) > 1 and n in self.var_ignore_categories and len(self.var_ignore_categories[n]) == len(c):
-            i_c = self.var_ignore_categories[n][idx]
-        elif c[idx] in self.var_ignore_categories:
-            i_c = self.var_ignore_categories[c[idx]]
-        else:
-            # fall back on defaults
-            i_c = self.ignore_categories
+        i_c = helpers.get_variable_value(self.var_ignore_categories, c, idx, self.ignore_categories)
         if not isinstance(i_c, list):
             i_c = [i_c]
         return i_c

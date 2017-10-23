@@ -83,7 +83,7 @@ class ReadToDf(Link):
         self._sum_data_length = 0
         self._iterate = False
         self._reader = None
-        self._usecols = [] if 'usecols' not in self.kwargs else self.kwargs['usecols']
+        self._usecols = self.kwargs.get('usecols', [])
 
     def set_chunk_size(self, size):
         """Set chunksize setting.
@@ -163,19 +163,19 @@ class ReadToDf(Link):
         else:
             # try picking up new dataset from iterator
             df = next(self)
-            while self.latest_data_length() == 0 and not self.isFinished():
+            while self.latest_data_length() == 0 and not self.is_finished():
                 df = next(self)
 
             # at end of loop
             if self.latest_data_length() == 0:
-                assert self.isFinished(), 'Got empty dataset but not at end of iterator. Thats weird. Exit.'
+                assert self.is_finished(), 'Got empty dataset but not at end of iterator. Thats weird. Exit.'
                 # at end of loop, df == None.
                 df = pd.DataFrame(columns=self._usecols)
 
             # do we have more datasets to go?
             # pass this information to the (possible) repeater at the end of chain
             reqstr = 'chainRepeatRequestBy_' + self.name
-            settings[reqstr] = True if not self.isFinished() else False
+            settings[reqstr] = not self.is_finished()
 
             numentries = self.latest_data_length()
             sumentries = self.sum_data_length()
@@ -188,7 +188,7 @@ class ReadToDf(Link):
 
         return StatusCode.Success
 
-    def isFinished(self):
+    def is_finished(self) -> bool:
         """Try to assess if looper is done iterating over files.
 
         Assess if looper is done or if a next dataset is still coming up.

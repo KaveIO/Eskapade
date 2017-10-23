@@ -236,10 +236,7 @@ class RooDataHistFiller(Link):
                 if not isinstance(rv, ROOT.RooRealVar):
                     continue
                 name = rv.GetName()
-                if name in self.var_number_of_bins:
-                    n_bins = self.var_number_of_bins[name]
-                else:
-                    n_bins = N_BINS_DEFAULT
+                n_bins = self.var_number_of_bins.get(name, N_BINS_DEFAULT)
                 if n_bins > n_max_bins:
                     n_bins = n_max_bins
                     self.logger.info('Capping n_bins of column "{col}" to: {n:d}', col=name, n=n_max_bins)

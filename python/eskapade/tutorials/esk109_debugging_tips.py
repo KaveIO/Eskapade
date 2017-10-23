@@ -40,7 +40,7 @@ from the cmd line use the this flag: -i
 logger.info(msg)
 
 # testing false used for running integration tests. do not remove.
-settings['TESTING'] = False if 'TESTING' not in settings else settings['TESTING']
+settings['TESTING'] = settings.get('TESTING', False)
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags

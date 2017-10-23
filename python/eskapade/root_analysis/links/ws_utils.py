@@ -262,7 +262,7 @@ class WsUtils(Link):
             thepdf = pdf
         else:
             assert len(pdf), 'pdf name not set'
-            thepdf = ds[pdf] if pdf in ds else ws.pdf(pdf)
+            thepdf = ds.get(pdf, ws.pdf(pdf))
         if not thepdf:
             raise RuntimeError('unable to retrieve pdf')
         else:
@@ -271,7 +271,7 @@ class WsUtils(Link):
         if isinstance(obs, ROOT.RooArgSet):
             theobs = obs
         elif isinstance(obs, str) and obs:
-            theobs = ds[obs] if obs in ds else ws.set(obs)
+            theobs = ds.get(obs, ws.set(obs))
         else:
             set_name = thepdf.GetName() + '_varset'
             theobs = ws.set(set_name)
@@ -348,7 +348,7 @@ class WsUtils(Link):
             thepdf = pdf
         else:
             assert isinstance(pdf, str) and pdf, 'pdf name not set'
-            thepdf = ds[pdf] if pdf in ds else ws.pdf(pdf)
+            thepdf = ds.get(pdf, ws.pdf(pdf))
         if not thepdf:
             raise RuntimeError('unable to retrieve pdf for fitting')
         else:
@@ -358,7 +358,7 @@ class WsUtils(Link):
             thedata = data
         else:
             assert isinstance(data, str) and data, 'data set name not set'
-            thedata = ds[data] if data in ds else ws.data(data)
+            thedata = ds.get(data, ws.data(data))
         if not thedata:
             raise RuntimeError('unable to retrieve dataset for fitting')
         else:
@@ -482,7 +482,7 @@ class WsUtils(Link):
             theobs = obs
         else:
             assert isinstance(obs, str) and obs, 'obs name for plotting not set.'
-            theobs = ds[obs] if obs in ds else ws.var(obs)
+            theobs = ds.get(obs, ws.var(obs))
         if not theobs:
             raise RuntimeError('Unable to retrieve observable for plotting.')
         else:
@@ -491,7 +491,7 @@ class WsUtils(Link):
         if isinstance(data, ROOT.RooAbsData):
             thedata = data
         elif isinstance(data, str) and data:
-            thedata = ds[data] if data in ds else ws.data(data)
+            thedata = ds.get(data, ws.data(data))
             if not thedata:
                 raise RuntimeError('Unable to retrieve dataset with name "{}" from workspace.'.format(data))
             else:
@@ -500,7 +500,7 @@ class WsUtils(Link):
         if isinstance(pdf, ROOT.RooAbsPdf):
             thepdf = pdf
         elif isinstance(pdf, str) and pdf:
-            thepdf = ds[pdf] if pdf in ds else ws.pdf(pdf)
+            thepdf = ds.get(pdf, ws.pdf(pdf))
             if not thepdf:
                 raise RuntimeError('Unable to retrieve pdf with name "{}" from workspace.'.format(pdf))
             else:
@@ -509,7 +509,7 @@ class WsUtils(Link):
         if isinstance(func, ROOT.RooAbsReal):
             thefunc = func
         elif isinstance(func, str) and func:
-            thefunc = ds[func] if func in ds else ws.function(func)
+            thefunc = ds.get(func, ws.function(func))
             if not thefunc:
                 raise RuntimeError('Unable to retrieve function with name "{}" from workspace.'.format(func))
             else:
@@ -538,7 +538,7 @@ class WsUtils(Link):
                 frame = key
             else:
                 assert isinstance(key, str) and key, 'Key for rooplot needs to be a filled string.'
-                frame = ds[key] if key in ds else ws.obj(key)
+                frame = ds.get(key, ws.obj(key))
                 if not frame:
                     frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(plot_range[0], plot_range[1]))
         else:

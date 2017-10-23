@@ -59,10 +59,7 @@ class SparkHister(Link):
         for c in self.columns:
             pos = spark_df.columns.index(c)
             self.logger.debug("Processing column: {col}.", col=c)
-            if c in list(self.bins.keys()):
-                result[c] = spark_df.map(lambda r: r[pos]).histogram(self.bins[c])
-            else:
-                result[c] = spark_df.map(lambda r: r[pos]).histogram(25)
+            result[c] = spark_df.map(lambda r: r[pos]).histogram(self.bins.get(c, 25))
 
         # --- NOTE: this depends on how the data will be read by the BI tool
         #           - SQL/Tableau requires a row per histogram bin

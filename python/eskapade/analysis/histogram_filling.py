@@ -117,7 +117,7 @@ class HistogramFillerBase(Link):
                 raise TypeError('columns "{}" needs to be a string or list of strings'.format(self.columns[i]))
 
         # check for supported data types
-        for k in self.var_dtype.keys():
+        for k in self.var_dtype:
             try:
                 self.var_dtype[k] = np.dtype(self.var_dtype[k]).type
                 if self.var_dtype[k] is np.string_ or self.var_dtype[k] is np.object_:

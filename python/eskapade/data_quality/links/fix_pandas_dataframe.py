@@ -172,7 +172,7 @@ class FixPandasDataFrame(Link):
             self.logger.debug('store_key has been set to "{key}".', key=self.store_key)
 
         # check data types
-        for k in self.var_dtype.keys():
+        for k in self.var_dtype:
             if k not in self.contaminated_columns:
                 self.contaminated_columns.append(k)
             try:
@@ -319,8 +319,7 @@ class FixPandasDataFrame(Link):
                 continue
             # store most common datatype
             # first convert to consistent types
-            dtype_lst = list(dtype_cnt.keys())
-            for dtp in dtype_lst:
+            for dtp in dtype_cnt:
                 ndt = np.dtype(dtp).type
                 if ndt is np.str_ or ndt is np.object_:
                     ndt = str
@@ -354,12 +353,10 @@ class FixPandasDataFrame(Link):
             else:
                 raise RuntimeError('Do not know how to convert column "{}"'.format(col))
             # convert inconsistent dtypes?
-            convert_inconsistent_dtypes = self.var_convert_inconsistent_dtypes[
-                col] if col in self.var_convert_inconsistent_dtypes else self.convert_inconsistent_dtypes
-            convert_inconsistent_nans = self.var_convert_inconsistent_nans[
-                col] if col in self.var_convert_inconsistent_nans else self.convert_inconsistent_nans
-            fnc_kw = {}
-            fnc_kw['convert_inconsistent_dtypes'] = convert_inconsistent_dtypes
+            convert_inconsistent_dtypes = self.var_convert_inconsistent_dtypes.get(
+                col, self.convert_inconsistent_dtypes)
+            convert_inconsistent_nans = self.var_convert_inconsistent_nans.get(col, self.convert_inconsistent_nans)
+            fnc_kw = {'convert_inconsistent_dtypes': convert_inconsistent_dtypes}
             # pick nan of choice
             if col in self.var_nan:
                 fnc_kw['nan'] = self.var_nan[col]

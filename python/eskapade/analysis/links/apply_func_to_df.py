@@ -143,7 +143,7 @@ class ApplyFuncToDf(Link):
 
     def groupbyapply(self, df, groupby_columns, applyfunc, *args, **kwargs):
         """Apply groupby to dataframe."""
-        if 'groupbyColout' not in list(kwargs.keys()):
+        if 'groupbyColout' not in kwargs:
             return df.groupby(groupby_columns).apply(applyfunc, *args, **kwargs).reset_index(drop=True)
         else:
             colout = kwargs['groupbyColout']

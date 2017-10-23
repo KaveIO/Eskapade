@@ -30,10 +30,10 @@ settings['version'] = 0
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
 
-settings['do_map'] = False if 'do_map' not in settings else settings['do_map']
-settings['do_reduce'] = False if 'do_reduce' not in settings else settings['do_reduce']
+settings['do_map'] = settings.get('do_map', False)
+settings['do_reduce'] = settings.get('do_reduce', False)
 
-settings['TESTING'] = False if 'TESTING' not in settings else settings['TESTING']
+settings['TESTING'] = settings.get('TESTING', False)
 
 # --- create dummy example dataset, which is used below
 if settings['TESTING']:

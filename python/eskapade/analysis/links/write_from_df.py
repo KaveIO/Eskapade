@@ -113,14 +113,14 @@ class WriteFromDf(Link):
         ds = process_manager.service(DataStore)
 
         # check that all dataframes are present
-        assert all(k in ds for k in list(self.dictionary.keys())), 'key(s) not in DataStore.'
+        assert all(k in ds for k in self.dictionary), 'key(s) not in DataStore.'
 
         # check that all ds items are dataframes
-        assert all(isinstance(ds[k], pd.DataFrame) for k in list(self.dictionary.keys())), \
+        assert all(isinstance(ds[k], pd.DataFrame) for k in self.dictionary), \
             'key(s) is not a pandas DataFrame.'
 
         # collect writer and store the dataframes
-        for k in list(self.dictionary.keys()):
+        for k in self.dictionary:
             df = ds[k]
             path = self.dictionary[k]
             if self.add_counter_to_name:

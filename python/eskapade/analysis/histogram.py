@@ -531,10 +531,7 @@ class BinningUtil(object):
         """
         if not self.bin_specs:
             return None
-        if 'bin_edges' in self.bin_specs:
-            bin_edges = self.bin_specs['bin_edges']
-        else:
-            bin_edges = None
+        bin_edges = self.bin_specs.get('bin_edges', None)
         return bin_edges
 
     def get_bin_edges_range(self):
@@ -927,7 +924,7 @@ class Histogram(BinningUtil, ArgumentsMixin):
             return None
         if 'bin_edges' in self.bin_specs:
             return self.bin_specs['bin_edges'][0], self.bin_specs['bin_edges'][-1]
-        vals = [v[0] for v in self._val_counts.nononecounts.keys()]
+        vals = [v[0] for v in self._val_counts.nononecounts]
         min_max = (vals[0], vals[-1])
         if self.bin_specs:
             width = self.bin_specs['bin_width']
@@ -1129,7 +1126,7 @@ class Histogram(BinningUtil, ArgumentsMixin):
         """
         # initialize value counts from dictionary
         counts = dict((k if isinstance(k, tuple) else (k,), v) for k, v in counts.items())
-        if not all(len(k) == 1 for k in counts.keys()):
+        if not all(len(k) == 1 for k in counts):
             self.logger.fatal('Specified counts dictionary contains keys with multiple variable values.')
             raise AssertionError('Invalid format for counts keys.')
         _check_num_vals(iter(counts.values()))
