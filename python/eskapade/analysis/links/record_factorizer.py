@@ -1,20 +1,22 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : RecordFactorizer                                                      *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm to perform the factorization of an input column
-# *      of an input dataframe.
-# *      E.g. a columnn x with values 'apple', 'tree', 'pear', 'apple', 'pear'
-# *      is tranformed into columns x with values 0, 1, 2, 0, 2, etc.
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: RecordFactorizer
+
+Created: 2016/11/08
+
+Description:
+    Algorithm to perform the factorization of an input column
+    of an input dataframe.
+    E.g. a columnn x with values 'apple', 'tree', 'pear', 'apple', 'pear'
+    is tranformed into columns x with values 0, 1, 2, 0, 2, etc.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 import fnmatch

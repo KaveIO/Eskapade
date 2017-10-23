@@ -1,34 +1,32 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk406_simulation_based_on_unbinned_data                              *
-# * Created: 2017/04/06                                                            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Description:
-# *
-# * Imagine the situation where you wish to simulate an existing dataset consisting
-# * of continuous (float) observables only, where you want the simulated dataset
-# * to have the same features and characteristics as the input dataset, including
-# * the all correlations between observables.
-# *
-# * This macro shows how this simulation can be done with roofit, by building a
-# * smooth pdf of the input dataset with kernel estimatation techniques, the so-called
-# * KEYS pdf, which describes the input observables and their correlations.
-# * The technique works very well to describe 1 and 2 dimensional distributions,
-# * but is very cpu intensive and becomes ever more slow for higher number of dimensions.
-# *
-# * This macro has two settings, controlled with settings['high_num_dims'].
-# * When false, the keys pdf contains 2 continuous observables. When true,
-# * the keys pdf 3 dimensional.
-# *
-# * Licence:
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk406_simulation_based_on_unbinned_data
+
+Created: 2017/04/06
+
+Description:
+    Imagine the situation where you wish to simulate an existing dataset consisting
+    of continuous (float) observables only, where you want the simulated dataset
+    to have the same features and characteristics as the input dataset, including
+    the all correlations between observables.
+
+    This macro shows how this simulation can be done with roofit, by building a
+    smooth pdf of the input dataset with kernel estimatation techniques, the so-called
+    KEYS pdf, which describes the input observables and their correlations.
+    The technique works very well to describe 1 and 2 dimensional distributions,
+    but is very cpu intensive and becomes ever more slow for higher number of dimensions.
+
+    This macro has two settings, controlled with settings['high_num_dims'].
+    When false, the keys pdf contains 2 continuous observables. When true,
+    the keys pdf 3 dimensional.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import ConfigObject
 from eskapade import analysis, core_ops, resources, root_analysis, visualization

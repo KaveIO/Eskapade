@@ -1,19 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk303_hgr_filler_plotter                                             *
-# * Created: 2017/02/17                                                            *
-# * Description:                                                                   *
-# *      Macro that illustrates how to loop over multiple (possibly large!)        *
-# *      datasets in chunks, in each loop fill a histogrammar histograms,
-# *      and plot the final histograms.
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team.                                                       *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk303_hgr_filler_plotter
+
+Created: 2017/02/17
+
+Description:
+    Macro that illustrates how to loop over multiple (possibly large!)
+    datasets in chunks, in each loop fill a histogrammar histograms,
+    and plot the final histograms.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import analysis, core_ops, process_manager, resources, visualization, ConfigObject
 from eskapade.logger import Logger, LogLevel

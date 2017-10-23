@@ -1,19 +1,21 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : RooFitPercentileBinning                                             *
-# * Created: 2017/06/28                                                          *
-# * Description:                                                                 *
-# *      Algorithm to evaluate percentile binning for given set                  *
-# *      of roofit observables. The binning configuration is stored              *
-# *      in the observable(s)                                                    *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: RooFitPercentileBinning
+
+Created: 2017/06/28
+
+Description:
+    Algorithm to evaluate percentile binning for given set
+    of roofit observables. The binning configuration is stored
+    in the observable(s)
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ROOT
 import numpy as np

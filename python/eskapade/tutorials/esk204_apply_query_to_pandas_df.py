@@ -1,17 +1,22 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk204_apply_query_to_pandas_df                                       *
-# * Created: 2017/02/23                                                            *
-# * Description:                                                                   *
-# *      Illustrates link that applies basic queries to pandas dataframe           *
-# *      See for more information pandas documentation:
-# *                                                                                *
-# *      http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk204_apply_query_to_pandas_df
+
+Created: 2017/02/23
+
+Description:
+    Illustrates link that applies basic queries to pandas dataframe
+    See for more information pandas documentation:
+
+    http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from numpy.random import randn
 from pandas import DataFrame

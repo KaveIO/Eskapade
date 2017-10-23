@@ -1,32 +1,30 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk407_classification_unbiased_fit_estimate                           *
-# * Created: 2017/04/12                                                            *
-# *
-# * Description:
-# *
-# * This macro illustrates how to get an unbiased estimate of the number of
-# * high risk clients, by doing a template fit to data.
-# *
-# * Assume a classifier has been trained and optimized to separate high-risk from
-# * low risk clients. But the high- to low-risk ratio in data is very low and unknown,
-# * so the false-positive rate is non-negligible.
-# *
-# * We can use templates of the score of the ML classifier of the high- and low-risk
-# * testing samples to (at least) get an unbiased estimate of the total number of
-# * high-risk clients. This is done by fitting the (unbiased) testing templates
-# * to the score distribution in the actual dataset. The shapes differentiate
-# * the number of high- and low-risk clients.
-# *
-# * Authors:                                                                       *
-# *      KPMG Big Data team                                                        *
-# *                                                                                *
-# * Licence:
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk407_classification_unbiased_fit_estimate
+
+Created: 2017/04/12
+
+Description:
+    This macro illustrates how to get an unbiased estimate of the number of
+    high risk clients, by doing a template fit to data.
+
+    Assume a classifier has been trained and optimized to separate high-risk from
+    low risk clients. But the high- to low-risk ratio in data is very low and unknown,
+    so the false-positive rate is non-negligible.
+
+    We can use templates of the score of the ML classifier of the high- and low-risk
+    testing samples to (at least) get an unbiased estimate of the total number of
+    high-risk clients. This is done by fitting the (unbiased) testing templates
+    to the score distribution in the actual dataset. The shapes differentiate
+    the number of high- and low-risk clients.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ROOT
 from ROOT import RooFit
@@ -102,8 +100,8 @@ wsu = root_analysis.WsUtils(name='TemplateFixer')
 def nonzero_templates(w):
     """Fix histogram to make sure that all bins have a non-zero value."""
 
-    # fix non-zero bins
     def nonzero_hist(rdh, minimum_value=0.01):
+        """Fix non-zero bins."""
         if rdh.numEntries() == 0:
             return
         rdh.get(0)

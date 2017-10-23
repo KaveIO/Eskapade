@@ -1,3 +1,20 @@
+"""Project: Eskapade - A python-based package for data analysis.
+
+Classes: ArrayStats, GroupByStats
+
+Created: 2017/03/21
+
+Description:
+    Summary of an array.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
 import operator
 from collections import Counter
 

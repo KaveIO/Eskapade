@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : DsToDs                                                                *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm to move, copy, or remove an object in the datastore.            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: DsToDs
+
+Created: 2016/11/08
+
+Description:
+    Algorithm to move, copy, or remove an object in the datastore.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 

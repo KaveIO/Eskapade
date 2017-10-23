@@ -1,21 +1,23 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : HistogrammarFiller                                                  *
-# * Created: 2017/03/21                                                          *
-# * Description:                                                                 *
-# *      Algorithm to fill histogrammar sparse-bin histograms.                   *
-# *      It is possible to do cleaning of these histograms by                    *
-# *      rejecting certain keys or removing inconsistent data types.             *
-# *      Timestamp columns are converted to nanoseconds before                   *
-# *      the binning is applied.                                                 *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: HistogrammarFiller
+
+Created: 2017/03/21
+
+Description:
+    Algorithm to fill histogrammar sparse-bin histograms.
+    It is possible to do cleaning of these histograms by
+    rejecting certain keys or removing inconsistent data types.
+    Timestamp columns are converted to nanoseconds before
+    the binning is applied.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import histogrammar as hg
 import numpy as np
@@ -146,6 +148,7 @@ class HistogrammarFiller(HistogramFillerBase):
 
         @property
         def n_bins(self):
+            """`Get number of bins."""
             if hasattr(self, 'num'):
                 return self.num
             elif hasattr(self, 'size'):

@@ -1,18 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : SparkStreamingWordCount                                               *
-# * Created: 2017/07/12                                                            *
-# * Description:                                                                   *
-# *      The Spark Streaming word count example derived from:                      *
-# *      https://spark.apache.org/docs/latest/streaming-programming-guide.html     *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: SparkStreamingWordCount
+
+Created: 2017/07/12
+
+Description:
+    The Spark Streaming word count example derived from:
+    https://spark.apache.org/docs/latest/streaming-programming-guide.html
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import process_manager, Link, DataStore, StatusCode
 

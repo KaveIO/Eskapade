@@ -1,19 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk108_eventlooper
-# * Created: 2017/02/20                                                            *
-# * Description:                                                                   *
-# *      Macro to illustrate how input lines can be read in,
-# *      processed, and reprinted. E.g. for use in map reduce application.
-# *      Used as input for: esk108_map and esk108_reduce
-# *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk108_eventlooper
+
+Created: 2017/02/20
+
+Description:
+    Macro to illustrate how input lines can be read in,
+    processed, and reprinted. E.g. for use in map reduce application.
+    Used as input for: esk108_map and esk108_reduce
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import tempfile
 

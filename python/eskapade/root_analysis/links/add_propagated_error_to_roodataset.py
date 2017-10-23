@@ -1,19 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : AddPropagatedErrorToRooDataSet                                        *
-# * Created: 2017/04/12                                                            *
-# * Description:                                                                   *
-# *      Algorithm to evaluates the error on a provided roofit function
-# *      for each record in the given roodataset.
-# *      The results are added back to the dataset.                                *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: AddPropagatedErrorToRooDataSet
+
+Created: 2017/04/12
+
+Description:
+    Algorithm to evaluates the error on a provided roofit function
+    for each record in the given roodataset.
+    The results are added back to the dataset.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import uuid
 

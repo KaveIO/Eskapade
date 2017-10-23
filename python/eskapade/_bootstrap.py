@@ -1,6 +1,6 @@
 """Project: Eskapade - A python-based package for data analysis.
 
-Created : 2017-09-20
+Created: 2017-09-20
 
 Description:
     Helper functions for eskapade_bootstrap

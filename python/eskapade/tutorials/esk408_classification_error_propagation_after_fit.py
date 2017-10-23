@@ -1,38 +1,36 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk408_classification_error_propagation_after_fit                     *
-# * Created: 2017/04/12                                                            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team                                                        *
-# *
-# * Description:
-# *
-# * This macro continues on the idea in esk407_classification_unbiased_fit_estimate.
-# * It illustrates how to assign statistically motivated probabilities to
-# * high risk clients, by doing a template fit to data, and - based on this -
-# * calculating the probability and uncertainty on this for each client.
-# *
-# * Assume a classifier has been trained and optimized to separate high-risk from
-# * low risk clients. But the high- to low-risk ratio in data is very low and unknown,
-# * so the false-positive rate is non-negligible.
-# *
-# * We can use templates of the score of the ML classifier of the high- and low-risk
-# * testing samples to (at least) score the probability that someone is a high risk
-# * client, in light of the fact that most clients with a high classifier score will
-# * in fact be false-positive low risk clients.
-# *
-# * In addition to the probability, the algorithm assigns as statistical uncertainty
-# * to each probability.
-# * The total sum of these probabilities equals the number of estimated high-risk
-# * clients, as also obtained in example esk407.
-# *
-# * Licence:
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk408_classification_error_propagation_after_fit
+
+Created: 2017/04/12
+
+Description:
+    This macro continues on the idea in esk407_classification_unbiased_fit_estimate.
+    It illustrates how to assign statistically motivated probabilities to
+    high risk clients, by doing a template fit to data, and - based on this -
+    calculating the probability and uncertainty on this for each client.
+
+    Assume a classifier has been trained and optimized to separate high-risk from
+    low risk clients. But the high- to low-risk ratio in data is very low and unknown,
+    so the false-positive rate is non-negligible.
+
+    We can use templates of the score of the ML classifier of the high- and low-risk
+    testing samples to (at least) score the probability that someone is a high risk
+    client, in light of the fact that most clients with a high classifier score will
+    in fact be false-positive low risk clients.
+
+    In addition to the probability, the algorithm assigns as statistical uncertainty
+    to each probability.
+    The total sum of these probabilities equals the number of estimated high-risk
+    clients, as also obtained in example esk407.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ROOT
 from ROOT import RooFit

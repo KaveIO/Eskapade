@@ -1,32 +1,29 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk410_testing_correlations_between_categories                        *
-# * Created: 2017/07/04                                                            *
-# *                                                                                *
-# * Description:                                                                   *
-# *                                                                                *
-# * This macro illustrates how to find correlations between categorical            *
-# * observables.                                                                   *
-# *                                                                                *
-# * Based on the hypothesis of no correlation expected frequencies of observations *
-# * are calculated. The measured frequencies are compared to expected frequencies. *
-# * From these the (significance of the) p-value of the hypothesis that the        *
-# * observables in the input dataset are not correlated is determined. The         *
-# * normalized residuals (pull values) for each bin in the dataset are also        *
-# * calculated. A detailed description of the method can be found in ABCDutils.h.  *
-# * A description of the method to calculate the expected frequencies can be found *
-# * in RooABCDHistPDF.cxx.                                                         *
-# *                                                                                *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Licence:                                                                       *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk410_testing_correlations_between_categories
+
+Created: 2017/07/04
+
+Description:
+    This macro illustrates how to find correlations between categorical
+    observables.
+
+    Based on the hypothesis of no correlation expected frequencies of observations *
+    are calculated. The measured frequencies are compared to expected frequencies. *
+    From these the (significance of the) p-value of the hypothesis that the
+    observables in the input dataset are not correlated is determined. The
+    normalized residuals (pull values) for each bin in the dataset are also
+    calculated. A detailed description of the method can be found in ABCDutils.h.
+    A description of the method to calculate the expected frequencies can be found *
+    in RooABCDHistPDF.cxx.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import ConfigObject
 from eskapade import analysis, root_analysis, visualization

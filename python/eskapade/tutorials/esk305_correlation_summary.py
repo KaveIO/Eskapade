@@ -1,18 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk305_correlation_summary                                            *
-# * Created: 2017/04/04                                                            *
-# * Description:                                                                   *
-# *      Macro to demonstrate generating correlation heatmaps                      *
-# *                                                                                *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data Team                                                        *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk305_correlation_summary
+
+Created: 2017/04/04
+
+Description:
+    Macro to demonstrate generating correlation heatmaps
+
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import ConfigObject, resources
 from eskapade import analysis, visualization

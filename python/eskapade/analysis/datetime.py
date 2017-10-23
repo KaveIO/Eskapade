@@ -1,3 +1,20 @@
+"""Project: Eskapade - A python-based package for data analysis.
+
+Classes: TimePeriod, FreqTimePeriod
+
+Created: 2017/03/14
+
+Description:
+    Time period and time period with frequency.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+modification, are permitted according to the terms listed in the file
+Redistribution and use in source and binary forms, with or without
+LICENSE.
+"""
+
 import pandas as pd
 
 from eskapade.core.mixin import ArgumentsMixin

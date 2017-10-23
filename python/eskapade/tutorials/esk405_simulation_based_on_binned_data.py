@@ -1,41 +1,39 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk405_simulation_based_on_binned_data                                *
-# * Created: 2017/04/06                                                            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Description:
-# *
-# * Imagine the situation where you wish to simulate an existing dataset, where
-# * you want the simulated dataset to have the same features and characteristics
-# * as the input dataset, including all known correlations between observables,
-# * possibly non-linear.
-# * The input data can have both categorical and continuous (float) observables.
-# *
-# * This macro shows how this simulation can be done with roofit, by building a
-# * (potentially large) n-dimensional roofit histogram of all requested
-# * input observables with the RooDataHistFiller link.
-# *
-# * Be careful not to blow up the total number of bins, which grows exponentially
-# * with the number of input observables. We can control this by setting the number of
-# * bins per continuous observable, or by setting the maximum total number of bins
-# * allowed in the histogram, which scales down the number of allowed bins in each
-# * continuous observable. Realize that, the more bins one has, the more input data
-# * is needed to will all bins with decent statistics.
-# *
-# * This macro has two settings, controlled with settings['high_num_dims'].
-# * When false, the roodatahist contains 3 observables, of which two continous and
-# * 1 categorical. When true, the roodatahist is 6 dimensional, with 4 continous
-# * observables and 2 categorical ones. The latter example is slower, but works fine!
-# *
-# * Licence:
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk405_simulation_based_on_binned_data
+
+Created: 2017/04/06
+
+Description:
+    Imagine the situation where you wish to simulate an existing dataset, where
+    you want the simulated dataset to have the same features and characteristics
+    as the input dataset, including all known correlations between observables,
+    possibly non-linear.
+    The input data can have both categorical and continuous (float) observables.
+
+    This macro shows how this simulation can be done with roofit, by building a
+    (potentially large) n-dimensional roofit histogram of all requested
+    input observables with the RooDataHistFiller link.
+
+    Be careful not to blow up the total number of bins, which grows exponentially
+    with the number of input observables. We can control this by setting the number of
+    bins per continuous observable, or by setting the maximum total number of bins
+    allowed in the histogram, which scales down the number of allowed bins in each
+    continuous observable. Realize that, the more bins one has, the more input data
+    is needed to will all bins with decent statistics.
+
+    This macro has two settings, controlled with settings['high_num_dims'].
+    When false, the roodatahist contains 3 observables, of which two continous and
+    1 categorical. When true, the roodatahist is 6 dimensional, with 4 continous
+    observables and 2 categorical ones. The latter example is slower, but works fine!
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, root_analysis

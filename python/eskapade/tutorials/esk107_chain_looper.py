@@ -1,18 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk107_chain_looper                                                   *
-# * Created: 2017/02/17                                                            *
-# * Description:                                                                   *
-# *      Macro to that illustrates how to repeat the execution of a chain.         *
-# *      Follow-up example in macro: esk209_readdata_itr.py                        *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team.                                                       *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk107_chain_looper
+
+Created: 2017/02/17
+
+Description:
+    Macro to that illustrates how to repeat the execution of a chain.
+    Follow-up example in macro: esk209_readdata_itr.py
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import ConfigObject
 from eskapade import core_ops

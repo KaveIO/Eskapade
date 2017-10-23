@@ -1,3 +1,20 @@
+"""Project: Eskapade - A python-based package for data analysis.
+
+Classes: ValueCounts, BinningUtil, Histogram
+
+Created: 2017/03/14
+
+Description:
+    Generic 1D Histogram class.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+modification, are permitted according to the terms listed in the file
+Redistribution and use in source and binary forms, with or without
+LICENSE.
+"""
+
 from collections import Counter
 
 import numpy as np

@@ -1,16 +1,21 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk607_spark_with_column                                            *
-# * Created: 2017/06/14                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for adding a new column to a Spark dataframe by applying  *
-# *     a Spark built-in or user-defined function to a selection of columns      *
-# *     in a Spark dataframe.                                                    *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk607_spark_with_column
+
+Created: 2017/06/14
+
+Description:
+    Tutorial macro for adding a new column to a Spark dataframe by applying
+    a Spark built-in or user-defined function to a selection of columns
+    in a Spark dataframe.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 
 from pyspark.sql import types, functions

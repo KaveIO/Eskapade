@@ -1,18 +1,22 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk206_merge_pandas_dfs                                               *
-# * Created: 2017/02/23                                                            *
-# * Description:                                                                   *
-# *      Illustrate link that calls basic merge() of pandas dataframes                      *
-# *      For more information see pandas documentation:
-# *                                                                                *
-# *      http://pandas.pydata.org/pandas-docs/stable/merging.html
-# *                                                                                *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk206_merge_pandas_dfs
+
+Created: 2017/02/23
+
+Description:
+    Illustrate link that calls basic merge() of pandas dataframes
+    For more information see pandas documentation:
+
+    http://pandas.pydata.org/pandas-docs/stable/merging.html
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from pandas import DataFrame
 

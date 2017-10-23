@@ -5,7 +5,7 @@ Created: 2017/02/27
 Class: SparkManager
 
 Description:
-     Process service for managing Spark operations
+    Process service for managing Spark operations
 
 Authors:
     KPMG Big Data team, Amstelveen, The Netherlands

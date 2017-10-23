@@ -1,18 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk209_read_big_data_itr                                              *
-# * Created: 2017/02/17                                                            *
-# * Description:                                                                   *
-# *      Macro to that illustrates how to loop over multiple (possibly large!)     *
-# *      datasets in chunks.                                                       *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team.                                                       *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk209_read_big_data_itr
+
+Created: 2017/02/17
+
+Description:
+    Macro to that illustrates how to loop over multiple (possibly large!)
+    datasets in chunks.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import analysis, core_ops, process_manager, resources, ConfigObject
 from eskapade.logger import Logger

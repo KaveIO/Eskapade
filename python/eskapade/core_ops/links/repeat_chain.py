@@ -1,18 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : RepeatChain                                                           *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm that sends "repeat this chain" signal to processManager,        *
-# *      until ready.                                                              *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: RepeatChain
+
+Created: 2016/11/08
+
+Description:
+    Algorithm that sends "repeat this chain" signal to processManager,
+    until ready.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import process_manager, ConfigObject, Link, StatusCode
 
