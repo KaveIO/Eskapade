@@ -5,7 +5,7 @@ Class: DsObjectDeleter
 Created: 2016/11/08
 
 Description:
-    Algorithm to do...(fill in here)
+    Algorithm to delete objects from the datastore.
 
 Authors:
     KPMG Big Data team, Amstelveen, The Netherlands
@@ -19,7 +19,7 @@ from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 
 
 class DsObjectDeleter(Link):
-    """Delete objects from data store.
+    """Delete objects from the datastore.
 
     Delete objects from the DataStore by the key they are under, or keeps
     only the data by the specified keys.

@@ -5,7 +5,7 @@ Class: SparkGeneralFuncProcessor
 Created: 2016/11/08
 
 Description:
-    Algorithm to do...(fill in here)
+    Processor for applying pandas function on a Spark dataframe.
 
 Authors:
     KPMG Big Data team, Amstelveen, The Netherlands

@@ -5,7 +5,7 @@ Class: PrintDs
 Created: 2016/11/08
 
 Description:
-    Algorithm to do...(fill in here)
+    Algorithm to print the content of the datastore.
 
 Authors:
     KPMG Big Data team, Amstelveen, The Netherlands

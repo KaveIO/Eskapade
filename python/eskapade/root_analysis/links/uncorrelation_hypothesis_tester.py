@@ -362,7 +362,8 @@ class UncorrelationHypothesisTester(Link):
             cat_cut_str = '1'
             for j, var in enumerate(obsset):
                 if isinstance(var, ROOT.RooRealVar):
-                    n_bins = root_helper.get_variable_value(self.var_number_of_bins, combo, j, self.default_number_of_bins)
+                    n_bins = root_helper.get_variable_value(self.var_number_of_bins, combo, j,
+                                                            self.default_number_of_bins)
                     var.setBins(n_bins)
                 elif isinstance(var, ROOT.RooCategory):
                     ignore_categories = self._ignore_categories(combo, j)

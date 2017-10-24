@@ -23,6 +23,8 @@ from eskapade import process_manager, StatusCode, DataStore, Link
 class SparkHister(Link):
     """Defines the content of link SparkHister."""
 
+    # TODO: Fix class docstring.
+
     def __init__(self, name='HiveHister'):
         """Initialize link instance.
 

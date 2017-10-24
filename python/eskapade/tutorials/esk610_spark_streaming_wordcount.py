@@ -1,4 +1,4 @@
-"""Project: Eskapade - A python-based package for data analysis.
+r"""Project: Eskapade - A python-based package for data analysis.
 
 Macro: esk610_spark_streaming
 
