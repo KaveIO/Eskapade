@@ -26,7 +26,7 @@ def get_variable_value(values, c, idx, default):
     if isinstance(c, str):
         c = [c]
     n = ':'.join(c)
-    if n in values and len(values[n]) == len(c) > 1:
+    if n in values and 1 < len(c) == len(values[n]):
         result = values[n][idx]
     else:
         result = values.get(c[idx], default)

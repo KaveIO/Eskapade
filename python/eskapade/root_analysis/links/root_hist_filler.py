@@ -21,7 +21,7 @@ import numpy as np
 import root_numpy
 
 from eskapade.analysis.histogram_filling import HistogramFillerBase
-from eskapade.root_analysis import helpers
+from eskapade.root_analysis import root_helper
 
 
 class RootHistFiller(HistogramFillerBase):
@@ -159,13 +159,13 @@ class RootHistFiller(HistogramFillerBase):
             default = self._default_n_bins_3d
         else:
             default = self._default_n_bins_1d
-        return helpers.get_variable_value(self.var_number_of_bins, c, idx, default)
+        return root_helper.get_variable_value(self.var_number_of_bins, c, idx, default)
 
     def _min(self, c, idx):
-        return helpers.get_variable_value(self.var_min_value, c, idx, self._default_min)
+        return root_helper.get_variable_value(self.var_min_value, c, idx, self._default_min)
 
     def _max(self, c, idx):
-        return helpers.get_variable_value(self.var_max_value, c, idx, self._default_max)
+        return root_helper.get_variable_value(self.var_max_value, c, idx, self._default_max)
 
     def _dtype(self, c):
         n = ':'.join(c)

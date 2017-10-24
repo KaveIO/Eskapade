@@ -28,7 +28,7 @@ from numba import jit
 
 from eskapade import process_manager, resources, Link, DataStore, StatusCode
 from eskapade.core import persistence
-from eskapade.root_analysis import data_conversion, roofit_utils, helpers
+from eskapade.root_analysis import data_conversion, roofit_utils, root_helper
 from eskapade.root_analysis.roofit_manager import RooFitManager
 from eskapade.visualization import vis_utils
 
@@ -362,7 +362,7 @@ class UncorrelationHypothesisTester(Link):
             cat_cut_str = '1'
             for j, var in enumerate(obsset):
                 if isinstance(var, ROOT.RooRealVar):
-                    n_bins = helpers.get_variable_value(self.var_number_of_bins, combo, j, self.default_number_of_bins)
+                    n_bins = root_helper.get_variable_value(self.var_number_of_bins, combo, j, self.default_number_of_bins)
                     var.setBins(n_bins)
                 elif isinstance(var, ROOT.RooCategory):
                     ignore_categories = self._ignore_categories(combo, j)
@@ -566,7 +566,7 @@ class UncorrelationHypothesisTester(Link):
         :param int idx: index of the variable in c, for which to return categories to ignore
         :return: list of categories to ignore
         """
-        i_c = helpers.get_variable_value(self.var_ignore_categories, c, idx, self.ignore_categories)
+        i_c = root_helper.get_variable_value(self.var_ignore_categories, c, idx, self.ignore_categories)
         if not isinstance(i_c, list):
             i_c = [i_c]
         return i_c
