@@ -69,7 +69,7 @@ class DfMerger(Link):
         if isinstance(self.on, str):
             self.on = [self.on]
         elif not isinstance(self.on, list):
-            raise Exception('on is not a list of strings. Exit.')
+            raise Exception('on is not a list of strings.')
 
         assert len(self.on) > 0, 'Not specified on which keys to merge.'
         assert (self.how == 'inner' or self.how == 'outer' or self.how == 'left' or self.how == 'right'), \

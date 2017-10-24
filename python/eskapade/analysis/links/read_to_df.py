@@ -96,8 +96,8 @@ class ReadToDf(Link):
 
     def initialize(self):
         """Initialize the link."""
-        assert isinstance(self.key, str) and len(self.key) > 0, 'output key not set.'
-        assert isinstance(self._usecols, list), 'usecols not set correctly.'
+        assert isinstance(self.key, str) and self.key, 'Output key not set.'
+        assert isinstance(self._usecols, list), 'Usecols not set correctly.'
 
         # construct and check list of file paths to read
         read_paths = [p for p in self.path] if not isinstance(self.path, str) else [self.path]
@@ -131,19 +131,15 @@ class ReadToDf(Link):
             assert isinstance(self.chunksize,
                               int) and self.chunksize > 0, 'Chunksize needs to be set to positive integer.'
             self._iterate = True
+            self.logger.info('chunksize = {size:d}. NB chunksize requires pd.read_csv or pd.read_table.',
+                             size=self.chunksize)
+            # add back chunksize if it was a kwarg, so it's picked up by pandas.
+            self.kwargs['chunksize'] = self.chunksize
+            self.logger.info('kwargs passed on to pandas reader are: {kwargs}', kwargs=self.kwargs)
         # 2. more than one file path has been set, and self.itr_over_files==True.
         elif len(self._paths) > 1 and self.itr_over_files is True:
             self._iterate = True
         self.logger.info('File and/or chunksize iterator is active: {is_iterate}.', is_iterate=self._iterate)
-        if self.chunksize is not None:
-            self.logger.info('chunksize = {size:d}. NB chunksize requires pd.read_csv or pd.read_table.',
-                             size=self.chunksize)
-
-        # add back chunksize if it was a kwarg, so it's picked up by pandas.
-        if self.chunksize is not None:
-            self.kwargs['chunksize'] = self.chunksize
-
-        self.logger.info('kwargs passed on to pandas reader are: {kwargs}', kwargs=self.kwargs)
 
         return StatusCode.Success
 
@@ -170,7 +166,7 @@ class ReadToDf(Link):
 
             # at end of loop
             if self.latest_data_length() == 0:
-                assert self.is_finished(), 'Got empty dataset but not at end of iterator. Thats weird. Exit.'
+                assert self.is_finished(), 'Got empty dataset but not at end of iterator.'
                 # at end of loop, df == None.
                 df = pd.DataFrame(columns=self._usecols)
 
@@ -242,7 +238,7 @@ class ReadToDf(Link):
                 # TextFileReader throws stopiterator exception at end
                 data = None
             except:
-                raise Exception('Unexpected error: cannot process next dataset iteration. Exit.')
+                raise Exception('Unexpected error: cannot process next dataset iteration.')
 
         # 2. trying next file
         # data is still None, setting up a new reader
@@ -275,7 +271,7 @@ class ReadToDf(Link):
                 # TextFileReader throws stopiterator exception at end
                 data = None
             except:
-                raise Exception('Unexpected error: cannot process next dataset iteration. Exit.')
+                raise Exception('Unexpected error: cannot process next dataset iteration.')
 
         return data
 

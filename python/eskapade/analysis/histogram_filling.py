@@ -115,8 +115,8 @@ class HistogramFillerBase(Link):
         for i, c in enumerate(self.columns):
             if isinstance(c, str):
                 self.columns[i] = [c]
-            if not isinstance(self.columns[i], list):
-                raise TypeError('columns "{}" needs to be a string or list of strings'.format(self.columns[i]))
+            elif not isinstance(self.columns[i], list):
+                raise TypeError('Columns "{}" needs to be a string or list of strings'.format(self.columns[i]))
 
         # check for supported data types
         for k in self.var_dtype:

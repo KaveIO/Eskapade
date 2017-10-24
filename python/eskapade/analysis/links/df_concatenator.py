@@ -51,7 +51,7 @@ class DfConcatenator(Link):
 
     def initialize(self):
         """Initialize the link."""
-        assert self.read_keys, 'read_keys have not been set. Error.'
+        assert self.read_keys, 'read_keys have not been set.'
         assert isinstance(self.store_key, str) and self.store_key, 'storage key not set.'
 
         self.logger.info('kwargs passed on to pandas concat function are: {kwargs}', kwargs=self.kwargs)
@@ -82,7 +82,7 @@ class DfConcatenator(Link):
             self.logger.warning("Nothing to concatenate. Configured to return empty dataframe.")
             df = pd.DataFrame()
         else:
-            raise Exception("Nothing to concatenate. This is not right. Exit.")
+            raise Exception("Nothing to concatenate.")
 
         # store the result
         ds[self.store_key] = df

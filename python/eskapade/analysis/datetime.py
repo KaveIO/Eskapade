@@ -21,11 +21,6 @@ from eskapade.core.mixin import ArgumentsMixin
 from eskapade.logger import Logger
 
 
-################
-# time periods #
-################
-
-
 class TimePeriod(ArgumentsMixin):
     """Time period."""
 

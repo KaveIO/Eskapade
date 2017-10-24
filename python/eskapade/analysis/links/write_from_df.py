@@ -72,35 +72,22 @@ class WriteFromDf(Link):
     def initialize(self):
         """Initialize the link."""
         # perform basic checks of configured attributes
-        # a key and path need to have been set.
-        if self.key == '' and self.path == '' and self.dictionary is None:
-            raise Exception('Key, path and dictionary are not set.')
-        if len(self.key) == 0 and len(self.dictionary) == 0:
-            raise Exception('Key or dict has not been set.')
-        if len(self.path) == 0 and len(self.dictionary) == 0:
-            raise Exception('Output filename or dict has not been set. Exit.')
-        else:
-            assert self.path != '' and isinstance(self.path, str), 'path not given.'
+        # a key and path OR dictionary need to have been set.
         if self.path and self.key:
             self.dictionary = {self.key: self.path}
-        elif self.dictionary:
-            pass
-        else:
+        elif not self.dictionary:
             raise Exception('Path and key OR dictionary not properly set.')
 
         # correct the output paths, if need be
-        if self.dictionary:
-            paths = list(self.dictionary.values())
-            assert '' not in paths, 'One or more of the paths in dict is empty.'
-            assert False not in [isinstance(p, str) for p in paths]
-            # update paths if needed
-            for k in self.dictionary.keys():
-                p = self.dictionary[k]
-                if not p.__contains__('/'):
-                    self.dictionary[k] = persistence.io_path('results_data', p)
-                    self.logger.debug('Output filename for key <{key}> has been reset to {new_key}.',
-                                      key=k, new_key=self.dictionary[k])
-
+        paths = list(self.dictionary.values())
+        assert '' not in paths, 'One or more of the paths in dict is empty.'
+        assert all([isinstance(p, str) for p in paths]), 'One or more of the paths in dict is not string.'
+        # update paths if needed
+        for k, p in self.dictionary.items():
+            if not p.__contains__('/'):
+                self.dictionary[k] = persistence.io_path('results_data', p)
+                self.logger.debug('Output filename for key <{key}> has been reset to {new_key}.',
+                                  key=k, new_key=self.dictionary[k])
         self.logger.info('kwargs passed on to pandas writer are: {kwargs}.', kwargs=self.kwargs)
 
         return StatusCode.Success
@@ -120,9 +107,8 @@ class WriteFromDf(Link):
             'key(s) is not a pandas DataFrame.'
 
         # collect writer and store the dataframes
-        for k in self.dictionary:
+        for k, path in self.dictionary.items():
             df = ds[k]
-            path = self.dictionary[k]
             if self.add_counter_to_name:
                 ps = os.path.splitext(path)
                 path = ps[0] + '_' + str(self._counter) + ps[1]

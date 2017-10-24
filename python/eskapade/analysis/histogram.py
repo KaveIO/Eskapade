@@ -960,7 +960,7 @@ class Histogram(BinningUtil, ArgumentsMixin):
             bin_label = self.value_to_bin_label(var_value)
         except Exception as exc:
             self.logger.error('bin label for variable value "{value!s}" not found ({error})',
-                              value=var_value, error=exc.message)
+                              value=var_value, error=exc)
             return 0
         return self.get_bin_count(bin_label)
 

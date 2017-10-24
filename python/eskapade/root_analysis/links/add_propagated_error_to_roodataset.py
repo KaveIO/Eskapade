@@ -99,7 +99,7 @@ class AddPropagatedErrorToRooDataSet(Link):
         # retrieve fit result to propagate errors of
         if self.from_ws:
             fit_result = ws.obj(self.fit_result)
-            assert func is not None, 'key {} not in workspace'.format(self.fit_result)
+            assert fit_result is not None, 'key {} not in workspace'.format(self.fit_result)
         else:
             assert self.fit_result in ds, 'key "{}" not found in datastore'.format(self.fit_result)
             fit_result = ds[self.fit_result]

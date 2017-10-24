@@ -71,12 +71,12 @@ class ApplySelectionToDf(Link):
         if isinstance(self.query_set, str):
             self.query_set = [self.query_set]
         elif not isinstance(self.query_set, list):
-            raise Exception('query set is not a list of strings. Exit.')
+            raise Exception('Query set is not a list of strings.')
 
         if isinstance(self.select_columns, str):
             self.select_columns = [self.select_columns]
         elif not isinstance(self.select_columns, list):
-            raise Exception('column selection is not a list of strings. Exit.')
+            raise Exception('Column selection is not a list of strings.')
 
         assert len(self.query_set) or len(self.select_columns), 'No selections have been provided.'
 

@@ -84,7 +84,7 @@ class EventLooper(Link):
             try:
                 self._f = open(self.filename, "r")
             except IOError:
-                Exception('Cannot open file {}. Exit.'.format(self.filename))
+                raise Exception('Cannot open file {}.'.format(self.filename))
             # successful, so switch linestream to file.
             self._linestream = self._f
 

@@ -44,7 +44,8 @@ def eskapade_run():
     import IPython
     import pandas as pd
 
-    from eskapade import core, ConfigObject
+    from eskapade import ConfigObject
+    from eskapade.core import execution
     from eskapade.core.run_utils import create_arg_parser
 
     # create parser for command-line arguments
@@ -67,8 +68,12 @@ def eskapade_run():
     # set user options
     settings.set_user_opts(user_args)
 
-    # run Eskapade
-    core.execution.run_eskapade(settings)
+    try:
+        # run Eskapade
+        execution.run_eskapade(settings)
+    except Exception as exc:
+        logger.error('{exc}', exc=exc)
+        raise
 
     # start interpreter if requested (--interactive on command line)
     if settings.get('interactive'):
