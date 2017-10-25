@@ -15,7 +15,6 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-
 import ROOT
 import numpy as np
 import root_numpy
