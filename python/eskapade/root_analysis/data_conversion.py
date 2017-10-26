@@ -428,7 +428,10 @@ def tree_to_df(tree, branch_names=None, index_name='', drop_roofit_labels=False)
     # 3. convert index back to integers
     # try to find index name. make educated guess
     if not index_name:
-        index_name = list(filter(lambda col: col.startswith('__index__'), df.columns))[0]
+        for col in df.columns:
+            if col.startswith('__index__'):
+                index_name = col
+                break
     if index_name:
         try:
             df[index_name] = df[index_name].astype(np.int32)
