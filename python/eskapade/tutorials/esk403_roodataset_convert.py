@@ -1,23 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk403_roodataset_convert                                             *
-# * Created: 2017/03/28                                                            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *
-# * Description:
-# *
-# * This macro illustrates how to convert a pandas dataframe to a roofit dataset
-# * (= roodataset), do something to it with roofit, and then convert the roodataset
-# * back again to a pandas dataframe.
-# *                                                                                *
-# * Licence:
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk403_roodataset_convert
+
+Created: 2017/03/28
+
+Description:
+    This macro illustrates how to convert a pandas dataframe to a roofit dataset
+    (= roodataset), do something to it with roofit, and then convert the roodataset
+    back again to a pandas dataframe.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import ConfigObject
 from eskapade import core_ops, analysis, root_analysis

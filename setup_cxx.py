@@ -1,3 +1,18 @@
+"""Project: Eskapade - A python-based package for data analysis
+
+Created: 2017/08/18
+
+Description:
+    cxx extension.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
 import os
 import platform
 import subprocess

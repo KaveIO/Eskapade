@@ -1,14 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk601_spark_configuration                                          *
-# * Created: 2017/05/31                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for configuring Spark in multiple ways                    *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk601_spark_configuration
+
+Created: 2017/05/31
+
+Description:
+    Tutorial macro for configuring Spark in multiple ways
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import process_manager, ConfigObject, spark_analysis
 from eskapade.logger import Logger

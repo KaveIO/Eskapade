@@ -1,21 +1,23 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : SparkHistogrammarFiller                                             *
-# * Created: 2017/06/09                                                          *
-# * Description:                                                                 *
-# *      Algorithm to fill histogrammar sparse-bin histograms from a spark       *
-# *      dataframe. It is possible to do cleaning of these histograms by         *
-# *      rejecting certain keys or removing inconsistent data types.             *
-# *      Timestamp columns are converted to nanoseconds before                   *
-# *      the binning is applied.                                                 *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: SparkHistogrammarFiller
+
+Created: 2017/06/09
+
+Description:
+    Algorithm to fill histogrammar sparse-bin histograms from a spark
+    dataframe. It is possible to do cleaning of these histograms by
+    rejecting certain keys or removing inconsistent data types.
+    Timestamp columns are converted to nanoseconds before
+    the binning is applied.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import histogrammar
 import histogrammar.sparksql
@@ -150,6 +152,7 @@ class SparkHistogrammarFiller(HistogrammarFiller):
 
         @property
         def n_bins(self):
+            """Get number of bins."""
             if hasattr(self, 'num'):
                 return self.num
             elif hasattr(self, 'size'):
@@ -209,6 +212,7 @@ class SparkHistogrammarFiller(HistogrammarFiller):
 
         # histogrammar does not yet support long integers
         def to_ns(x):
+            """Convert to ns."""
             return float(hf.to_ns(x))
 
         udf_to_ns = udf(to_ns, FloatType())

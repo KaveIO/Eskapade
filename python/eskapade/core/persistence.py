@@ -1,24 +1,26 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : IoConfig                                                              *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Utility class and functions to get correct io path,                       *
-# *      used for persistence of results                                           *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created: 2016/11/08
+
+Description:
+    Utility class and functions to get correct io path,
+    used for persistence of results
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import glob
 import os
 import re
 from collections import defaultdict
 
+from eskapade.core.process_manager import process_manager
+from eskapade.core.process_services import ConfigObject
 from eskapade.logger import Logger
 
 # IO locations
@@ -73,7 +75,7 @@ def create_dir(dir_path):
     os.makedirs(dir_path)
 
 
-def io_dir(io_type, io_conf):
+def io_dir(io_type, io_conf=None):
     """Construct directory path.
 
     :param str io_type: type of result to store, e.g. data, macro, results.
@@ -81,6 +83,8 @@ def io_dir(io_type, io_conf):
     :return: directory path
     :rtype: str
     """
+    if not io_conf:
+        io_conf = process_manager.service(ConfigObject).io_conf()
     # check inputs
     if io_type not in IO_LOCS:
         logger.fatal('Unknown IO type: "{type!s}".', type=io_type)
@@ -100,15 +104,17 @@ def io_dir(io_type, io_conf):
     return dir_path
 
 
-def io_path(io_type, io_conf, sub_path):
+def io_path(io_type, sub_path, io_conf=None):
     """Construct directory path with sub path.
 
     :param str io_type: type of result to store, e.g. data, macro, results.
-    :param io_conf: IO configuration object
     :param str sub_path: sub path to be included in io path
+    :param io_conf: IO configuration object
     :return: full path to directory
     :rtype: str
     """
+    if not io_conf:
+        io_conf = process_manager.service(ConfigObject).io_conf()
     # check inputs
     if not isinstance(sub_path, str):
         logger.fatal('Specified sub path/file name must be a string, but has type "{type!s}"',
@@ -118,21 +124,23 @@ def io_path(io_type, io_conf, sub_path):
 
     # construct path
     full_path = io_dir(io_type, io_conf) + '/' + sub_path
-    if os.path.dirname(sub_path):
+    if os.path.dirname(full_path):
         create_dir(os.path.dirname(full_path))
 
     return full_path
 
 
-def record_file_number(io_conf, file_name_base, file_name_ext):
+def record_file_number(file_name_base, file_name_ext, io_conf=None):
     """Get next prediction-record file number.
 
-    :param io_conf: I/O configuration object
     :param str file_name_base: base file name
     :param str file_name_ext: file name extension
+    :param io_conf: I/O configuration object
     :return: next prediction-record file number
     :rtype: int
     """
+    if not io_conf:
+        io_conf = process_manager.service(ConfigObject).io_conf()
     file_name_base = repl_whites(file_name_base)
     file_name_ext = repl_whites(file_name_ext)
     records_dir = io_dir('records', io_conf)
@@ -144,30 +152,3 @@ def record_file_number(io_conf, file_name_base, file_name_ext):
             max_num = max(max_num, int(digit.group(1)))
 
     return max_num + 1
-
-
-class IoConfig(dict):
-    """Configuration object for I/O operations."""
-
-    _conf_items = dict(analysis_name=str,
-                       analysis_version=None,
-                       results_dir=str,
-                       data_dir=str,
-                       macros_dir=str,
-                       templates_dir=str)
-
-    def __init__(self, **input_config):
-        """Initialize IoConfig instance."""
-        # check required items
-        for key, val_type in self._conf_items.items():
-            if key not in input_config:
-                logger.fatal('Item "{key}" not found in input IO configuration.', key=key)
-                raise KeyError('Missing item(s) in input configuration for IoConfig.')
-            if val_type and not isinstance(input_config[key], val_type):
-                logger.fatal('Item "{key}" has type "{type}" ("{name}" required).',
-                             key=key, type=type(input_config[key]).__name__, name=str.__name__)
-                raise TypeError('Incorrect type for item(s) in input configuration for IoConfig.')
-
-        # initialize dictionary
-        dict.__init__(self, **input_config)
-        self['analysis_version'] = str(self['analysis_version'])

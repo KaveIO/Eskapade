@@ -2,7 +2,7 @@ import sys
 import unittest
 import unittest.mock as mock
 
-from eskapade.utils import set_matplotlib_backend, build_cxx_library
+from eskapade.utils import set_matplotlib_backend
 
 
 class MatplotlibBackendTest(unittest.TestCase):
@@ -147,87 +147,4 @@ class MatplotlibBackendTest(unittest.TestCase):
         mock_log.warning.assert_called_once_with('Matplotlib cannot be used interactively; no display found.')
         mock_interactive.reset_mock()
         mock_use.reset_mock()
-        mock_log.reset_mock()
-
-
-class BuildCxxLibraryTest(unittest.TestCase):
-    """Test for calling function to build C++ library"""
-
-    @mock.patch('eskapade.utils.get_dir_path')
-    @mock.patch('eskapade.utils.logger')
-    @mock.patch('os.path.isfile')
-    @mock.patch('subprocess.PIPE')
-    @mock.patch('subprocess.run')
-    def test_build_cxx_library(self, mock_run, mock_pipe, mock_isfile, mock_log, mock_get_dir_path):
-        """Test calling C++ library build function"""
-
-        # create mock for build-process result
-        mock_build_result = mock.Mock(name='CompletedProcess_instance')
-        mock_build_result.returncode = 0
-        mock_build_result.stdout = 'Make stdout'
-        mock_build_result.stderr = 'Make stderr'
-        mock_run.return_value = mock_build_result
-
-        # mock directories
-        mock_dirs = dict(es_lib='lib_dir', es_cxx_make='make_dir')
-        mock_get_dir_path.side_effect = lambda k: mock_dirs.get(k, 'no_such_dir')
-
-        # mock isfile
-        mock_isfile.return_value = False
-
-        # test normal build
-        build_cxx_library()
-        mock_run.assert_called_once_with(['make', '-C', 'make_dir', 'install'], stdout=mock_pipe, stderr=mock_pipe,
-                                         universal_newlines=True)
-        mock_run.reset_mock()
-
-        # test building specific library
-        build_cxx_library(lib_key='roofit')
-        mock_run.assert_called_once_with(['make', '-C', 'make_dir', 'roofit-install'], stdout=mock_pipe,
-                                         stderr=mock_pipe, universal_newlines=True)
-        mock_run.reset_mock()
-
-        # test calling with non-existing library key
-        with self.assertRaises(AssertionError):
-            build_cxx_library(lib_key='no_such_key')
-        mock_run.assert_not_called()
-        mock_run.reset_mock()
-
-        # set return code for failed build
-        mock_build_result.returncode = 1
-
-        # test failed build
-        with self.assertRaises(RuntimeError):
-            build_cxx_library(lib_key='')
-        mock_run.assert_called_once_with(['make', '-C', 'make_dir', 'install'], stdout=mock_pipe, stderr=mock_pipe,
-                                         universal_newlines=True)
-        mock_run.reset_mock()
-
-        # test failed build for specific library
-        with self.assertRaises(RuntimeError):
-            build_cxx_library(lib_key='roofit', accept_existing=True)
-        mock_run.assert_called_once_with(['make', '-C', 'make_dir', 'roofit-install'], stdout=mock_pipe,
-                                         stderr=mock_pipe, universal_newlines=True)
-        mock_run.reset_mock()
-
-        # set return value for existing-library check
-        mock_isfile.return_value = True
-
-        # test failed build for specific existing library (not accepted)
-        with self.assertRaises(RuntimeError):
-            build_cxx_library(lib_key='roofit', accept_existing=False)
-        mock_run.assert_called_once_with(['make', '-C', 'make_dir', 'roofit-install'], stdout=mock_pipe,
-                                         stderr=mock_pipe, universal_newlines=True)
-        mock_run.reset_mock()
-
-        # test failed build for specific existing library (accepted)
-        mock_isfile.reset_mock()
-        build_cxx_library(lib_key='roofit', accept_existing=True)
-        mock_run.assert_called_once_with(['make', '-C', 'make_dir', 'roofit-install'], stdout=mock_pipe,
-                                         stderr=mock_pipe, universal_newlines=True)
-        mock_isfile.assert_called_once_with('lib_dir/libesroofit.so')
-        mock_log.warning.assert_called_once_with(
-            'Failed to build library with target "{target}"; using existing version.', target='roofit-install')
-        mock_run.reset_mock()
-        mock_isfile.reset_mock()
         mock_log.reset_mock()

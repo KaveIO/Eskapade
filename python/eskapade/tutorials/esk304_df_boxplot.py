@@ -1,17 +1,17 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk304_df_boxplot                                                     *
-# * Created: 2017/02/23                                                            *
-# * Description:                                                                   *
-# *      Macro shows how to boxplot the content of a dataframe in a nice summary   *
-# *      pdf file.                                                                 *
-# *                                                                                *
-# *                                                                                *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro : esk304_df_boxplot
+
+Created: 2017/02/23
+
+Description:
+    Macro shows how to boxplot the content of a dataframe in a nice summary
+    pdf file.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import ConfigObject
 from eskapade import analysis, visualization
@@ -38,7 +38,7 @@ msg = r"""
 The plots and latex files produced by link df_summary can be found in dir:
 {path}
 """
-logger.info(msg, path=persistence.io_path('results_data', settings.io_conf(), 'report'))
+logger.info(msg, path=persistence.io_path('results_data', 'report'))
 
 COLUMNS = ['var_a', 'var_b', 'var_c']
 SIZE = 10000
@@ -72,7 +72,7 @@ box_plot = visualization.DfBoxplot(name='Create_stats_overview',
                                    var_units=VAR_UNITS,
                                    column='var_b',
                                    cause_columns=['var_a', 'var_c'],
-                                   results_path=persistence.io_path('results_data', settings.io_conf(), 'report'))
+                                   results_path=persistence.io_path('results_data', 'report'))
 process_manager.get_chain('BoxPlot').add(box_plot)
 
 #########################################################################################

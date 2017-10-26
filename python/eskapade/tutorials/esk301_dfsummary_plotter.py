@@ -1,17 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk301_dfsummary_plotter                                              *
-# * Created: 2017/02/23                                                            *
-# * Description:                                                                   *
-# *      Macro shows how to plot the content of a dataframe in a nice summary
-# *      pdf file.
-# *      (Example similar to tutorial_1)
-# *                                                                                *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk301_dfsummary_plotter
+
+Created: 2017/02/23
+
+Description:
+    Macro shows how to plot the content of a dataframe in a nice summary
+    pdf file.
+    (Example similar to tutorial_1)
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import ConfigObject
 from eskapade import analysis, visualization

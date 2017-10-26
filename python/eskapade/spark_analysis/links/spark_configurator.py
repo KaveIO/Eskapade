@@ -1,18 +1,20 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : SparkConfigurator                                                   *
-# * Created: 2017/06/07                                                          *
-# * Description:                                                                 *
-# *      This link stops a running Spark session and starts a new one with       *
-# *      the configuration provided to the link.                                 *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: SparkConfigurator
+
+Created: 2017/06/07
+
+Description:
+    This link stops a running Spark session and starts a new one with
+    the configuration provided to the link.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import process_manager, ConfigObject, Link, StatusCode
 from eskapade.spark_analysis import SparkManager

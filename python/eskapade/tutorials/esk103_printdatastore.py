@@ -1,19 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk103_printdatastore
-# * Created: 2017/02/15                                                            *
-# * Description:                                                                   *
-# *      Macro to illustrate the use of the Printdatastore link.
-# *      Prindatastore prints an overview of the contents in the
-# *      datastore at the state of running
-# *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk103_printdatastore
+
+Created: 2017/02/15
+
+Description:
+    Macro to illustrate the use of the Printdatastore link.
+    Prindatastore prints an overview of the contents in the
+    datastore at the state of running
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import core_ops, process_manager, ConfigObject, DataStore
 from eskapade.logger import Logger

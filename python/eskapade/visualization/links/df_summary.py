@@ -1,29 +1,29 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : DfSummary                                                             *
-# * Created: 2017/02/17                                                            *
-# *                                                                                *
-# * Description:                                                                   *
-# *      Link to create a statistics summary of data frame columns                 *
-# *      or of a set of histograms                                                 *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-import os
+Class : DfSummary
+
+Created: 2017/02/17
+
+Description:
+    Link to create a statistics summary of data frame columns
+    or of a set of histograms.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import numpy as np
 import pandas as pd
 import tabulate
 
-from eskapade import core, resources, visualization
-from eskapade import process_manager, ConfigObject, Link, DataStore, StatusCode
+from eskapade import resources, visualization
+from eskapade import process_manager, Link, DataStore, StatusCode
 from eskapade.analysis import statistics
+from eskapade.core import persistence
 
 NUMBER_OF_BINS = 30
 
@@ -70,6 +70,12 @@ class DfSummary(Link):
         self.pages = []
         self.nan_counts = []
 
+    def _process_results_path(self):
+        """Process results_path argument."""
+        if not self.results_path:
+            self.results_path = persistence.io_path('results_data', 'report')
+        persistence.create_dir(self.results_path)
+
     def initialize(self):
         """Initialize the link."""
         # check input arguments
@@ -77,30 +83,13 @@ class DfSummary(Link):
         self.check_arg_types(recurse=True, allow_none=True, columns=str, hist_keys=str, var_labels=str, var_units=str)
         self.check_arg_vals('read_key')
 
-        # get I/O configuration
-        io_conf = process_manager.service(ConfigObject).io_conf()
-
         # read report templates
         with open(resources.template('df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
         with open(resources.template('df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
 
-        # get path to results directory
-        if not self.results_path:
-            self.results_path = core.persistence.io_path('results_data', io_conf, 'report')
-
-        # check if output directory exists
-        if os.path.exists(self.results_path):
-            # check if path is a directory
-            if not os.path.isdir(self.results_path):
-                self.logger.fatal('Output path "{path}" is not a directory.', path=self.results_path)
-                raise AssertionError('Output path is not a directory.')
-        else:
-            # create directory
-            self.logger.debug('Making output directory "{path}".', path=self.results_path)
-            os.makedirs(self.results_path)
-
+        self._process_results_path()
         # add hist_keys to columns, ensure sum is a unique set
         self.columns += self.hist_keys
         self.columns = sorted(list(set(self.columns)))

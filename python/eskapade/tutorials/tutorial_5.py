@@ -1,19 +1,21 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : Tutorial_5                                                          *
-# * Created: 2017/06/14                                                          *
-# * Description:                                                                 *
-# *     Macro illustrates basic setup of chains and links with Apache Spark,     *
-# *     by showing: how to open and run over a dataset,                          *
-# *     apply transformations to it, and plot the results.                       *
-# *                                                                              *
-# * Authors:                                                                     *
-# *     KPMG Big Data team.                                                      *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: Tutorial_5
+
+Created: 2017/06/14
+
+Description:
+    Macro illustrates basic setup of chains and links with Apache Spark,
+    by showing: how to open and run over a dataset,
+    apply transformations to it, and plot the results.
+
+Authors:
+    KPMG Big Data team.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import process_manager, ConfigObject
 from eskapade.logger import Logger

@@ -8,13 +8,13 @@ Description:
     The ProcessManager singleton class forms the core of Eskapade.
     It performs initialization, execution, and finalizing of the
     configured chains.
-    
+
 Authors:
     KPMG Big Data team, Amstelveen, The Netherlands
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file
-LICENSE.z
+LICENSE.
 """
 
 import glob
@@ -107,7 +107,7 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
 
             # if already registered, check if specified instance is the registered instance
             if serv_spec is not self._services.get(cls, serv_spec):
-                raise ValueError('specified service is not the instance that was registered earlier')
+                raise ValueError('Specified service is not the instance that was registered earlier.')
 
             # register service if not registered yet
             if cls not in self._services:
@@ -117,7 +117,7 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         if cls not in self._services:
             # check if service class is derived from ProcessService
             if not isinstance(cls, type) or not issubclass(cls, ProcessService):
-                raise TypeError('specified service type does not derive from ProcessService')
+                raise TypeError('Specified service type does not derive from ProcessService.')
 
             # create and register instance
             self._services[cls] = cls.create()
@@ -181,19 +181,6 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
             service.finish()
         self._services.clear()
 
-    @staticmethod
-    def check_io_config(io_conf):
-        """Check I/O config and set name/version if not specified.
-
-        :param dict io_conf: I/O config to check
-        """
-        io_conf = persistence.IoConfig(**io_conf)
-        if not io_conf['analysis_name']:
-            io_conf['analysis_name'] = 'default'
-        if not io_conf['analysis_version']:
-            io_conf['analysis_version'] = '0'
-        return io_conf
-
     def import_services(self, io_conf, chain=None, force=None, no_force=None):
         """Import process services from files.
 
@@ -206,7 +193,7 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         no_force = no_force or []
 
         # parse I/O config
-        io_conf = self.check_io_config(io_conf)
+        io_conf = ConfigObject.IoConfig(**io_conf)
 
         # get services for which import may be forced
         force_set = set()
@@ -268,7 +255,7 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         :param str chain: name of chain for which data is persisted
         """
         # parse I/O config
-        io_conf = self.check_io_config(io_conf)
+        io_conf = ConfigObject.IoConfig(**io_conf)
 
         # parse specified chain
         if chain:
@@ -327,7 +314,7 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         settings = self.service(ConfigObject)
         if not settings.get('doNotStoreResults') and copyfile:
             import shutil
-            shutil.copy(filename, persistence.io_dir('results_config', settings.io_conf()))
+            shutil.copy(filename, persistence.io_dir('results_config'))
 
     def add(self, chain: Chain) -> None:
         """Add a chain to the process manager.

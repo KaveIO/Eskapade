@@ -1,29 +1,31 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : tutorial_4                                                            *
-# * Created: 2017/07/12                                                            *
-# * Description:                                                                   *
-# *      This tutorial macro illustrates how to define a new probability density   *
-# *      function (pdf) in RooFit, how to compile it, and how to use it in         *
-# *      Eskapade to simulate a dataset, fit it, and plot the results.             *
-# *                                                                                *
-# *      For a brief lesson on RooFit, see here:                                   *
-# *      https://root.cern.ch/roofit-20-minutes                                    *
-# *                                                                                *
-# *      This tutorial shows how to build, compile and load a new pdf model.       *
-# *                                                                                *
-# *      Many good RooFit tutorials exist. See $ROOTSYS/tutorials/roofit/          *
-# *      of your local ROOT installation.                                          *
-# *      This tutorial is partially based in RooFit tutorial:                      *
-# *      $ROOTSYS/tutorials/roofit/rf104_classfactory.C                            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG The Netherlands, Big Data & Advanced Analytics team                  *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: tutorial_4
+
+Created: 2017/07/12
+
+Description:
+    This tutorial macro illustrates how to define a new probability density
+    function (pdf) in RooFit, how to compile it, and how to use it in
+    Eskapade to simulate a dataset, fit it, and plot the results.
+
+    For a brief lesson on RooFit, see here:
+    https://root.cern.ch/roofit-20-minutes
+
+    This tutorial shows how to build, compile and load a new pdf model.
+
+    Many good RooFit tutorials exist. See $ROOTSYS/tutorials/roofit/
+    of your local ROOT installation.
+    This tutorial is partially based in RooFit tutorial:
+    $ROOTSYS/tutorials/roofit/rf104_classfactory.C
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import sys
 

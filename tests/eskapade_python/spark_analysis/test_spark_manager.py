@@ -49,7 +49,7 @@ class SparkManagerTest(unittest.TestCase):
         mock_builder.config.return_value = created_session
         mock_builder.enableHiveSupport.return_value = created_session
         mock_sm._create_spark_conf.return_value = created_config
-        mock_es_utils.get_file_path.side_effect = lambda k: 'py_mods_path' if k == 'py_mods' else 'no_path'
+        mock_es_utils.collect_python_modules.return_value = 'py_mods_path'
 
         # create mock UDFs
         SPARK_UDFS['foo'] = dict(func='foo_func', ret_type='foo_type')
@@ -225,7 +225,7 @@ class SparkManagerTest(unittest.TestCase):
 
         mock_sm.get_config.side_effect = get_config
         eskapade_config = SparkManager._create_spark_conf(mock_sm, eskapade_settings=eskapade_settings)
-        mock_io_path.assert_called_once_with('config_spark', {'foo': 'bar'}, 'spark.cfg')
+        mock_io_path.assert_called_once_with('config_spark', 'spark.cfg', {'foo': 'bar'})
         mock_sm.reset_config.assert_called_once_with()
         created_config.setAll.assert_called_once_with([('foo', 'bar')])
         self.assertIs(eskapade_config, created_config, 'incorrect config set')
@@ -286,7 +286,7 @@ class SparkManagerTest(unittest.TestCase):
         mock_sm.get_config.side_effect = get_config
         SparkManager._create_spark_conf(
             mock_sm, config_path='foo.bar', eskapade_settings=eskapade_settings, spark_settings=spark_settings)
-        mock_io_path.assert_called_once_with('config_spark', {'foo': 'bar'}, 'foo.bar')
+        mock_io_path.assert_called_once_with('config_spark', 'foo.bar', {'foo': 'bar'})
         mock_sm.reset_config.assert_called_once_with()
         calls = [mock.call(get_config().items()), mock.call(spark_settings)]
         created_config.setAll.assert_has_calls(calls, any_order=False)

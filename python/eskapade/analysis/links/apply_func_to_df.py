@@ -1,18 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : ApplyFuncToDf                                                  *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm to apply one or more functions to a (grouped) dataframe column  *
-# *      or to an entire dataframe.                                                *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: ApplyFuncToDf
+
+Created: 2016/11/08
+
+Description:
+    Algorithm to apply one or more functions to a (grouped) dataframe column
+    or to an entire dataframe.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import collections
 
@@ -143,7 +145,7 @@ class ApplyFuncToDf(Link):
 
     def groupbyapply(self, df, groupby_columns, applyfunc, *args, **kwargs):
         """Apply groupby to dataframe."""
-        if 'groupbyColout' not in list(kwargs.keys()):
+        if 'groupbyColout' not in kwargs:
             return df.groupby(groupby_columns).apply(applyfunc, *args, **kwargs).reset_index(drop=True)
         else:
             colout = kwargs['groupbyColout']

@@ -120,7 +120,6 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
 
         self.eskapade_run(resources.tutorial('esk305_correlation_summary.py'))
 
-        settings = process_manager.service(ConfigObject)
         ds = process_manager.service(DataStore)
 
         # input data checks
@@ -144,8 +143,7 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
             self.assertListEqual(list(corr.index), col_names)
 
         # heatmap pdf checks
-        io_conf = settings.io_conf()
-        results_path = persistence.io_path('results_data', io_conf, 'report')
+        results_path = persistence.io_path('results_data', 'report')
 
         correlations = ['pearson', 'kendall', 'spearman', 'correlation_ratio']
         for corr in correlations:

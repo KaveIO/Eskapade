@@ -1,17 +1,18 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Created: 2017/02/28                                                            *
-# * Description:                                                                   *
-# *      Utility functions to collect Eskapade python modules                      *
-# *      e.g. functions to get correct Eskapade file paths and env variables       *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created: 2017/02/28
+
+Description:
+    Utility functions to collect Eskapade python modules
+    e.g. functions to get correct Eskapade file paths and env variables
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import numpy as np
 import pandas as pd
@@ -93,6 +94,7 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False, pdf_fi
 
         # set x-axis properties
         def xtick(lab):
+            """Get x-tick."""
             lab = str(lab)
             if len(lab) > top:
                 lab = lab[:17] + '...'
@@ -328,6 +330,7 @@ def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
 
     # set x-axis properties
     def tick(lab):
+        """Get tick."""
         if isinstance(lab, (float, int)):
             lab = 'NaN' if np.isnan(lab) else '{0:.1e}'.format(lab)
         lab = str(lab)

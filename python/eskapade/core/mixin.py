@@ -108,6 +108,7 @@ class ArgumentsMixin:
     def check_arg_types(self, recurse=False, allow_none=False, **name_type):
         """Check if set of arguments has correct types."""
         def check_attr(self, attr, a_name, a_type):
+            """Check if argument has correct type."""
             if allow_none and attr is None:
                 return
             if not isinstance(attr, a_type):

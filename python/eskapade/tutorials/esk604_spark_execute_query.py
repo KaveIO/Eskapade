@@ -1,15 +1,20 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk604_spark_execute_query                                          *
-# * Created: 2017/06/07                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for applying a SQL-query to one more objects in the       *
-# *     DataStore. Such SQL-queries can for instance be used to filter data.     *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk604_spark_execute_query
+
+Created: 2017/06/07
+
+Description:
+    Tutorial macro for applying a SQL-query to one more objects in the
+    DataStore. Such SQL-queries can for instance be used to filter data.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import process_manager, ConfigObject, resources, spark_analysis
 from eskapade.logger import Logger

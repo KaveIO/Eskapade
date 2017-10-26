@@ -1,19 +1,21 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : Tutorial_1                                                          *
-# * Created: 2017/02/18                                                          *
-# * Description:                                                                 *
-# *     Macro illustrates basic setup of chains and links,                       *
-# *     by showing: how to open and run over a dataset,                          *
-# *     apply transformations to it, and plot the results.                       *
-# *                                                                              *
-# * Authors:                                                                     *
-# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: Tutorial_1
+
+Created: 2017/02/18
+
+Description:
+    Macro illustrates basic setup of chains and links,
+    by showing: how to open and run over a dataset,
+    apply transformations to it, and plot the results.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import pandas as pd
 

@@ -1,24 +1,22 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk401_roothist_fill_plot_convert                                     *
-# * Created: 2017/03/28                                                            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *
-# * Description:
-# *
-# * This macro illustrates how to fill 1-3 dimensional root histograms from a
-# * pandas dataframe. In turn, these histogram are: 2) plotted,
-# * 3) converted to a roofit histogram (roodatahist), and 4) converted to a
-# * roofit dataset (roodataset).
-# *                                         :                                      *
-# * Licence:
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk401_roothist_fill_plot_convert
+
+Created: 2017/03/28
+
+Description:
+    This macro illustrates how to fill 1-3 dimensional root histograms from a
+    pandas dataframe. In turn, these histogram are: 2) plotted,
+    3) converted to a roofit histogram (roodatahist), and 4) converted to a
+    roofit dataset (roodataset).
+                                        :
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import ConfigObject
 from eskapade import analysis, core_ops, resources, root_analysis, visualization

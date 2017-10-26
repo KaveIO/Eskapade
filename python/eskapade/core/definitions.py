@@ -1,21 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Created: 2017/02/27                                                            *
-# * Description:                                                                   *
-# *      Definitions used in Eskapade runs:                                        *
-# *        * logging levels                                                        *
-# *        * return-status codes                                                   *
-# *        * default configuration variables                                       *
-# *        * user options                                                          *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
+Created: 2017/02/27
+
+Description:
+    Definitions used in Eskapade runs:
+    * logging levels
+    * return-status codes
+    * default configuration variables
+    * user options
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ast
 import collections

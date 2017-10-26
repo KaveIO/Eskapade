@@ -1,26 +1,31 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk501_fix_pandas_dataframe                                           *
-# * Created: 2017/04/26                                                            *
-# * Description:                                                                   *
-# *      Macro illustrates how to call FixPandasDataFrame link that gives columns
-# *      consistent names and datatypes.
-# *      Default settings perform the following clean-up steps on an
-# *      input dataframe:
-# *
-# *      - Fix all column names. Eg. remove punctuation and strange characters,
-# *        and convert spaces to underscores.
-# *      - Check for various possible nans in the dataset, then make all nans
-# *        consistent by turning them into numpy.nan (= float)
-# *      - Per column, assess dynamically the most consistent datatype (ignoring
-# *        all nans in that column). Eg. bool, int, float, datetime64, string.
-# *      - Per column, make the data types of all rows consistent, by using the
-# *        identified (or imposed) data type (by default ignoring all nans)
-# *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk501_fix_pandas_dataframe
+
+Created: 2017/04/26
+
+Description:
+    Macro illustrates how to call FixPandasDataFrame link that gives columns
+    consistent names and datatypes.
+    Default settings perform the following clean-up steps on an
+    input dataframe:
+
+    - Fix all column names. Eg. remove punctuation and strange characters,
+    and convert spaces to underscores.
+    - Check for various possible nans in the dataset, then make all nans
+    consistent by turning them into numpy.nan (= float)
+    - Per column, assess dynamically the most consistent datatype (ignoring
+    all nans in that column). Eg. bool, int, float, datetime64, string.
+    - Per column, make the data types of all rows consistent, by using the
+    identified (or imposed) data type (by default ignoring all nans)
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import tempfile
 

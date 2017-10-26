@@ -1,31 +1,29 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk404_workspace_createpdf_simulate_fit_plot                          *
-# * Created: 2017/03/27                                                            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Description:                                                                   *
-# *                                                                                *
-# * Macro illustrates how do basic statistical data analysis with roofit,          *
-# * by making use of the rooworkspace functionality.                               *
-# *                                                                                *
-# * For a brief lesson on RooFit, see here:                                        *
-# * https://root.cern.ch/roofit-20-minutes                                         *
-# *                                                                                *
-# * The example shows how to define a pdf, simulate data, fit this data,           *
-# * and then plot the fit result.                                                  *
-# *                                                                                *
-# * The generated data is converted to a dataframe and the contents is plotted     *
-# * with a default plotter link.                                                   *
-# *                                                                                *
-# * Licence:                                                                       *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk404_workspace_createpdf_simulate_fit_plot
+
+Created: 2017/03/27
+
+Description:
+    Macro illustrates how do basic statistical data analysis with roofit,
+    by making use of the rooworkspace functionality.
+
+    For a brief lesson on RooFit, see here:
+    https://root.cern.ch/roofit-20-minutes
+
+    The example shows how to define a pdf, simulate data, fit this data,
+    and then plot the fit result.
+
+    The generated data is converted to a dataframe and the contents is plotted
+    with a default plotter link.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import ConfigObject
 from eskapade import core_ops, visualization, root_analysis

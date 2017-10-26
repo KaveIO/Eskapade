@@ -1,23 +1,25 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : DsObjectDeleter                                                       *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm to do...(fill in here)                                          *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: DsObjectDeleter
+
+Created: 2016/11/08
+
+Description:
+    Algorithm to delete objects from the datastore.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 
 
 class DsObjectDeleter(Link):
-    """Delete objects from data store.
+    """Delete objects from the datastore.
 
     Delete objects from the DataStore by the key they are under, or keeps
     only the data by the specified keys.

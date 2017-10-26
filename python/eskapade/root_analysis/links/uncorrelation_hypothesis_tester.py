@@ -1,21 +1,22 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : UncorrelationHypothesisTester
-# * Created: 2017/05/27
-# * Description:                                                                   *
-# *      Algorithm to test for correlations between categorical observables.       *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: UncorrelationHypothesisTester
+
+Created: 2017/05/27
+
+Description:
+    Algorithm to test for correlations between categorical observables
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 import fnmatch
-import os
 from collections import OrderedDict
 
 import ROOT
@@ -25,9 +26,9 @@ import root_numpy
 import tabulate
 from numba import jit
 
-from eskapade import process_manager, resources, ConfigObject, Link, DataStore, StatusCode
+from eskapade import process_manager, resources, Link, DataStore, StatusCode
 from eskapade.core import persistence
-from eskapade.root_analysis import data_conversion, roofit_utils
+from eskapade.root_analysis import data_conversion, roofit_utils, root_helper
 from eskapade.root_analysis.roofit_manager import RooFitManager
 from eskapade.visualization import vis_utils
 
@@ -40,7 +41,7 @@ class UncorrelationHypothesisTester(Link):
 
     Significance test: tests correlation between observables.
     This test calculates the (significance of the) p-value of the hypothesis that
-    the observables in the input dataset are not correlated. A detailed discription
+    the observables in the input dataset are not correlated. A detailed description
     of the method can be found in ABCDutils.h
 
     Residuals test: tests correlation between values of observables.
@@ -134,6 +135,21 @@ class UncorrelationHypothesisTester(Link):
         self.residuals_map = {}
         self.mto = {}
 
+    def _process_results_path(self):
+        """Process results_path argument."""
+        if not self.results_path:
+            self.results_path = persistence.io_path('results_data', 'report')
+        persistence.create_dir(self.results_path)
+
+    def _process_prefix(self):
+        """Process prefix argument."""
+        # prefix for file storage
+        if self.prefix:
+            if not self.prefix.startswith('/'):
+                self.prefix = '/' + self.prefix
+            if not self.prefix.endswith('_'):
+                self.prefix += '_'
+
     def initialize(self):
         """Initialize the link."""
         # check input arguments
@@ -153,9 +169,6 @@ class UncorrelationHypothesisTester(Link):
                 and not isinstance(self.map_to_original, dict):
             raise TypeError('map_to_original needs to be a dict or string (to fetch a dict from the datastore)')
 
-        # get I/O configuration
-        io_conf = process_manager.service(ConfigObject).io_conf()
-
         # read report templates
         with open(resources.template('df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
@@ -164,26 +177,8 @@ class UncorrelationHypothesisTester(Link):
         with open(resources.template('df_summary_table_page.tex')) as templ_file:
             self.table_template = templ_file.read()
 
-        # get path to results directory
-        if not self.results_path:
-            self.results_path = persistence.io_path('results_data', io_conf, 'report')
-        if self.results_path and not self.results_path.endswith('/'):
-            self.results_path += '/'
-
-        # check if output directory exists
-        if os.path.exists(self.results_path):
-            # check if path is a directory
-            if not os.path.isdir(self.results_path):
-                self.logger.fatal('Output path "{path}" is not a directory.', path=self.results_path)
-                raise AssertionError('Output path is not a directory.')
-        else:
-            # create directory
-            self.logger.debug('Making output directory "{path}".', path=self.results_path)
-            os.makedirs(self.results_path)
-
-        # prefix for file storage
-        if self.prefix and not self.prefix.endswith('_'):
-            self.prefix += '_'
+        self._process_results_path()
+        self._process_prefix()
 
         # check provided columns
         if self.columns:
@@ -367,7 +362,8 @@ class UncorrelationHypothesisTester(Link):
             cat_cut_str = '1'
             for j, var in enumerate(obsset):
                 if isinstance(var, ROOT.RooRealVar):
-                    n_bins = self._n_bins(combo, j)
+                    n_bins = root_helper.get_variable_value(self.var_number_of_bins, combo, j,
+                                                            self.default_number_of_bins)
                     var.setBins(n_bins)
                 elif isinstance(var, ROOT.RooCategory):
                     ignore_categories = self._ignore_categories(combo, j)
@@ -431,7 +427,7 @@ class UncorrelationHypothesisTester(Link):
                           .replace('VAR_STATS_TABLE', stats_table)
                           .replace('VAR_HISTOGRAM_PATH', f_path))
         significance = self.significance_map.copy()
-        for key in list(significance.keys()):
+        for key in significance:
             significance[key] = [significance[key]]
         dfsignificance = pd.DataFrame(significance).stack().reset_index(level=1) \
             .rename(columns={'level_1': 'Questions', 0: 'Significance'}) \
@@ -448,7 +444,7 @@ class UncorrelationHypothesisTester(Link):
             # create one dataframe containing all data
             resid_list = []
             ndim_max = 2
-            for key in list(self.residuals_map.keys()):
+            for key in self.residuals_map:
                 if abs(self.significance_map[key]) < self.z_threshold:
                     continue
                 dftmp = self.residuals_map[key].copy()
@@ -564,23 +560,6 @@ class UncorrelationHypothesisTester(Link):
 
         return StatusCode.Success
 
-    def _n_bins(self, c, idx=0):
-        """Determine number of bins for continues variables.
-
-        :param list c: list of variables, or string variable
-        :param int idx: index of the variable in c for which to return number of bins
-        :return: number of bins
-        """
-        if isinstance(c, str):
-            c = [c]
-        n = ':'.join(c)
-        if len(c) > 1 and n in self.var_number_of_bins and len(self.var_number_of_bins[n]) == len(c):
-            return self.var_number_of_bins[n][idx]
-        elif c[idx] in self.var_number_of_bins:
-            return self.var_number_of_bins[c[idx]]
-        # fall back on defaults
-        return self.default_number_of_bins
-
     def _ignore_categories(self, c, idx=0):
         """Determine list of categories to ignore.
 
@@ -588,16 +567,7 @@ class UncorrelationHypothesisTester(Link):
         :param int idx: index of the variable in c, for which to return categories to ignore
         :return: list of categories to ignore
         """
-        if isinstance(c, str):
-            c = [c]
-        n = ':'.join(c)
-        if len(c) > 1 and n in self.var_ignore_categories and len(self.var_ignore_categories[n]) == len(c):
-            i_c = self.var_ignore_categories[n][idx]
-        elif c[idx] in self.var_ignore_categories:
-            i_c = self.var_ignore_categories[c[idx]]
-        else:
-            # fall back on defaults
-            i_c = self.ignore_categories
+        i_c = root_helper.get_variable_value(self.var_ignore_categories, c, idx, self.ignore_categories)
         if not isinstance(i_c, list):
             i_c = [i_c]
         return i_c
@@ -659,17 +629,17 @@ def extract_matrix(df, x_col, y_col, v_col='normResid'):
     return matrix, x_vals, y_vals
 
 
-def latex_residuals_table(df, keep_cols=[], abs_z_threshold=3., n_rows=20, norm_resid_col='normResid'):
+def latex_residuals_table(df, keep_cols=None, abs_z_threshold=3., n_rows=20, norm_resid_col='normResid'):
     """Create Latex table from dataframe.
 
     Create Latex table from dataframe. Options are available to select columns and rows.
 
     :param pandas.DataFrame df: pandas dataframe from which latex table will be created
-    :param list keep_cols: selection on columns. List of columns for which table will be created (optional)
-    :param float abs_z_threshold: selection on rows. Create only if value in norm_resid_col >= threshold (optional)
-    :param int n_rows: maximum number of rows (optional)
+    :param list keep_cols: selection on columns. List of columns for which table will be created. Optional.
+    :param float abs_z_threshold: selection on rows. Create only if value in norm_resid_col >= threshold. Optional.
+    :param int n_rows: maximum number of rows. Optional.
     :param str norm_resid_col: latex table is sorted according to values in this column. Also the threshold
-                             is applied to this column (optional)
+        is applied to this column. Optional.
     :return: table in string format
     """
     # basic checks

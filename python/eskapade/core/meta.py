@@ -22,7 +22,7 @@ LICENSE.
 from abc import ABCMeta, abstractmethod
 from weakref import proxy
 
-from eskapade import StatusCode
+from eskapade.core.definitions import StatusCode
 from eskapade.logger import Logger
 
 
@@ -55,8 +55,7 @@ class Singleton(type):
     def __instancecheck__(mcs, instance) -> bool:
         if instance.__class__ is mcs:
             return True
-        else:
-            return isinstance(instance.__class__, mcs)
+        return isinstance(instance.__class__, mcs)
 
 
 class Processor(metaclass=ABCMeta):

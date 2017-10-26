@@ -1,18 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : WsUtils                                                               *
-# * Created: 2017/03/25                                                            *
-# * Description:                                                                   *
-# *      Algorithm to fill a RooWorkspace with useful objects and apply
-# *      operations to them, such as simulation, fitting, and plotting.            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class : WsUtils
+
+Created: 2017/03/25
+
+Description:
+    Algorithm to fill a RooWorkspace with useful objects and apply
+    operations to them, such as simulation, fitting, and plotting.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 import os
@@ -23,7 +25,7 @@ import ROOT
 import tabulate
 from ROOT import RooFit
 
-from eskapade import process_manager, resources, ConfigObject, DataStore, Link, StatusCode
+from eskapade import process_manager, resources, DataStore, Link, StatusCode
 from eskapade.core import persistence
 from eskapade.root_analysis import roofit_utils
 from eskapade.root_analysis.roofit_manager import RooFitManager
@@ -82,6 +84,12 @@ class WsUtils(Link):
         self._plot = []
         self.pages = []
 
+    def _process_results_path(self):
+        """Process results_path argument."""
+        if not self.results_path:
+            self.results_path = persistence.io_path('results_data', 'report')
+        persistence.create_dir(self.results_path)
+
     def initialize(self):
         """Initialize the link."""
         # check input arguments
@@ -95,9 +103,6 @@ class WsUtils(Link):
             self.copy_into_ds = [self.copy_into_ds]
         assert isinstance(self.copy_into_ds, list), 'copy_into_ds needs to be a string or list of strings.'
 
-        # get I/O configuration
-        io_conf = process_manager.service(ConfigObject).io_conf()
-
         # read report templates
         with open(resources.template('df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
@@ -106,22 +111,7 @@ class WsUtils(Link):
         with open(resources.template('df_summary_table_page.tex')) as templ_file:
             self.table_template = templ_file.read()
 
-        # get path to results directory
-        if not self.results_path:
-            # get I/O configuration
-            io_conf = process_manager.service(ConfigObject).io_conf()
-            self.results_path = persistence.io_path('results_data', io_conf, 'report')
-
-        # check if output directory exists
-        if os.path.exists(self.results_path):
-            # check if path is a directory
-            if not os.path.isdir(self.results_path):
-                self.logger.fatal('Output path "{path}" is not a directory.', path=self.results_path)
-                raise AssertionError('Output path is not a directory.')
-        else:
-            # create directory
-            self.logger.debug('Making output directory "{path}"', path=self.results_path)
-            os.makedirs(self.results_path)
+        self._process_results_path()
 
         # make sure Eskapade RooFit library is loaded for fitting (for plotting correlation matrix)
         if self._fit:
@@ -272,7 +262,7 @@ class WsUtils(Link):
             thepdf = pdf
         else:
             assert len(pdf), 'pdf name not set'
-            thepdf = ds[pdf] if pdf in ds else ws.pdf(pdf)
+            thepdf = ds.get(pdf, ws.pdf(pdf))
         if not thepdf:
             raise RuntimeError('unable to retrieve pdf')
         else:
@@ -281,7 +271,7 @@ class WsUtils(Link):
         if isinstance(obs, ROOT.RooArgSet):
             theobs = obs
         elif isinstance(obs, str) and obs:
-            theobs = ds[obs] if obs in ds else ws.set(obs)
+            theobs = ds.get(obs, ws.set(obs))
         else:
             set_name = thepdf.GetName() + '_varset'
             theobs = ws.set(set_name)
@@ -358,7 +348,7 @@ class WsUtils(Link):
             thepdf = pdf
         else:
             assert isinstance(pdf, str) and pdf, 'pdf name not set'
-            thepdf = ds[pdf] if pdf in ds else ws.pdf(pdf)
+            thepdf = ds.get(pdf, ws.pdf(pdf))
         if not thepdf:
             raise RuntimeError('unable to retrieve pdf for fitting')
         else:
@@ -368,7 +358,7 @@ class WsUtils(Link):
             thedata = data
         else:
             assert isinstance(data, str) and data, 'data set name not set'
-            thedata = ds[data] if data in ds else ws.data(data)
+            thedata = ds.get(data, ws.data(data))
         if not thedata:
             raise RuntimeError('unable to retrieve dataset for fitting')
         else:
@@ -458,7 +448,7 @@ class WsUtils(Link):
         self._plot.append((a, kw))
 
     def do_plot(self, ds, ws, obs, data=None, pdf=None, func=None, data_args=(), pdf_args=(), func_args=(),
-                data_kwargs={}, pdf_kwargs={}, func_kwargs={}, key='', into_ws=False, output_file=None, bins=40,
+                data_kwargs=None, pdf_kwargs=None, func_kwargs=None, key='', into_ws=False, output_file=None, bins=40,
                 logy=False, miny=0, plot_range=None):
         """Make a plot of data and/or a pdf, or of a function.
 
@@ -466,23 +456,23 @@ class WsUtils(Link):
 
         :param ds: input data store, from which to retrieve pdf and dataset to fit
         :param ROOT.RooWorkspace ws: input workspace, from which to retrieve pdf and dataset to fit
-        :param data: input dataset used for plotting, can be a key to look up or RooAbsData (optional)
-        :param pdf: input pdf used for plotting, can be a key to look up or RooAbsPdf (optional)
-        :param func: input function used for plotting, can be a key to look up or RooAbsReal (optional)
-        :param data_args: positional arguments passed on to the plotting of the data. (optional)
-        :param data_kwargs: key word arguments passed on to the plotting of the data. (optional)
-        :param pdf_args: positional arguments passed on to the plotting of the pdf. (optional)
-        :param pdf_kwargs: key word arguments passed on to the plotting of the pdf. (optional)
-        :param func_args: positional arguments passed on to the plotting of the function. (optional)
-        :param func_kwargs: key word arguments passed on to the plotting of the function. (optional)
+        :param data: input dataset used for plotting, can be a key to look up or RooAbsData. Optional.
+        :param pdf: input pdf used for plotting, can be a key to look up or RooAbsPdf. Optional.
+        :param func: input function used for plotting, can be a key to look up or RooAbsReal. Optional.
+        :param data_args: positional arguments passed on to the plotting of the data. Optional.
+        :param data_kwargs: key word arguments passed on to the plotting of the data. Optional.
+        :param pdf_args: positional arguments passed on to the plotting of the pdf. Optional.
+        :param pdf_kwargs: key word arguments passed on to the plotting of the pdf. Optional.
+        :param func_args: positional arguments passed on to the plotting of the function. Optional.
+        :param func_kwargs: key word arguments passed on to the plotting of the function. Optional.
         :param str key: key under which to store the plot frame (=RooPlot).
-                        If key exists in ds/workspace, plot in the existing frame. (optional)
+                        If key exists in ds/workspace, plot in the existing frame. Optional.
         :param bool into_ws: if true, store simulated data in workspace, not the datastore
-        :param str output_file: if set, store plot with this file name (optional)
-        :param int bins: number of bins in the plot. default is 40. (optional)
-        :param bool logy: if true, set y-axis to log scale (optional)
-        :param float miny: set minimum value of y-axis to miny value (optional)
-        :param tuple plot_range: specify x-axis plot range as (min, max) (optional)
+        :param str output_file: if set, store plot with this file name. Optional.
+        :param int bins: number of bins in the plot. default is 40. Optional.
+        :param bool logy: if true, set y-axis to log scale. Optional.
+        :param float miny: set minimum value of y-axis to miny value. Optional.
+        :param tuple plot_range: specify x-axis plot range as (min, max). Optional.
         """
         # basic checks
         assert pdf is not None or data is not None or func is not None, 'both pdf, dataset, and func not set'
@@ -492,7 +482,7 @@ class WsUtils(Link):
             theobs = obs
         else:
             assert isinstance(obs, str) and obs, 'obs name for plotting not set.'
-            theobs = ds[obs] if obs in ds else ws.var(obs)
+            theobs = ds.get(obs, ws.var(obs))
         if not theobs:
             raise RuntimeError('Unable to retrieve observable for plotting.')
         else:
@@ -501,7 +491,7 @@ class WsUtils(Link):
         if isinstance(data, ROOT.RooAbsData):
             thedata = data
         elif isinstance(data, str) and data:
-            thedata = ds[data] if data in ds else ws.data(data)
+            thedata = ds.get(data, ws.data(data))
             if not thedata:
                 raise RuntimeError('Unable to retrieve dataset with name "{}" from workspace.'.format(data))
             else:
@@ -510,7 +500,7 @@ class WsUtils(Link):
         if isinstance(pdf, ROOT.RooAbsPdf):
             thepdf = pdf
         elif isinstance(pdf, str) and pdf:
-            thepdf = ds[pdf] if pdf in ds else ws.pdf(pdf)
+            thepdf = ds.get(pdf, ws.pdf(pdf))
             if not thepdf:
                 raise RuntimeError('Unable to retrieve pdf with name "{}" from workspace.'.format(pdf))
             else:
@@ -519,7 +509,7 @@ class WsUtils(Link):
         if isinstance(func, ROOT.RooAbsReal):
             thefunc = func
         elif isinstance(func, str) and func:
-            thefunc = ds[func] if func in ds else ws.function(func)
+            thefunc = ds.get(func, ws.function(func))
             if not thefunc:
                 raise RuntimeError('Unable to retrieve function with name "{}" from workspace.'.format(func))
             else:
@@ -548,7 +538,7 @@ class WsUtils(Link):
                 frame = key
             else:
                 assert isinstance(key, str) and key, 'Key for rooplot needs to be a filled string.'
-                frame = ds[key] if key in ds else ws.obj(key)
+                frame = ds.get(key, ws.obj(key))
                 if not frame:
                     frame = theobs.frame(ROOT.RooFit.Bins(bins), ROOT.RooFit.Range(plot_range[0], plot_range[1]))
         else:

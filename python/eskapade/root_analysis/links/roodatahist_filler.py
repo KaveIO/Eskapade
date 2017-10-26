@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : RooDataHistFiller                                                     *
-# * Created: 2017/03/25                                                            *
-# * Description:                                                                   *
-# *      Algorithm to fill a RooDataHist with columns from a DataFrame
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: RooDataHistFiller
+
+Created: 2017/03/25
+
+Description:
+    Algorithm to fill a RooDataHist with columns from a DataFrame
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import math
 
@@ -236,10 +238,7 @@ class RooDataHistFiller(Link):
                 if not isinstance(rv, ROOT.RooRealVar):
                     continue
                 name = rv.GetName()
-                if name in self.var_number_of_bins:
-                    n_bins = self.var_number_of_bins[name]
-                else:
-                    n_bins = N_BINS_DEFAULT
+                n_bins = self.var_number_of_bins.get(name, N_BINS_DEFAULT)
                 if n_bins > n_max_bins:
                     n_bins = n_max_bins
                     self.logger.info('Capping n_bins of column "{col}" to: {n:d}', col=name, n=n_max_bins)

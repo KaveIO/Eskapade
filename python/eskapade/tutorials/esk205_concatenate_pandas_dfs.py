@@ -1,17 +1,22 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk205_concatenate_pandas_dfs                                         *
-# * Created: 2017/02/23                                                            *
-# * Description:                                                                   *
-# *      Illustrates link that calls basic concat() of pandas dataframes            *
-# *      See for more information pandas documentation:
-# *                                                                                *
-# *      http://pandas.pydata.org/pandas-docs/stable/merging.html
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk205_concatenate_pandas_dfs
+
+Created: 2017/02/23
+
+Description:
+    Illustrates link that calls basic concat() of pandas dataframes
+    See for more information pandas documentation:
+
+    http://pandas.pydata.org/pandas-docs/stable/merging.html
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from pandas import DataFrame
 

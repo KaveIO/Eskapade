@@ -1,23 +1,25 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : ValueCounter                                                        *
-# * Created: 2017/03/02                                                          *
-# * Description:                                                                 *
-# *      Algorithm to do value_counts() on single columns of a pandas            *
-# *      dataframe, or groupby().size() on multiple columns, both returned       *
-# *      as dictionaries. It is possible to do cleaning of these dicts by        *
-# *      rejecting certain keys or removing inconsistent data types.             *
-# *      Numeric and timestamp columns are converted to bin indices before       *
-# *      the binning is applied.                                                 *
-# *      Results are stored as 1D Histograms or as ValueCounts objects.          *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: ValueCounter
+
+Created: 2017/03/02
+
+Description:
+    Algorithm to do value_counts() on single columns of a pandas
+    dataframe, or groupby().size() on multiple columns, both returned
+    as dictionaries. It is possible to do cleaning of these dicts by
+    rejecting certain keys or removing inconsistent data types.
+    Numeric and timestamp columns are converted to bin indices before
+    the binning is applied.
+    Results are stored as 1D Histograms or as ValueCounts objects.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from collections import Counter
 

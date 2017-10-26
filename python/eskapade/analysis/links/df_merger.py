@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : DfMerger                                                              *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm to Merges two pandas DataFrames                                 *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: DfMerger
+
+Created: 2016/11/08
+
+Description:
+    Algorithm to Merges two pandas DataFrames
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 
@@ -67,7 +69,7 @@ class DfMerger(Link):
         if isinstance(self.on, str):
             self.on = [self.on]
         elif not isinstance(self.on, list):
-            raise Exception('on is not a list of strings. Exit.')
+            raise Exception('on is not a list of strings.')
 
         assert len(self.on) > 0, 'Not specified on which keys to merge.'
         assert (self.how == 'inner' or self.how == 'outer' or self.how == 'left' or self.how == 'right'), \

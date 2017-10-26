@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : ApplySelectionToDf                                                    *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm to apply queries to input dataframe                             *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: ApplySelectionToDf
+
+Created: 2016/11/08
+
+Description:
+    Algorithm to apply queries to input dataframe
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 
@@ -62,19 +64,18 @@ class ApplySelectionToDf(Link):
         if self.store_key is None:
             self.logger.warning('store_key has not been set, now set to: {key}', key=self.read_key)
             self.store_key = self.read_key
-            pass
         else:
             assert isinstance(self.store_key, str) and len(self.store_key), 'store_key has not been set.'
 
         if isinstance(self.query_set, str):
             self.query_set = [self.query_set]
         elif not isinstance(self.query_set, list):
-            raise Exception('query set is not a list of strings. Exit.')
+            raise Exception('Query set is not a list of strings.')
 
         if isinstance(self.select_columns, str):
             self.select_columns = [self.select_columns]
         elif not isinstance(self.select_columns, list):
-            raise Exception('column selection is not a list of strings. Exit.')
+            raise Exception('Column selection is not a list of strings.')
 
         assert len(self.query_set) or len(self.select_columns), 'No selections have been provided.'
 

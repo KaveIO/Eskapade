@@ -1,18 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A Python-based package for data analysis                 *
-# * Module: root_analysis.roofit_utils                                           *
-# * Created: 2017/04/24                                                          *
-# * Description:                                                                 *
-# *     Basic utilities for interaction with RooFit                              *
-# *                                                                              *
-# * Authors:                                                                     *
-# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A Python-based package for data analysis.
 
+Module: root_analysis.roofit_utils
+
+Created: 2017/04/24
+
+Description:
+    Basic utilities for interaction with RooFit
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import pathlib
 from enum import IntEnum, unique

@@ -1,6 +1,6 @@
 """Project: Eskapade - A python-based package for data analysis.
 
-Created : 2017-09-20
+Created: 2017-09-20
 
 Description:
     Helper functions for eskapade_bootstrap
@@ -79,7 +79,7 @@ def generate_link(link_dir, link_name, is_create_init=False):
     """
     # Do not modify the indentation of template!
     template = """\"\"\"Project: Eskapade - A python-based package for data analysis.
-    
+
 Class: {link_name!s}
 
 Created: {date_generated!s}
@@ -260,31 +260,31 @@ def generate_notebook(notebook_dir, notebook_name, macro_path=None):
     with open(resources.template('notebook_template.ipynb')) as file:
         template = file.read()
         content = template.format(macro_path=macro_path,
-                                  analysis_name=notebook_name,
+                                  notebook_name=notebook_name,
                                   python_version=platform.python_version())
         create_file(path=notebook_dir,
                     file_name='{notebook_name!s}.ipynb'.format(notebook_name=notebook_name),
                     content=content)
 
 
-def generate_setup(root_dir, project_name):
-    """Generate project's setup.py.
+def generate_setup(root_dir, package_name):
+    """Generate project setup.py.
 
     :param root_dir: absolute path to an analysis project root dir
-    :param project_name: project's name
+    :param package_name: package name
     """
     # Do not modify the indentation of template!
     template = """from setuptools import setup, find_packages
 
-NAME = '{project_name}'
+NAME = '{package_name}'
 
 
 def setup_package() -> None:
-    \"\"\"The main setup method. 
-    
+    \"\"\"The main setup method.
+
     It is responsible for setting up and installing the package.
     \"\"\"
-    
+
     setup(name=NAME,
           python_requires='>=3.5',
           package_dir={{'': '.'}},
@@ -296,5 +296,5 @@ def setup_package() -> None:
 if __name__ == '__main__':
     setup_package()
 """
-    content = template.format(project_name=project_name)
+    content = template.format(package_name=package_name)
     create_file(path=root_dir, file_name='setup.py', content=content)

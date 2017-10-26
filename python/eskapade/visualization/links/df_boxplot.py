@@ -1,26 +1,26 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : DfBoxplot                                                             *
-# * Created: 2017/02/17                                                            *
-# *                                                                                *
-# * Description:                                                                   *
-# *      Link to create a boxplot of data frame columns                            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-import os
+Class : DfBoxplot
+
+Created: 2017/02/17
+
+Description:
+    Link to create a boxplot of data frame columns.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import pandas as pd
 
-from eskapade import StatusCode, DataStore, Link, process_manager, ConfigObject
-from eskapade import core, resources, visualization
+from eskapade import StatusCode, DataStore, Link, process_manager
+from eskapade import resources, visualization
 from eskapade.analysis import statistics
+from eskapade.core import persistence
 
 NUMBER_OF_RECORDS = 1000
 
@@ -60,6 +60,12 @@ class DfBoxplot(Link):
         # initialize attributes
         self.pages = []
 
+    def _process_results_path(self):
+        """Process results_path argument."""
+        if not self.results_path:
+            self.results_path = persistence.io_path('results_data', 'report')
+        persistence.create_dir(self.results_path)
+
     def initialize(self):
         """Initialize the link."""
         # check input arguments
@@ -67,29 +73,13 @@ class DfBoxplot(Link):
         self.check_arg_types(recurse=True, allow_none=True, column=str, cause_columns=list, statistics=list)
         self.check_arg_vals('read_key')
 
-        # get I/O configuration
-        io_conf = process_manager.service(ConfigObject).io_conf()
-
         # read report templates, we use the summary_report template from the df summary link
         with open(resources.template('df_summary_report.tex')) as templ_file:
             self.report_template = templ_file.read()
         with open(resources.template('df_summary_report_page.tex')) as templ_file:
             self.page_template = templ_file.read()
 
-        # get path to results directory
-        if not self.results_path:
-            self.results_path = core.persistence.io_path('results_data', io_conf, 'report')
-
-        # check if output directory exists
-        if os.path.exists(self.results_path):
-            # check if path is a directory
-            if not os.path.isdir(self.results_path):
-                self.logger.fatal('Output path "{path}" is not a directory.', path=self.results_path)
-                raise AssertionError('output path is not a directory')
-        else:
-            # create directory
-            self.logger.debug('Making output directory "{path}".', path=self.results_path)
-            os.makedirs(self.results_path)
+        self._process_results_path()
 
         return StatusCode.Success
 

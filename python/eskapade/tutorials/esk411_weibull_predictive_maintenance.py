@@ -1,20 +1,21 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk411_weibull_predictive_maintenance                               *
-# * Created: 2017/03/27                                                          *
-# *                                                                              *
-# * Description:                                                                 *
-# *     Macro illustrates how to fit several Weibull distributions to a falling  *
-# *     time difference distribution, indicating times between maintenance.      *
-# *                                                                              *
-# * Authors:                                                                     *
-# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
-# *                                                                              *
-# * Licence:                                                                     *
-# *     Redistribution and use in source and binary forms, with or without       *
-# *     modification, are permitted according to the terms listed in the file    *
-# *     LICENSE.                                                                 *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk411_weibull_predictive_maintenance
+
+Created: 2017/03/27
+
+Description:
+    Macro illustrates how to fit several Weibull distributions to a falling
+    time difference distribution, indicating times between maintenance.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Licence:
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted according to the terms listed in the file
+    LICENSE.
+"""
 
 import ROOT
 from ROOT import RooFit
@@ -48,7 +49,7 @@ msg = r"""
 The plots and latex report produced by link WsUtils can be found in dir:
 {path}
 """
-logger.info(msg, path=persistence.io_path('results_data', settings.io_conf(), 'report'))
+logger.info(msg, path=persistence.io_path('results_data', 'report'))
 
 settings['generate'] = True
 # settings['read_data'] = not settings['generate']

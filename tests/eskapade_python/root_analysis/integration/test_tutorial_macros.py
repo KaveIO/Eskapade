@@ -15,8 +15,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
     """Integration tests based on root-analysis tutorial macros"""
 
     def test_esk401(self):
-        """Test Esk-401: ROOT hist fill, plot, convert"""
-
+        """Test Esk-401: ROOT hist fill, plot, convert."""
         # run Eskapade
         self.eskapade_run(resources.tutorial('esk401_roothist_fill_plot_convert.py'))
         ds = process_manager.service(DataStore)
@@ -48,10 +47,9 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIsInstance(ds['vars_x2_vs_x3'], ROOT.RooArgSet)
 
         # data-summary checks
-        io_conf = process_manager.service(ConfigObject).io_conf()
         file_names = ['report.tex'] + ['hist_{}.pdf'.format(col.replace(':', '_vs_')) for col in columns]
         for fname in file_names:
-            path = persistence.io_path('results_data', io_conf, 'report/{}'.format(fname))
+            path = persistence.io_path('results_data', 'report/{}'.format(fname))
             self.assertTrue(os.path.exists(path))
             statinfo = os.stat(path)
             self.assertTrue(statinfo.st_size > 0)
@@ -215,8 +213,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIsInstance(ds['simdata'], ROOT.RooDataSet)
 
     def test_esk407(self):
-        """Test Esk-407: Classification unbiased fit estimate"""
-
+        """Test Esk-407: Classification unbiased fit estimate."""
         # run Eskapade
         macro = resources.tutorial('esk407_classification_unbiased_fit_estimate.py')
         self.eskapade_run(macro)
@@ -249,8 +246,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue(hi_risk.getError() > 0)
 
     def test_esk408(self):
-        """Test Esk-408: Classification error propagation after fit"""
-
+        """Test Esk-408: Classification error propagation after fit."""
         # run Eskapade
         self.eskapade_run(resources.tutorial('esk408_classification_error_propagation_after_fit.py'))
         ds = process_manager.service(DataStore)
@@ -281,8 +277,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
     @unittest.skip('The new chain interface does not have a method get. '
                    'BTW how do I know which chains/links are defined?')
     def test_esk409(self):
-        """Test Esk-409: Unredeemed vouchers"""
-
+        """Test Esk-409: Unredeemed vouchers."""
         # run Eskapade
         macro = resources.tutorial('esk409_unredeemed_vouchers.py')
         self.eskapade_run(macro)
@@ -305,16 +300,13 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertLess(n_ev_pull, 3.)
 
         # check plot output
-        plot_path = persistence.io_path('results_data',
-                                        process_manager.service(ConfigObject).io_conf(),
-                                        'voucher_redeem.pdf')
+        plot_path = persistence.io_path('results_data', 'voucher_redeem.pdf')
         self.assertTrue(os.path.exists(plot_path))
         statinfo = os.stat(plot_path)
         self.assertGreater(statinfo.st_size, 0)
 
     def test_esk410(self):
-        """Test Esk-410: Hypothesis test of categorical observables """
-
+        """Test Esk-410: Hypothesis test of categorical observables."""
         # run Eskapade
         macro = resources.tutorial('esk410_testing_correlations_between_categories.py')
         self.eskapade_run(macro)
@@ -335,8 +327,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
             self.assertTrue(statinfo.st_size > 0)
 
     def test_esk411(self):
-        """Test Esk-411: Predictive maintenance Weibull fit"""
-
+        """Test Esk-411: Predictive maintenance Weibull fit."""
         # run Eskapade
         macro = resources.tutorial('esk411_weibull_predictive_maintenance.py')
         self.eskapade_run(macro)
@@ -372,17 +363,23 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertGreater(n3.getVal(), 5.e4)
 
         # data-summary checks
-        io_conf = process_manager.service(ConfigObject).io_conf()
         file_names = ['weibull_fit_report.tex', 'correlation_matrix_fit_result.pdf', 'floating_pars_fit_result.tex',
                       'fit_of_time_difference_medium_range.pdf']
         for fname in file_names:
-            path = persistence.io_path('results_data', io_conf, 'report/{}'.format(fname))
+            path = persistence.io_path('results_data', 'report/{}'.format(fname))
             self.assertTrue(os.path.exists(path))
             statinfo = os.stat(path)
             self.assertGreater(statinfo.st_size, 0)
 
     def test_tutorial4(self):
-        """Test Tutorial 3: Workspace create PDF, simulate, fit, plot"""
+        """Test Tutorial 4: Workspace create PDF, simulate, fit, plot."""
+        def remove_pdf():
+            # cleanup of temporary pdf files
+            rm_files = glob('MyPdfV3.*') + glob('MyPdfV3_cxx*') + glob('doesnotexit.cxx')
+            for rm_file in rm_files:
+                os.remove(rm_file)
+
+        self.addCleanup(remove_pdf)
 
         # turn on creation and loading of MyPdfV3
         settings = process_manager.service(ConfigObject)
@@ -418,8 +415,3 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         # roofit objects check in workspace
         self.assertIn('testpdf', ws)
-
-        # cleanup of temporary pdf files
-        rm_files = glob('MyPdfV3.*') + glob('MyPdfV3_cxx*')
-        for rm_file in rm_files:
-            os.remove(rm_file)

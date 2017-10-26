@@ -1,16 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk109_debugging_tips                                                 *
-# * Created: 2017/02/26                                                            *
-# * Description:                                                                   *
-# *      Macro to illustrate basic debugging features of Eskapade.
-# *      The macro shows how to start interactive ipython sessions while
-# *      running through the chains, and also how to break out of a chain.
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk109_debugging_tips
+
+Created: 2017/02/26
+
+Description:
+    Macro to illustrate basic debugging features of Eskapade.
+    The macro shows how to start interactive ipython sessions while
+    running through the chains, and also how to break out of a chain.
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import ConfigObject
 from eskapade import DataStore
@@ -40,7 +45,7 @@ from the cmd line use the this flag: -i
 logger.info(msg)
 
 # testing false used for running integration tests. do not remove.
-settings['TESTING'] = False if 'TESTING' not in settings else settings['TESTING']
+settings['TESTING'] = settings.get('TESTING', False)
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags

@@ -1,14 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk602_read_csv_to_spark_df                                         *
-# * Created: 2017/05/31                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for reading CSV files into a Spark data frame             *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk602_read_csv_to_spark_df
+
+Created: 2017/05/31
+
+Description:
+    Tutorial macro for reading CSV files into a Spark data frame
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import process_manager, ConfigObject, resources, spark_analysis
 from eskapade.logger import Logger

@@ -1,18 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : FixPandasDataFrame                                                    *
-# * Created: 2017/04/07                                                            *
-# * Description:                                                                   *
-# *      Link for fixing dirty pandas dataframe with inconsistent datatypes        *
-# *      See example in: tutorials/esk501_fix_pandas_dataframe.py                  *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: FixPandasDataFrame
+
+Created: 2017/04/07
+
+Description:
+    Link for fixing dirty pandas dataframe with inconsistent datatypes
+    See example in: tutorials/esk501_fix_pandas_dataframe.py
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 import re
@@ -172,7 +174,7 @@ class FixPandasDataFrame(Link):
             self.logger.debug('store_key has been set to "{key}".', key=self.store_key)
 
         # check data types
-        for k in self.var_dtype.keys():
+        for k in self.var_dtype:
             if k not in self.contaminated_columns:
                 self.contaminated_columns.append(k)
             try:
@@ -274,9 +276,7 @@ class FixPandasDataFrame(Link):
         # df_ = df_.apply(fastnumbers.fast_real)
 
         # init - assess data types of columns as earlier assessed by pandas
-        for col in self.fixed_columns:
-            if col in self._df_orig_dtype:
-                continue
+        for col in set(self.fixed_columns).difference(self._df_orig_dtype):
             # convert to consistent types
             dt = df_[col].dtype.type
             if dt is np.str_ or dt is np.object_:
@@ -303,9 +303,7 @@ class FixPandasDataFrame(Link):
         # 3. multiple datatypes in columns besides nans?
         #    find most common one per column
         keep = ~is_nan
-        for col in self.fixed_columns:
-            if col in self.var_dtype:
-                continue
+        for col in set(self.fixed_columns).difference(self.var_dtype):
             df_[col] = df_[col].apply(convert)  # fastnumbers.fast_real) #convert)
             dfcol = df_[col][keep[col]]
             dtype_cnt = Counter(dfcol.apply(type).value_counts().to_dict())
@@ -319,8 +317,7 @@ class FixPandasDataFrame(Link):
                 continue
             # store most common datatype
             # first convert to consistent types
-            dtype_lst = list(dtype_cnt.keys())
-            for dtp in dtype_lst:
+            for dtp in dtype_cnt:
                 ndt = np.dtype(dtp).type
                 if ndt is np.str_ or ndt is np.object_:
                     ndt = str
@@ -354,12 +351,10 @@ class FixPandasDataFrame(Link):
             else:
                 raise RuntimeError('Do not know how to convert column "{}"'.format(col))
             # convert inconsistent dtypes?
-            convert_inconsistent_dtypes = self.var_convert_inconsistent_dtypes[
-                col] if col in self.var_convert_inconsistent_dtypes else self.convert_inconsistent_dtypes
-            convert_inconsistent_nans = self.var_convert_inconsistent_nans[
-                col] if col in self.var_convert_inconsistent_nans else self.convert_inconsistent_nans
-            fnc_kw = {}
-            fnc_kw['convert_inconsistent_dtypes'] = convert_inconsistent_dtypes
+            convert_inconsistent_dtypes = self.var_convert_inconsistent_dtypes.get(
+                col, self.convert_inconsistent_dtypes)
+            convert_inconsistent_nans = self.var_convert_inconsistent_nans.get(col, self.convert_inconsistent_nans)
+            fnc_kw = {'convert_inconsistent_dtypes': convert_inconsistent_dtypes}
             # pick nan of choice
             if col in self.var_nan:
                 fnc_kw['nan'] = self.var_nan[col]

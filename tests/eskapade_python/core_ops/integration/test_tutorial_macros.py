@@ -6,7 +6,7 @@ import unittest.mock as mock
 
 import eskapade.utils
 from eskapade import process_manager, resources, ConfigObject, DataStore, StatusCode
-from eskapade.core import execution, persistence
+from eskapade.core import execution
 from eskapade.core_ops import Break
 from eskapade.logger import LogLevel
 from eskapade_python.bases import TutorialMacrosTest
@@ -117,7 +117,7 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         settings['analysisName'] = 'esk106_cmdline_options'
         settings_ = settings.copy()
         script_path = eskapade.utils.get_file_path('run_eskapade')
-        macro_path = persistence.io_path('macros', settings.io_conf(), 'esk106_cmdline_options.py')
+        macro_path = resources.tutorial('esk106_cmdline_options.py')
 
         # import run-script module
         orig_mod_path = sys.path.copy()

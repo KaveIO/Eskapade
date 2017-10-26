@@ -1,15 +1,20 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk605_create_spark_df                                              *
-# * Created: 2017/06/08                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for creating Spark data frames from                       *
-# *     different types of input data                                            *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk605_create_spark_df
+
+Created: 2017/06/08
+
+Description:
+    Tutorial macro for creating Spark data frames from
+    different types of input data
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from collections import OrderedDict as odict
 
