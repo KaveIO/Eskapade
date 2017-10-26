@@ -413,7 +413,7 @@ def get_col_props(var_type):
     return dict(dtype=npdtype, is_num=is_num, is_int=is_int, is_ts=is_ts)
 
 
-def weighted_quantile(data, weights=None, probability=[0.5]):
+def weighted_quantile(data, weights=None, probability=0.5):
     """Compute the weighted quantile of a 1D numpy array.
 
     Weighted quantiles, inspired by:

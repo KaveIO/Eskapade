@@ -102,9 +102,7 @@ class EventLooper(Link):
         for line in self._linestream:
             line = line.strip()
             # skip empty and comment lines
-            if len(line) == 0:
-                continue
-            if any(line.startswith(c) for c in self.skip_line_beginning_with):
+            if not line or any(line.startswith(c) for c in self.skip_line_beginning_with):
                 continue
             myline = copy.deepcopy(line)
             for func in self.line_processor_set:

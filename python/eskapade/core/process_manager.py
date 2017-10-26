@@ -185,7 +185,7 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
             serv.finish()
         self._services.clear()
 
-    def import_services(self, io_conf, chain=None, force=None, no_force=[]):
+    def import_services(self, io_conf, chain=None, force=None, no_force=None):
         """Import process services from files.
 
         :param dict io_conf: I/O config as returned by ConfigObject.io_conf
@@ -195,6 +195,8 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         :param list no_force: do not force import of services in this list
         """
         # parse I/O config
+        if no_force is None:
+            no_force = []
         io_conf = ConfigObject.IoConfig(**io_conf)
 
         # get services for which import may be forced

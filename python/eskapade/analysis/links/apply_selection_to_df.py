@@ -64,7 +64,6 @@ class ApplySelectionToDf(Link):
         if self.store_key is None:
             self.logger.warning('store_key has not been set, now set to: {key}', key=self.read_key)
             self.store_key = self.read_key
-            pass
         else:
             assert isinstance(self.store_key, str) and len(self.store_key), 'store_key has not been set.'
 

@@ -143,13 +143,10 @@ class RecordFactorizer(Link):
             matched_columns += match_c
         self.columns = matched_columns
         # convert booleans and categorical observables?
-        for c in df.columns:
-            if c in self.columns:
-                continue
+        for c in set(df.columns).difference(self.columns):
             dt = df[c].dtype
-            if issubclass(dt.type, CategoricalDtypeType) and self.convert_all_categories:
-                self.columns.append(c)
-            elif dt == 'bool' and self.convert_all_booleans:
+            if (issubclass(dt.type, CategoricalDtypeType) and self.convert_all_categories) \
+                    or (dt == 'bool' and self.convert_all_booleans):
                 self.columns.append(c)
         # retrieve map_to_original from ds
         if self.map_to_original:

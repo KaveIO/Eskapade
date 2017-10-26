@@ -448,7 +448,7 @@ class WsUtils(Link):
         self._plot.append((a, kw))
 
     def do_plot(self, ds, ws, obs, data=None, pdf=None, func=None, data_args=(), pdf_args=(), func_args=(),
-                data_kwargs={}, pdf_kwargs={}, func_kwargs={}, key='', into_ws=False, output_file=None, bins=40,
+                data_kwargs=None, pdf_kwargs=None, func_kwargs=None, key='', into_ws=False, output_file=None, bins=40,
                 logy=False, miny=0, plot_range=None):
         """Make a plot of data and/or a pdf, or of a function.
 
@@ -456,23 +456,23 @@ class WsUtils(Link):
 
         :param ds: input data store, from which to retrieve pdf and dataset to fit
         :param ROOT.RooWorkspace ws: input workspace, from which to retrieve pdf and dataset to fit
-        :param data: input dataset used for plotting, can be a key to look up or RooAbsData (optional)
-        :param pdf: input pdf used for plotting, can be a key to look up or RooAbsPdf (optional)
-        :param func: input function used for plotting, can be a key to look up or RooAbsReal (optional)
-        :param data_args: positional arguments passed on to the plotting of the data. (optional)
-        :param data_kwargs: key word arguments passed on to the plotting of the data. (optional)
-        :param pdf_args: positional arguments passed on to the plotting of the pdf. (optional)
-        :param pdf_kwargs: key word arguments passed on to the plotting of the pdf. (optional)
-        :param func_args: positional arguments passed on to the plotting of the function. (optional)
-        :param func_kwargs: key word arguments passed on to the plotting of the function. (optional)
+        :param data: input dataset used for plotting, can be a key to look up or RooAbsData. Optional.
+        :param pdf: input pdf used for plotting, can be a key to look up or RooAbsPdf. Optional.
+        :param func: input function used for plotting, can be a key to look up or RooAbsReal. Optional.
+        :param data_args: positional arguments passed on to the plotting of the data. Optional.
+        :param data_kwargs: key word arguments passed on to the plotting of the data. Optional.
+        :param pdf_args: positional arguments passed on to the plotting of the pdf. Optional.
+        :param pdf_kwargs: key word arguments passed on to the plotting of the pdf. Optional.
+        :param func_args: positional arguments passed on to the plotting of the function. Optional.
+        :param func_kwargs: key word arguments passed on to the plotting of the function. Optional.
         :param str key: key under which to store the plot frame (=RooPlot).
-                        If key exists in ds/workspace, plot in the existing frame. (optional)
+                        If key exists in ds/workspace, plot in the existing frame. Optional.
         :param bool into_ws: if true, store simulated data in workspace, not the datastore
-        :param str output_file: if set, store plot with this file name (optional)
-        :param int bins: number of bins in the plot. default is 40. (optional)
-        :param bool logy: if true, set y-axis to log scale (optional)
-        :param float miny: set minimum value of y-axis to miny value (optional)
-        :param tuple plot_range: specify x-axis plot range as (min, max) (optional)
+        :param str output_file: if set, store plot with this file name. Optional.
+        :param int bins: number of bins in the plot. default is 40. Optional.
+        :param bool logy: if true, set y-axis to log scale. Optional.
+        :param float miny: set minimum value of y-axis to miny value. Optional.
+        :param tuple plot_range: specify x-axis plot range as (min, max). Optional.
         """
         # basic checks
         assert pdf is not None or data is not None or func is not None, 'both pdf, dataset, and func not set'

@@ -322,11 +322,8 @@ class ConfigObject(ProcessService):
         # loop over arguments
         args = vars(parsed_args)
         known_opts = set(opt for sec_opts in USER_OPTS.values() for opt in sec_opts)
-        for opt_key in args:
-            # only process known config options
-            if opt_key not in known_opts:
-                continue
-
+        # only process known config options
+        for opt_key in set(args).intersection(known_opts):
             # call setter function for this user option
             CONFIG_OPTS_SETTERS[opt_key](opt_key, self, args)
 

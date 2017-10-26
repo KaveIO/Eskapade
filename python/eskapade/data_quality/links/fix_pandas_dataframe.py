@@ -276,9 +276,7 @@ class FixPandasDataFrame(Link):
         # df_ = df_.apply(fastnumbers.fast_real)
 
         # init - assess data types of columns as earlier assessed by pandas
-        for col in self.fixed_columns:
-            if col in self._df_orig_dtype:
-                continue
+        for col in set(self.fixed_columns).difference(self._df_orig_dtype):
             # convert to consistent types
             dt = df_[col].dtype.type
             if dt is np.str_ or dt is np.object_:
@@ -305,9 +303,7 @@ class FixPandasDataFrame(Link):
         # 3. multiple datatypes in columns besides nans?
         #    find most common one per column
         keep = ~is_nan
-        for col in self.fixed_columns:
-            if col in self.var_dtype:
-                continue
+        for col in set(self.fixed_columns).difference(self.var_dtype):
             df_[col] = df_[col].apply(convert)  # fastnumbers.fast_real) #convert)
             dfcol = df_[col][keep[col]]
             dtype_cnt = Counter(dfcol.apply(type).value_counts().to_dict())

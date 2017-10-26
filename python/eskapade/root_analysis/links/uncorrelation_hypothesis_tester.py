@@ -629,17 +629,17 @@ def extract_matrix(df, x_col, y_col, v_col='normResid'):
     return matrix, x_vals, y_vals
 
 
-def latex_residuals_table(df, keep_cols=[], abs_z_threshold=3., n_rows=20, norm_resid_col='normResid'):
+def latex_residuals_table(df, keep_cols=None, abs_z_threshold=3., n_rows=20, norm_resid_col='normResid'):
     """Create Latex table from dataframe.
 
     Create Latex table from dataframe. Options are available to select columns and rows.
 
     :param pandas.DataFrame df: pandas dataframe from which latex table will be created
-    :param list keep_cols: selection on columns. List of columns for which table will be created (optional)
-    :param float abs_z_threshold: selection on rows. Create only if value in norm_resid_col >= threshold (optional)
-    :param int n_rows: maximum number of rows (optional)
+    :param list keep_cols: selection on columns. List of columns for which table will be created. Optional.
+    :param float abs_z_threshold: selection on rows. Create only if value in norm_resid_col >= threshold. Optional.
+    :param int n_rows: maximum number of rows. Optional.
     :param str norm_resid_col: latex table is sorted according to values in this column. Also the threshold
-                             is applied to this column (optional)
+        is applied to this column. Optional.
     :return: table in string format
     """
     # basic checks
