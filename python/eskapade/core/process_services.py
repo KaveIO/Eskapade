@@ -1,16 +1,17 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Created: 2017/02/27                                                            *
-# * Description:                                                                   *
-# *      Base class and core implementations of run-process services               *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created: 2017/02/27
+
+Description:
+    Base class and core implementations of run-process services
+
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the 
+LICENSE.
+"""
 
 import os
 import pickle
@@ -374,7 +375,6 @@ class DataStore(ProcessService, dict):
     >>> ds = DataStore.import_from_file(file_path)
     """
 
-    logger = Logger()
     _persist = True
 
     def Print(self):

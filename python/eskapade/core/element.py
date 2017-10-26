@@ -256,8 +256,9 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         # If none is specified register with the default process
         # manager.
         if process_manager is None:
-            pass
-            # self.parent = process_manager
+            from eskapade import process_manager
+
+        process_manager.add(self)
 
     def _exec(self, phase_callback) -> StatusCode:
         status = StatusCode.Success
@@ -293,14 +294,15 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
     def add(self, link: Link) -> None:
         """Add a link to the chain.
 
-        In case link is a str, then create and add a link to the chain.
-
-
         :param link: The link to add to the chain.
         :type link: Link
+        :raise TypeError: When the link is of an incompatible type.
+        :raise KeyError: When a Link of the same type and name already exists.
         """
         if not issubclass(type(link), Link):
             raise TypeError('Expected (sub-class of) "Link" and not "{wrong!s}"!'.format(wrong=type(link)))
+
+        self.logger.debug('Registering link "{link}."', chain=link)
 
         link.parent = self
         super().add(link)
@@ -309,7 +311,8 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         """Remove a link from the chain.
 
         :param link:
-        :type link: Link str
+        :type link: Link
+        :raise KeyError: When the processor does not exist.
         """
         if not issubclass(type(link), Link):
             raise TypeError('Expected (sub-class of) "Link" not "{wrong!s}"!'.format(wrong=type(link)))
@@ -366,3 +369,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
                               chain=self, sec=total_time)
 
         return status
+
+    def clear(self):
+        self.parent = None
+        super().clear()

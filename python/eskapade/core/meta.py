@@ -196,6 +196,8 @@ class ProcessorSequence(object):
     It also checks if a processor already has been added to the sequence.
     """
 
+    __slots__ = '__end', '__map', '__weakref__'
+
     def __init__(self):
         """Initialize the ProcessorSequence object."""
         super().__init__()
@@ -269,7 +271,7 @@ class ProcessorSequence(object):
 
         :param processor: The processor to remove.
         :type processor: Processor
-        :raise KeyError: When processors is unknown.
+        :raise KeyError: When the processor does not exist.
         """
         if processor in self.__map:
             node = self.__map.pop(processor)

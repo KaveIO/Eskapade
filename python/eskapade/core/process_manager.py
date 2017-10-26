@@ -1,19 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : ProcessManager                                                        *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      The processManager singleton class forms the core of Eskapade.            *
-# *      It performs initialization, execution, and finalizing of the              *
-# *      configured chains.                                                        *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: ProcessManager
+
+Created: 2016/11/08
+
+Description:
+    The ProcessManager singleton class forms the core of Eskapade.
+    It performs initialization, execution, and finalizing of the
+    configured chains.
+    
+Authors:
+    KPMG Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.z
+"""
 
 import glob
 import importlib
@@ -22,13 +24,12 @@ import os
 from eskapade.core import persistence
 from eskapade.core.definitions import StatusCode
 from eskapade.core.element import Chain
-from eskapade.core.meta import Singleton
+from eskapade.core.meta import Processor, ProcessorSequence
 from eskapade.core.mixin import TimerMixin
 from eskapade.core.process_services import ConfigObject, ProcessService
-from eskapade.logger import Logger
 
 
-class _ProcessManager(TimerMixin, metaclass=Singleton):
+class ProcessManager(Processor, ProcessorSequence, TimerMixin):
     """Eskapade run-process manager.
 
     The processManager singleton class forms the core of Eskapade.  It
@@ -79,18 +80,15 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         Finalizes execution
     """
 
-    logger = Logger()
-
     def __init__(self):
         """Initialize process-manager singleton instance.
 
         The init function takes no arguments.  Chains are added with
         the "add_chain" method.
         """
-        TimerMixin.__init__(self)
+        super().__init__(ProcessManager.__name__)
 
         self.prev_chain_name = ''
-        self.chains = []
         self._services = {}
 
     def service(self, serv_spec):
@@ -98,7 +96,7 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
 
         :param serv_spec: class (instance) to register
         :type serv_spec: ProcessServiceMeta or ProcessService
-        :returns: registered instance
+        :return: registered instance
         :rtype: ProcessService
         """
         # get service class and register if an instance of class was specified
@@ -130,7 +128,7 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
     def get_services(self):
         """Get set of registered process-service classes.
 
-        :returns: service set
+        :return: service set
         :rtype: set
         """
         return set(self._services)
@@ -138,49 +136,49 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
     def get_service_tree(self):
         """Create tree of registered process-service classes.
 
-        :returns: service tree
+        :return: service tree
         :rtype: dict
         """
         # build service tree
-        serv_tree = {}
-        for serv_cls in self.get_services():
+        service_tree = {}
+        for service_cls in self.get_services():
             # add path of service to tree
-            serv_path = serv_tree
-            for comp in serv_cls.__module__.split('.'):
-                if comp not in serv_path:
-                    serv_path[comp] = {'-services-': set()}
-                serv_path = serv_path[comp]
+            service_path = service_tree
+            for comp in service_cls.__module__.split('.'):
+                if comp not in service_path:
+                    service_path[comp] = {'-services-': set()}
+                service_path = service_path[comp]
 
             # add service to path
-            serv_path['-services-'].add(serv_cls)
+            service_path['-services-'].add(service_cls)
 
-        return serv_tree
+        return service_tree
 
-    def remove_service(self, serv_cls, silent=False):
+    def remove_service(self, service_cls, silent=False):
         """Remove specified process service.
 
-        :param serv_cls: service to remove
-        :type serv_cls: ProcessServiceMeta
+        :param service_cls: service to remove
+        :type service_cls: ProcessServiceMeta
         :param bool silent: don't complain if service is not registered
         """
         # check if specified service is registered
-        if serv_cls not in self._services:
+        if service_cls not in self._services:
             if not silent:
-                self.logger.fatal('No such service registered: "{cls!s}".', cls=serv_cls)
+                self.logger.fatal('No such service registered: "{cls!s}".', cls=service_cls)
                 raise KeyError('Service to be removed not registered.')
             return
 
         # finish running and remove service
-        self.logger.debug('Removing process service "{service!s}".', service=self._services[serv_cls])
-        self._services[serv_cls].finish()
-        del self._services[serv_cls]
+        self.logger.debug('Removing process service "{service!s}".', service=self._services[service_cls])
+        self._services[service_cls].finish()
+        del self._services[service_cls]
 
     def remove_all_services(self):
         """Remove all registered process services."""
         # finish running and remove all services
         self.logger.debug('Removing all process services ({n:d})', n=len(self._services))
-        for serv in self._services.values():
-            serv.finish()
+        for service in self._services.values():
+            service.finish()
         self._services.clear()
 
     @staticmethod
@@ -196,7 +194,7 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
             io_conf['analysis_version'] = '0'
         return io_conf
 
-    def import_services(self, io_conf, chain=None, force=None, no_force=[]):
+    def import_services(self, io_conf, chain=None, force=None, no_force=None):
         """Import process services from files.
 
         :param dict io_conf: I/O config as returned by ConfigObject.io_conf
@@ -205,6 +203,8 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         :type force: bool or list
         :param list no_force: do not force import of services in this list
         """
+        no_force = no_force or []
+
         # parse I/O config
         io_conf = self.check_io_config(io_conf)
 
@@ -229,17 +229,17 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
 
         # get list of persisted files
         base_path = persistence.io_dir('proc_service_data', io_conf)
-        serv_paths = glob.glob('{0:s}/{1:s}/*.pkl'.format(base_path, chain))
+        service_paths = glob.glob('{0:s}/{1:s}/*.pkl'.format(base_path, chain))
         self.logger.debug('Importing process services from "{path}/{chain}" (found {n:d} files).',
-                          path=base_path, chain=chain, n=len(serv_paths))
+                          path=base_path, chain=chain, n=len(service_paths))
 
         # read and register services
-        for path in serv_paths:
+        for path in service_paths:
             try:
                 # try to import service module
                 cls_spec = os.path.splitext(os.path.basename(path))[0].split('.')
                 mod = importlib.import_module('.'.join(cls_spec[:-1]))
-                cls = getattr(mod, cls_spec[-1])
+                cls = getattr(mod, cls_spec[-1].decode())
             except Exception as exc:
                 # unable to import module
                 self.logger.error('Unable to import process-service module for path "{path}".', path=path)
@@ -297,9 +297,9 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
             raise exc
 
         # remove old data
-        serv_paths = glob.glob('{}/*.pkl'.format(chain_path))
+        service_paths = glob.glob('{}/*.pkl'.format(chain_path))
         try:
-            for path in serv_paths:
+            for path in service_paths:
                 os.remove(path)
         except Exception as exc:
             self.logger.fatal('Unable to remove previously persisted process services.')
@@ -329,104 +329,69 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
             import shutil
             shutil.copy(filename, persistence.io_dir('results_config', settings.io_conf()))
 
-    def add_chain(self, input_chain):
+    def add(self, chain: Chain) -> None:
         """Add a chain to the process manager.
 
-        Add a chain to be run by the process manager.  A check is
-        performed that a chain with this name does not already
-        exist.
-
-        :param input_chain: (name of) the chain to be added
-        :type input_chain: str or Chain
-        :raises RuntimeError: if chain with same name already exists
-        :returns: the chain that has been added
-        :rtype: Chain
+        :param chain: The chain to add to the process manager.
+        :type chain: Chain
+        :raise TypeError: When the chain is of an incompatible type.
+        :raise KeyError: When a chain of the same type and name already exists.
         """
-        # first check specified chain name
-        if isinstance(input_chain, Chain):
-            new_name = input_chain.name
-        elif isinstance(input_chain, str):
-            new_name = input_chain
-        else:
-            self.logger.fatal('Specifying chain by type "{type}" not supported.', type=type(input_chain).__name__)
-            raise NotImplementedError('Unsupported input type for add_chain function of process manager.')
-        if any(c.name == new_name for c in self.chains):
-            self.logger.fatal('Chain "{name}" already exists; please use a different name.', name=new_name)
-            raise RuntimeError('Tried to add chain with existing name to process manager.')
 
-        # add new chain
-        self.logger.debug('Booking new chain "{name}".', name=new_name)
-        self.chains.append(input_chain if isinstance(input_chain, Chain) else Chain(new_name))
+        if not issubclass(type(chain), Chain):
+            raise TypeError('Expected (sub-class of) "Link" and not "{wrong!s}"!'.format(wrong=type(chain)))
 
-        return self.chains[-1]
+        self.logger.debug('Registering chain "{chain}."', chain=chain)
 
-    def get_chain_idx(self, name):
+        chain.parent = self
+        super().add(chain)
+
+    def idx(self, chain_name: str) -> int:
         """Find index of the chain with given name.
 
-        :param str name: The name of the chain to search for
-        :returns: the index of the chain
+        :param chain_name: Find index for chain with this chain name.
+        :type chain_name: str
+        :return: The index of the chain.
         :rtype: int
-        :raises Exception: if chain name not found
+        :raise ValueError: When the given chain name cannot be found.
         """
-        for (idx, chain) in enumerate(self.chains):
-            if chain.name == name:
-                return idx
+        if Chain('chain_name') not in self:
+            raise ValueError('Found no chain with name "{name}"!'.format(name=chain_name))
 
-        raise Exception('No chain with name "{}" found.'.format(name))
-
-    def get_chain(self, name):
-        """Find the chain with the given name.
-
-        :param str name: The name to search for
-        :returns: the found chain
-        :rtype: Chain
-        :raises RuntimeError: if chain name not found
-        """
-        for chain in self.chains:
-            if chain.name == name:
-                return chain
-
-        raise RuntimeError('No chain with name "{}" found.'.format(name))
-
-    def has_chain(self, name):
-        """Check if chain exists for this name.
-
-        :param str name: the name of the chain to check
-        :returns: boolian of search result
-        :rtype: bool
-        """
-        for c in self.chains:
-            if c.name == name:
-                return True
-
-        return False
-
-    def remove_chains(self) -> None:
-        """Remove all configured chains."""
-        # Remove links from each chain.
-        [_.clear() for _ in self.chains]
-
-        # Remove all chains.
-        self.chains.clear()
-
-    def remove_chain(self, name: str) -> None:
-        """Remove chain with specified name.
-
-        Remove specified chain. If chain is not found, print warning.
-
-        :param str name: Name of the chain to remove
-        """
-        chain_to_pop = None
-        for c_i, c in enumerate(self.chains):
-            if c.name == name:
-                chain_to_pop = c_i
+        idx = None
+        for _idx, chain in enumerate(self):
+            if chain.name == chain_name:
+                idx = _idx
                 break
 
-        if chain_to_pop is not None:
-            chain = self.chains.pop(chain_to_pop)
-            chain.clear()
-        else:
-            self.logger.warning('Trying to remove non-existing chain {chain} or there are no chains!', chain=name)
+        return idx
+
+    def get(self, chain_name) -> Chain:
+        """Find the chain with the given name.
+
+        :param chain_name: Find a chain with the given name.
+        :return: The chain.
+        :rtype: Chain
+        :raise ValueError: When the given chain name cannot be found.
+        """
+        if Chain('chain_name') not in self:
+            raise ValueError('Found no chain with name "{name}"!'.format(name=chain_name))
+
+        chain = None
+        for c in self:
+            if c.name == chain_name:
+                chain = c
+
+        return chain
+
+    def clear(self):
+        """"Clear/remove all chains."""
+        # TODO (janos4276) Check whether Python calls clear recursively. We may also need some weakref magic.
+        # Clear chains first.
+        [_.clear() for _ in self]
+
+        # Clear self.
+        super().clear()
 
     def initialize(self):
         """Initialize the process manager.
@@ -450,140 +415,22 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         # First chain has empty previous-chain name.
 
         prev_chain_name = ''
-        for chain in self.chains:
-            self.logger.debug('Configuring chain "{name}".', name=chain.name)
+        for c in self:
+            self.logger.debug('Configuring chain "{name}".', name=c.name)
             if prev_chain_name:
-                chain.prev_chain_name = prev_chain_name
-            prev_chain_name = chain.name
+                c.prev_chain_name = prev_chain_name
+            prev_chain_name = c.name
 
         # End by print the status of the processManager and the configuration
         # object.
-        self.Print()
+        self.summary()
         self.service(ConfigObject).Print()
 
         self.logger.debug('Done initializing process manager.')
 
         return status
 
-    def finalize(self):
-        """Finalize the process manager manager.
-
-        :returns: status code of finalize attempt
-        :rtype: StatusCode
-        """
-        self.logger.info('Finalizing process manager.')
-
-        # Stop the timer when the Process Manager is done and print.
-        total_time = self.stop_timer()
-        self.logger.info('Total runtime: {time:.2f} seconds', time=total_time)
-
-        self.logger.debug('Done finalizing process manager.')
-
-        return StatusCode.Success
-
-    def Print(self):
-        """Print process-manager summary.
-
-        Print a summary of the chains, links, and some analysis settings
-        defined in this configuration.
-        """
-        settings = self.service(ConfigObject)
-
-        self.logger.info('Summary of process manager')
-        if settings.get('beginWithChain'):
-            self.logger.info('  Starting from chain: "{name}"', name=settings['beginWithChain'])
-        if settings.get('endWithChain'):
-            self.logger.info('  Ending with chain:   "{name}"', name=settings['endWithChain'])
-
-        self.logger.info('  Number of registered services: {n:d}', n=len(self._services))
-        self.print_services()
-
-        self.logger.info('  Number of registered chains: {n:d}', n=len(self.chains))
-        self.print_chains()
-
-    def print_services(self):
-        """Print registered process services."""
-
-        def _print_level(level, prefix, depth):
-            """Print services and get next level in service-tree."""
-            # print service names on this level
-            indent = ' ' * 2 * depth
-            for serv_name in sorted(cls.__name__ for cls in level.pop('-services-', [])):
-                self.logger.debug('{prefix:s}{indent:s}+ {service:s}', prefix=prefix, indent=indent, service=serv_name)
-
-            # print next levels
-            for lev_path in sorted(level):
-                self.logger.debug('{prefix:s}{indent:s}- {level:s}', prefix=prefix, indent=indent, level=lev_path)
-                _print_level(level[lev_path], prefix, depth + 1)
-
-        # print service tree
-        serv_tree = self.get_service_tree()
-        self.logger.debug('  Registered process services')
-        _print_level(serv_tree, '    ', 0)
-
-    def print_chains(self):
-        """Print all chains defined in the manager."""
-        settings = self.service(ConfigObject)
-        self.logger.debug('  Chains to be executed')
-
-        begin = self.get_chain_idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
-        end = (self.get_chain_idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self.chains)
-        for chain in self.chains[begin:end]:
-            self.logger.debug('    Chain: {name}', name=chain.name)
-            for link in chain:
-                self.logger.debug('      Link: {name}', name=link.name)
-
-    def execute_all(self):
-        """Execute all chains in order.
-
-        :returns: status code of execution attempt
-        :rtype: StatusCode
-        """
-        status = StatusCode.Success
-
-        self.logger.info('Executing process manager.')
-
-        settings = self.service(ConfigObject)
-
-        # determine which chains need to be run
-        begin = self.get_chain_idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
-        end = (self.get_chain_idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self.chains)
-
-        if begin > 0:
-            # import services from previous chain, persisted in a previous run
-            try:
-                self.import_services(io_conf=settings.io_conf(), chain=self.chains[begin].prev_chain_name, force=False)
-            except Exception as exc:
-                self.logger.error('Unable to import services persisted for "{chain}":',
-                                  chain=self.chains[begin].prev_chain_name)
-                self.logger.error('Caught exception: "{exc!s}".', exc=exc)
-                return StatusCode.Failure
-
-        # execute chains
-        for chain in self.chains[begin:end]:
-            # execute chain and check exit status
-            status = self.execute(chain)
-            chain.exitStatus = status
-            if status.is_failure():
-                return status
-
-            # check if we need to persist process services
-            if settings.get('doNotStoreResults'):
-                # never persist anything
-                continue
-            if not (settings.get('storeResultsEachChain') or chain == self.chains[end - 1] or
-                    settings.get('storeResultsOneChain') == chain.name):
-                # do not persist the output of this chain
-                continue
-
-            # persist process services with the output of this chain
-            self.persist_services(io_conf=settings.io_conf(), chain=chain.name)
-
-        self.logger.debug('Done executing process manager.')
-
-        return status
-
-    def execute(self, chain):
+    def _exec(self, chain):
         """Execute a particular chain.
 
         Execution of a chain comprises:
@@ -626,11 +473,127 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         if status.is_failure():
             return status
 
-        # After execution of chain prev_chain_name is set here so the stores will not be imported from file in
+        # After execution of chain prev_chain_name is set here so
+        # the stores will not be imported from file in
         # but retrieved from memory in the execution of next chain.
         self.prev_chain_name = chain.name
 
         return status
+
+    def execute(self):
+        """Execute all chains in order.
+
+        :returns: status code of execution attempt
+        :rtype: StatusCode
+        """
+        status = StatusCode.Success
+
+        self.logger.info('Executing process manager.')
+
+        settings = self.service(ConfigObject)
+
+        # determine which chains need to be run
+        begin = self.idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
+        end = (self.idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self)
+
+        if begin > 0:
+            # import services from previous chain, persisted in a previous run
+            try:
+                self.import_services(io_conf=settings.io_conf(), chain=self[begin].prev_chain_name, force=False)
+            except Exception as exc:
+                self.logger.error('Unable to import services persisted for "{chain}":',
+                                  chain=self[begin].prev_chain_name)
+                self.logger.error('Caught exception: "{exc!s}".', exc=exc)
+                return StatusCode.Failure
+
+        # execute chains
+        for chain in self[begin:end]:
+            # execute chain and check exit status
+            status = self._exec(chain)
+            chain.exitStatus = status
+            if status.is_failure():
+                return status
+
+            # check if we need to persist process services
+            if settings.get('doNotStoreResults'):
+                # never persist anything
+                continue
+            if not (settings.get('storeResultsEachChain') or chain == self.chains[end - 1] or settings.get('storeResultsOneChain') == chain.name):
+                # do not persist the output of this chain
+                continue
+
+            # persist process services with the output of this chain
+            self.persist_services(io_conf=settings.io_conf(), chain=chain.name)
+
+        self.logger.debug('Done executing process manager.')
+
+        return status
+
+    def finalize(self):
+        """Finalize the process manager manager.
+
+        :returns: status code of finalize attempt
+        :rtype: StatusCode
+        """
+        self.logger.info('Finalizing process manager.')
+
+        # Stop the timer when the Process Manager is done and print.
+        total_time = self.stop_timer()
+        self.logger.info('Total runtime: {time:.2f} seconds', time=total_time)
+
+        self.logger.debug('Done finalizing process manager.')
+
+        return StatusCode.Success
+
+    def summary(self):
+        """Print process-manager summary.
+
+        Print a summary of the chains, links, and some analysis settings
+        defined in this configuration.
+        """
+        settings = self.service(ConfigObject)
+
+        self.logger.info('Summary of process manager')
+        if settings.get('beginWithChain'):
+            self.logger.info('  Starting from chain: "{name}"', name=settings['beginWithChain'])
+        if settings.get('endWithChain'):
+            self.logger.info('  Ending with chain:   "{name}"', name=settings['endWithChain'])
+
+        self.logger.info('Number of registered services: {n:d}', n=len(self._services))
+        self.logger.info('Number of registered chains: {n:d}', n=len(self))
+
+    def print_services(self):
+        """Print registered process services."""
+
+        def _print_level(level, prefix, depth):
+            """Print services and get next level in service-tree."""
+            # print service names on this level
+            indent = ' ' * 2 * depth
+            for service_name in sorted(cls.__name__ for cls in level.pop('-services-', [])):
+                self.logger.debug('{prefix:s}{indent:s}+ {service:s}',
+                                  prefix=prefix, indent=indent, service=service_name)
+
+            # print next levels
+            for lev_path in sorted(level):
+                self.logger.debug('{prefix:s}{indent:s}- {level:s}', prefix=prefix, indent=indent, level=lev_path)
+                _print_level(level[lev_path], prefix, depth + 1)
+
+        # print service tree
+        service_tree = self.get_service_tree()
+        self.logger.debug('  Registered process services')
+        _print_level(service_tree, '    ', 0)
+
+    def print_chains(self):
+        """Print all chains defined in the manager."""
+        settings = self.service(ConfigObject)
+        self.logger.debug('  Chains to be executed')
+
+        begin = self.idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
+        end = (self.idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self)
+        for chain in self.chains[begin:end]:
+            self.logger.debug('    Chain: {name}', name=chain.name)
+            for link in chain:
+                self.logger.debug('      Link: {name}', name=link.name)
 
     def reset(self):
         """Reset the process manager.
@@ -640,16 +603,13 @@ class _ProcessManager(TimerMixin, metaclass=Singleton):
         """
         # remove process services
         self.remove_all_services()
-
         # remove chains
-        self.remove_chains()
-
+        self.clear()
         # delete attributes
-        for key in list(vars(self).keys()):
-            delattr(self, key)
+        [delattr(self, _) for _ in list(vars(self).keys())]
 
         # re-initialize
         self.__init__()
 
 
-process_manager = _ProcessManager()
+process_manager = ProcessManager()

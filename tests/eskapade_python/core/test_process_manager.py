@@ -2,7 +2,7 @@ import unittest
 import unittest.mock as mock
 
 from eskapade.core.definitions import StatusCode
-from eskapade.core.process_manager import process_manager, _ProcessManager
+from eskapade.core.process_manager import process_manager, ProcessManager
 from eskapade.core.process_services import ConfigObject
 from eskapade.core.process_services import ProcessService
 from eskapade.core.element import Chain
@@ -30,8 +30,8 @@ class ProcessManagerTest(unittest.TestCase):
         pass
 
     def test_singleton(self):
-        pm_1 = _ProcessManager()
-        pm_2 = _ProcessManager()
+        pm_1 = ProcessManager()
+        pm_2 = ProcessManager()
         self.assertIs(pm_1, pm_2, 'process manager is not a singleton')
 
     @unittest.skip('We are just mocking the process manager?!?! This test needs to be rewritten or removed!')
@@ -107,7 +107,7 @@ class ProcessManagerTest(unittest.TestCase):
             pm.add_chain('name')
 
     def test_remove_chain(self):
-        pm = _ProcessManager()
+        pm = ProcessManager()
 
         pm.add_chain('1')
 
@@ -122,7 +122,7 @@ class ProcessManagerTest(unittest.TestCase):
         self.assertFalse(pm.chains, 'Process manager has chains!')
 
     def test_remove_chains(self):
-        pm = _ProcessManager()
+        pm = ProcessManager()
         pm.add_chain('1')
         pm.add_chain('2')
         pm.add_chain('3')
@@ -132,7 +132,7 @@ class ProcessManagerTest(unittest.TestCase):
         self.assertFalse(pm.chains, 'Process manager has chains!')
 
     def test_reset(self):
-        pm = _ProcessManager()
+        pm = ProcessManager()
 
         pm.add_chain('dummy')
         self.assertTrue(pm.chains, 'Process manager has no chains!')
@@ -146,7 +146,7 @@ class ProcessManagerTest(unittest.TestCase):
         pm.add_chain('2')
         pm.add_chain('3')
 
-        idx = pm.get_chain_idx('2')
+        idx = pm.idx('2')
         self.assertEqual(idx, 1)
 
     @unittest.skip('We are just mocking the process manager?!?!')
