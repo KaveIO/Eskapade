@@ -12,10 +12,42 @@ eskapade.core.definitions module
     :undoc-members:
     :show-inheritance:
 
+eskapade.core.element module
+----------------------------
+
+.. automodule:: eskapade.core.element
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.core.exceptions module
+-------------------------------
+
+.. automodule:: eskapade.core.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 eskapade.core.execution module
 ------------------------------
 
 .. automodule:: eskapade.core.execution
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.core.meta module
+-------------------------
+
+.. automodule:: eskapade.core.meta
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.core.mixin module
+--------------------------
+
+.. automodule:: eskapade.core.mixin
     :members:
     :undoc-members:
     :show-inheritance:
@@ -40,14 +72,6 @@ eskapade.core.process_services module
 -------------------------------------
 
 .. automodule:: eskapade.core.process_services
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-eskapade.core.run_elements module
----------------------------------
-
-.. automodule:: eskapade.core.run_elements
     :members:
     :undoc-members:
     :show-inheritance:

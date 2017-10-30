@@ -44,6 +44,14 @@ eskapade.root_analysis.roofit_utils module
     :undoc-members:
     :show-inheritance:
 
+eskapade.root_analysis.root_helper module
+-----------------------------------------
+
+.. automodule:: eskapade.root_analysis.root_helper
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 eskapade.root_analysis.style module
 -----------------------------------
 

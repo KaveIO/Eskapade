@@ -20,14 +20,6 @@ eskapade.analysis.links.apply_selection_to_df module
     :undoc-members:
     :show-inheritance:
 
-eskapade.analysis.links.assign_random_class module
---------------------------------------------------
-
-.. automodule:: eskapade.analysis.links.assign_random_class
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 eskapade.analysis.links.basic_generator module
 ----------------------------------------------
 

@@ -42,14 +42,6 @@ eskapade.helpers module
     :undoc-members:
     :show-inheritance:
 
-eskapade.mixins module
-----------------------
-
-.. automodule:: eskapade.mixins
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 eskapade.resources module
 -------------------------
 
@@ -62,14 +54,6 @@ eskapade.utils module
 ---------------------
 
 .. automodule:: eskapade.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-eskapade.version module
------------------------
-
-.. automodule:: eskapade.version
     :members:
     :undoc-members:
     :show-inheritance:
