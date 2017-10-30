@@ -35,6 +35,7 @@ dist
 .cache
 .eggs
 Eskapade.egg-info
+python/eskapade/version.py
 
 # documentation
 *.rst
