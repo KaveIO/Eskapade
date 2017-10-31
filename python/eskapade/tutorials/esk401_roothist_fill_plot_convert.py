@@ -18,7 +18,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import analysis, core_ops, resources, root_analysis, visualization
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -57,12 +57,12 @@ logger.info(msg, path=settings['resultsDir'] + '/' + settings['analysisName'] + 
 # --- now set up the chains and links based on configuration flags
 
 if settings['read_data']:
-    ch = process_manager.add_chain('Data')
+    ch = Chain('Data')
 
     # --- 0. read input data
-    readdata = analysis.ReadToDf(name='reader', key='correlated_data', reader='csv', sep=' ')
-    readdata.path = input_files
-    ch.add(readdata)
+    read_data = analysis.ReadToDf(name='reader', key='correlated_data', reader='csv', sep=' ')
+    read_data.path = input_files
+    ch.add(read_data)
 
     # --- 1. Fill root histograms
     #        For now, RootHistFiller only accepts numeric observables
@@ -76,14 +76,14 @@ if settings['read_data']:
     ch.add(hf)
 
 if settings['make_plot']:
-    ch = process_manager.add_chain('Plotting')
+    ch = Chain('Plotting')
 
     # --- 2. make a nice summary report of the created histograms
     hs = visualization.DfSummary(name='HistogramSummary', read_key=hf.store_key)
     ch.add(hs)
 
 if settings['convert_to_rdh']:
-    ch = process_manager.add_chain('Convert1')
+    ch = Chain('Convert1')
 
     # --- 3. convert a root histogram to a RooDataHist object
     h2rdh = root_analysis.ConvertRootHist2RooDataHist()
@@ -94,7 +94,7 @@ if settings['convert_to_rdh']:
     ch.add(h2rdh)
 
 if settings['convert_to_rds']:
-    ch = process_manager.add_chain('Convert2')
+    ch = Chain('Convert2')
 
     # --- 4. convert a histogram to a RooDataSet object
     h2rds = root_analysis.ConvertRootHist2RooDataSet()
@@ -104,7 +104,7 @@ if settings['convert_to_rds']:
     ch.add(h2rds)
 
 # --- summary
-ch = process_manager.add_chain('Summary')
+ch = Chain('Summary')
 
 pds = core_ops.PrintDs()
 pds.keys = ['hist', 'n_rdh_x1', 'n_rds_x2_vs_x3']

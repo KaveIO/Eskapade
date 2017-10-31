@@ -17,7 +17,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import analysis, visualization
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -52,25 +52,23 @@ GEN_CONF = dict(var_b=dict(mean=42., std=2.), var_c=dict(mean=42, std=2, dtype=i
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-# create chains
-process_manager.add_chain('Data')
-process_manager.add_chain('Summary')
-
+data = Chain('Data')
 # add data-generator link to "Data" chain
 generator = analysis.BasicGenerator(name='Generate_data',
                                     key='data',
                                     columns=COLUMNS,
                                     size=SIZE,
                                     gen_config=GEN_CONF)
-process_manager.get_chain('Data').add(generator)
+data.add(generator)
 
 # add data-frame summary link to "Summary" chain
 # can provide labels and units for the variables in the dataset
+summary = Chain('Summary')
 summarizer = visualization.DfSummary(name='Create_stats_overview',
                                      read_key=generator.key,
                                      var_labels=VAR_LABELS,
                                      var_units=VAR_UNITS)
-process_manager.get_chain('Summary').add(summarizer)
+summary.add(summarizer)
 
 #########################################################################################
 

@@ -35,7 +35,7 @@ LICENSE.
 import ROOT
 import numpy as np
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import process_manager
 from eskapade.logger import Logger
 from eskapade.root_analysis import RooFitManager, TruncExpGen, TruncExpFit
@@ -80,7 +80,7 @@ if not settings.get('beginWithChain'):
 ###############################################################################
 # --- create chain for generating voucher redeem data
 
-ch = process_manager.add_chain('Generation')
+ch = Chain('Generation')
 gen_link = TruncExpGen(name='Generate', store_key=REDEEM_DATA_KEY, max_var_data_key=AGE_DATA_KEY,
                        model_name=MODEL_NAME, event_frac=REDEEM_FRAC)
 ch.add(gen_link)
@@ -91,7 +91,7 @@ ROOT.RooRandom.randomGenerator().SetSeed(settings['seeds']['RooFit'])
 ###############################################################################
 # --- create chain for fitting voucher redeem model to generated data
 
-ch = process_manager.add_chain('Fitting')
+ch = Chain('Fitting')
 fit_link = TruncExpFit(name='Fit', read_key=gen_link.store_key, max_var_data_key=gen_link.max_var_data_key,
                        model_name=gen_link.model_name)
 ch.add(fit_link)

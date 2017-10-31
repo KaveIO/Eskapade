@@ -17,7 +17,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import analysis, core_ops, process_manager, resources, visualization, ConfigObject
+from eskapade import analysis, core_ops, process_manager, resources, visualization, ConfigObject, Chain
 from eskapade.logger import Logger, LogLevel
 
 logger = Logger()
@@ -72,7 +72,7 @@ def to_date(x):
 # --- example 2: readdata loops over the input files, with file chunking.
 
 if settings['do_loop']:
-    ch = process_manager.add_chain('Data')
+    ch = Chain('Data')
 
     # --- a loop is set up in the chain MyChain.
     #     we iterate over (chunks of) the next file in the list until the iterator is done.
@@ -124,15 +124,15 @@ if settings['do_loop']:
     ch.add(link)
 
 # --- print contents of the datastore
-process_manager.add_chain('Overview')
+overview = Chain('Overview')
 pds = core_ops.PrintDs(name='End')
 pds.keys = ['n_sum_rc']
-process_manager.get_chain('Overview').add(pds)
+overview.add(pds)
 
 # --- make a nice summary report of the created histograms
 hist_summary = visualization.DfSummary(name='HistogramSummary',
                                        read_key=vc.store_key_hists)
-process_manager.get_chain('Overview').add(hist_summary)
+overview.add(hist_summary)
 
 #########################################################################################
 

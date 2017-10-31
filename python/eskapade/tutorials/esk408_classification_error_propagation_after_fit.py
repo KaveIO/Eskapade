@@ -35,7 +35,7 @@ LICENSE.
 import ROOT
 from ROOT import RooFit
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops, visualization, root_analysis
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -58,7 +58,7 @@ settings['version'] = 0
 # --- now set up the chains and links based on configuration flags
 
 # --- generate pdf, simulate, fit, and plot
-ch = process_manager.add_chain('WsOps')
+ch = Chain('WsOps')
 
 # 1. simulate output score of machine learning classifier
 wsu = root_analysis.WsUtils(name='DataSimulator')
@@ -74,7 +74,7 @@ wsu.add_plot(obs='score', pdf='model',
              output_file='data_with_generator_model.pdf', key='simplot')
 ch.add(wsu)
 
-ch = process_manager.add_chain('SignalPValue')
+ch = Chain('SignalPValue')
 
 # 2. plot signal probability
 wsu = root_analysis.WsUtils(name='SignalProbability')
@@ -95,7 +95,7 @@ ape.fit_result = 'fit_result'
 ape.function_error_name = 'high_risk_perror'
 ch.add(ape)
 
-ch = process_manager.add_chain('Summary')
+ch = Chain('Summary')
 
 # 4. convert back to df and plot
 rds2df = root_analysis.ConvertRooDataSet2DataFrame()

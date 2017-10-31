@@ -15,7 +15,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -58,7 +58,7 @@ h = [2, 7]
 
 #########
 # chain 1
-ch = process_manager.add_chain('chain1')
+ch = Chain('chain1')
 
 # the link ToDsDict adds objects to the datastore at link execution.
 link = core_ops.ToDsDict(name='intods_1')
@@ -72,7 +72,7 @@ ch.add(link)
 
 #########
 # chain 2
-ch = process_manager.add_chain('chain2')
+ch = Chain('chain2')
 
 # the link AssertInDs checks the presence
 # of certain objects in the datastore
@@ -91,7 +91,7 @@ ch.add(link)
 
 #########
 # chain 3
-ch = process_manager.add_chain('chain3')
+ch = Chain('chain3')
 
 # the link AssertInDs checks the presence
 # of certain objects in the datastore

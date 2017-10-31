@@ -15,7 +15,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject, resources
+from eskapade import ConfigObject, Chain, resources
 from eskapade import core_ops, analysis
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -49,17 +49,16 @@ data_path = resources.fixture('dummy.csv')
 
 # --- example 1: readdata with one input file
 if settings['do_example1']:
-    ch1 = process_manager.add_chain('MyChain1')
-
-    readdata = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
-    ch1.add(readdata)
+    ch1 = Chain('MyChain1')
+    read_data = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
+    ch1.add(read_data)
 
     # --- do something useful with the test dataset here ...
 
 # --- example 2: readdata with default settings reads all three input files simultaneously.
 #                all extra key word arguments are passed on to pandas reader.
 if settings['do_example2']:
-    ch2 = process_manager.add_chain('MyChain2')
+    ch2 = Chain('MyChain2')
 
     # --- a loop is set up in the chain MyChain.
     #     we iterate over (chunks of) the next file in the list until the iterator is done.
@@ -67,15 +66,15 @@ if settings['do_example2']:
 
     # --- readdata keeps on opening the next file in the file list.
     #     all kwargs are passed on to pandas file reader.
-    readdata = analysis.ReadToDf(name='reader2', key='test2', sep='|', reader='csv', usecols=['x', 'y'])
-    readdata.path = [data_path] * 3
-    ch2.add(readdata)
+    read_data = analysis.ReadToDf(name='reader2', key='test2', sep='|', reader='csv', usecols=['x', 'y'])
+    read_data.path = [data_path] * 3
+    ch2.add(read_data)
 
 # --- print contents of the datastore
-process_manager.add_chain('Overview')
+overview = Chain('Overview')
 pds = core_ops.PrintDs(name='End')
 pds.keys = ['n_test1', 'n_test2']
-process_manager.get_chain('Overview').add(pds)
+overview.add(pds)
 
 #########################################################################################
 

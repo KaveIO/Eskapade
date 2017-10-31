@@ -25,7 +25,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import analysis, root_analysis, visualization
 from eskapade import process_manager
 from eskapade import resources
@@ -50,7 +50,7 @@ input_files = [resources.fixture('mock_accounts.csv.gz')]
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = process_manager.add_chain('Data')
+ch = Chain('Data')
 
 # --- 0. readdata keeps on opening the next file in the file list.
 #     all kwargs are passed on to pandas file reader.
@@ -132,11 +132,11 @@ hypotest.logger.log_level = LogLevel.DEBUG
 ch.add(hypotest)
 
 # --- 4. print contents of the datastore
-process_manager.add_chain('Overview')
+overview = Chain('Overview')
 hist_summary = visualization.DfSummary(name='HistogramSummary',
                                        read_key=hypotest.hist_dict_key,
                                        pages_key=hypotest.pages_key)
-process_manager.get_chain('Overview').add(hist_summary)
+overview.add(hist_summary)
 
 #########################################################################################
 

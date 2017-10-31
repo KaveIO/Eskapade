@@ -15,7 +15,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -54,7 +54,7 @@ g = {'a': 1, 'b': 2, 'c': 3, 'd': 4, 'e': 'favorite'}
 # - putting items in the datastore.
 # - displaying the contents of items in the datastore.
 
-ch = process_manager.add_chain('chain1')
+ch = Chain('chain1')
 
 # the link ToDsDict adds objects to the datastore
 # by default this happens at the execution of the link.
@@ -77,7 +77,7 @@ ch.add(link)
 # - asserting the presence of items in the datastore.
 # - deleting individual items from the datastore.
 
-ch = process_manager.add_chain('chain2')
+ch = Chain('chain2')
 
 # the link AssertInDs checks the presence
 # of certain objects in the datastore
@@ -99,7 +99,7 @@ ch.add(link)
 # chain 3
 # - deleting all items from the datastore.
 
-ch = process_manager.add_chain('chain3')
+ch = Chain('chain3')
 
 # default, delete everything from the datastore
 link = core_ops.DsObjectDeleter()
@@ -117,7 +117,7 @@ ch.add(link)
 # chain 4
 # - deleting all but certain items from the datastore.
 
-ch = process_manager.add_chain('chain4')
+ch = Chain('chain4')
 
 link = core_ops.AssertInDs()
 link.keySet = ['a', 'b']
@@ -135,7 +135,7 @@ ch.add(link)
 # chain 5
 # - moving, copying, or removing objects from the datastore
 
-ch = process_manager.add_chain('chain5')
+ch = Chain('chain5')
 
 link = core_ops.AssertInDs()
 link.keySet = ['a', 'b', 'c']

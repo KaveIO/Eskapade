@@ -25,7 +25,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops, visualization, root_analysis
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -52,7 +52,7 @@ settings['summary'] = True
 
 if settings['generate_fit_plot']:
     # --- generate pdf, simulate, fit, and plot
-    ch = process_manager.add_chain('WsOps')
+    ch = Chain('WsOps')
 
     # --- 1. define a model by passing strings to the rooworkspace factory
     #     For the workspace factory syntax, see:
@@ -95,7 +95,7 @@ if settings['generate_fit_plot']:
     ch.add(wsu)
 
     # --- 5. convert simulated data to dataframe
-    ch = process_manager.add_chain('Conversion2')
+    ch = Chain('Conversion2')
 
     rds2df = root_analysis.ConvertRooDataSet2DataFrame()
     rds2df.read_key = 'simdata'
@@ -104,7 +104,7 @@ if settings['generate_fit_plot']:
     ch.add(rds2df)
 
 if settings['summary']:
-    ch = process_manager.add_chain('Summary')
+    ch = Chain('Summary')
 
     # print contents of the workspace
     pws = root_analysis.PrintWs()
@@ -118,7 +118,7 @@ if settings['summary']:
     # --- make a summary document of simulated dataframe
     summarizer = visualization.DfSummary(name='Create_stats_overview',
                                          read_key=rds2df.store_key)
-    process_manager.get_chain('Summary').add(summarizer)
+    ch.add(summarizer)
 
 #########################################################################################
 

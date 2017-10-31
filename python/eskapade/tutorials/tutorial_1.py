@@ -19,7 +19,7 @@ LICENSE.
 
 import pandas as pd
 
-from eskapade import analysis, process_manager, visualization, ConfigObject
+from eskapade import analysis, process_manager, visualization, ConfigObject, Chain
 from eskapade.logger import Logger
 
 logger = Logger()
@@ -68,24 +68,25 @@ conv_funcs = [{'func': comp_date, 'colin': 'doy', 'colout': 'date'},
 # --- now set up the chains and links based on configuration flags
 
 # create first chain
+data = Chain('Data')
 process_manager.add_chain('Data')
 
 # add data-frame reader to "Data" chain
 reader = analysis.ReadToDf(name='Read_LA_ozone', path='LAozone.data', reader=pd.read_csv, key='data')
-process_manager.get_chain('Data').add(reader)
+data.add(reader)
 
 # add conversion functions to "Data" chain
 transform = analysis.ApplyFuncToDf(name='Transform', read_key=reader.key, store_key='transformed_data',
                                    apply_funcs=conv_funcs)
-process_manager.get_chain('Data').add(transform)
+data.add(transform)
 
 # create second chain
-process_manager.add_chain('Summary')
+summary = Chain('Summary')
 
 # add data-frame summary link to "Summary" chain
 summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=transform.store_key,
                                      var_labels=VAR_LABELS, var_units=VAR_UNITS)
-process_manager.get_chain('Summary').add(summarizer)
+summary.add(summarizer)
 
 
 #########################################################################################

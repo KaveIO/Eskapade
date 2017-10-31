@@ -29,7 +29,7 @@ LICENSE.
 
 import tempfile
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops, analysis, data_quality
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -68,7 +68,7 @@ f.close()
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = process_manager.add_chain('DataPrep')
+ch = Chain('DataPrep')
 
 # --- 0. pandas read_csv has multiple settings to help reading in of buggy csv's.
 #     o The option error_bad_lines=False skips lines with too few or too many values

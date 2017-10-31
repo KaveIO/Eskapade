@@ -17,7 +17,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import DataStore
 from eskapade import core_ops
 from eskapade import process_manager
@@ -57,7 +57,7 @@ ds['d'] = {'a': 1, 'b': 2, 'c': 3}
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = process_manager.add_chain('Overview')
+ch = Chain('Overview')
 
 # 1. printdatastore prints an overview of the contents in the datastore
 # at the state of executing the link.
@@ -92,7 +92,7 @@ ch.add(link)
 link.keys = ['foo', 'hello', 'd']
 
 # 5. this link should not be reached because of the Break!
-ch = process_manager.add_chain('End')
+ch = Chain('End')
 link = core_ops.PrintDs(name='printer3')
 ch.add(link)
 

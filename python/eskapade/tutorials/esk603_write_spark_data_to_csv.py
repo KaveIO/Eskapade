@@ -14,7 +14,7 @@ LICENSE.
 
 from collections import OrderedDict as odict
 
-from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis, Chain
 from eskapade.core import persistence
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
@@ -88,7 +88,7 @@ for input_format in ('df', 'rdd'):
                                                  mode='overwrite')
 
 # add links to chain
-chain = process_manager.add_chain('Write')
+chain = Chain('Write')
 for lnk in writers.values():
     chain.add(lnk)
 

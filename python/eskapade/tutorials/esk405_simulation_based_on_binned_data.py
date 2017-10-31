@@ -35,7 +35,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops, analysis, root_analysis
 from eskapade import process_manager
 from eskapade import resources
@@ -62,7 +62,7 @@ input_files = [resources.fixture('mock_accounts.csv.gz')]
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = process_manager.add_chain('Data')
+ch = Chain('Data')
 
 # --- 0. read input data
 read_data = analysis.ReadToDf(name='dflooper', key='accounts', reader='csv')
@@ -112,7 +112,7 @@ pds = core_ops.PrintDs()
 ch.add(pds)
 
 # --- 3. resimulate the data with the created hist-pdf, and plot these data and the pdf
-ch = process_manager.add_chain('WsOps')
+ch = Chain('WsOps')
 wsu = root_analysis.WsUtils()
 wsu.add_simulate(pdf='hpdf_Ndim', obs='rdh_vars', num=10000, key='simdata')
 wsu.add_plot(obs='age', data='simdata', pdf='hpdf_Ndim', output_file='test.pdf',

@@ -259,36 +259,36 @@ class WsUtils(Link):
 
         # 2. retrieve pdf and observables
         if isinstance(pdf, ROOT.RooAbsPdf):
-            thepdf = pdf
+            the_pdf = pdf
         else:
             assert len(pdf), 'pdf name not set'
-            thepdf = ds.get(pdf, ws.pdf(pdf))
-        if not thepdf:
+            the_pdf = ds.get(pdf, ws.pdf(pdf))
+        if not the_pdf:
             raise RuntimeError('unable to retrieve pdf')
         else:
-            assert isinstance(thepdf, ROOT.RooAbsPdf)
+            assert isinstance(the_pdf, ROOT.RooAbsPdf)
 
         if isinstance(obs, ROOT.RooArgSet):
-            theobs = obs
+            the_obs = obs
         elif isinstance(obs, str) and obs:
-            theobs = ds.get(obs, ws.set(obs))
+            the_obs = ds.get(obs, ws.set(obs))
         else:
-            set_name = thepdf.GetName() + '_varset'
-            theobs = ws.set(set_name)
-        if not theobs:
+            set_name = the_pdf.GetName() + '_varset'
+            the_obs = ws.set(set_name)
+        if not the_obs:
             if isinstance(obs, str):
                 # try to create a temporary observables set
                 temp_obs = uuid.uuid4().hex
                 failure = ws.defineSet(temp_obs, obs)
                 if not failure:
-                    theobs = ws.set(temp_obs)
+                    the_obs = ws.set(temp_obs)
                 else:
                     raise RuntimeError('Unable to retrieve (/create) observables with name "{}" for simulation.'
                                        .format(obs))
             else:
                 raise RuntimeError('Unable to retrieve (/create) observables for simulation.')
         else:
-            assert isinstance(theobs, ROOT.RooArgSet)
+            assert isinstance(the_obs, ROOT.RooArgSet)
 
         # process residual kwargs as roofit options
         roofit_opts = self._get_roofit_opts_list(ds, ws, **kwargs) if kwargs else ()
@@ -296,16 +296,16 @@ class WsUtils(Link):
 
         # 3. generate data
         try:
-            self.logger.debug('Now generating {n:d} records with pdf "{name}" ...', n=num, name=thepdf.GetName())
+            self.logger.debug('Now generating {n:d} records with pdf "{name}" ...', n=num, name=the_pdf.GetName())
             ROOT.RooAbsData.setDefaultStorageType(ROOT.RooAbsData.Tree)
-            sim_data = thepdf.generate(theobs, num, *roofit_opts)
+            sim_data = the_pdf.generate(the_obs, num, *roofit_opts)
             if not key:
-                key = thepdf.GetName() + '_sim_data'
+                key = the_pdf.GetName() + '_sim_data'
             sim_data.SetName(key)
-            self.logger.debug('Generated {n:d} records with pdf "{name}".', n=num, name=thepdf.GetName())
+            self.logger.debug('Generated {n:d} records with pdf "{name}".', n=num, name=the_pdf.GetName())
         except Exception as exc:
             # re-raise exeption if import failed
-            self.logger.error('Failed to generate data with pdf "{name}".', name=thepdf.GetName())
+            self.logger.error('Failed to generate data with pdf "{name}".', name=the_pdf.GetName())
             raise exc
 
         # 4. cleanup of temporary observables set

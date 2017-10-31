@@ -70,7 +70,7 @@ def eskapade_run():
 
     try:
         # run Eskapade
-        execution.run_eskapade(settings)
+        execution.eskapade_run(settings)
     except Exception as exc:
         logger.error('{exc}', exc=exc)
         raise

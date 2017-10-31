@@ -47,7 +47,7 @@ LICENSE.
 
 from pyspark.streaming import StreamingContext
 
-from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis, Chain
 from eskapade.core import persistence
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
@@ -100,7 +100,7 @@ else:
 ##########################################################################
 # --- now set up the chains and links based on configuration flags
 
-process_manager.add_chain('SparkStreaming')
+spark_streaming = Chain('SparkStreaming')
 
 # the word count example
 wordcount_link = spark_analysis.SparkStreamingWordCount(
@@ -115,11 +115,11 @@ writer_link = spark_analysis.SparkStreamingWriter(
     suffix='txt',
     repartition=1)
 
-process_manager.get_chain('SparkStreaming').add(writer_link)
+spark_streaming.add(writer_link)
 
 # start/stop of Spark Streaming
 control_link = spark_analysis.SparkStreamingController(name='SparkStreamingController', timeout=10)
-process_manager.get_chain('SparkStreaming').add(control_link)
+spark_streaming.add(control_link)
 
 ##########################################################################
 

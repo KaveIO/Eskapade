@@ -31,7 +31,7 @@ import sys
 
 import ROOT
 
-from eskapade import process_manager, ConfigObject, root_analysis
+from eskapade import process_manager, ConfigObject, root_analysis, Chain
 from eskapade.logger import Logger
 from eskapade.root_analysis import roofit_utils
 
@@ -164,7 +164,7 @@ logger.info(msg, path=settings['resultsDir'] + '/' + settings['analysisName'] + 
 # --- now set up the chains and links based on configuration flags
 
 # --- generate pdf, simulate, fit, and plot
-ch = process_manager.add_chain('WsOps')
+ch = Chain('WsOps')
 
 # --- 1. define a model by passing strings to the rooworkspace factory
 #     For the workspace factory syntax, see:

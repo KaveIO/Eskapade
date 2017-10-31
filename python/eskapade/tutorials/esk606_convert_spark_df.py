@@ -18,7 +18,7 @@ LICENSE.
 
 import pyspark
 
-from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis, Chain
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
@@ -85,7 +85,7 @@ process_meth_kwargs = {'df': {set_num_parts: dict(max_num_parts=2)},
                        'pd': {filter_pd: dict(min_index=20)}}
 
 # create chain and data-frame-creator links
-chain = process_manager.add_chain('Create')
+chain = Chain('Create')
 for out_format in process_methods:
     # create data-frame-conversion link
     lnk = spark_analysis.SparkDfConverter(name='df_to_{}_converter'.format(out_format),

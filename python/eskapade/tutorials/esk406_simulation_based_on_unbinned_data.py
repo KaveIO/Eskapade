@@ -28,7 +28,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import analysis, core_ops, resources, root_analysis, visualization
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -58,7 +58,7 @@ input_files = [resources.fixture('correlated_data.sv.gz')]
 # --- now set up the chains and links based on configuration flags
 
 if settings['read_data']:
-    ch = process_manager.add_chain('Data')
+    ch = Chain('Data')
 
     # --- 0. read the input dataset
     read_data = analysis.ReadToDf(name='reader', key='correlated_data', reader='csv', sep=' ')
@@ -82,7 +82,7 @@ if settings['read_data']:
 
 if settings['generate']:
     # --- 2. simulate a new dataset with the keys pdf, and then plot this dataset
-    ch = process_manager.add_chain('WsOps')
+    ch = Chain('WsOps')
     wsu = root_analysis.WsUtils()
     wsu.add_simulate(pdf='keys_Ndim', obs='keys_varset', num=5000, key='simdata', into_ws=True)
     wsu.add_plot(obs='x2', data='simdata', output_file='x2_simdata.pdf')
@@ -99,7 +99,7 @@ if settings['generate']:
 
 if settings['make_plot']:
     # --- 3. make a summary report out of the simulated dataset
-    ch = process_manager.add_chain('Plotting')
+    ch = Chain('Plotting')
 
     rds2df = root_analysis.ConvertRooDataSet2DataFrame()
     rds2df.read_key = 'simdata'

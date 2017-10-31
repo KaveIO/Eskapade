@@ -43,5 +43,5 @@ class TutorialMacrosTest(IntegrationTest):
         settings = process_manager.service(ConfigObject)
         settings['logLevel'] = LogLevel.DEBUG
         settings['macro'] = macro
-        status = execution.run_eskapade(settings)
+        status = execution.eskapade_run(settings)
         self.assertTrue(status == return_status)

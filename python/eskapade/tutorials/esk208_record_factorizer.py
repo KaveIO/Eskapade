@@ -17,7 +17,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject, resources
+from eskapade import ConfigObject, resources, Chain
 from eskapade import core_ops, analysis
 from eskapade import process_manager
 from eskapade.logger import Logger, LogLevel
@@ -42,16 +42,16 @@ data_path = resources.fixture('dummy.csv')
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch1 = process_manager.add_chain('Factorize')
+factorize = Chain('Factorize')
 
 # --- read dummy dataset
-readdata = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
-ch1.add(readdata)
+read_data = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
+factorize.add(read_data)
 
 # --- print contents of the datastore
 pds = core_ops.PrintDs(name='printer1')
 pds.keys = ['test1']
-ch1.add(pds)
+factorize.add(pds)
 
 # --- add the record factorizer
 #     Here the columns dummy and loc of the input dataset are factorized
@@ -64,28 +64,28 @@ fact.read_key = 'test1'
 fact.store_key = 'test1_fact'
 fact.sk_map_to_original = 'to_original'
 fact.logger.log_level = LogLevel.DEBUG
-ch1.add(fact)
+factorize.add(fact)
 
 # --- print contents of the datastore
 pds = core_ops.PrintDs(name='printer2')
 pds.keys = ['to_original', 'test1', 'test1_fact']
-ch1.add(pds)
+factorize.add(pds)
 
-ch2 = process_manager.add_chain('ReFactorize')
+refactorize = Chain('ReFactorize')
 
 # --- add second record factorizer, which now maps the columns
 #     dummy and loc back to their original format
-refact = analysis.RecordFactorizer(name='rf2')
-refact.read_key = fact.store_key
-refact.store_key = 'test1_refact'
-refact.map_to_original = fact.sk_map_to_original
-refact.logger.log_level = LogLevel.DEBUG
-ch2.add(refact)
+factorizer = analysis.RecordFactorizer(name='rf2')
+factorizer.read_key = fact.store_key
+factorizer.store_key = 'test1_refact'
+factorizer.map_to_original = fact.sk_map_to_original
+factorizer.logger.log_level = LogLevel.DEBUG
+refactorize.add(factorizer)
 
 # --- print contents of the datastore
 pds = core_ops.PrintDs(name='printer3')
 pds.keys = ['test1', 'test1_fact', 'test1_refact']
-ch2.add(pds)
+refactorize.add(pds)
 
 #########################################################################################
 

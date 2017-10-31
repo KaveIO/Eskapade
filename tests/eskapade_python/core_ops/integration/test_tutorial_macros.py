@@ -38,7 +38,7 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue(settings['do_chain0'])
         self.assertTrue(settings['do_chain1'])
         self.assertTrue(settings['do_chain2'])
-        self.assertEqual(3, len(process_manager.chains))
+        self.assertEqual(3, len(process_manager))
 
     def test_esk103(self):
         self.eskapade_run(resources.tutorial('esk103_printdatastore.py'))
@@ -100,11 +100,11 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
 
         settings = process_manager.service(ConfigObject)
 
-        self.assertEqual(1, len(process_manager.chains))
-        self.assertEqual('Chain1', process_manager.chains[0].name)
+        self.assertEqual(1, len(process_manager))
+        self.assertEqual('Chain1', list(process_manager)[0].name)
         self.assertEqual(False, settings.get('do_chain0', True))
         self.assertEqual(True, settings.get('do_chain1', True))
-        self.assertEqual('Universe', list(process_manager.chains[0])[0].hello)
+        self.assertEqual('Universe', list(list(process_manager)[0])[0].hello)
 
     # TODO (janos4276): Ugh ... Fix this or remove this. This test relies on the old way of doing things.
     @unittest.skip('Fix or remove this test. This test relies on the old way of doing things!')
@@ -181,7 +181,7 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
 
         # chain is repeated 10 times, with nothing put in datastore
         self.assertEqual(0, len(ds))
-        self.assertEqual(10, list(process_manager.chains[0])[1].maxcount)
+        self.assertEqual(10, list(list(process_manager)[0])[1].maxcount)
 
     def test_esk108map(self):
         settings = process_manager.service(ConfigObject)
@@ -205,7 +205,7 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
 
         self.eskapade_run(resources.tutorial('esk109_debugging_tips.py'), StatusCode.Failure)
 
-        self.assertTrue(isinstance(list(process_manager.chains[0])[2], Break))
+        self.assertTrue(isinstance(list(list(process_manager)[0])[2], Break))
 
     def test_esk110(self):
         self.eskapade_run(resources.tutorial('esk110_code_profiling.py'))
@@ -213,7 +213,7 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         settings = process_manager.service(ConfigObject)
         ds = process_manager.service(DataStore)
 
-        self.assertEqual(0, len(process_manager.chains))
+        self.assertEqual(0, len(process_manager))
         self.assertEqual(0, len(ds))
         self.assertTrue('doCodeProfiling' in settings)
         self.assertEqual('cumulative', settings['doCodeProfiling'])

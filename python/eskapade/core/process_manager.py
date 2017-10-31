@@ -326,7 +326,7 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         """
 
         if not issubclass(type(chain), Chain):
-            raise TypeError('Expected (sub-class of) "Link" and not "{wrong!s}"!'.format(wrong=type(chain)))
+            raise TypeError('Expected (sub-class of) "Chain" and not "{wrong!s}"!'.format(wrong=type(chain)))
 
         self.logger.debug('Registering chain "{chain}."', chain=chain)
 
@@ -373,7 +373,6 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
 
     def clear(self):
         """"Clear/remove all chains."""
-        # TODO (janos4276) Check whether Python calls clear recursively. We may also need some weakref magic.
         # Clear chains first.
         [_.clear() for _ in self]
 
@@ -480,34 +479,36 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         settings = self.service(ConfigObject)
 
         # determine which chains need to be run
-        begin = self.idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
-        end = (self.idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self)
+        # begin = self.idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
+        # end = (self.idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self)
 
-        if begin > 0:
-            # import services from previous chain, persisted in a previous run
-            try:
-                self.import_services(io_conf=settings.io_conf(), chain=self[begin].prev_chain_name, force=False)
-            except Exception as exc:
-                self.logger.error('Unable to import services persisted for "{chain}":',
-                                  chain=self[begin].prev_chain_name)
-                self.logger.error('Caught exception: "{exc!s}".', exc=exc)
-                return StatusCode.Failure
+        # if begin > 0:
+        #    # import services from previous chain, persisted in a previous run
+        #    try:
+        #        self.import_services(io_conf=settings.io_conf(), chain=self[begin].prev_chain_name, force=False)
+        #    except Exception as exc:
+        #        self.logger.error('Unable to import services persisted for "{chain}":',
+        #                          chain=self[begin].prev_chain_name)
+        #        self.logger.error('Caught exception: "{exc!s}".', exc=exc)
+        #        return StatusCode.Failure
 
         # execute chains
-        for chain in self[begin:end]:
+        for chain in self:
             # execute chain and check exit status
             status = self._exec(chain)
             chain.exitStatus = status
-            if status.is_failure():
+            if status == StatusCode.Failure:
                 return status
 
             # check if we need to persist process services
             if settings.get('doNotStoreResults'):
                 # never persist anything
                 continue
-            if not (settings.get('storeResultsEachChain') or chain == self.chains[end - 1] or settings.get('storeResultsOneChain') == chain.name):
-                # do not persist the output of this chain
-                continue
+            # if not (settings.get('storeResultsEachChain') or
+            #        chain == self.chains[end - 1] or
+            #        settings.get('storeResultsOneChain') == chain.name):
+            #    # do not persist the output of this chain
+            #    continue
 
             # persist process services with the output of this chain
             self.persist_services(io_conf=settings.io_conf(), chain=chain.name)
@@ -540,14 +541,16 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         """
         settings = self.service(ConfigObject)
 
-        self.logger.info('Summary of process manager')
-        if settings.get('beginWithChain'):
-            self.logger.info('  Starting from chain: "{name}"', name=settings['beginWithChain'])
-        if settings.get('endWithChain'):
-            self.logger.info('  Ending with chain:   "{name}"', name=settings['endWithChain'])
+        self.logger.info('ProcessManager:')
+        # if settings.get('beginWithChain'):
+        #    self.logger.info('  Starting from chain: "{name}"', name=settings['beginWithChain'])
+        # if settings.get('endWithChain'):
+                #    self.logger.info('  Ending with chain:   "{name}"', name=settings['endWithChain'])
 
         self.logger.info('Number of registered services: {n:d}', n=len(self._services))
+        self.print_services()
         self.logger.info('Number of registered chains: {n:d}', n=len(self))
+        self.print_chains()
 
     def print_services(self):
         """Print registered process services."""
@@ -557,8 +560,8 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
             # print service names on this level
             indent = ' ' * 2 * depth
             for service_name in sorted(cls.__name__ for cls in level.pop('-services-', [])):
-                self.logger.debug('{prefix:s}{indent:s}+ {service:s}',
-                                  prefix=prefix, indent=indent, service=service_name)
+                self.logger.debug('{prefix:s}{indent:s}+ {service:s}', prefix=prefix, indent=indent,
+                                  service=service_name)
 
             # print next levels
             for lev_path in sorted(level):
@@ -575,9 +578,10 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         settings = self.service(ConfigObject)
         self.logger.debug('  Chains to be executed')
 
-        begin = self.idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
-        end = (self.idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self)
-        for chain in self.chains[begin:end]:
+        # begin = self.idx(settings['beginWithChain']) if settings.get('beginWithChain') else 0
+        # end = (self.idx(settings['endWithChain']) + 1) if settings.get('endWithChain') else len(self)
+
+        for chain in self:
             self.logger.debug('    Chain: {name}', name=chain.name)
             for link in chain:
                 self.logger.debug('      Link: {name}', name=link.name)

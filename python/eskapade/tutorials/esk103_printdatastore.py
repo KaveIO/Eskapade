@@ -17,7 +17,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import core_ops, process_manager, ConfigObject, DataStore
+from eskapade import core_ops, process_manager, ConfigObject, DataStore, Chain
 from eskapade.logger import Logger
 
 logger = Logger()
@@ -40,7 +40,7 @@ process_manager.service(DataStore)['d'] = {'a': 1, 'b': 2, 'c': 3}
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = process_manager.add_chain('Overview')
+ch = Chain('Overview')
 
 # printdatastore prints an overview of the contents in the datastore
 # at the state of executing the link.

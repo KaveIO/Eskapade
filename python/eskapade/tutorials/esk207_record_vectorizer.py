@@ -17,7 +17,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject, resources
+from eskapade import ConfigObject, resources, Chain
 from eskapade import core_ops, analysis
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -42,7 +42,7 @@ data_path = resources.fixture('dummy.csv')
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch1 = process_manager.add_chain('MyChain1')
+ch1 = Chain('MyChain1')
 
 # --- read dummy dataset
 read_data = analysis.ReadToDf(key='test1', sep='|', reader='csv', path=data_path)
@@ -56,12 +56,12 @@ ch1.add(pds)
 # --- add the record vectorizer
 #     Here the columns x and y of the input dataset are vectorized
 #     e.g. x=1 becomes the column: x_1 = True
-vect = analysis.RecordVectorizer()
-vect.columns = ['x', 'y']
-vect.read_key = 'test1'
-vect.store_key = 'vect_test'
-vect.astype = int
-ch1.add(vect)
+vectorizer = analysis.RecordVectorizer()
+vectorizer.columns = ['x', 'y']
+vectorizer.read_key = 'test1'
+vectorizer.store_key = 'vect_test'
+vectorizer.astype = int
+ch1.add(vectorizer)
 
 # --- print contents of the datastore
 pds = core_ops.PrintDs(name='printer2')

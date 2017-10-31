@@ -20,7 +20,7 @@ from collections import OrderedDict as odict
 
 import pandas as pd
 
-from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis, Chain
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
@@ -66,7 +66,7 @@ def set_num_parts(df, max_num_parts):
 
 
 # create chain and data-frame-creator links
-chain = process_manager.add_chain('Create')
+chain = Chain('Create')
 for ds_key, lnk_schema in zip(('rows', 'rdd', 'df', 'pd'), (list(schema.keys()), schema, schema, None)):
     # create data-frame-creator link
     lnk = spark_analysis.SparkDfCreator(name='df_creator_{}'.format(ds_key),

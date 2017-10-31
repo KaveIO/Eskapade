@@ -16,7 +16,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject, resources
+from eskapade import ConfigObject, resources, Chain
 from eskapade import analysis, visualization
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -44,8 +44,7 @@ settings['correlations'] = ['pearson', 'kendall', 'spearman', 'correlation_ratio
 # --- now set up the chains and links based on configuration flags
 
 # create chains
-process_manager.add_chain('Data')
-process_manager.add_chain('Summary')
+data = Chain('Data')
 
 # load data
 reader = analysis.ReadToDf(name='reader',
@@ -54,15 +53,17 @@ reader = analysis.ReadToDf(name='reader',
                            key='input_data',
                            reader=settings['reader'])
 
-process_manager.get_chain('Data').add(reader)
+data.add(reader)
 
 # make visualizations of correlations
+summary = Chain('Summary')
+
 corr_link = visualization.CorrelationSummary(name='correlation_summary',
                                              read_key='input_data',
                                              store_key='correlations',
                                              methods=settings['correlations'])
 
-process_manager.get_chain('Summary').add(corr_link)
+summary.add(corr_link)
 
 #########################################################################################
 

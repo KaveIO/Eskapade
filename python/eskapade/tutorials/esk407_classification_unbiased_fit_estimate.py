@@ -29,7 +29,7 @@ LICENSE.
 import ROOT
 from ROOT import RooFit
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops, root_analysis
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -49,7 +49,7 @@ settings['version'] = 0
 # --- now set up the chains and links based on configuration flags
 
 # --- generate pdf, simulate, fit, and plot
-ch = process_manager.add_chain('WsOps')
+ch = Chain('WsOps')
 
 # 1. simulate output score of machine learning classifier
 wsu = root_analysis.WsUtils(name='DataSimulator')

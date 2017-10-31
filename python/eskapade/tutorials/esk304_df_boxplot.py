@@ -13,7 +13,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import analysis, visualization
 from eskapade import process_manager
 from eskapade.core import persistence
@@ -51,20 +51,19 @@ GEN_CONF = dict(var_a=dict(choice=['alpha', 'beta', 'gamma'], dtype=str), var_b=
 # --- now set up the chains and links based on configuration flags
 
 # create chains
-process_manager.add_chain('Data')
-process_manager.add_chain('BoxPlot')
+data = Chain('Data')
 
 # add data-generator link to "Data" chain
-
 generator = analysis.BasicGenerator(name='Generate_data',
                                     key='data',
                                     columns=COLUMNS,
                                     size=SIZE,
                                     gen_config=GEN_CONF)
-process_manager.get_chain('Data').add(generator)
+data.add(generator)
 
 # add data-frame summary link to "Boxplot" chain
 # can provide labels and units for the variables in the dataset, and set the statistics to print in output file
+plot = Chain('BoxPlot')
 box_plot = visualization.DfBoxplot(name='Create_stats_overview',
                                    read_key=generator.key,
                                    statistics=['count', 'mean', 'min', 'max', 'std'],
@@ -73,7 +72,7 @@ box_plot = visualization.DfBoxplot(name='Create_stats_overview',
                                    column='var_b',
                                    cause_columns=['var_a', 'var_c'],
                                    results_path=persistence.io_path('results_data', 'report'))
-process_manager.get_chain('BoxPlot').add(box_plot)
+plot.add(box_plot)
 
 #########################################################################################
 

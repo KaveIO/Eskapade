@@ -19,7 +19,7 @@ LICENSE.
 
 import tempfile
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops
 from eskapade import process_manager
 
@@ -88,7 +88,7 @@ def first_word(x):
 #     this eventlooper link serves as a mapper.
 #     in this example the lines are converted to lower chars, and the first word is selected.
 if settings['do_map']:
-    ch = process_manager.add_chain("Mapper")
+    ch = Chain("Mapper")
     looper = core_ops.EventLooper(name='listener')
     looper.skip_line_beginning_with = ['#']
     looper.line_processor_set = [first_word, to_lower]
@@ -100,7 +100,7 @@ if settings['do_map']:
 #     this eventlooper link serves as a reducer
 #     in this example the lines are grouped together into unique sets.
 if settings['do_reduce']:
-    ch = process_manager.add_chain("Reducer")
+    ch = Chain("Reducer")
     looper = core_ops.EventLooper(name='grouper')
     # reducer selects all unique lines
     looper.sort = True

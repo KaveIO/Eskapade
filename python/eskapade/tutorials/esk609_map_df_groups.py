@@ -16,7 +16,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis, Chain
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
@@ -58,7 +58,7 @@ ds['df'] = spark.createDataFrame(rows, schema=['index', 'foo', 'bar'])
 # --- now set up the chains and links based on configuration flags
 
 # create chain
-chain = process_manager.add_chain('Map')
+chain = Chain('Map')
 
 # create a link to convert the data frame into an RDD
 conv_lnk = spark_analysis.SparkDfConverter(name='DfConverter',

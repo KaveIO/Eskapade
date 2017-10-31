@@ -17,7 +17,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import process_manager, ConfigObject
+from eskapade import process_manager, ConfigObject, Chain
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
@@ -66,27 +66,27 @@ def mi_to_km(dist):
 # --- now set up the chains and links based on configuration flags
 
 # create first chain
-process_manager.add_chain('Data')
+data = Chain('Data')
 
 # # add data-frame reader to "Data" chain
 # reader = spark_analysis.SparkDfReader()
-# process_manager.get_chain('Data').add(reader)
+# data.add(reader)
 
 # # add conversion functions to "Data" chain
 # transform = spark_analysis.SparkWithColumn()
-# process_manager.get_chain('Data').add(transform)
+# data.add(transform)
 
 # create second chain
-process_manager.add_chain('Summary')
+summary = Chain('Summary')
 
 # # fill spark histograms
 # histo = spark_analysis.SparkHistogrammarFiller()
-# process_manager.get_chain('Summary').add(histo)
+# summary.add(histo)
 
 # # add data-frame summary link to "Summary" chain
 # summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=histo.store_key,
 #                                     var_labels=VAR_LABELS, var_units=VAR_UNITS)
-# process_manager.get_chain('Summary').add(summarizer)
+# summary.add(summarizer)
 
 
 #########################################################################################

@@ -16,7 +16,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops
 from eskapade import process_manager
 from eskapade.logger import Logger, LogLevel
@@ -51,7 +51,7 @@ if settings['do_example']:
     # --- a loop is set up in the chain MyChain.
     #     we iterate over the chain until the link RepeatChain is done.
     #     then move on to the next chain (Overview)
-    ch = process_manager.add_chain('MyChain')
+    ch = Chain('MyChain')
 
     link = core_ops.HelloWorld(name='HelloWorld')
     link.logger.log_level = LogLevel.DEBUG
@@ -68,9 +68,9 @@ if settings['do_example']:
 
 # --- print contents of the datastore.
 #    which in this case is empty.
-process_manager.add_chain('Overview')
+overview = Chain('Overview')
 pds = core_ops.PrintDs(name='End')
-process_manager.get_chain('Overview').add(pds)
+overview.add(pds)
 
 #########################################################################################
 

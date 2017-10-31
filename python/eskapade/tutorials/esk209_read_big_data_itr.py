@@ -16,7 +16,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import analysis, core_ops, process_manager, resources, ConfigObject
+from eskapade import analysis, core_ops, process_manager, resources, ConfigObject, Chain
 from eskapade.logger import Logger
 
 logger = Logger()
@@ -44,7 +44,7 @@ data_path = resources.fixture('dummy.csv')
 # --- example 1: readdata loops over the input files, but no file chunking.
 
 if settings.get('do_example1', True):
-    ch = process_manager.add_chain('MyChain1')
+    ch = Chain('MyChain1')
 
     # --- a loop is set up in the chain MyChain.
     #     we iterate over (chunks of) the next file in the list until the iterator is done.
@@ -81,7 +81,7 @@ if settings.get('do_example1', True):
 # --- example 2: readdata loops over the input files, with file chunking.
 
 if settings.get('do_example2', True):
-    ch = process_manager.add_chain('MyChain2')
+    ch = Chain('MyChain2')
 
     # --- a loop is set up in the chain MyChain.
     #     we iterate over (chunks of) the next file in the list until the iterator is done.
@@ -129,10 +129,10 @@ if settings.get('do_example2', True):
     ch.add(repeater)
 
 # --- print contents of the datastore
-process_manager.add_chain('Overview')
+overview = Chain('Overview')
 pds = core_ops.PrintDs(name='End')
 pds.keys = ['n_test1', 'n_sum_test1', 'n_test2', 'n_sum_test2', 'test2', 'n_merged']
-process_manager.get_chain('Overview').add(pds)
+overview.add(pds)
 
 #########################################################################################
 

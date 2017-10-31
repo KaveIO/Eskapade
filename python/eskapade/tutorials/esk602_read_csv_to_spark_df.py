@@ -15,7 +15,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import process_manager, ConfigObject, resources, spark_analysis
+from eskapade import process_manager, ConfigObject, resources, spark_analysis, Chain
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
@@ -73,7 +73,8 @@ if num_partitions:
     read_link.read_meth_args['repartition'] = (num_partitions,)
 
 # add link to chain
-process_manager.add_chain('Read').add(read_link)
+read = Chain('Read')
+read.add(read_link)
 
 ##########################################################################
 

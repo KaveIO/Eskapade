@@ -45,12 +45,11 @@ settings['n_repeat'] = 2
 # --- now set up the chains and links based on configuration flags
 
 if settings['do_hello']:
-    hello_chain = Chain(name='Hello')
-    ch = process_manager.add_chain(hello_chain)
+    hello = Chain(name='Hello')
     link = core_ops.HelloWorld(name='HelloWorld')
     link.logger.log_level = LogLevel.DEBUG
     link.repeat = settings['n_repeat']
-    ch.add(link)
+    hello.add(link)
 
 #########################################################################################
 

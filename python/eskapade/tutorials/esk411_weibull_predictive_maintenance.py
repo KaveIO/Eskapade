@@ -20,7 +20,7 @@ Licence:
 import ROOT
 from ROOT import RooFit
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import process_manager
 from eskapade import root_analysis
 from eskapade.core import persistence
@@ -66,7 +66,7 @@ n_percentile_bins = 300
 
 if settings['model']:
     # --- generate pdf
-    ch = process_manager.add_chain('Model')
+    ch = Chain('Model')
 
     # --- 1. define a model
     wsu = root_analysis.WsUtils(name='modeller')
@@ -82,7 +82,7 @@ if settings['model']:
 
 if settings['generate']:
     # --- generate pdf
-    ch = process_manager.add_chain('Generate')
+    ch = Chain('Generate')
 
     wsu = root_analysis.WsUtils(name='generator')
     wsu.add_simulate(pdf=fitpdf, obs='t', num=1625500, key='rds')
@@ -97,7 +97,7 @@ if settings['generate']:
 #     ch.add(read_data)
 
 if settings['process']:
-    ch = process_manager.add_chain('ProcessData')
+    ch = Chain('ProcessData')
 
     # --- a. rebinning configuration, for (faster) binned fit
     pb = root_analysis.RooFitPercentileBinning()
@@ -115,7 +115,7 @@ if settings['process']:
     ch.add(conv)
 
 if settings['fit_plot']:
-    ch = process_manager.add_chain('FitAndPlot')
+    ch = Chain('FitAndPlot')
 
     # --- 1. fit: perform fit of pdf 'fitpdf' to dataset 'binnedData'.
     #        store the fit result object in the datastore under key 'fit_result'
@@ -158,7 +158,7 @@ if settings['fit_plot']:
     ch.add(wsu)
 
 if settings['summary']:
-    ch = process_manager.add_chain('Summary')
+    ch = Chain('Summary')
 
     # print contents of the workspace
     pws = root_analysis.PrintWs()

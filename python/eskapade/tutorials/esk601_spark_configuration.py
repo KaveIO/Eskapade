@@ -15,7 +15,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import process_manager, ConfigObject, spark_analysis
+from eskapade import process_manager, ConfigObject, spark_analysis, Chain
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
@@ -66,7 +66,9 @@ conf_link = spark_analysis.SparkConfigurator(name='SparkConfigurator', log_level
 conf_link.spark_settings = [('spark.app.name', settings['analysisName'] + '_link'),
                             ('spark.master', 'local[42]'),
                             ('spark.driver.host', '127.0.0.1')]
-process_manager.add_chain('Config').add(conf_link)
+
+config = Chain('Config')
+config.add(conf_link)
 
 logger.info('---> METHOD 2: link')
 logger.info('NB: settings will be printed at time of link execution.')

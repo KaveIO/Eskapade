@@ -15,7 +15,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -44,7 +44,7 @@ settings['do_chain2'] = True
 # Three simple chains are set up.
 
 if settings['do_chain0']:
-    ch = process_manager.add_chain('Chain0')
+    ch = Chain('Chain0')
     link = core_ops.HelloWorld(name='hello0')
     link.hello = 'Town'
     ch.add(link)
@@ -52,13 +52,13 @@ if settings['do_chain0']:
 # adding more chains is as easy as calling add_chain and passing a new name.
 
 if settings['do_chain1']:
-    ch = process_manager.add_chain('Chain1')
+    ch = Chain('Chain1')
     link = core_ops.HelloWorld(name='hello1')
     link.hello = 'World'
     ch.add(link)
 
 if settings['do_chain2']:
-    ch = process_manager.add_chain('Chain2')
+    ch = Chain('Chain2')
     link = core_ops.HelloWorld(name='hello2')
     link.hello = 'Universe'
     ch.add(link)

@@ -37,7 +37,7 @@ def reset_eskapade(skip_config=False):
         process_manager.service(settings)
 
 
-def run_eskapade(settings=None):
+def eskapade_run(settings=None):
     """Run Eskapade.
 
     This function is called in the script eskapade_run when run
@@ -99,7 +99,7 @@ def run_eskapade(settings=None):
         profiler.enable()
 
     # run Eskapade
-    status = process_manager.execute_all()
+    status = process_manager.execute()
 
     if settings.get('doCodeProfiling'):
         # turn off profiling
