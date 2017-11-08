@@ -73,7 +73,7 @@ def set_rf_log_level(level):
 def load_libesroofit():
     """Load Eskapade RooFit library."""
     # don't rebuild/reload library if already loaded
-    if any((_.endswith('/libesroofit.so') for _ in ROOT.gSystem.GetLibraries().split())):
+    if any('libesroofit.so' in _ for _ in ROOT.gSystem.GetLibraries().split()):
         return
 
     logger.debug('(Re-)loading Eskapade RooFit library')

@@ -123,26 +123,23 @@ Short introduction to the Framework
 At this point we will not go into the underlying structure of the code that is underneath the macro, but later in this
 tutorial we will. For now we will take a look in the macro. So open ``python/eskapade/tutorials/tutorial_1.py`` in your
 favorite editor. We notice the structure: first imports, then defining all the settings, and finally the actual
-analysis: Chains and Links. There are two chains added to the macro, with following line you can add a chain:
+analysis: Chains and Links.
+
+A chain is instantiated as follows:
 
 .. code-block:: python
 
-  process_manager.add_chain('Data')
+  data = Chain('Data')
 
-This chain called ``Data`` is added to the ProcessManager, which is the object that runs the entire macro. Then the
-chain is fetched by:
+and registered automatically with the ProcessManager. The ProcessManager is the main event
+processing loop and is responsible for processing the Chains and Links.
 
-.. code-block:: python
-
-  process_manager.get_chain('Data')
-
-and a Link is added. First the link is initialized (links are classes) and its properties are set, and finally it is
-inserted into the chain:
+Next a Pandas data frame converter Link is initialized and its properties are set, and finally added to the data chain:
 
 .. code-block:: python
 
   reader = analysis.ReadToDf(name='Read_LA_ozone', path='LAozone.data', reader=pd.read_csv, key='data')
-  process_manager.get_chain('Data').add(reader)
+  data.add(reader)
 
 This means the Link is added to the chain and when Eskapade runs, it will execute the code in the Link.
 
@@ -268,7 +265,7 @@ So use the code and add 3 chains with different names:
 
 .. code-block:: python
 
-  ch = process_manager.add_chain('CHAINNAME')
+  ch = Chain('CHAINNAME')
 
 When naming chains, remember that the output of Eskapade will print per chain-link combination the logs that are
 defined in the Links. So name the chains appropriately, so when you run the macro the logging actually makes sense.

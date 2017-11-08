@@ -49,7 +49,7 @@ if settings['do_chain0']:
     link.hello = 'Town'
     ch.add(link)
 
-# adding more chains is as easy as calling add_chain and passing a new name.
+# adding more chains is as easy as creating multiple chain instances with unique names.
 
 if settings['do_chain1']:
     ch = Chain('Chain1')

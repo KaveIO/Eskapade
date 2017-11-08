@@ -172,7 +172,10 @@ class {link_name!s}(Link):
                     .format(link_dir=link_dir, file_name=file_name, link_name=link_name, import_line=import_line))
 
 
-def generate_macro(macro_dir, macro_name, link_module='eskapade.core_ops', link_name='HelloWorld',
+def generate_macro(macro_dir,
+                   macro_name,
+                   link_module='eskapade.core_ops',
+                   link_name='HelloWorld',
                    is_create_init=False):
     """Generate Eskapade macro.
 
@@ -203,7 +206,7 @@ LICENSE.
 from eskapade import process_manager, ConfigObject
 from eskapade.logger import Logger, LogLevel
 
-from {link_module!s} import {link_name!s}
+from links import {link_name!s}
 
 logger = Logger()
 
@@ -217,7 +220,7 @@ settings['version'] = 0
 
 # --- now set up the chains and links
 
-ch = process_manager.add_chain('Start')
+ch = Chain('Start')
 link = {link_name!s}()
 link.logger.log_level = LogLevel.DEBUG
 ch.add(link)

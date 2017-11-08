@@ -156,7 +156,7 @@ found `here <https://root.cern.ch/doc/master/RooFactoryWSTool_8cxx_source.html#l
 
 .. code-block:: python
 
-   ch = process_manager.add_chain('WsOps')
+   ch = Chain('WsOps')
 
    # --- instantiate a pdf
    wsu = root_analysis.WsUtils(name = 'modeller')

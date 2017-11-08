@@ -90,7 +90,7 @@ if settings['generate']:
 
 # # --- example of how to import a roodataset from a root file
 # if settings['read_data']:
-#     ch = process_manager.add_chain('Data')
+#     ch = Chain('Data')
 #     read_data = root_analysis.ReadFromRootFile()
 #     read_data.path = '/opt/eskapade/data/tsv_renamed_data.root'
 #     read_data.keys = ['rds']

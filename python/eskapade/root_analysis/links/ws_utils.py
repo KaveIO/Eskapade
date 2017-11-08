@@ -21,8 +21,8 @@ import os
 import re
 import uuid
 
-import ROOT
 import tabulate
+import ROOT
 from ROOT import RooFit
 
 from eskapade import process_manager, resources, DataStore, Link, StatusCode
@@ -345,24 +345,24 @@ class WsUtils(Link):
         """
         # basic checks
         if isinstance(pdf, ROOT.RooAbsPdf):
-            thepdf = pdf
+            the_pdf = pdf
         else:
             assert isinstance(pdf, str) and pdf, 'pdf name not set'
-            thepdf = ds.get(pdf, ws.pdf(pdf))
-        if not thepdf:
+            the_pdf = ds.get(pdf, ws.pdf(pdf))
+        if not the_pdf:
             raise RuntimeError('unable to retrieve pdf for fitting')
         else:
-            assert isinstance(thepdf, ROOT.RooAbsPdf)
+            assert isinstance(the_pdf, ROOT.RooAbsPdf)
 
         if isinstance(data, ROOT.RooAbsData):
-            thedata = data
+            the_data = data
         else:
             assert isinstance(data, str) and data, 'data set name not set'
-            thedata = ds.get(data, ws.data(data))
-        if not thedata:
+            the_data = ds.get(data, ws.data(data))
+        if not the_data:
             raise RuntimeError('unable to retrieve dataset for fitting')
         else:
-            assert isinstance(thedata, ROOT.RooAbsData)
+            assert isinstance(the_data, ROOT.RooAbsData)
 
         # process residual kwargs as roofit options
         roofit_opts = self._get_roofit_opts_list(ds, ws, **kwargs) if kwargs else ()
@@ -370,14 +370,14 @@ class WsUtils(Link):
 
         # fit pdf to data and store
         try:
-            fit_result = thepdf.fitTo(thedata, RooFit.Save(), *roofit_opts)
+            fit_result = the_pdf.fitTo(the_data, RooFit.Save(), *roofit_opts)
             if not key:
-                key = thepdf.GetName() + '_fitTo_' + thedata.GetName()
+                key = the_pdf.GetName() + '_fitTo_' + the_data.GetName()
             fit_result.SetName(key)
         except Exception as exc:
             # re-raise exeption if import failed
-            self.logger.error('Failed to fit data "{data_name}" with pdf "{pdf_name}"', data_name=thedata.GetName(),
-                              pdf_name=thepdf.GetName())
+            self.logger.error('Failed to fit data "{data_name}" with pdf "{pdf_name}"', data_name=the_data.GetName(),
+                              pdf_name=the_pdf.GetName())
             raise exc
 
         # turn fit_result into latex report

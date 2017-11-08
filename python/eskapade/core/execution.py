@@ -13,9 +13,6 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-import cProfile
-import io
-import pstats
 import sys
 
 import eskapade.utils
@@ -61,11 +58,18 @@ def eskapade_run(settings=None):
         process_manager.service(settings)
     settings = process_manager.service(ConfigObject)
 
-    # initialize logging
-    logger.info('*' * 80)
-    greeting = 'Welcome to Eskapade'
-    logger.info(greeting)
-    logger.info('*' * 80)
+    def message(msg):
+        width = 80
+        fence = '*'
+        logger.info(fence * width)
+        logger.info('{begin}{msg:>{fill}}{end:>{e_fill}}'.format(begin=fence,
+                                                                 msg=msg,
+                                                                 fill=(width + len(msg)) // 2,
+                                                                 end=fence,
+                                                                 e_fill=(width - len(msg) - 1) // 2))
+        logger.info(fence * width)
+
+    message('Welcome to Eskapade!')
 
     # check for batch mode
     if settings.get('batchMode'):
@@ -87,42 +91,8 @@ def eskapade_run(settings=None):
         raise RuntimeError('analysis name is not set')
 
     # standard execution from now on
+    status = process_manager.run()
 
-    # initialize
-    status = process_manager.initialize()
-    if status.is_failure():
-        return status
-
-    if settings.get('doCodeProfiling'):
-        # turn on profiling
-        profiler = cProfile.Profile()
-        profiler.enable()
-
-    # run Eskapade
-    status = process_manager.execute()
-
-    if settings.get('doCodeProfiling'):
-        # turn off profiling
-        profiler.disable()
-
-        # print profile output
-        profile_output = io.StringIO()
-        profile_stats = pstats.Stats(profiler, stream=profile_output).sort_stats(settings['doCodeProfiling'])
-        profile_stats.print_stats()
-        print(profile_output.getvalue())
-
-    # check execution return code
-    if status.is_failure():
-        return status
-
-    # finalization and storage()
-    status = process_manager.finalize()
-    if status.is_failure():
-        return status
-
-    logger.info('*' * 80)
-    greeting = 'Leaving Eskapade. Bye!'
-    logger.info(greeting)
-    logger.info('*' * 80)
+    message('Leaving Eskapade. Bye!')
 
     return status

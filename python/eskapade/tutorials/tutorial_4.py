@@ -88,7 +88,7 @@ Now move the header files to their correct location:
 
 % mv MyPdfV*.h $ESKAPADE/cxx/esroofit/include/
 
-To make sure that these classes get picked up in Eskapade roofit libary, open the file:
+To make sure that these classes get picked up in Eskapade roofit library, open the file:
 
 $ESKAPADE/cxx/esroofit/dict/esroofit/LinkDef.h
 
@@ -123,6 +123,7 @@ logger.info(msg)
 settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'tutorial_4'
 settings['version'] = 0
+settings['onthefly'] = True
 
 #########################################################################################
 

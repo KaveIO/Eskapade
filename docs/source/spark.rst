@@ -99,7 +99,8 @@ Configurations for Spark jobs are set via the ``SparkConf`` class that holds a l
   conf_link = spark_analysis.SparkConfigurator(name='SparkConfigurator')
   conf_link.sparkConf = [('spark.master', 'local[3]')]
   conf_link.setLogLevel = 'INFO'
-  process_manager.add_chain('Config').add(conf_link)
+  config = Chain('Config)
+  config.add(conf_link)
 
 Note that the ``SparkConfigurator`` stops any existing Spark session before starting a new one. This means that the user should make sure all relevant data is stored at this point, since all cached Spark data will be cleared from memory.
 

@@ -66,6 +66,7 @@ class Processor(metaclass=ABCMeta):
     def __init__(self, name: str):
         """Initialize the Processor object."""
         super().__init__()
+        name = name or self.__class__.__name__
         self.__name = name  # type: str
         self.__hash = None  # type: int
         self.__parent = None

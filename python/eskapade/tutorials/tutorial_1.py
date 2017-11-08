@@ -69,7 +69,6 @@ conv_funcs = [{'func': comp_date, 'colin': 'doy', 'colout': 'date'},
 
 # create first chain
 data = Chain('Data')
-process_manager.add_chain('Data')
 
 # add data-frame reader to "Data" chain
 reader = analysis.ReadToDf(name='Read_LA_ozone', path='LAozone.data', reader=pd.read_csv, key='data')

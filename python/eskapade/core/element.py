@@ -38,21 +38,21 @@ class Link(Processor, ArgumentsMixin, TimerMixin):
     Links are added to a chain as follows:
 
     >>> from eskapade import process_manager
-    >>>
-    >>>
-    >>> # add a chain first
-    >>> overview = process_manager.add_chain('Overview')
-    >>>
-    >>> # add a link to the chain
     >>> from eskapade import analysis
     >>>
+    >>> # Create a Chain instance. Note that the chain is automatically registered with process manager.
+    >>> io_chain = Chain('IO')
     >>>
+    >>> # Add a link to the chain
     >>> reader = analysis.ReadToDf(name='CsvReader', key='foo')
     >>> reader.path = 'foo.csv'
-    >>> overview.add(reader)
+    >>> io_chain.add(reader)
+    >>>
+    >>> # Run everything.
+    >>> process_manager.run()
     """
 
-    def __init__(self, name):
+    def __init__(self, name=None):
         """Initialize link."""
         super().__init__(name)
 
@@ -259,39 +259,38 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
     topic, for example 'validation of a model', or 'data preparation', or
     'data quality checks'.
 
-    Chains are added to the process_manager as follows:
-
     >>> from eskapade import process_manager
     >>> from eskapade import Chain
+    >>> from eskapade import analysis
     >>>
-    >>>
-    >>> overview = Chain('Overview')
-    >>> overview = process_manager.add_chain(overview)
+    >>> # Create an IO chain. This is automatically registered with the process manager.
+    >>> io_chain = Chain('Overview')
 
     And Links are added to a chain as follows:
 
     >>> # add a link to the chain
-    >>> from eskapade import analysis
+    >>> io_chain.add(analysis.ReadToDf(path='foo.csv', key='foo'))
     >>>
-    >>>
-    >>> overview.add(analysis.ReadToDf(path='foo.csv', key='foo'))
+    >>> # Run everything.
+    >>> process_manager.run()
     """
 
     def __init__(self, name, process_manager=None):
         """Initialize chain."""
         super().__init__(name)
 
-        self.prev_chain_name = ''
+        self.prev_chain_name = ''  # type: str
+        self.enabled = True  # type: bool
 
         # We register ourselves with the process manager.
-        # If none is specified register with the default process
-        # manager.
+        # If none is specified register with the default
+        # process manager.
         if process_manager is None:
             from eskapade import process_manager
 
         process_manager.add(self)
 
-    def _exec(self, phase_callback) -> StatusCode:
+    def __exec(self, phase_callback) -> StatusCode:
         status = StatusCode.Success
 
         for _ in self:
@@ -333,7 +332,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         if not issubclass(type(link), Link):
             raise TypeError('Expected (sub-class of) "Link" and not "{wrong!s}"!'.format(wrong=type(link)))
 
-        self.logger.debug('Registering link "{link}."', chain=link)
+        self.logger.debug('Registering link "{link}."', link=link)
 
         link.parent = self
         super().add(link)
@@ -361,7 +360,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
 
         self.start_timer()
 
-        status = self._exec(Processor._initialize)
+        status = self.__exec(Processor._initialize)
 
         if status == StatusCode.Success:
             self.logger.debug('Successfully initialized chain "{chain!s}".', chain=self)
@@ -376,7 +375,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         """
         self.logger.debug('Executing chain "{chain!s}".', chain=self)
 
-        status = self._exec(Processor._execute)
+        status = self.__exec(Processor._execute)
 
         if status == StatusCode.Success:
             self.logger.debug('Successfully executed chain "{chain!s}".', chain=self)
@@ -391,7 +390,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         """
         self.logger.debug('Finalizing chain "{chain!s}".', chain=self)
 
-        status = self._exec(Processor._finalize)
+        status = self.__exec(Processor._finalize)
 
         if status == StatusCode.Success:
             total_time = self.stop_timer()
@@ -404,3 +403,12 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
     def clear(self):
         self.parent = None
         super().clear()
+
+    @property
+    def n_links(self) -> int:
+        """Return the number of links in the chain.
+
+        :return: The number of links in the chain.
+        :rtype: int
+        """
+        return len(self)
