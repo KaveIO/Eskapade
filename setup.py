@@ -34,6 +34,24 @@ FULL_VERSION = VERSION
 if DEV:
     FULL_VERSION += '.dev'
 
+REQUIREMENTS = [
+    'pendulum==1.2.5',
+    'numba==0.35.0',
+    'jupyter==1.0.0',
+    'matplotlib==2.0.2',
+    'numpy==1.13.1',
+    'scipy==0.19.1',
+    'scikit-learn==0.19.0',
+    'statsmodels==0.8.0',
+    'pandas==0.20.3',
+    'tabulate==0.7.7',
+    'sortedcontainers==1.5.7',
+    'histogrammar==1.0.9',
+    'names==0.3.0',
+    'fastnumbers==2.0.1',
+    'pytest==3.2.2',
+    'pytest-pylint==0.7.1'
+]
 CMD_CLASS = dict()
 COMMAND_OPTIONS = dict()
 
@@ -81,6 +99,7 @@ try:
 
     EXTERNAL_MODULES.append(CMakeExtension('eskapade.lib.esroofit', 'cxx/esroofit'))
     CMD_CLASS['build_ext'] = CMakeBuild
+    REQUIREMENTS.append('root_numpy==4.7.3')
 except ImportError:
     logger.fatal('PyROOT and RooFit are missing! Not going to install ROOT analysis modules!')
     EXCLUDE_PACKAGES.append('*root_analysis*')
@@ -168,25 +187,7 @@ def setup_package() -> None:
           package_data={
               NAME.lower(): ['templates/*', 'data/*', 'tutorials/*.sh']
           },
-          install_requires=[
-              'pendulum==1.2.5',
-              'numba==0.35.0',
-              'jupyter==1.0.0',
-              'matplotlib==2.0.2',
-              'numpy==1.13.1',
-              'scipy==0.19.1',
-              'scikit-learn==0.19.0',
-              'statsmodels==0.8.0',
-              'pandas==0.20.3',
-              'tabulate==0.7.7',
-              'sortedcontainers==1.5.7',
-              'histogrammar==1.0.9',
-              'names==0.3.0',
-              'fastnumbers==2.0.1',
-              'root_numpy==4.7.3',
-              'pytest==3.2.2',
-              'pytest-pylint==0.7.1',
-          ],
+          install_requires=REQUIREMENTS,
           tests_require=['pytest==3.2.2'],
           ext_modules=EXTERNAL_MODULES,
           cmdclass=CMD_CLASS,
