@@ -117,10 +117,12 @@ class SparkDataToCsv(Link):
             raise TypeError('Got data of type "{!s}"; expected a Spark RDD/DataFrame.'.format(type(data)))
 
         # convert row to string
-        data = data.map(lambda r: self.sep.join(map(str, r)))
+        sep = self.sep
+        data = data.map(lambda r: sep.join(map(str, r)))
 
         # set number of partitions/output files
-        data = data.coalesce(self.num_files, shuffle=self.num_files > data.getNumPartitions())
+        num_files = self.num_files
+        data = data.coalesce(num_files, shuffle=num_files > data.getNumPartitions())
 
         # add header rows
         if self.header:
