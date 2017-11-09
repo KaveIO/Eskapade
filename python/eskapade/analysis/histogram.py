@@ -37,7 +37,7 @@ def _check_num_vals(cnts_iter):
             break
         try:
             float(val)
-        except:
+        except Exception:
             non_num = True
             break
     if non_num:
@@ -589,7 +589,7 @@ class BinningUtil(object):
         try:
             if isinstance(variable_range[0], str) or isinstance(variable_range[1], str):
                 ttest = True
-        except:
+        except Exception:
             ttest = True
         if ttest or not len(variable_range) == 2 or variable_range[1] <= variable_range[0]:
             raise RuntimeError('expected a variable range (min, max); got "{!s}"'.format(variable_range))
@@ -613,7 +613,7 @@ class BinningUtil(object):
             try:
                 bin_width = self.bin_specs['bin_width']
                 # bin_offset = self.bin_specs['bin_offset']
-            except:
+            except Exception:
                 raise NotImplementedError('no bin_width and/or bin_offset in bin_specs')
 
             min_idx = self.value_to_bin_label(variable_range[0])
@@ -696,7 +696,7 @@ class Histogram(BinningUtil, ArgumentsMixin):
             # try from NumPy-style histogram
             try:
                 counts, var_vals = list(counts[0]), list(counts[1])
-            except:
+            except Exception:
                 self.logger.fatal('Invalid type for specified counts: "{type}".', type=type(counts).__name__)
                 raise RuntimeError('Invalid type for specified counts.')
             self._from_numpy(counts, var_vals)
@@ -1105,7 +1105,7 @@ class Histogram(BinningUtil, ArgumentsMixin):
 
         try:
             bin_vals = [h.get_bin_vals(**kwargs) for h in hists]
-        except:
+        except Exception:
             cls.logger.fatal('Unable to get bin values from specified histograms ({hists!s}).', hists=hists)
             raise RuntimeError('Invalid input histograms specified.')
         if not bin_vals:

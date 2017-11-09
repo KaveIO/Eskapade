@@ -132,7 +132,7 @@ def pandas_writer(path, writer):
     if isinstance(writer, str):
         try:
             writer = pd_writers.get(writer)
-        except:
+        except Exception:
             ValueError('writer parameter should be an extension pandas can write to disk.')
     if not writer:
         writer = pd_writers.get(os.path.splitext(path)[1].strip('.'), None)

@@ -142,7 +142,6 @@ def df_schema(schema_spec):
     :rtype: pyspark.sql.types.StructType
     :raises: TypeError if data type is specified incorrectly
     """
-
     def get_field(name, data_type):
         """Return a struct field for specified data type."""
         # treat dictionaries as struct types

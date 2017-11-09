@@ -401,6 +401,7 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         return status
 
     def clear(self):
+        """Clear the chain."""
         self.parent = None
         super().clear()
 

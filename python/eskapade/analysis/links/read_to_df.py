@@ -236,7 +236,7 @@ class ReadToDf(Link):
             except StopIteration:
                 # TextFileReader throws stopiterator exception at end
                 data = None
-            except:
+            except Exception:
                 raise Exception('Unexpected error: cannot process next dataset iteration.')
 
         # 2. trying next file
@@ -246,7 +246,7 @@ class ReadToDf(Link):
             self._path_itr.iternext()
             try:
                 self._reader = pandasReader(path, self.reader, **self.kwargs)
-            except:
+            except Exception:
                 self.logger.fatal('Could not read from new path "{path}".', path=path)
                 raise
             self._current_path = path
@@ -269,7 +269,7 @@ class ReadToDf(Link):
             except StopIteration:
                 # TextFileReader throws stopiterator exception at end
                 data = None
-            except:
+            except Exception:
                 raise Exception('Unexpected error: cannot process next dataset iteration.')
 
         return data

@@ -105,7 +105,7 @@ spark_streaming = Chain('SparkStreaming')
 # the word count example
 wordcount_link = spark_analysis.SparkStreamingWordCount(
     name='SparkStreamingWordCount', read_key='dstream', store_key='wordcounts')
-process_manager.get_chain('SparkStreaming').add(wordcount_link)
+spark_streaming.add(wordcount_link)
 
 # store output
 writer_link = spark_analysis.SparkStreamingWriter(

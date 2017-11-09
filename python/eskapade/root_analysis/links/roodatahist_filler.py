@@ -302,7 +302,7 @@ class RooDataHistFiller(Link):
                 ws.defineSet(self.store_key_cats, self._catset)
                 if self.create_hist_pdf:
                     ws.put(hist_pdf, RooFit.RecycleConflictNodes())
-            except:
+            except Exception:
                 raise RuntimeError('Could not import object "{}" into rooworkspace.'.format(self.read_key))
         # 3b. put objects into datastore
         else:

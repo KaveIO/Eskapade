@@ -131,7 +131,7 @@ class ConvertRootHist2RooDataHist(Link):
                 ws.put(rdh, ROOT.RooFit.Rename(self.store_key))
                 if self.create_hist_pdf:
                     ws.put(hist_pdf, ROOT.RooFit.RecycleConflictNodes())
-            except:
+            except Exception:
                 raise RuntimeError('Could not import object "{}" into rooworkspace.'.format(self.read_key))
         # 2. put object into datastore
         else:

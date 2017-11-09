@@ -117,7 +117,7 @@ class ApplySelectionToDf(Link):
                 for query in self.query_set[1:]:
                     try:
                         df = df.query(query, **self.kwargs)
-                    except:
+                    except Exception:
                         if not self.continue_if_failure:
                             raise ValueError(
                                 'Failed to apply query <{}> to dataframe <{}>.'.format(query, self.read_key))
@@ -133,7 +133,7 @@ class ApplySelectionToDf(Link):
                 df = (ds[self.read_key]).copy(deep=False)
             try:
                 df = df[self.select_columns]
-            except:
+            except Exception:
                 if not self.continue_if_failure:
                     raise ValueError(
                         'Failed to select columns <{self.select_columns!s}> of dataframe <{self.read_key}>.'

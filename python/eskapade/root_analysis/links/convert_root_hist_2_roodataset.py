@@ -134,7 +134,7 @@ class ConvertRootHist2RooDataSet(Link):
                 ws = process_manager.service(RooFitManager).ws
                 ws.put(rds, ROOT.RooFit.Rename(self.store_key))
                 ws.defineSet(self.store_key_vars, obs_vars)
-            except:
+            except Exception:
                 raise RuntimeError('Could not import object "{}" into rooworkspace.'.format(self.read_key))
         # 2. put object into datastore
         else:

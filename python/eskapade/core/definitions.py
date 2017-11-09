@@ -150,7 +150,7 @@ class RandomSeeds:
         key = str(key).strip().lower()
         try:
             seed = int(seed)
-        except:
+        except Exception:
             raise TypeError('specified seed for key "{0:s}" is not an integer: "{1!s}"'.format(key, seed))
 
         # check if this is the default key

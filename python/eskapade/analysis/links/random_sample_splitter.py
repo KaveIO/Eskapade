@@ -22,8 +22,7 @@ from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 
 
 class RandomSampleSplitter(Link):
-    """Link that randomly assigns records of an input dataframe
-    to a number of classes.
+    """Link that randomly assigns records of an input dataframe to a number of classes.
 
     After assigning classes does one of the following:
 

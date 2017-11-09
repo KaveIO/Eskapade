@@ -194,7 +194,7 @@ class ConvertDataFrame2RooDataSet(Link):
             try:
                 ws.put(rds, ROOT.RooFit.Rename(self.store_key))
                 ws.defineSet(self.store_key_vars, obs_vars)
-            except:
+            except Exception:
                 raise RuntimeError('Could not import object "{}" into rooworkspace.'.format(self.read_key))
         # 3c. put objects into datastore
         else:

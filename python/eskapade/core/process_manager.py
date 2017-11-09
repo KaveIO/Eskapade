@@ -306,7 +306,6 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         :raise TypeError: When the chain is of an incompatible type.
         :raise KeyError: When a chain of the same type and name already exists.
         """
-
         if not issubclass(type(chain), Chain):
             raise TypeError('Expected (sub-class of) "Chain" and not "{wrong!s}"!'.format(wrong=type(chain)))
 
@@ -343,8 +342,7 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         super().clear()
 
     def __disable(self, chain_name: str, after: bool = False) -> Chain:
-        """Disable chains before/after a chain with name chain_name
-
+        """Disable chains before/after a chain with name chain_name.
 
         :return: The chain with name chain_name.
         :rtype: Chain
@@ -529,17 +527,14 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         Print a summary of the chains, links, and some analysis settings
         defined in this configuration.
         """
-        settings = self.service(ConfigObject)
-
         self.logger.info('ProcessManager:')
         self.logger.info('Number of registered services: {n:d}', n=len(self._services))
         self.print_services()
-        self.logger.info('Number of registered chains: {n:d}', n=len(self))
+        self.logger.info('Number of registered chains: {n:d}', n=self.n_chains)
         self.print_chains()
 
     def print_services(self):
         """Print registered process services."""
-
         def _print_level(level, prefix, depth):
             """Print services and get next level in service-tree."""
             # print service names on this level

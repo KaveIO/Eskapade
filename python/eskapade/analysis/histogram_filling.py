@@ -311,7 +311,7 @@ def to_ns(x):
         return 0
     try:
         return pd.to_datetime(x).value
-    except:
+    except Exception:
         if hasattr(x, '__str__'):
             return pd.to_datetime(str(x)).value
     return 0

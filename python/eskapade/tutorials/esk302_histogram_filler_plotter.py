@@ -60,9 +60,9 @@ def to_date(x):
     import pandas as pd
     try:
         ts = pd.Timestamp(x.split()[0])
-        return ts
-    except:
-        pass
+        x = ts
+    except Exception:
+        logger.warning('Date conversion failed!')
     return x
 
 

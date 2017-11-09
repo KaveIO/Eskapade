@@ -1,3 +1,4 @@
+# flake8: noqa
 from eskapade.analysis.links.apply_func_to_df import ApplyFuncToDf
 from eskapade.analysis.links.apply_selection_to_df import ApplySelectionToDf
 from eskapade.analysis.links.basic_generator import BasicGenerator

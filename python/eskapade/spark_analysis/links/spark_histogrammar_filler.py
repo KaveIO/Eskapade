@@ -209,7 +209,6 @@ class SparkHistogrammarFiller(HistogrammarFiller):
         :returns: output data frame with converted timestamp columns
         :rtype: DataFrame
         """
-
         # histogrammar does not yet support long integers
         def to_ns(x):
             """Convert to ns."""

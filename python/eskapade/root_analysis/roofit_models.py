@@ -333,7 +333,7 @@ class LinearRegression(RooFitModel):
         try:
             ntargets = len(y.iloc[0]) if isinstance(y, pd.DataFrame) else len(y[0]) if hasattr(y[0], '__len__') else 1
             self.target_names = ['y{0:d}'.format(tar_it) for tar_it in range(ntargets)]
-        except:
+        except Exception:
             raise RuntimeError('incorrect targets argument (y): (#samples, #targets) sequence expected')
 
         # check number of targets
@@ -344,7 +344,7 @@ class LinearRegression(RooFitModel):
         try:
             nfeats = len(X.iloc[0]) if isinstance(X, pd.DataFrame) else len(X[0]) if hasattr(X[0], '__len__') else 1
             self.feat_names = ['X{0:d}'.format(feat_it) for feat_it in range(nfeats)]
-        except:
+        except Exception:
             raise RuntimeError('incorrect features argument (X): (#samples, #features) sequence expected')
 
         # create target, feature, and coefficient variables
