@@ -27,7 +27,7 @@ class SparkConfigurator(Link):
         """Initialize link instance.
 
         :param str name: name of link
-        :param iterable spark_settings: list of key/value pairs specifying the spark configuration
+        :param iterable spark_settings: list of key/value pairs specifying the Spark configuration
         :param str log_level: verbosity level of the SparkContext
         """
         # initialize Link, pass name from kwargs

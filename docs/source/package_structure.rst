@@ -87,7 +87,7 @@ Eskapade contains the following list of subpackages:
 * ``visualization`` contains visualization code and plotter links.
 * ``root_analysis`` contains ROOT links and code for data generation, fitting, and plotting.
 * ``data_quality`` contains links and code for fixing messy data.
-* ``spark_analysis`` contains spark related analysis links and code.
+* ``spark_analysis`` contains Spark related analysis links and code.
 
 Imports
 -------

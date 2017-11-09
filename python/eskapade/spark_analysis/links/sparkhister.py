@@ -33,7 +33,7 @@ class SparkHister(Link):
         :param str name: name of link
         :param str read_key: key of data to read from data store
         :param str store_key: key of data to store in data store
-        :param list columns: columns of the spark dataframe to make a histogram from
+        :param list columns: columns of the Spark dataframe to make a histogram from
         :param dict bins: the bin edges of the histogram
         :param bool convert_for_mongo: if True the data structure of the result is converted so it can be stored in
             mongo

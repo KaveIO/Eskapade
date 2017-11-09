@@ -42,13 +42,13 @@ class SparkGeneralFuncProcessor(Link):
         :param str read_key: key of data to read from data store. It should contain a spark dataframe or spark rdd.
         :param str store_key: key of data to store in data store
         :param list groupby: spark dataframe columns to group by
-        :param list columns: The columns of the spark dataframe or rdd. Obligatory for rdd, not for spark dataframe.
+        :param list columns: The columns of the spark dataframe or RDD. Obligatory for RDD, not for spark dataframe.
         :param func generalfunc: The general function. Should be defined by the user. Arguments should be list of
-            tuples (rows of rdd), column names and if necessary keyword arguments. Should return a list of native
+            tuples (rows of RDD), column names and if necessary keyword arguments. Should return a list of native
             python types.
         :param dict function_args: Keyword arguments for the function
         :param int nb_partitions: The number of partitions for repartitioning after groupByKey
-        :param func return_map: Function used by the map on the rdd after the generalfunc is applied. The default return
+        :param func return_map: Function used by the map on the RDD after the generalfunc is applied. The default return
             a tuple of the groupby columns (row[0]) and the list returned by the generalfunc (row[1]).
         """
         # initialize Link
@@ -78,8 +78,8 @@ class SparkGeneralFuncProcessor(Link):
             spark_df = spark_df.rdd
         else:
             if not self.columns:
-                self.logger.fatal('Columns are not specified for rdd.')
-                raise RuntimeError('Columns are not specified for rdd.')
+                self.logger.fatal('Columns are not specified for RDD.')
+                raise RuntimeError('Columns are not specified for RDD.')
 
         res = spark_df.map(lambda row: (tuple([row[c] for c in self.groupby]), row)).groupByKey()\
                       .repartition(self.nb_partitions).mapValues(lambda group: self.generalfunc(group, self.columns,

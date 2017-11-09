@@ -5,7 +5,7 @@ Macro: esk608_spark_histogrammar
 Created: 2017/05/31
 
 Description:
-    Tutorial macro for making histograms of a spark dataframe
+    Tutorial macro for making histograms of a Spark dataframe
 
 Authors:
     KPMG Big Data team, Amstelveen, The Netherlands

@@ -303,7 +303,7 @@ Every subpackage of Eskapade contains links in its ``links/`` subdirectory.
 * ``visualization`` contains plotter links.
 * ``root_analysis`` contains ROOT links for data generation, fitting, and plotting.
 * ``data_quality`` contains links for fixing messy data.
-* ``spark_analysis`` contains spark related analysis links.
+* ``spark_analysis`` contains Spark related analysis links.
   
 The name of every link indicates its basic function. If you want to know explicitly you can read the
 `API-docs <eskapade_index.html>`_.
@@ -319,7 +319,7 @@ The numbering of the example macros follows the package structure:
 * ``esk300+``: visualization macros for making histograms, plots and reports of datasets.
 * ``esk400+``: macros for processing ROOT datasets and performing fits to data using RooFit.
 * ``esk500+``: macros for doing data quality assessment and cleaning.
-* ``esk600+``: macros describing links to do basic processing of data and rdds with spark.
+* ``esk600+``: macros describing links to do basic processing of data and RDDs with Spark.
 
 The basic Eskapade macros (esk100+) are briefly described below.
 They explain the basic architecture of Eskapade,
