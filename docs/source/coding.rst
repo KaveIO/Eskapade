@@ -17,9 +17,9 @@ Stand-alone
   * Open project and point to the Eskapade source code
   * Configuration, in 'Preferences', check the following desired values:
       - Under 'Project: eskapade' / 'Project Interpreter':
-          - The correct Python version (currently 3.5.2 of Anaconda, use the interpreter of your conda environment)
+          - The correct Python version (Python 3)
       - Under 'Build, Execution & Deployment' / 'Console' / 'Python Console':
-          - The correct Python version (currently 3.5.2 of Anaconda, use the interpreter of your conda environment)
+          - The correct Python version (Python 3)
   * Install Eskapade in editable mode
   * Run/Debug Configuration:
       - Under 'Python' add new configuration
@@ -27,8 +27,7 @@ Stand-alone
         specified above in 'Project Interpreter')
       - Script parameters: path to a macro to be debugged, e.g. ``$ESKAPADE/python/eskapade/tutorials/tutorial_1.py``,
         and ``eskapade_run`` command line arguments, e.g. ``--begin-with=Summary``
-      - Python interpreter: check if it is the correct Python version (currently 3.5.2 of Anaconda, corresponding to
-        your conda environment)
+      - Python interpreter: check if it is the correct Python version (Python 3)
 
 You should now be able to press the 'play button' to run Eskapade with the specified parameters.
 
@@ -115,13 +114,13 @@ use
 
 .. code-block:: python
 
-  import imp
-  imp.reload(eskapade.analysis.links.yourlink)
+  import importlib
+  importlib.reload(eskapade.analysis.links.yourlink)
   from yourlink import YourLink
   l = YourLink()
   l.execute()
 
-to reload the link you changed. This is equivalent to the python2 function ``reload(eskapade)``.
+to reload the link you changed. This is equivalent to the Python2 function ``reload(eskapade)``.
 
 Combined with the importing of the other objects it becomes clear that you can run every piece of the framework from
 a notebook. However working like this is only recommended for development purposes, running an entire analysis should

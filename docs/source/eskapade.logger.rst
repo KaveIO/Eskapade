@@ -11,3 +11,12 @@ eskapade.logger._logging module
     :members:
     :undoc-members:
     :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: eskapade.logger
+    :members:
+    :undoc-members:
+    :show-inheritance:

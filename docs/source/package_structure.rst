@@ -146,11 +146,4 @@ the last option you can use an editor in the VM or outside of it.
 Troubleshooting
 ---------------
 
-One of the easiest mistakes to make when running the framework is not sourcing the right files or opening a new
-terminal without setting the right environment. Be careful of this, if you want to run eskapade you have to:
-
-  * Source the right virtual environment
-  * Source the eskapade repository
-  * Start your notebook / start your IDE / run the code
-
-The least error prone ways are docker and VMs, because they automatically have the right environment variables set.
+The least error prone ways are docker and VMs, because they automatically have the dependencies set.
