@@ -1,5 +1,5 @@
-from .correlation_summary import CorrelationSummary
-from .df_boxplot import DfBoxplot
-from .df_summary import DfSummary
+from eskapade.visualization.links.correlation_summary import CorrelationSummary
+from eskapade.visualization.links.df_boxplot import DfBoxplot
+from eskapade.visualization.links.df_summary import DfSummary
 
-__all__ = ['DfSummary', 'DfBoxplot', 'CorrelationSummary']
+__all__ = ['CorrelationSummary', 'DfBoxplot', 'DfSummary']

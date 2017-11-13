@@ -1,6 +1,6 @@
 # flake8: noqa
-from . import vis_utils
-from .links import *
+from eskapade.visualization import vis_utils
+from eskapade.visualization.links import *
 
 import eskapade.utils
 

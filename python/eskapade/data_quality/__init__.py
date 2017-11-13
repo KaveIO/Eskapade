@@ -1,2 +1,2 @@
 # flake8: noqa
-from .links import *
+from eskapade.data_quality.links import *

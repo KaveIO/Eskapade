@@ -12,14 +12,14 @@ from eskapade.core_ops.links.skip_chain_if_empty import SkipChainIfEmpty
 from eskapade.core_ops.links.to_ds_dict import ToDsDict
 
 __all__ = ['AssertInDs',
+           'Break',
            'DsObjectDeleter',
            'DsToDs',
            'EventLooper',
-           'LinePrinter',
            'HelloWorld',
+           'IPythonEmbed',
+           'LinePrinter',
            'PrintDs',
            'RepeatChain',
            'SkipChainIfEmpty',
-           'ToDsDict',
-           'IPythonEmbed',
-           'Break', ]
+           'ToDsDict']

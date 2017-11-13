@@ -1,2 +1,2 @@
 # flake8: noqa
-from . import histograms, roofit
+from eskapade.root_analysis.decorators import histograms, roofit
