@@ -50,6 +50,6 @@ As you see in the code the notebook runs ``yourmacro.py``:
 
 .. code-block:: python
 
-  settings['macro'] = '$ESKAPADE/yourproject/yourpackage/yourmacro.py'
+  settings['macro'] = '<...>/yourproject/yourpackage/yourmacro.py'
 
 Now run the cells in the notebook and check if the macro runs properly.

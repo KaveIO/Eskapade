@@ -27,8 +27,8 @@ lines (or similar):
 
 .. code-block:: python
 
-   2017-02-27 20:32:19,826 INFO [hello_world/execute]: Hello World
-   2017-02-27 20:32:19,828 INFO [hello_world/execute]: Hello World
+   2017-11-13T12:37:07.473512+00:00 [eskapade.core_ops.links.hello_world.HelloWorld#INFO] Hello World
+   2017-11-13T12:37:07.473512+00:00 [eskapade.core_ops.links.hello_world.HelloWorld#INFO] Hello World
 
 Congratulations, you have just successfully run Eskapade!
 
@@ -44,10 +44,11 @@ When we go into this macro we find the following piece of code:
 
 .. code-block:: python
 
+  hello = Chain(name='Hello')
   link = core_ops.HelloWorld(name='HelloWorld')
   link.logger.log_level = LogLevel.DEBUG
   link.repeat = settings['n_repeat']
-  ch.add(link)
+  hello.add(link)
 
 Which is the code that does the actual analysis (in this case, print out the statement). In this case ``link`` is an
 instance of the class HelloWorld, which itself is a Link. The Link class is the fundamental building block in Eskapade that
@@ -102,11 +103,11 @@ When looking at the output in the terminal we read something like the following:
 
 ::
 
-   * * * Welcome to Eskapade * * *
+   2017-11-13T13:37:07.473512+00:00 [eskapade.core.execution#INFO] *              Welcome to Eskapade!                *
    ...
-   2017-02-10 15:24:35,968 INFO [processManager/Print]: Number of chains:    2
+   2017-11-13T13:37:08.085577+00:00 [eskapade.core.process_manager.ProcessManager#INFO] Number of registered chains: 2
    ...
-   * * * Leaving Eskapade. Bye! * * *
+   2017-11-13T13:37:11.316414+00:00 [eskapade.core.execution#INFO] *              Leaving Eskapade. Bye!              *
 
 There is a lot more output than these lines (tens or hundred of lines depending on the log level).
 Eskapade has run the code from each link, and at the top of the output in your terminal you can see a summary.
@@ -251,7 +252,7 @@ The command
 
 .. code-block::  bash
 
-  $ eskapade_generate_macro --dir python/eskapade/tutorials Tutorial_2
+  $ eskapade_generate_macro --dir python/eskapade/tutorials tutorial_2
 
 makes a new macro from a template macro.
 When we open the macro we find a lot of options that we can use. For now we will actually not use them, but if you want

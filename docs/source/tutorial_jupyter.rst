@@ -41,14 +41,14 @@ The minimal code you need to run a notebook is the following:
   # settings['set_training'] = False
 
   # --- run eskapade!
-  execution.run_eskapade(settings)
+  execution.eskapade_run(settings)
 
   # --- To rerun eskapade, clear the memory state first!
   # execution.reset_eskapade()
 
 
 Make sure to fill out all the necessary parameters for it to run. The macro has to be set obviously, but not all
-settings in this example are needed to be set to a value. The function ``execution.run_eskapade(settings)`` runs
+settings in this example are needed to be set to a value. The function ``execution.eskapade_run(settings)`` runs
 Eskapade with the settings you specified.
 
 
@@ -106,9 +106,7 @@ the working directory. Use:
   !pwd
 
 In Jupyter to find which path you are working on, and put the data to the path.
-Or change the load path in the macro to the proper one.
-
-but in the end it depends on your setup.
+Or change the load path in the macro to the proper one. But in the end it depends on your setup.
 
 *Intermezzo: you can run bash commands in Jupyter by prepending the command with a !*
 
@@ -133,11 +131,11 @@ Now run the cells in the notebook and check if the macro runs properly. The outp
 with a lot more text surrounding this output. Now try to run the macro again.
 The run should fail, and you get the following error::
 
-  RuntimeError: tried to add chain with existing name to process manager
+  KeyError: Processor "<Chain name=Data parent=<... ProcessManager ...> id=...>" already exists!'
 
 This is because the ProcessManager is a singleton. This means there is only one of this in memory allowed, and since
 the Jupyter python kernel was still running the object still existed and running the macro gave an error. The macro
-tried to make a singleton, but it already exists. Therefore the final line in the notebook template has to be ran every
+tried to add a chain, but it already exists in the ProcessManager. Therefore the final line in the notebook template has to be ran every
 time you want to rerun Eskapade. So run this line:
 
 .. code-block:: python
@@ -148,7 +146,7 @@ And try to rerun the notebook without restarting the kernel.
 
 .. code-block:: python
 
-  execution.run_eskapade(settings)
+  execution.eskapade_run(settings)
 
 If one wants to call the objects used in the run, ``execute`` contains them. For example calling
 

@@ -201,10 +201,10 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 \"\"\"
 
-from eskapade import process_manager, ConfigObject
+from eskapade import process_manager, Chain, ConfigObject
 from eskapade.logger import Logger, LogLevel
 
-from links import {link_name!s}
+from {link_module} import {link_name!s}
 
 logger = Logger()
 

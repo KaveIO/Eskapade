@@ -36,7 +36,7 @@ def plot_histogram(hist, x_label, y_label=None, is_num=True, is_ts=False, pdf_fi
     :param int top: only print the top 20 characters of x-labels and y-labels. (default is 20)
     """
     # import matplotlib here to prevent import before setting backend in
-    # core.execution.run_eskapade
+    # core.execution.eskapade_run
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
 
@@ -132,7 +132,7 @@ def plot_2d_histogram(hist, x_lim, y_lim, title, x_label, y_label, pdf_file_name
     :param str pdf_file_name: if set, will store the plot in a pdf file
     """
     # import matplotlib here to prevent import before setting backend in
-    # core.execution.run_eskapade
+    # core.execution.eskapade_run
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
 
@@ -222,7 +222,7 @@ def box_plot(
     :param int top: only print the top 20 characters of x-labels and y-labels. (default is 20)
     """
     # import matplotlib here to prevent import before setting backend in
-    # core.execution.run_eskapade
+    # core.execution.eskapade_run
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
 
@@ -318,7 +318,7 @@ def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
         assert matrix_numbers.shape[1] == len(x_labels), 'matrix_numbers shape inconsistent with number of x-labels'
 
     # import matplotlib here to prevent import before setting backend in
-    # core.execution.run_eskapade
+    # core.execution.eskapade_run
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
     from matplotlib import colors

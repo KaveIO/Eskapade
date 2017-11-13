@@ -162,7 +162,7 @@ def eskapade_generate_macro():
     path = bootstrap.get_absolute_path(args.dir)
 
     bootstrap.create_dir(path)
-    bootstrap.generate_macro(path, args.name, False)
+    bootstrap.generate_macro(macro_dir=path, macro_name=args.name, is_create_init=False)
 
 
 def eskapade_generate_notebook():
