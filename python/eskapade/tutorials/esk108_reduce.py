@@ -10,7 +10,7 @@ Description:
     Use in combination with: esk108_map
 
 Authors:
-    KPMG Big Data team, Amstelveen, The Netherlands
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file

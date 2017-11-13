@@ -8,7 +8,7 @@ Description:
     Time period and time period with frequency.
 
 Authors:
-    KPMG Big Data team, Amstelveen, The Netherlands
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
 
 modification, are permitted according to the terms listed in the file
 Redistribution and use in source and binary forms, with or without

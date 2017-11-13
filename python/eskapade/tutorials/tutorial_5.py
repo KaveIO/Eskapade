@@ -10,7 +10,7 @@ Description:
     apply transformations to it, and plot the results.
 
 Authors:
-    KPMG Big Data team.
+    KPMG Advanced Analytics & Big Data team.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file

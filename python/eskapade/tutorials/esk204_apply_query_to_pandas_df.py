@@ -11,7 +11,7 @@ Description:
     http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html
 
 Authors:
-    KPMG Big Data team, Amstelveen, The Netherlands
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file

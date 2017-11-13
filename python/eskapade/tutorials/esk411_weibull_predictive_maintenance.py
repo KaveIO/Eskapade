@@ -9,7 +9,7 @@ Description:
     time difference distribution, indicating times between maintenance.
 
 Authors:
-    KPMG Big Data team, Amstelveen, The Netherlands
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
 
 Licence:
     Redistribution and use in source and binary forms, with or without

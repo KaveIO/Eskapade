@@ -6,7 +6,7 @@ Description:
     Helper functions for eskapade_bootstrap
 
 Authors:
-    KPMG Big Data team, Amstelveen, The Netherlands
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file
@@ -88,7 +88,7 @@ Description:
     Algorithm to ...(fill in one-liner here)
 
 Authors:
-    KPMG Big Data team, Amstelveen, The Netherlands
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file
