@@ -17,9 +17,8 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import process_manager, ConfigObject, Chain
+from eskapade import process_manager, ConfigObject, Chain, spark_analysis
 from eskapade.logger import Logger
-from eskapade.spark_analysis import SparkManager
 
 logger = Logger()
 
@@ -42,7 +41,7 @@ settings['analysisName'] = 'Tutorial_5'
 #########################################################################################
 # --- setup Spark
 
-process_manager.service(SparkManager).get_or_create_session()
+process_manager.service(spark_analysis.SparkManager).create_session(include_eskapade_modules=True)
 
 #########################################################################################
 # --- analysis values, settings, helper functions, configuration flags.
@@ -85,7 +84,7 @@ summary = Chain('Summary')
 
 # # add data-frame summary link to "Summary" chain
 # summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=histo.store_key,
-#                                     var_labels=VAR_LABELS, var_units=VAR_UNITS)
+#                                      var_labels=VAR_LABELS, var_units=VAR_UNITS)
 # summary.add(summarizer)
 
 

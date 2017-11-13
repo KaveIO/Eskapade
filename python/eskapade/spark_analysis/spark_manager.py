@@ -50,7 +50,8 @@ class SparkManager(ProcessService, ConfigMixin):
         arguments are passed to the _create_spark_conf method in this case.
 
         :param bool enable_hive_support: switch for enabling Spark Hive support
-        :param bool include_eskapade_modules: switch to include Eskapade modules in Spark job submission
+        :param bool include_eskapade_modules: switch to include Eskapade modules in Spark job submission.
+            Default is False. Optional.
         """
         # return existing session if still running
         if self._session and self._session.sparkContext._jsc:

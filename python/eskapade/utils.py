@@ -23,7 +23,7 @@ from eskapade.logger import Logger
 
 ENV_VARS = dict(spark_args='PYSPARK_SUBMIT_ARGS',
                 docker='DE_DOCKER', display='DISPLAY')
-ZIP_FILE = 'es_python_modules.egg'
+ARCHIVE_FILE = 'es_python_modules.egg'
 
 logger = Logger()
 
@@ -103,10 +103,10 @@ def collect_python_modules():
     package_dir = resource_filename(eskapade.__name__, '')
     lib_path = pathlib.Path(package_dir).joinpath('lib')
     lib_path.mkdir(exist_ok=True)
-    zip_path = str(lib_path.joinpath(ZIP_FILE))
+    archive_path = str(lib_path.joinpath(ARCHIVE_FILE))
 
-    zip_file = PyZipFile(zip_path, 'w')
-    logger.info('Adding Python modules to ZIP archive {path}.'.format(path=zip_path))
-    zip_file.writepy(package_dir)
-    zip_file.close()
-    return zip_path
+    archive_file = PyZipFile(archive_path, 'w')
+    logger.info('Adding Python modules to egg archive {path}.'.format(path=archive_path))
+    archive_file.writepy(package_dir)
+    archive_file.close()
+    return archive_path

@@ -112,16 +112,14 @@ class {link_name!s}(Link):
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', '{link_name!s}'))
 
-        # Process and register keyword arguments.  All arguments are popped from
-        # kwargs and added as attributes of the link.  The values provided here
-        # are defaults.
+        # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
+        # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
         self._process_kwargs(kwargs, read_key=None, store_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
-        # Turn off line above, and on two lines below if you wish to keep these
-        # extra kwargs.
-        #self.kwargs = kwargs
+        # Turn off the line above, and on the line below if you wish to keep these extra kwargs.
+        # self._process_kwargs(kwargs)
 
     def initialize(self):
         \"\"\"Initialize the link.
@@ -141,8 +139,8 @@ class {link_name!s}(Link):
         ds = process_manager.service(DataStore)
 
         # --- your algorithm code goes here
+        self.logger.debug('Now executing link: {{link}}.', link=self.name)
 
-        self.logger.debug('Now executing link: {{link}}', link=self.name)
         return StatusCode.Success
 
     def finalize(self):
