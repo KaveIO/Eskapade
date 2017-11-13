@@ -480,6 +480,7 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         settings = self.service(ConfigObject)
 
         # execute chains
+        persist_last = False
         for chain in self:
             if chain.enabled:
                 # execute chain and check exit status
@@ -496,10 +497,16 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
                 persist_results = settings.get('storeResultsEachChain')
                 persist_results = persist_results or (settings.get('storeResultsOneChain') == chain.name)
                 if not persist_results:
+                    persist_last = True
                     continue
 
                 # persist process services with the output of this chain
                 self.persist_services(io_conf=settings.io_conf(), chain=chain.name)
+                persist_last = False
+
+        if persist_last and chain:
+            # persist process services with the output of the last chain
+            self.persist_services(io_conf=settings.io_conf(), chain=chain.name)
 
         self.logger.debug('Done executing process manager.')
 
