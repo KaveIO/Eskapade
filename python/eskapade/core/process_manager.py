@@ -480,7 +480,9 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
         settings = self.service(ConfigObject)
 
         # execute chains
-        persist_last = False
+        last_chain = None
+        persist_results = settings.get('storeResultsEachChain')
+
         for chain in self:
             if chain.enabled:
                 # execute chain and check exit status
@@ -494,19 +496,22 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
                     # never persist anything
                     continue
 
-                persist_results = settings.get('storeResultsEachChain')
                 persist_results = persist_results or (settings.get('storeResultsOneChain') == chain.name)
                 if not persist_results:
-                    persist_last = True
+                    last_chain = chain
                     continue
 
                 # persist process services with the output of this chain
                 self.persist_services(io_conf=settings.io_conf(), chain=chain.name)
-                persist_last = False
+                last_chain = None
 
-        if persist_last and chain:
-            # persist process services with the output of the last chain
-            self.persist_services(io_conf=settings.io_conf(), chain=chain.name)
+        # TODO (janos4276) I don't like this. We need to rethink this.
+        # We need to find a better way of persisting or specifying options
+        # for persistence. Maybe persistence should not be part of execute?
+        # Maybe we should do it in finalize?
+        if last_chain:
+            # persist process services with the output of the last executed chain
+            self.persist_services(io_conf=settings.io_conf(), chain=last_chain.name)
 
         self.logger.debug('Done executing process manager.')
 
