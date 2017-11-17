@@ -182,5 +182,5 @@ class RandomSampleSplitter(Link):
 
         # increase seed in case of next iteration
         self._seed += 1
-        
+
         return StatusCode.Success
