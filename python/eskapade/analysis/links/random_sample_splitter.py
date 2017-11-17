@@ -166,7 +166,6 @@ class RandomSampleSplitter(Link):
             self.logger.info('Random class <{index:d}> assigned <{n:d}> events.', index=i, n=self.nevents[i])
 
         # random reshuffling of dataframe indices
-        settings = process_manager.service(ConfigObject)
         RNG = RandomState(self._seed)
         permute = RNG.permutation(df.index)
 

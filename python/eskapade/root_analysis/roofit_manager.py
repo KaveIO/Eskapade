@@ -41,7 +41,7 @@ class RooFitManager(ProcessService):
         return self._ws
 
     def delete_workspace(self):
-        """Delete existing workspace"""
+        """Delete existing workspace."""
         if self._ws:
             del self._ws
             self._ws = None

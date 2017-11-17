@@ -117,8 +117,8 @@ Eskapade::ABCD::MakePoissonConstraint(const char* name, RooArgList& storeVarList
                                       const RooParamHistPdf& pdf)
 {
   const RooDataHist& data = pdf.getInitialData();
-  // Bool_t relParams = pdf.getRelParams();
-  const RooArgList& binList = pdf.binList(); // (relParams ? pdf.binList() : pdf.paramList());
+  Bool_t relParams = pdf.getRelParams();
+  const RooArgList& binList = relParams ? pdf.binList() : pdf.paramList();
   return Eskapade::ABCD::MakePoissonConstraint(name, storeVarList, storePdfList, binList, data);
 }
 

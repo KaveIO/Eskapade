@@ -399,12 +399,11 @@ class WsUtils(Link):
             ds[key] = fit_result
         self.logger.debug('Fit result stored under key: {key}.', key=key)
 
-        ds[key+'_df'] = fr_df
-        self.logger.debug('Fit result dataframe stored at: {key}', key=key+'_df')
-
+        ds[key + '_df'] = fr_df
+        self.logger.debug('Fit result dataframe stored at: {key}', key=key + '_df')
 
     def _make_fit_result_report(self, fit_result):
-        """Turn fit_result into latex and DataFrame report
+        """Turn fit_result into latex and DataFrame report.
 
         :param ROOT.RooFitResult fit_result: fit result
         :returns: fit result turned in to pandas dataframe

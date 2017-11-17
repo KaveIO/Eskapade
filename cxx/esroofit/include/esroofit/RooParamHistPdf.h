@@ -17,14 +17,14 @@
  *      flag: noParams (default is false).
  *
  *      RooParamHistPdf works internally with another RooDataHist
- *      (modified for speedup), which gets updated whenever a parameter
- *      value is changed. Several RooHistPdf functions have been overloaded
- *      to pick up this modified roodatahist object instead.
- *      This internal roodatahist can be updated at any time with the
- *      function setModifiedData(), which requires noParams = false.
+ *      (modified for speedup), which gets updated whenever a parameter      *
+ *      value is changed. Several RooHistPdf functions have been overloaded  *
+ *      to pick up this modified roodatahist object instead.                 *
+ *      This internal roodatahist can be updated at any time with the        *
+ *      function setModifiedData(), which requires noParams = false.         *
  *                                                                           *
  * Authors:                                                                  *
- *      KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands                      *
+ *      KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands *
  *                                                                           *
  * Redistribution and use in source and binary forms, with or without        *
  * modification, are permitted according to the terms listed in the file     *
@@ -96,6 +96,9 @@ public:
 
     inline Bool_t getNoParams() const
     { return _noParams; }
+
+    inline Bool_t getRelParams() const
+    { return _relParams; }
 
     inline Double_t getSumWNorm() const
     { return _sumWnorm; }
