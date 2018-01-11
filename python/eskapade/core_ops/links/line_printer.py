@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : LinePrinter                                                           *
-# * Created: 2017/02/21                                                            *
-# * Description:                                                                   *
-# *      Simple algorithm to pick up lines and reprint them.                       *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: LinePrinter
+
+Created: 2017/02/21
+
+Description:
+    Simple algorithm to pick up lines and reprint them.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import DataStore
 from eskapade import Link
@@ -20,7 +22,6 @@ from eskapade import process_manager
 
 
 class LinePrinter(Link):
-
     """LinePrinter picks up lines from the datastore and prints them."""
 
     def __init__(self, **kwargs):

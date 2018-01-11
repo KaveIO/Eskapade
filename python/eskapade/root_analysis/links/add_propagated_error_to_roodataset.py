@@ -1,19 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : AddPropagatedErrorToRooDataSet                                        *
-# * Created: 2017/04/12                                                            *
-# * Description:                                                                   *
-# *      Algorithm to evaluates the error on a provided roofit function
-# *      for each record in the given roodataset.
-# *      The results are added back to the dataset.                                *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: AddPropagatedErrorToRooDataSet
+
+Created: 2017/04/12
+
+Description:
+    Algorithm to evaluates the error on a provided roofit function
+    for each record in the given roodataset.
+    The results are added back to the dataset.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import uuid
 
@@ -24,7 +26,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class AddPropagatedErrorToRooDataSet(Link):
-
     """Evaluates errors on a provided roofit function.
 
     The evaluated errors are added as a new column to the input dataset.
@@ -98,7 +99,7 @@ class AddPropagatedErrorToRooDataSet(Link):
         # retrieve fit result to propagate errors of
         if self.from_ws:
             fit_result = ws.obj(self.fit_result)
-            assert func is not None, 'key {} not in workspace'.format(self.fit_result)
+            assert fit_result is not None, 'key {} not in workspace'.format(self.fit_result)
         else:
             assert self.fit_result in ds, 'key "{}" not found in datastore'.format(self.fit_result)
             fit_result = ds[self.fit_result]
@@ -121,7 +122,7 @@ class AddPropagatedErrorToRooDataSet(Link):
         if self.from_ws:
             theobs = ws.set(obs)
         else:
-            theobs = ds[obs] if obs in ds else None
+            theobs = ds.get(obs, None)
         if not theobs:
             # try to create a temporary observables set
             temp_obs = uuid.uuid4().hex

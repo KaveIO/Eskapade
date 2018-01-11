@@ -1,18 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Created: 2017/08/23                                                          *
-# * Description:                                                                 *
-# *     Collection of helper functions to get fixtures, i.e. test data,          *
-# *     ROOT/RooFit libs, and tutorials. These are mostly used by the            *
-# *     (integration) tests.                                                     *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created: 2017/08/23
+
+Description:
+    Collection of helper functions to get fixtures, i.e. test data,
+    ROOT/RooFit libs, and tutorials. These are mostly used by the
+    (integration) tests.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import pathlib
 

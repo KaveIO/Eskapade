@@ -1,6 +1,5 @@
 from eskapade.analysis.links.apply_func_to_df import ApplyFuncToDf
 from eskapade.analysis.links.apply_selection_to_df import ApplySelectionToDf
-from eskapade.analysis.links.assign_random_class import AssignRandomClass
 from eskapade.analysis.links.basic_generator import BasicGenerator
 from eskapade.analysis.links.df_concatenator import DfConcatenator
 from eskapade.analysis.links.df_merger import DfMerger
@@ -17,11 +16,10 @@ __all__ = ['ApplyFuncToDf',
            'BasicGenerator',
            'DfConcatenator',
            'DfMerger',
-           'ReadToDf',
-           'RecordVectorizer',
-           'WriteFromDf',
-           'AssignRandomClass',
+           'HistogrammarFiller',
            'RandomSampleSplitter',
+           'ReadToDf',
            'RecordFactorizer',
+           'RecordVectorizer',
            'ValueCounter',
-           'HistogrammarFiller']
+           'WriteFromDf']

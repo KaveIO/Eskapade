@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : RooDataHistFiller                                                     *
-# * Created: 2017/03/25                                                            *
-# * Description:                                                                   *
-# *      Algorithm to fill a RooDataHist with columns from a DataFrame
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: RooDataHistFiller
+
+Created: 2017/03/25
+
+Description:
+    Algorithm to fill a RooDataHist with columns from a DataFrame
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import math
 
@@ -32,7 +34,6 @@ N_BINS_DEFAULT = 40
 
 
 class RooDataHistFiller(Link):
-
     """Fill a RooFit histogram with columns from a Pandas dataframe.
 
     Histograms can have any number of dimensions. Only numeric observables
@@ -81,6 +82,7 @@ class RooDataHistFiller(Link):
         :param int n_max_total_bins: max number of bins in roodatahist. Default is 1e6. (optional)
         :param str create_hist_pdf: if filled, create hist pdf from rdh with this name and
                                     add to datastore or workspace. (optional)
+        :param bool create_new_rdh_in_loop: if true, create a new rdh when running in a loop. (optional)
         """
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'RooDataHistFiller'))
@@ -103,7 +105,8 @@ class RooDataHistFiller(Link):
                              var_min_value={},
                              var_max_value={},
                              n_max_total_bins=1e6,
-                             create_hist_pdf='')
+                             create_hist_pdf='',
+                             create_new_rdh_in_loop=False)
 
         # check residual kwargs. exit if any present.
         self.check_extra_kwargs(kwargs)
@@ -224,8 +227,7 @@ class RooDataHistFiller(Link):
                     n_max_bins = int(self.n_max_total_bins)
                 self.logger.debug('Max number of variable bins set to: {n:d}', n=n_max_bins)
 
-        # 3b. instantiate roodatahist, to be filled up below.
-        #     secondly, fix the roofit variable set
+        # 3b. fix the roofit variable set
         if not self._varset:
             self._varset = obs
             self._catset = ROOT.RooArgSet()
@@ -237,10 +239,7 @@ class RooDataHistFiller(Link):
                 if not isinstance(rv, ROOT.RooRealVar):
                     continue
                 name = rv.GetName()
-                if name in self.var_number_of_bins:
-                    n_bins = self.var_number_of_bins[name]
-                else:
-                    n_bins = N_BINS_DEFAULT
+                n_bins = self.var_number_of_bins.get(name, N_BINS_DEFAULT)
                 if n_bins > n_max_bins:
                     n_bins = n_max_bins
                     self.logger.info('Capping n_bins of column "{col}" to: {n:d}', col=name, n=n_max_bins)
@@ -252,7 +251,12 @@ class RooDataHistFiller(Link):
                     max_val = self.var_max_value[name]
                     rv.setMax(max_val)
         else:
-            assert isinstance(self._varset, ROOT.RooArgSet) and len(self._varset), 'varset is not a filled rooargset.'
+            assert isinstance(self._varset, ROOT.RooArgSet) and len(self._varset), 'varset is not a filled rooargset'
+        # 3c. instantiate roodatahist, to be filled up below.
+        if self.create_new_rdh_in_loop:
+            if self._rdh:
+                del self._rdh
+            self._rdh = None
         if not self._rdh:
             name = str(rds.GetName()).replace('rds_', 'rdh_')
             self._rdh = ROOT.RooDataHist(name, name, self._varset)
@@ -304,7 +308,7 @@ class RooDataHistFiller(Link):
                 ws.defineSet(self.store_key_cats, self._catset)
                 if self.create_hist_pdf:
                     ws.put(hist_pdf, RooFit.RecycleConflictNodes())
-            except:
+            except Exception:
                 raise RuntimeError('Could not import object "{}" into rooworkspace.'.format(self.read_key))
         # 3b. put objects into datastore
         else:

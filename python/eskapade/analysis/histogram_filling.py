@@ -1,21 +1,23 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : HistogramFillerBase                                                 *
-# * Created: 2017/03/21                                                          *
-# * Description:                                                                 *
-# *      Algorithm to fill histogrammar sparse-bin histograms.                   *
-# *      It is possible to do cleaning of these histograms by                    *
-# *      rejecting certain keys or removing inconsistent data types.             *
-# *      Timestamp columns are converted to nanoseconds before                   *
-# *      the binning is applied.                                                 *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: HistogramFillerBase
+
+Created: 2017/03/21
+
+Description:
+    Algorithm to fill histogrammar sparse-bin histograms.
+    It is possible to do cleaning of these histograms by
+    rejecting certain keys or removing inconsistent data types.
+    Timestamp columns are converted to nanoseconds before
+    the binning is applied.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import numpy as np
 import pandas as pd
@@ -34,7 +36,6 @@ NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 
 class HistogramFillerBase(Link):
-
     """Base class link to fill histograms.
 
     It is possible to do after-filling cleaning of these histograms by rejecting certain
@@ -114,11 +115,11 @@ class HistogramFillerBase(Link):
         for i, c in enumerate(self.columns):
             if isinstance(c, str):
                 self.columns[i] = [c]
-            if not isinstance(self.columns[i], list):
-                raise TypeError('columns "{}" needs to be a string or list of strings'.format(self.columns[i]))
+            elif not isinstance(self.columns[i], list):
+                raise TypeError('Columns "{}" needs to be a string or list of strings'.format(self.columns[i]))
 
         # check for supported data types
-        for k in self.var_dtype.keys():
+        for k in self.var_dtype:
             try:
                 self.var_dtype[k] = np.dtype(self.var_dtype[k]).type
                 if self.var_dtype[k] is np.string_ or self.var_dtype[k] is np.object_:
@@ -310,7 +311,7 @@ def to_ns(x):
         return 0
     try:
         return pd.to_datetime(x).value
-    except:
+    except Exception:
         if hasattr(x, '__str__'):
             return pd.to_datetime(str(x)).value
     return 0

@@ -1,17 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A Python-based package for data analysis                 *
-# * Module: root_analysis.decorators.roofit                                      *
-# * Created: 2017/04/24                                                          *
-# * Description:                                                                 *
-# *     Decorators for PyROOT RooFit objects                                     *
-# *                                                                              *
-# * Authors:                                                                     *
-# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A Python-based package for data analysis.
+
+Module: root_analysis.decorators.roofit
+
+Created: 2017/04/24
+
+Description:
+    Decorators for PyROOT RooFit objects
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ROOT
 

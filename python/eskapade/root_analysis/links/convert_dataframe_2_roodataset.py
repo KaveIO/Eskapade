@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : ConvertDataFrame2RooDataSet                                           *
-# * Created: 2017/03/25                                                            *
-# * Description:                                                                   *
-# *      Algorithm to convert a pandas dataframe into a roodataset                 *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: ConvertDataFrame2RooDataSet
+
+Created: 2017/03/25
+
+Description:
+    Algorithm to convert a pandas dataframe into a roodataset
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import fnmatch
 
@@ -25,7 +27,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertDataFrame2RooDataSet(Link):
-
     """Convert Pandas dataframe into a RooFit dataset.
 
     By default all observables of the dataframe are interpreted as
@@ -193,7 +194,7 @@ class ConvertDataFrame2RooDataSet(Link):
             try:
                 ws.put(rds, ROOT.RooFit.Rename(self.store_key))
                 ws.defineSet(self.store_key_vars, obs_vars)
-            except:
+            except Exception:
                 raise RuntimeError('Could not import object "{}" into rooworkspace.'.format(self.read_key))
         # 3c. put objects into datastore
         else:

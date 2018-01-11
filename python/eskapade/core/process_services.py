@@ -1,16 +1,17 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Created: 2017/02/27                                                            *
-# * Description:                                                                   *
-# *      Base class and core implementations of run-process services               *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created: 2017/02/27
+
+Description:
+    Base class and core implementations of run-process services
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import os
 import pickle
@@ -19,7 +20,6 @@ from collections import defaultdict
 from typing import Any
 
 import eskapade.utils
-from eskapade.core import persistence
 from eskapade.core.definitions import CONFIG_DEFAULTS
 from eskapade.core.definitions import CONFIG_OPTS_SETTERS
 from eskapade.core.definitions import CONFIG_VARS
@@ -29,7 +29,6 @@ from eskapade.logger import Logger
 
 
 class ProcessServiceMeta(type):
-
     """Meta class for process-services base class."""
 
     def __str__(self):
@@ -43,7 +42,6 @@ class ProcessServiceMeta(type):
 
 
 class ProcessService(metaclass=ProcessServiceMeta):
-
     """Base class for process services."""
 
     logger = Logger()
@@ -144,7 +142,6 @@ class ProcessService(metaclass=ProcessServiceMeta):
 
 
 class ConfigObject(ProcessService):
-
     """Configuration settings for Eskapade.
 
     The ConfigObject is a dictionary meant for containing global settings of
@@ -199,9 +196,6 @@ class ConfigObject(ProcessService):
         # initialize batch-mode setting with display variable from environment
         display = eskapade.utils.get_env_var('display')
         self.__settings['batchMode'] = display is None or not re.search(':\d', display)
-
-        # initialize file I/O paths with repository directories with repo root from environment
-        self.__settings['esRoot'] = eskapade.utils.get_dir_path('es_root')
 
     def __repr__(self):
         return repr(self.__settings)
@@ -284,15 +278,14 @@ class ConfigObject(ProcessService):
         :return: I/O configuration
         :rtype: IoConfig
         """
-        return persistence.IoConfig(analysis_name=self['analysisName'],
-                                    analysis_version=self['version'],
-                                    **self.io_base_dirs())
+        return ConfigObject.IoConfig(analysis_name=self['analysisName'],
+                                     analysis_version=self['version'],
+                                     **self.io_base_dirs())
 
     def Print(self):
         """Print a summary of the settings."""
         # print standard settings
         self.logger.info('Run configuration')
-        max_key_len = 0
         for sec, sec_keys in CONFIG_VARS.items():
             if not sec_keys:
                 continue
@@ -329,17 +322,39 @@ class ConfigObject(ProcessService):
         # loop over arguments
         args = vars(parsed_args)
         known_opts = set(opt for sec_opts in USER_OPTS.values() for opt in sec_opts)
-        for opt_key in args.keys():
-            # only process known config options
-            if opt_key not in known_opts:
-                continue
-
+        # only process known config options
+        for opt_key in set(args).intersection(known_opts):
             # call setter function for this user option
             CONFIG_OPTS_SETTERS[opt_key](opt_key, self, args)
 
+    class IoConfig(dict):
+        """Configuration object for I/O operations."""
+
+        _conf_items = dict(analysis_name=str,
+                           analysis_version=None,
+                           results_dir=str,
+                           data_dir=str,
+                           macros_dir=str,
+                           templates_dir=str)
+
+        def __init__(self, **input_config):
+            """Initialize IoConfig instance."""
+            # check required items
+            for key, val_type in self._conf_items.items():
+                if key not in input_config:
+                    ConfigObject.logger.fatal('Item "{key}" not found in input IO configuration.', key=key)
+                    raise KeyError('Missing item(s) in input configuration for IoConfig.')
+                if val_type and not isinstance(input_config[key], val_type):
+                    ConfigObject.logger.fatal('Item "{key}" has type "{type}" ("{name}" required).',
+                                              key=key, type=type(input_config[key]).__name__, name=str.__name__)
+                    raise TypeError('Incorrect type for item(s) in input configuration for IoConfig.')
+
+            # initialize dictionary
+            dict.__init__(self, **input_config)
+            self['analysis_version'] = str(self['analysis_version'])
+
 
 class DataStore(ProcessService, dict):
-
     """Store for transient data sets and related objects.
 
     The data store is a dictionary meant for storing transient data sets or
@@ -378,7 +393,6 @@ class DataStore(ProcessService, dict):
     >>> ds = DataStore.import_from_file(file_path)
     """
 
-    logger = Logger()
     _persist = True
 
     def Print(self):

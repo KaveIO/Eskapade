@@ -1,17 +1,17 @@
-# **************************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                       *
-# * Created : 2017-09-20                                                               *
-# *                                                                                    *
-# * Description:                                                                       *
-# *      Helper functions for eskapade_bootstrap                                       *
-# *                                                                                    *
-# * Authors:                                                                           *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                               *
-# *                                                                                    *
-# * Redistribution and use in source and binary forms, with or without                 *
-# * modification, are permitted according to the terms listed in the file              *
-# * LICENSE.                                                                           *
-# **************************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created: 2017-09-20
+
+Description:
+    Helper functions for eskapade_bootstrap
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import datetime
 import os
@@ -78,20 +78,22 @@ def generate_link(link_dir, link_name, is_create_init=False):
     :param is_create_init: whether to create __init__.py file or no
     """
     # Do not modify the indentation of template!
-    template = """# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : {link_name!s}
-# * Created: {date_generated!s}
-# * Description:                                                                   *
-# *      Algorithm to do...(fill in one-liner here)                                *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+    template = """\"\"\"Project: Eskapade - A python-based package for data analysis.
+
+Class: {link_name!s}
+
+Created: {date_generated!s}
+
+Description:
+    Algorithm to ...(fill in one-liner here)
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+\"\"\"
 
 from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 
@@ -110,16 +112,14 @@ class {link_name!s}(Link):
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', '{link_name!s}'))
 
-        # Process and register keyword arguments.  All arguments are popped from
-        # kwargs and added as attributes of the link.  The values provided here
-        # are defaults.
+        # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
+        # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
         self._process_kwargs(kwargs, read_key=None, store_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
-        # Turn off line above, and on two lines below if you wish to keep these
-        # extra kwargs.
-        #self.kwargs = kwargs
+        # Turn off the line above, and on the line below if you wish to keep these extra kwargs.
+        # self._process_kwargs(kwargs)
 
     def initialize(self):
         \"\"\"Initialize the link.
@@ -139,8 +139,8 @@ class {link_name!s}(Link):
         ds = process_manager.service(DataStore)
 
         # --- your algorithm code goes here
+        self.logger.debug('Now executing link: {{link}}.', link=self.name)
 
-        self.logger.debug('Now executing link: {{link}}', link=self.name)
         return StatusCode.Success
 
     def finalize(self):
@@ -170,7 +170,10 @@ class {link_name!s}(Link):
                     .format(link_dir=link_dir, file_name=file_name, link_name=link_name, import_line=import_line))
 
 
-def generate_macro(macro_dir, macro_name, link_module='eskapade.core_ops', link_name='HelloWorld',
+def generate_macro(macro_dir,
+                   macro_name,
+                   link_module='eskapade.core_ops',
+                   link_name='HelloWorld',
                    is_create_init=False):
     """Generate Eskapade macro.
 
@@ -181,25 +184,27 @@ def generate_macro(macro_dir, macro_name, link_module='eskapade.core_ops', link_
     :param is_create_init: whether to create __init__.py file or no
     """
     # Do not modify the indentation of template!
-    template = """# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : {macro_name!s}
-# * Created: {date_generated!s}
-# * Description:                                                                   *
-# *      Macro do...(fill in short description here)                               *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      Your name(s) here                                                         *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+    template = """\"\"\"Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import process_manager, ConfigObject
+Macro: {macro_name!s}
+
+Created: {date_generated!s}
+
+Description:
+    Macro does ...(fill in short description here)
+
+Authors:
+    Your name(s) here
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+\"\"\"
+
+from eskapade import process_manager, Chain, ConfigObject
 from eskapade.logger import Logger, LogLevel
 
-from {link_module!s} import {link_name!s}
+from {link_module} import {link_name!s}
 
 logger = Logger()
 
@@ -213,10 +218,10 @@ settings['version'] = 0
 
 # --- now set up the chains and links
 
-ch = process_manager.add_chain('Start')
+ch = Chain('Start')
 link = {link_name!s}()
 link.logger.log_level = LogLevel.DEBUG
-ch.add_link(link)
+ch.add(link)
 
 logger.debug('Done parsing configuration file {macro_name!s}.')
 """
@@ -256,29 +261,31 @@ def generate_notebook(notebook_dir, notebook_name, macro_path=None):
     with open(resources.template('notebook_template.ipynb')) as file:
         template = file.read()
         content = template.format(macro_path=macro_path,
-                                  analysis_name=notebook_name,
+                                  notebook_name=notebook_name,
                                   python_version=platform.python_version())
         create_file(path=notebook_dir,
                     file_name='{notebook_name!s}.ipynb'.format(notebook_name=notebook_name),
                     content=content)
 
 
-def generate_setup(root_dir, project_name):
-    """Generate project's setup.py.
+def generate_setup(root_dir, package_name):
+    """Generate project setup.py.
 
     :param root_dir: absolute path to an analysis project root dir
-    :param project_name: project's name
+    :param package_name: package name
     """
     # Do not modify the indentation of template!
     template = """from setuptools import setup, find_packages
 
-NAME = '{project_name}'
+NAME = '{package_name}'
 
 
 def setup_package() -> None:
+    \"\"\"The main setup method.
+
+    It is responsible for setting up and installing the package.
     \"\"\"
-    The main setup method. It is responsible for setting up and installing the package.
-    \"\"\"
+
     setup(name=NAME,
           python_requires='>=3.5',
           package_dir={{'': '.'}},
@@ -290,5 +297,5 @@ def setup_package() -> None:
 if __name__ == '__main__':
     setup_package()
 """
-    content = template.format(project_name=project_name)
+    content = template.format(package_name=package_name)
     create_file(path=root_dir, file_name='setup.py', content=content)

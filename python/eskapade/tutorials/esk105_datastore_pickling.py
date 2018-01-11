@@ -1,20 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk105_datastore_pickling
-# * Created: 2017/02/20                                                            *
-# * Description:                                                                   *
-# *      Macro serves as input to other three esk105 example macros.
-# *
-# *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import ConfigObject
+Macro: esk105_datastore_pickling
+
+Created: 2017/02/20
+
+Description:
+    Macro serves as input to other three esk105 example macros.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -57,55 +58,55 @@ h = [2, 7]
 
 #########
 # chain 1
-ch = process_manager.add_chain('chain1')
+ch = Chain('chain1')
 
 # the link ToDsDict adds objects to the datastore at link execution.
 link = core_ops.ToDsDict(name='intods_1')
 link.store_key = 'f'
 link.obj = f
-ch.add_link(link)
+ch.add(link)
 
 # print contents of datastore
 link = core_ops.PrintDs()
-ch.add_link(link)
+ch.add(link)
 
 #########
 # chain 2
-ch = process_manager.add_chain('chain2')
+ch = Chain('chain2')
 
 # the link AssertInDs checks the presence
 # of certain objects in the datastore
 link = core_ops.AssertInDs()
 link.keySet = ['f']
-ch.add_link(link)
+ch.add(link)
 
 # the link ToDsDict adds objects to the datastore at link execution.
 link = core_ops.ToDsDict(name='intods_2')
 link.store_key = 'g'
 link.obj = g
-ch.add_link(link)
+ch.add(link)
 
 link = core_ops.PrintDs()
-ch.add_link(link)
+ch.add(link)
 
 #########
 # chain 3
-ch = process_manager.add_chain('chain3')
+ch = Chain('chain3')
 
 # the link AssertInDs checks the presence
 # of certain objects in the datastore
 link = core_ops.AssertInDs()
 link.keySet = ['f', 'g']
-ch.add_link(link)
+ch.add(link)
 
 # the link ToDsDict adds objects to the datastore at link execution.
 link = core_ops.ToDsDict(name='intods_3')
 link.store_key = 'h'
 link.obj = h
-ch.add_link(link)
+ch.add(link)
 
 link = core_ops.PrintDs()
-ch.add_link(link)
+ch.add(link)
 
 #########################################################################################
 

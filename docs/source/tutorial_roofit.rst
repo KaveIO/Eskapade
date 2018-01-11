@@ -1,4 +1,4 @@
-Tutorial 4: using RooFit
+Tutorial 5: using RooFit
 ------------------------
 
 This section provides a tutorial on how to use RooFit in Eskapade. RooFit is an advanced fitting library in ROOT, which is great
@@ -23,7 +23,7 @@ Move to the directory:
 
 .. code-block:: bash
 
-   $ cd $ESKAPADE/cxx/esroofit/src/
+   $ cd cxx/esroofit/src/
 
 Start an interactive python session and type:
 
@@ -61,15 +61,15 @@ itself. (Of course this is a costly operation.) If you wish, since we know the a
 go ahead and edit ``MyPdfV2.cxx`` to add the expression of the analytical integral to the class.
 
 As another example of a simple pdf class, take a look at the expressions in the file:
-``$ESKAPADE/cxx/esroofit/src/RooWeibull.cxx``.
+``cxx/esroofit/src/RooWeibull.cxx``.
 
 Now move the header files to their correct location:
 
 .. code-block:: bash
 
-   $ mv MyPdfV*.h $ESKAPADE/cxx/esroofit/include/
+   $ mv MyPdfV*.h ../include/
 
-To make sure that these classes get picked up in Eskapade roofit libary, open the file ``$ESKAPADE/cxx/esroofit/dict/esroofit/LinkDef.h`` and add the lines:
+To make sure that these classes get picked up in Eskapade roofit libary, open the file ``cxx/esroofit/dict/esroofit/LinkDef.h`` and add the lines:
 
 .. code-block:: c
 
@@ -101,7 +101,7 @@ In fact, this last snippet of code is used in the tutorial macro right below.
 Running the tutorial macro
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's take a look at the steps in tutorial macro  ``$ESKAPADE/python/eskapade/tutorials/tutorial_4.py``.
+Let's take a look at the steps in tutorial macro  ``python/eskapade/tutorials/tutorial_4.py``.
 The macro illustrates how do basic statistical data analysis with roofit, by making use of the ``RooWorkspace`` functionality.
 A ``RooWorkspace`` is a persistable container for RooFit projects. A workspace can contain and own variables, p.d.f.s, functions and datasets.
 The example shows how to define a pdf, simulate data, fit this data, and then plot the fit result.
@@ -111,7 +111,7 @@ The next step is to run the tutorial macro.
 
 .. code-block:: bash
 
-  $ eskapade_run $ESKAPADE/python/eskapade/tutorials/tutorial_4.py
+  $ eskapade_run python/eskapade/tutorials/tutorial_4.py
 
 Let's discuss what we are seeing on the screen.
 
@@ -156,12 +156,12 @@ found `here <https://root.cern.ch/doc/master/RooFactoryWSTool_8cxx_source.html#l
 
 .. code-block:: python
 
-   ch = process_manager.add_chain('WsOps')
+   ch = Chain('WsOps')
 
    # --- instantiate a pdf
    wsu = root_analysis.WsUtils(name = 'modeller')
    wsu.factory = ["MyPdfV3::testpdf(y[-10,10],A[10,0,100],B[2,-10,10])"]
-   ch.add_link(wsu)
+   ch.add(wsu)
 
 Here we use the pdf class we just created (``MyPdfV3``) to create a pdf called ``testpdf``, with observable ``y`` and parameter ``A`` and ``B``,
 having ranges ``(-10,10)``, ``(0,100)`` and ``(-10,10)`` respectively, and with initial values for ``A`` and ``B`` of ``10`` and ``2`` respectively.
@@ -175,7 +175,7 @@ The link ``WsUtils`` is then used to simulate records according to the shape of 
 
    wsu = root_analysis.WsUtils(name = 'simulater')
    wsu.add_simulate(pdf='testpdf', obs='y', num=400, key='simdata')
-   ch.add_link(wsu)
+   ch.add(wsu)
 
 Here we simulate ``400`` records of observable ``y`` with pdf ``testpdf`` (which is of type MyPdfV3).
 The simulated data is stored in the datastore under key ``simdata``.
@@ -191,7 +191,7 @@ Another version of the link ``WsUtils`` is then used to fit the simulated record
    wsu = root_analysis.WsUtils(name = 'fitter')
    wsu.pages_key='report_pages'
    wsu.add_fit(pdf='testpdf', data='simdata', key='fit_result')
-   ch.add_link(wsu)
+   ch.add(wsu)
 
 The link performs a fit of pdf ``testpdf`` to dataset ``simdata``.
 We store the fit result object in the datastore under key ``fit_result``.
@@ -210,7 +210,7 @@ Finally, the last version of the link ``WsUtils`` is used to plot the result of 
    wsu.pages_key='report_pages'
    wsu.add_plot(obs='y', data='simdata', pdf='testpdf', pdf_kwargs={'VisualizeError': 'fit_result', 'MoveToBack': ()}, key='simdata_plot')
    wsu.add_plot(obs='y', pdf='testpdf', file='fit_of_simdata.pdf', key='simdata_plot')
-   ch.add_link(wsu)
+   ch.add(wsu)
 
 This link is configured to do two things.
 First it plots the observable ``y`` of the the dataset ``simdata`` and then plots the fitted uncertainy band of the pdf ``testpdf`` on top of this.
@@ -231,7 +231,7 @@ The fit report can be found at:
 
 .. code-block:: bash
 
-  $ cd $ESKAPADE/results/tutorial_4/data/v0/report/
+  $ cd results/tutorial_4/data/v0/report/
   $ pdflatex report.tex
 
 Take a look at the resulting fit report: ``report.pdf``.
@@ -243,5 +243,5 @@ summary tables of the floating and fixed parameters in the fit, as well as the p
 Other ROOT Examples in Eskapade
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Other example Eskapade macros using ROOT and RooFit can be found in the ``$ESKAPADE/python/eskapade/tutorials``
+Other example Eskapade macros using ROOT and RooFit can be found in the ``python/eskapade/tutorials``
 directory, e.g. see ``esk401_roothist_fill_plot_convert.py`` and all other 400 numbered macros.

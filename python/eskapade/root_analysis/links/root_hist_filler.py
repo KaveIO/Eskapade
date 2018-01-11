@@ -1,28 +1,29 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : RootHistFiller                                                      *
-# * Created: 2017/02/25                                                          *
-# * Description:                                                                 *
-# *      Algorithm to create ROOT histograms from colums in pandas dataframe     *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
+Class: RootHistFiller
+
+Created: 2017/02/25
+
+Description:
+    Algorithm to create ROOT histograms from colums in pandas dataframe
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ROOT
 import numpy as np
 import root_numpy
 
 from eskapade.analysis.histogram_filling import HistogramFillerBase
+from eskapade.root_analysis import root_helper
 
 
 class RootHistFiller(HistogramFillerBase):
-
     """Create ROOT histograms from colums in Pandas dataframe.
 
     Histograms can be up to 3 dimensions. The data type for the histogram
@@ -147,47 +148,23 @@ class RootHistFiller(HistogramFillerBase):
         for i, c in enumerate(columns):
             if i != 0:
                 title += ' versus '
-            if c in self.var_label:
-                title += self.var_label[c]
-            else:
-                title += c
+            title += self.var_label.get(c, c)
         return title
 
-    def _n_dims(self, c):
-        return len(c)
-
     def _n_bins(self, c, idx):
-        n = ':'.join(c)
-        if len(c) > 1 and n in self.var_number_of_bins and len(self.var_number_of_bins[n]) == len(c):
-            return self.var_number_of_bins[n][idx]
-        elif c[idx] in self.var_number_of_bins:
-            return self.var_number_of_bins[c[idx]]
-        # fall back on defaults
-        if len(c) == 1:
-            return self._default_n_bins_1d
         if len(c) == 2:
-            return self._default_n_bins_2d
-        if len(c) == 3:
-            return self._default_n_bins_3d
-        return self._default_n_bins_1d
+            default = self._default_n_bins_2d
+        elif len(c) == 3:
+            default = self._default_n_bins_3d
+        else:
+            default = self._default_n_bins_1d
+        return root_helper.get_variable_value(self.var_number_of_bins, c, idx, default)
 
     def _min(self, c, idx):
-        n = ':'.join(c)
-        if len(c) > 1 and n in self.var_min_value and len(self.var_min_value[n]) == len(c):
-            return self.var_min_value[n][idx]
-        elif c[idx] in self.var_min_value:
-            return self.var_min_value[c[idx]]
-        # fall back on default
-        return self._default_min
+        return root_helper.get_variable_value(self.var_min_value, c, idx, self._default_min)
 
     def _max(self, c, idx):
-        n = ':'.join(c)
-        if len(c) > 1 and n in self.var_max_value and len(self.var_max_value[n]) == len(c):
-            return self.var_max_value[n][idx]
-        elif c[idx] in self.var_max_value:
-            return self.var_max_value[c[idx]]
-        # fall back on default
-        return self._default_max
+        return root_helper.get_variable_value(self.var_max_value, c, idx, self._default_max)
 
     def _dtype(self, c):
         n = ':'.join(c)

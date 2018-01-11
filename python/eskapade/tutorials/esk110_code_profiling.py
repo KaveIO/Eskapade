@@ -1,15 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk110_code_profiling                                                 *
-# * Created: 2017/02/26                                                            *
-# * Description:                                                                   *
-# *      Macro to demo how to run eskapade with code profiling turned on
-# *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk110_code_profiling
+
+Created: 2017/02/26
+
+Description:
+    Macro to demo how to run eskapade with code profiling turned on
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import ConfigObject
 from eskapade import process_manager

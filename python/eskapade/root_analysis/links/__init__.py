@@ -14,18 +14,18 @@ from eskapade.root_analysis.links.trunc_exp_gen import TruncExpGen
 from eskapade.root_analysis.links.uncorrelation_hypothesis_tester import UncorrelationHypothesisTester
 from eskapade.root_analysis.links.ws_utils import WsUtils
 
-__all__ = ['RootHistFiller',
-           'WsUtils',
+__all__ = ['AddPropagatedErrorToRooDataSet',
            'ConvertDataFrame2RooDataSet',
            'ConvertRooDataSet2DataFrame',
-           'PrintWs',
-           'RooDataHistFiller',
+           'ConvertRooDataSet2RooDataHist',
            'ConvertRootHist2RooDataHist',
            'ConvertRootHist2RooDataSet',
-           'ConvertRooDataSet2RooDataHist',
-           'AddPropagatedErrorToRooDataSet',
-           'TruncExpGen',
-           'TruncExpFit',
+           'PrintWs',
            'ReadFromRootFile',
+           'RooDataHistFiller',
            'RooFitPercentileBinning',
-           'UncorrelationHypothesisTester']
+           'RootHistFiller',
+           'TruncExpFit',
+           'TruncExpGen',
+           'UncorrelationHypothesisTester',
+           'WsUtils']

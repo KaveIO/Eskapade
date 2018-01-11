@@ -1,19 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : EventLooper                                                           *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      EventLooper algorithm processes input lines and reprints them,            *
-# *      e.g. to use with map/reduce                                               *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
+Class: EventLooper
+
+Created: 2016/11/08
+
+Description:
+    EventLooper algorithm processes input lines and reprints them,
+    e.g. to use with map/reduce
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 import sys
@@ -25,7 +26,6 @@ from eskapade import process_manager
 
 
 class EventLooper(Link):
-
     """Event looper algorithm processes input lines and reprints or stores them.
 
     Input lines are taken from sys.stdin, processed, and printed on screen.
@@ -83,7 +83,7 @@ class EventLooper(Link):
             try:
                 self._f = open(self.filename, "r")
             except IOError:
-                Exception('Cannot open file {}. Exit.'.format(self.filename))
+                raise Exception('Cannot open file {}.'.format(self.filename))
             # successful, so switch linestream to file.
             self._linestream = self._f
 
@@ -102,9 +102,7 @@ class EventLooper(Link):
         for line in self._linestream:
             line = line.strip()
             # skip empty and comment lines
-            if len(line) == 0:
-                continue
-            if any(line.startswith(c) for c in self.skip_line_beginning_with):
+            if not line or any(line.startswith(c) for c in self.skip_line_beginning_with):
                 continue
             myline = copy.deepcopy(line)
             for func in self.line_processor_set:

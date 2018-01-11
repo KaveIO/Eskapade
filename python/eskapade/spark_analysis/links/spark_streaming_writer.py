@@ -1,21 +1,22 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : SparkStreamingWriter                                                  *
-# * Created: 2017/07/12                                                            *
-# * Description:                                                                   *
-# *      This link writes Spark Stream DStream data to disk. The path specifies    *
-# *      the directory on eithter local disk or HDFS where files are stored.       *
-# *      Each processed RDD batch will be stored in a separate file (hence the     *
-# *      number of files can increase rapidly).                                    *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
+Class: SparkStreamingWriter
+
+Created: 2017/07/12
+
+Description:
+    This link writes Spark Stream DStream data to disk. The path specifies
+    the directory on eithter local disk or HDFS where files are stored.
+    Each processed RDD batch will be stored in a separate file (hence the
+    number of files can increase rapidly).
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import os
 import shutil
@@ -24,7 +25,6 @@ from eskapade import process_manager, Link, DataStore, StatusCode
 
 
 class SparkStreamingWriter(Link):
-
     """Link to write Spark Stream to disk."""
 
     def __init__(self, **kwargs):

@@ -1,17 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A Python-based package for data analysis                 *
-# * Module: root_analysis.roofit_manager                                         *
-# * Created: 2017/04/24                                                          *
-# * Description:                                                                 *
-# *     RooFit-manager process service for Eskapade run                          *
-# *                                                                              *
-# * Authors:                                                                     *
-# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A Python-based package for data analysis.
+
+Module: root_analysis.roofit_manager
+
+Created: 2017/04/24
+
+Description:
+    RooFit-manager process service for Eskapade run
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ROOT
 
@@ -20,7 +22,6 @@ from eskapade.root_analysis.roofit_models import RooFitModel
 
 
 class RooFitManager(ProcessService):
-
     """Process service for managing RooFit operations."""
 
     _persist = True
@@ -38,6 +39,12 @@ class RooFitManager(ProcessService):
             ROOT.SetOwnership(self._ws, False)
 
         return self._ws
+
+    def delete_workspace(self):
+        """Delete existing workspace."""
+        if self._ws:
+            del self._ws
+            self._ws = None
 
     def set_var_vals(self, vals):
         """Set values of workspace variables.

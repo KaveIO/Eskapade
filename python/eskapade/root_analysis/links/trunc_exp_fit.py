@@ -1,23 +1,24 @@
-# *****************************************************************************
-# * Project: Eskapade - A python-based package for data analysis              *
-# * Class  : TruncExpFit                                                      *
-# * Created: 2017/04/19                                                       *
-# *                                                                           *
-# * Description:                                                              *
-# *      Link to fit truncated exponential PDF to data                        *
-# *                                                                           *
-# * Authors:                                                                  *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                      *
-# *                                                                           *
-# * Redistribution and use in source and binary forms, with or without        *
-# * modification, are permitted according to the terms listed in the file     *
-# * LICENSE.                                                                  *
-# *****************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: TruncExpFit
+
+Created: 2017/04/19
+
+Description:
+    Link to fit truncated exponential PDF to data
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ROOT
 import numpy as np
 
-from eskapade import StatusCode, DataStore, Link, process_manager, ConfigObject
+from eskapade import StatusCode, DataStore, Link, process_manager
 from eskapade.core import persistence
 from eskapade.logger import LogLevel
 from eskapade.root_analysis.roofit_manager import RooFitManager
@@ -26,7 +27,6 @@ from eskapade.root_analysis.roofit_utils import ROO_INF, create_roofit_opts
 
 
 class TruncExpFit(Link):
-
     """Fit truncated exponential PDF to data.
 
     Fit an exponential PDF in a range with a variable upper bound to data.
@@ -59,6 +59,12 @@ class TruncExpFit(Link):
         self.fit_result = None
         self._fit_cmd_args = None
 
+    def _process_results_path(self):
+        """Process results_path argument."""
+        if not self.results_path:
+            self.results_path = persistence.io_dir('results_data')
+        persistence.create_dir(self.results_path)
+
     def initialize(self):
         """Initialize the link."""
         # check input arguments
@@ -66,7 +72,6 @@ class TruncExpFit(Link):
         self.check_arg_vals('read_key', 'model_name')
 
         # create service instances
-        settings = process_manager.service(ConfigObject)
         rfm = process_manager.service(RooFitManager)
 
         # check if model exists
@@ -82,10 +87,7 @@ class TruncExpFit(Link):
         # process command arguments for fit function
         self._fit_cmd_args = create_roofit_opts('fit', ConditionalObservables=model.max_var_set, **self.kwargs)
 
-        # get path to results directory
-        if not self.results_path:
-            self.results_path = persistence.io_dir('results_data', settings.io_conf())
-        persistence.create_dir(self.results_path)
+        self._process_results_path()
 
         return StatusCode.Success
 

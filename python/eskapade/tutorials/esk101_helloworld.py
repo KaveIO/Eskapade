@@ -1,19 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk101_helloworld                                                     *
-# * Created: 2017/02/20                                                            *
-# * Description:                                                                   *
-# *      Macro to say hello to the world with Eskapade!                            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import ConfigObject
+Macro: esk101_helloworld
+
+Created: 2017/02/20
+
+Description:
+    Macro to say hello to the world with Eskapade!
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops
 from eskapade import process_manager
 from eskapade.logger import Logger, LogLevel
@@ -43,11 +45,11 @@ settings['n_repeat'] = 2
 # --- now set up the chains and links based on configuration flags
 
 if settings['do_hello']:
-    ch = process_manager.add_chain('Hello')
+    hello = Chain(name='Hello')
     link = core_ops.HelloWorld(name='HelloWorld')
     link.logger.log_level = LogLevel.DEBUG
     link.repeat = settings['n_repeat']
-    ch.add_link(link)
+    hello.add(link)
 
 #########################################################################################
 

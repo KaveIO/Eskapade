@@ -10,13 +10,29 @@ Subpackages
     eskapade.core
     eskapade.core_ops
     eskapade.data_quality
+    eskapade.logger
     eskapade.root_analysis
     eskapade.spark_analysis
-    eskapade.tests
     eskapade.visualization
 
 Submodules
 ----------
+
+eskapade._bootstrap module
+--------------------------
+
+.. automodule:: eskapade._bootstrap
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.entry_points module
+----------------------------
+
+.. automodule:: eskapade.entry_points
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 eskapade.exceptions module
 --------------------------
@@ -34,10 +50,10 @@ eskapade.helpers module
     :undoc-members:
     :show-inheritance:
 
-eskapade.mixins module
-----------------------
+eskapade.resources module
+-------------------------
 
-.. automodule:: eskapade.mixins
+.. automodule:: eskapade.resources
     :members:
     :undoc-members:
     :show-inheritance:
@@ -46,14 +62,6 @@ eskapade.utils module
 ---------------------
 
 .. automodule:: eskapade.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-eskapade.version module
------------------------
-
-.. automodule:: eskapade.version
     :members:
     :undoc-members:
     :show-inheritance:

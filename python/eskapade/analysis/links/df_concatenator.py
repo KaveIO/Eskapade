@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : DataFrameColumnRenamer                                                *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm to concatenate multiple pandas datadrames                       *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: DataFrameColumnRenamer
+
+Created: 2016/11/08
+
+Description:
+    Algorithm to concatenate multiple pandas datadrames
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 
@@ -24,7 +26,6 @@ from eskapade import process_manager
 
 
 class DfConcatenator(Link):
-
     """Concatenates multiple pandas datadrames."""
 
     def __init__(self, **kwargs):
@@ -50,7 +51,7 @@ class DfConcatenator(Link):
 
     def initialize(self):
         """Initialize the link."""
-        assert self.read_keys, 'read_keys have not been set. Error.'
+        assert self.read_keys, 'read_keys have not been set.'
         assert isinstance(self.store_key, str) and self.store_key, 'storage key not set.'
 
         self.logger.info('kwargs passed on to pandas concat function are: {kwargs}', kwargs=self.kwargs)
@@ -81,7 +82,7 @@ class DfConcatenator(Link):
             self.logger.warning("Nothing to concatenate. Configured to return empty dataframe.")
             df = pd.DataFrame()
         else:
-            raise Exception("Nothing to concatenate. This is not right. Exit.")
+            raise Exception("Nothing to concatenate.")
 
         # store the result
         ds[self.store_key] = df

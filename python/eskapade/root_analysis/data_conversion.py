@@ -1,17 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A Python-based package for data analysis                 *
-# * Module: root_analysis.data_conversion                                        *
-# * Created: 2017/04/24                                                          *
-# * Description:                                                                 *
-# *     Converters between ROOT, RooFit, NumPy, and Pandas data formats          *
-# *                                                                              *
-# * Authors:                                                                     *
-# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A Python-based package for data analysis.
+
+Module: root_analysis.data_conversion
+
+Created: 2017/04/24
+
+Description:
+    Converters between ROOT, RooFit, NumPy, and Pandas data formats
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import collections
 import uuid
@@ -384,15 +386,29 @@ def series_to_tree(series, name='tree', tree=None):
     return df_to_tree(pd.DataFrame(series), name, tree)
 
 
-def tree_to_df(tree, branch_names=[], index_name='', drop_roofit_labels=False):
+def _get_tree_branches(tree):
+    """Get all branch names of a tree."""
+    branch_list = tree.GetListOfBranches()
+    return [branch_list.At(i).GetName() for i in range(branch_list.GetEntries())]
+
+
+def _get_exist_branches(branch_names, all_branch_names):
+    """Filter out not existing branches from branch names or return all branches."""
+    if not branch_names:
+        return all_branch_names
+    return set(branch_names).intersection(all_branch_names)
+
+
+def tree_to_df(tree, branch_names=None, index_name='', drop_roofit_labels=False):
     """Convert a TTree to a pandas DataFrame.
 
     :param TTree tree: An existing ROOT TTree to be converted to a pandas DataFrame
-    :param list branch_names: input list of branch to be converted dataframe columns. If empty, pick all branches.
+    :param list branch_names: input list of branch to be converted dataframe columns.
+        If empty, pick all branches. Optional.
     :param str index_name: branch that will be interpreted as dataframe index.
-                           If empty, pick first branch name starting with '__index__'.
+        If empty, pick first branch name starting with '__index__'. Optional.
     :param bool drop_roofit_labels: drop branches ending on '_lbl', as produced by roofit categorical variables.
-                                    For all other variables the postfix '_idx' is removed.
+        For all other variables the postfix '_idx' is removed. Optional.
     :returns: dataframe
     :rtype: pandas.DataFrame
     """
@@ -400,16 +416,10 @@ def tree_to_df(tree, branch_names=[], index_name='', drop_roofit_labels=False):
         return None
 
     # 1. list of branches to consider
-    branch_list = tree.GetListOfBranches()
-    all_branch_names = [branch_list.At(i).GetName() for i in range(branch_list.GetEntries())]
-    if len(branch_names) == 0:
-        branch_names = all_branch_names
-    for bn in branch_names[:]:
-        if bn not in all_branch_names:
-            branch_names.remove(bn)
-        if drop_roofit_labels:
-            if bn.endswith('_lbl'):
-                branch_names.remove(bn)
+    all_branch_names = _get_tree_branches(tree)
+    branch_names = _get_exist_branches(branch_names, all_branch_names)
+    if drop_roofit_labels:
+        branch_names = set(filter(lambda bn: not bn.endswith('_lbl'), branch_names))
 
     # 2. convert to df
     arrs = tree2array(tree, branch_names)
@@ -417,12 +427,12 @@ def tree_to_df(tree, branch_names=[], index_name='', drop_roofit_labels=False):
 
     # 3. convert index back to integers
     # try to find index name. make educated guess
-    if len(index_name) == 0:
+    if not index_name:
         for col in df.columns:
             if col.startswith('__index__'):
                 index_name = col
                 break
-    if len(index_name):
+    if index_name:
         try:
             df[index_name] = df[index_name].astype(np.int32)
             df.set_index(index_name, inplace=True)
@@ -478,7 +488,7 @@ def rds_to_tree(rds, tree_name='', ignore_lost_records=False):
     return tree
 
 
-def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}):
+def tree_to_rds(tree, rf_varset=None, branch_names=None, name='', category_vars=None):
     """Convert root tree to roodataset object.
 
     Convert root TTree to corresponding roodataset object, that can be used
@@ -487,12 +497,12 @@ def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}
     :param ROOT.TTree tree: input root tree to be converted
     :param ROOT.RooArgSet rf_varset: if set, pick these (roofit) observables as tree's input branches.
                                      Assumption is that these observables match with the tree.
-                                     Default is None. (optional)
+                                     Default is None. Optional.
     :param list branch_names: input list of branch to be converted to roodataset. If empty, pick all branches.
-                              If branches are unknown they are skipped. (optional)
+                              If branches are unknown they are skipped. Optional.
     :param str name: new name of the roodataset. If empty, pick 'rds' + '_' + tree name (optional)
     :param dict category_vars: input dict with known conversion maps of boolean or categorical observable
-                               to integer. (optional)
+                               to integer. Default is {}. Optional.
     :returns: comma-separated roodataset, rooargset, and dict with conversion maps of integer back to
               boolean or categorical observable.
     :rtype: RooDataHist, RooArgSet, dict
@@ -501,14 +511,7 @@ def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}
         return None, None, {}
 
     # 0. list of branches to consider
-    branch_list = tree.GetListOfBranches()
-    all_branch_names = [branch_list.At(i).GetName() for i in range(branch_list.GetEntries())]
-    if len(branch_names) == 0:
-        branch_names = all_branch_names
-    else:
-        for bn in branch_names[:]:
-            if bn not in all_branch_names:
-                branch_names.remove(bn)
+    all_branch_names = _get_tree_branches(tree)
 
     # 1. construct the RooDataSet using the existing roofit variables (and their ranges)
     #    Assumption is that these observables match with the tree!
@@ -531,32 +534,32 @@ def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}
     # this is needed below when reading in the tree in a roodataset,
     # where values outside a variables range are automatically rejectsed.
     var_specs = collections.OrderedDict()
-    for bn in branch_names:
-        # branches that become roocategories
-        if bn in category_vars:
-            continue
-        # branches that become roorealvars
-        else:
-            try:
-                bmin = tree.GetMinimum(bn)
-                bmax = tree.GetMaximum(bn)
-                # ensure no under or overflows
-                bdiff = abs(bmax - bmin)
-                bmax += 0.05 * bdiff
-                bmin -= 0.05 * bdiff
-                # Get string of datatype with
-                dtype_str = tree.GetBranch(bn).GetLeaf(bn).GetTypeName()
-                var_specs[bn] = (dtype_str, bmin, bmax)
-            except BaseException:
-                # roodataset only accepts numeric or boolian observables; skipping non-numeric branches
-                pass
+    # branches that become roorealvars
+
+    if category_vars is None:
+        category_vars = {}
+    branch_names = _get_exist_branches(branch_names, all_branch_names)
+
+    for bn in set(branch_names).difference(category_vars):
+        try:
+            bmin = tree.GetMinimum(bn)
+            bmax = tree.GetMaximum(bn)
+            # ensure no under or overflows
+            bdiff = abs(bmax - bmin)
+            bmax += 0.05 * bdiff
+            bmin -= 0.05 * bdiff
+            # Get string of datatype with
+            dtype_str = tree.GetBranch(bn).GetLeaf(bn).GetTypeName()
+            var_specs[bn] = (dtype_str, bmin, bmax)
+        except BaseException:
+            # roodataset only accepts numeric or boolian observables; skipping non-numeric branches
+            pass
 
     # 3a. construct corresponding roocategories, needed for roodataset
     values = ROOT.RooArgSet()
     map_to_original = {}
-    for bn in branch_names:
-        if bn not in category_vars:
-            continue
+    # branches that become roocategories
+    for bn in set(branch_names).intersection(category_vars):
         label_dict = category_vars[bn]
         rcat = ROOT.RooCategory(bn, bn)
         for label, val in label_dict.items():
@@ -599,7 +602,7 @@ def tree_to_rds(tree, rf_varset=None, branch_names=[], name='', category_vars={}
     return rds, values, map_to_original
 
 
-def df_to_rds(df, rf_varset=None, category_vars={}, name='', store_index=True):
+def df_to_rds(df, rf_varset=None, category_vars=None, name='', store_index=True):
     """Convert a pandas dataframe to roodataset object.
 
     Convert pandas DataFrame to RooDataSet object, that can be used as dataset by roofit.
@@ -616,6 +619,8 @@ def df_to_rds(df, rf_varset=None, category_vars={}, name='', store_index=True):
               of integer back to boolean or categorical observable.
     :rtype: RooDataHist, RooArgSet, dict, dict
     """
+    if category_vars is None:
+        category_vars = {}
     if df is None:
         return None, None
 
@@ -630,14 +635,15 @@ def df_to_rds(df, rf_varset=None, category_vars={}, name='', store_index=True):
     return rds, varset, map_to_factorized, map_to_original
 
 
-def rds_to_df(rds, branch_names=[], index_name='', ignore_lost_records=False):
+def rds_to_df(rds, branch_names=None, index_name='', ignore_lost_records=False):
     """Convert a roodataset to a pandas DataFrame.
 
     :param ROOT.RooDataSet rds: An existing ROOT RooDataSet to be converted to a pandas DataFrame
-    :param list branch_names: input list of branch to be converted dataframe columns. If empty, pick all branches.
+    :param list branch_names: input list of branch to be converted dataframe columns.
+        If empty, pick all branches. Optional.
     :param str index_name: roofit observable that will be interpreted as dataframe index.
-                           If empty, pick first branch name starting with '__index__'.
-    :param bool ignore_lost_records: if true, dataframe is allowed to loose records in conversion
+        If empty, pick first branch name starting with '__index__'. Optional.
+    :param bool ignore_lost_records: if true, dataframe is allowed to loose records in conversion. Optional.
     :returns: dataframe
     :rtype: pandas.DataFrame
     """

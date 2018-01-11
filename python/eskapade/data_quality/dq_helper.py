@@ -1,17 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A Python-based package for data analysis                 *
-# * Module: data_quality.dq_helper                                               *
-# * Created: 2017/04/11                                                          *
-# * Description:                                                                 *
-# *     Data-quality helper functions                                            *
-# *                                                                              *
-# * Authors:                                                                     *
-# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A Python-based package for data analysis.
+
+Module: data_quality.dq_helper
+
+Created: 2017/04/11
+
+Description:
+    Data-quality helper functions
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ast
 import re

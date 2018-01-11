@@ -1,18 +1,20 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : ReadFromRootFile                                                    *
-# * Created: 2017/06/26                                                          *
-# * Description:                                                                 *
-# *      Simple link to read objects from a ROOT file an put them into           *
-# *      the data store or workspace                                             *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: ReadFromRootFile
+
+Created: 2017/06/26
+
+Description:
+    Simple link to read objects from a ROOT file an put them into
+    the data store or workspace
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import os
 
@@ -23,7 +25,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ReadFromRootFile(Link):
-
     """Put objects from a ROOT file in the data store or workspace."""
 
     def __init__(self, **kwargs):

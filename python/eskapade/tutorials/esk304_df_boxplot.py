@@ -1,19 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk304_df_boxplot                                                     *
-# * Created: 2017/02/23                                                            *
-# * Description:                                                                   *
-# *      Macro shows how to boxplot the content of a dataframe in a nice summary   *
-# *      pdf file.                                                                 *
-# *                                                                                *
-# *                                                                                *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import ConfigObject
+Macro : esk304_df_boxplot
+
+Created: 2017/02/23
+
+Description:
+    Macro shows how to boxplot the content of a dataframe in a nice summary
+    pdf file.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import ConfigObject, Chain
 from eskapade import analysis, visualization
 from eskapade import process_manager
 from eskapade.core import persistence
@@ -38,7 +38,7 @@ msg = r"""
 The plots and latex files produced by link df_summary can be found in dir:
 {path}
 """
-logger.info(msg, path=persistence.io_path('results_data', settings.io_conf(), 'report'))
+logger.info(msg, path=persistence.io_path('results_data', 'report'))
 
 COLUMNS = ['var_a', 'var_b', 'var_c']
 SIZE = 10000
@@ -51,20 +51,19 @@ GEN_CONF = dict(var_a=dict(choice=['alpha', 'beta', 'gamma'], dtype=str), var_b=
 # --- now set up the chains and links based on configuration flags
 
 # create chains
-process_manager.add_chain('Data')
-process_manager.add_chain('BoxPlot')
+data = Chain('Data')
 
 # add data-generator link to "Data" chain
-
 generator = analysis.BasicGenerator(name='Generate_data',
                                     key='data',
                                     columns=COLUMNS,
                                     size=SIZE,
                                     gen_config=GEN_CONF)
-process_manager.get_chain('Data').add_link(generator)
+data.add(generator)
 
 # add data-frame summary link to "Boxplot" chain
 # can provide labels and units for the variables in the dataset, and set the statistics to print in output file
+plot = Chain('BoxPlot')
 box_plot = visualization.DfBoxplot(name='Create_stats_overview',
                                    read_key=generator.key,
                                    statistics=['count', 'mean', 'min', 'max', 'std'],
@@ -72,8 +71,8 @@ box_plot = visualization.DfBoxplot(name='Create_stats_overview',
                                    var_units=VAR_UNITS,
                                    column='var_b',
                                    cause_columns=['var_a', 'var_c'],
-                                   results_path=persistence.io_path('results_data', settings.io_conf(), 'report'))
-process_manager.get_chain('BoxPlot').add_link(box_plot)
+                                   results_path=persistence.io_path('results_data', 'report'))
+plot.add(box_plot)
 
 #########################################################################################
 

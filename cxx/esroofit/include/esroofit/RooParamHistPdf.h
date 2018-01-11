@@ -10,19 +10,21 @@
  *      By default these parameters are normalized wrt the bin count,
  *      except when the number of entries in a bin is zero, in which case
  *      the parameter is the number of entries in the bin.
+ *      Relative or absolute scale parameters are set with the flag: 
+ *      relParams (default is false).
  *      Request these parameters with the function: paramList()
  *      The generation of the scale parameters can be turned off with the
  *      flag: noParams (default is false).
  *
  *      RooParamHistPdf works internally with another RooDataHist
- *      (modified for speedup), which gets updated whenever a parameter
- *      value is changed. Several RooHistPdf functions have been overloaded
- *      to pick up this modified roodatahist object instead.
- *      This internal roodatahist can be updated at any time with the
- *      function setModifiedData(), which requires noParams = false.
+ *      (modified for speedup), which gets updated whenever a parameter      *
+ *      value is changed. Several RooHistPdf functions have been overloaded  *
+ *      to pick up this modified roodatahist object instead.                 *
+ *      This internal roodatahist can be updated at any time with the        *
+ *      function setModifiedData(), which requires noParams = false.         *
  *                                                                           *
  * Authors:                                                                  *
- *      KPMG Big Data team, Amstelveen, The Netherlands                      *
+ *      KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands *
  *                                                                           *
  * Redistribution and use in source and binary forms, with or without        *
  * modification, are permitted according to the terms listed in the file     *
@@ -49,7 +51,7 @@ class RooParamHistPdf : public RooHistPdf
 {
 public:
     RooParamHistPdf(const char *name, const char *title, const RooArgSet &vars, const RooDataHist &dhist,
-                    Int_t intOrder = 0, Bool_t noParams = kFALSE);
+                    Int_t intOrder = 0, Bool_t noParams = kFALSE, Bool_t relParams=kFALSE);
 
     RooParamHistPdf(const RooParamHistPdf &other, const char *name = 0);
 
@@ -95,6 +97,9 @@ public:
     inline Bool_t getNoParams() const
     { return _noParams; }
 
+    inline Bool_t getRelParams() const
+    { return _relParams; }
+
     inline Double_t getSumWNorm() const
     { return _sumWnorm; }
 
@@ -132,6 +137,7 @@ protected:
     const RooDataHist &_dh; //! do not persist
     mutable FastHist *_dh_mod; //! do not persist
     Bool_t _noParams;
+    Bool_t _relParams;
     Double_t _sumWnorm;
 
     Double_t evaluate() const;

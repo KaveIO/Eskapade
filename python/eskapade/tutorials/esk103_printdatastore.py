@@ -1,21 +1,23 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk103_printdatastore
-# * Created: 2017/02/15                                                            *
-# * Description:                                                                   *
-# *      Macro to illustrate the use of the Printdatastore link.
-# *      Prindatastore prints an overview of the contents in the
-# *      datastore at the state of running
-# *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import core_ops, process_manager, ConfigObject, DataStore
+Macro: esk103_printdatastore
+
+Created: 2017/02/15
+
+Description:
+    Macro to illustrate the use of the Printdatastore link.
+    Prindatastore prints an overview of the contents in the
+    datastore at the state of running
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import core_ops, process_manager, ConfigObject, DataStore, Chain
 from eskapade.logger import Logger
 
 logger = Logger()
@@ -38,7 +40,7 @@ process_manager.service(DataStore)['d'] = {'a': 1, 'b': 2, 'c': 3}
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = process_manager.add_chain('Overview')
+ch = Chain('Overview')
 
 # printdatastore prints an overview of the contents in the datastore
 # at the state of executing the link.
@@ -47,7 +49,7 @@ link = core_ops.PrintDs()
 # keys are the items for which the contents of the actual item is printed.
 # if the key is not known ('foo'), then it is skipped.
 link.keys = ['foo', 'hello', 'd']
-ch.add_link(link)
+ch.add(link)
 
 #########################################################################################
 

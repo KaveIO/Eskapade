@@ -1,23 +1,25 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk108_eventlooper
-# * Created: 2017/02/20                                                            *
-# * Description:                                                                   *
-# *      Macro to illustrate how input lines can be read in,
-# *      processed, and reprinted. E.g. for use in map reduce application.
-# *      Used as input for: esk108_map and esk108_reduce
-# *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk108_eventlooper
+
+Created: 2017/02/20
+
+Description:
+    Macro to illustrate how input lines can be read in,
+    processed, and reprinted. E.g. for use in map reduce application.
+    Used as input for: esk108_map and esk108_reduce
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import tempfile
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops
 from eskapade import process_manager
 
@@ -30,10 +32,10 @@ settings['version'] = 0
 #########################################################################################
 # --- Analysis values, settings, helper functions, configuration flags.
 
-settings['do_map'] = False if 'do_map' not in settings else settings['do_map']
-settings['do_reduce'] = False if 'do_reduce' not in settings else settings['do_reduce']
+settings['do_map'] = settings.get('do_map', False)
+settings['do_reduce'] = settings.get('do_reduce', False)
 
-settings['TESTING'] = False if 'TESTING' not in settings else settings['TESTING']
+settings['TESTING'] = settings.get('TESTING', False)
 
 # --- create dummy example dataset, which is used below
 if settings['TESTING']:
@@ -86,19 +88,19 @@ def first_word(x):
 #     this eventlooper link serves as a mapper.
 #     in this example the lines are converted to lower chars, and the first word is selected.
 if settings['do_map']:
-    ch = process_manager.add_chain("Mapper")
+    ch = Chain("Mapper")
     looper = core_ops.EventLooper(name='listener')
     looper.skip_line_beginning_with = ['#']
     looper.line_processor_set = [first_word, to_lower]
     if settings['TESTING']:
         looper.filename = f.name
-    ch.add_link(looper)
+    ch.add(looper)
 
 # --- reducer: chain with event looper
 #     this eventlooper link serves as a reducer
 #     in this example the lines are grouped together into unique sets.
 if settings['do_reduce']:
-    ch = process_manager.add_chain("Reducer")
+    ch = Chain("Reducer")
     looper = core_ops.EventLooper(name='grouper')
     # reducer selects all unique lines
     looper.sort = True
@@ -106,11 +108,11 @@ if settings['do_reduce']:
     looper.store_key = 'products'
     if settings['TESTING']:
         looper.filename = f.name
-    ch.add_link(looper)
+    ch.add(looper)
 
     # ... do other operations to lines here
 
     # print lines
     link = core_ops.LinePrinter()
     link.read_key = looper.store_key
-    ch.add_link(link)
+    ch.add(link)

@@ -1,17 +1,17 @@
-# **************************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                       *
-# * Created : 2017-08-08                                                               *
-# *                                                                                    *
-# * Description:                                                                       *
-# *      Collection of eskapade entry points                                           *
-# *                                                                                    *
-# * Authors:                                                                           *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                               *
-# *                                                                                    *
-# * Redistribution and use in source and binary forms, with or without                 *
-# * modification, are permitted according to the terms listed in the file              *
-# * LICENSE.                                                                           *
-# **************************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created: 2017-08-08
+
+Description:
+    Collection of eskapade entry points
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import _bootstrap as bootstrap
 from eskapade.logger import LogLevel, Logger, global_log_publisher, ConsoleHandler, ConsoleErrHandler
@@ -22,6 +22,10 @@ publisher.add_handler(ConsoleHandler())
 publisher.add_handler(ConsoleErrHandler())
 
 logger = Logger(__name__)
+
+DEFAULT_LINK_NAME = 'ExampleLink'
+DEFAULT_MACRO_NAME = 'macro'
+DEFAULT_NOTEBOOK_NAME = 'notebook'
 
 
 def eskapade_ignite():
@@ -40,8 +44,8 @@ def eskapade_run():
     import IPython
     import pandas as pd
 
-    from eskapade import process_manager
-    from eskapade import core, ConfigObject, DataStore
+    from eskapade import process_manager, ConfigObject, DataStore
+    from eskapade.core import execution
     from eskapade.core.run_utils import create_arg_parser
 
     # create parser for command-line arguments
@@ -64,8 +68,12 @@ def eskapade_run():
     # set user options
     settings.set_user_opts(user_args)
 
-    # run Eskapade
-    core.execution.run_eskapade(settings)
+    try:
+        # run Eskapade
+        execution.eskapade_run(settings)
+    except Exception as exc:
+        logger.error('{exc}', exc=exc)
+        raise
 
     # start interpreter if requested (--interactive on command line)
     if settings.get('interactive'):
@@ -155,7 +163,7 @@ def eskapade_generate_macro():
     path = bootstrap.get_absolute_path(args.dir)
 
     bootstrap.create_dir(path)
-    bootstrap.generate_macro(path, args.name, False)
+    bootstrap.generate_macro(macro_dir=path, macro_name=args.name, is_create_init=False)
 
 
 def eskapade_generate_notebook():
@@ -182,36 +190,38 @@ def eskapade_bootstrap():
     parser = argparse.ArgumentParser('eskapade_bootstrap',
                                      description='Generate Eskapade project structure.',
                                      epilog='Please note, existing files with the same names will be rewritten.')
-    parser.add_argument('project_name',
-                        help='The name of the project to generate.', )
+    parser.add_argument('package_name',
+                        help='The name of the package to generate.', )
     _add_project_dir_argument(parser, 'project_root_dir', 'root')
     parser.add_argument('--macro_name', '-m',
                         nargs='?',
                         help='The name of the macro to generate. Default is: macro.',
-                        default='macro', )
+                        default=DEFAULT_MACRO_NAME, )
     parser.add_argument('--link_name', '-l',
                         nargs='?',
                         help='The name of the link to generate. Default is: ExampleLink.',
-                        default='ExampleLink', )
+                        default=DEFAULT_LINK_NAME, )
     parser.add_argument('--notebook_name', '-n',
                         nargs='?',
                         help='The name of the notebook to generate. Default is: notebook.',
-                        default='notebook', )
+                        default=DEFAULT_NOTEBOOK_NAME, )
     args = parser.parse_args()
 
     if args.link_name == 'Link':
         raise AttributeError('Link is reserved by Eskapade. Please, choose different name for the link.')
-    if args.project_name.lower() == 'eskapade':
+    if args.package_name.lower() == 'eskapade':
         raise AttributeError('eskapade is reserved by Eskapade. Please, choose different name for the project.')
+    if not args.project_root_dir:
+        raise AttributeError('Expected the value after --project_root_dir.')
 
-    project_dir = bootstrap.get_absolute_path(args.project_root_dir) + '/' + args.project_name
-    link_dir = project_dir + '/links'
-    marco_path = project_dir + '/' + args.macro_name + '.py'
+    package_dir = bootstrap.get_absolute_path(args.project_root_dir) + '/' + args.package_name
+    link_dir = package_dir + '/links'
+    marco_path = package_dir + '/' + args.macro_name + '.py'
 
     # create the directories
     bootstrap.create_dir(link_dir)
     bootstrap.generate_link(link_dir=link_dir, link_name=args.link_name, is_create_init=True)
-    bootstrap.generate_macro(macro_dir=project_dir, macro_name=args.macro_name,
-                             link_module=args.project_name, link_name=args.link_name, is_create_init=True)
-    bootstrap.generate_notebook(notebook_dir=project_dir, notebook_name=args.notebook_name, macro_path=marco_path)
-    bootstrap.generate_setup(root_dir=args.project_root_dir, project_name=args.project_name)
+    bootstrap.generate_macro(macro_dir=package_dir, macro_name=args.macro_name,
+                             link_module=args.package_name, link_name=args.link_name, is_create_init=True)
+    bootstrap.generate_notebook(notebook_dir=package_dir, notebook_name=args.notebook_name, macro_path=marco_path)
+    bootstrap.generate_setup(root_dir=args.project_root_dir, package_name=args.package_name)

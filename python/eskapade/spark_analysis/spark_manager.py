@@ -1,3 +1,20 @@
+"""Project: Eskapade - A python-based package for data analysis.
+
+Created: 2017/02/27
+
+Class: SparkManager
+
+Description:
+    Process service for managing Spark operations
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
 import logging
 import os
 
@@ -5,8 +22,8 @@ import pyspark
 
 import eskapade
 from eskapade.core import persistence
+from eskapade.core.mixin import ConfigMixin
 from eskapade.core.process_services import ProcessService
-from eskapade.mixins import ConfigMixin
 from eskapade.spark_analysis.functions import SPARK_UDFS
 
 logging.getLogger('py4j.java_gateway').setLevel('INFO')
@@ -15,7 +32,6 @@ CONF_PREFIX = 'spark'
 
 
 class SparkManager(ProcessService, ConfigMixin):
-
     """Process service for managing Spark operations."""
 
     _persist = False
@@ -34,7 +50,8 @@ class SparkManager(ProcessService, ConfigMixin):
         arguments are passed to the _create_spark_conf method in this case.
 
         :param bool enable_hive_support: switch for enabling Spark Hive support
-        :param bool include_eskapade_modules: switch to include Eskapade modules in Spark job submission
+        :param bool include_eskapade_modules: switch to include Eskapade modules in Spark job submission.
+            Default is False. Optional.
         """
         # return existing session if still running
         if self._session and self._session.sparkContext._jsc:
@@ -52,8 +69,7 @@ class SparkManager(ProcessService, ConfigMixin):
 
         # include Eskapade modules in Spark job submission
         if include_eskapade_modules:
-            eskapade.utils.collect_python_modules()
-            py_mods = eskapade.utils.get_file_path('py_mods')
+            py_mods = eskapade.utils.collect_python_modules()
             for key in ['spark.submit.pyFiles', 'spark.files']:
                 files = spark_conf.get(key, '')
                 if py_mods not in files:
@@ -111,7 +127,7 @@ class SparkManager(ProcessService, ConfigMixin):
         cfg_path = str(config_path) if config_path else str(eskapade_settings.get('sparkCfgFile')) \
             if eskapade_settings and eskapade_settings.get('sparkCfgFile') else None
         if cfg_path and eskapade_settings and not os.path.isabs(cfg_path):
-            cfg_path = persistence.io_path('config_spark', eskapade_settings.io_conf(), cfg_path)
+            cfg_path = persistence.io_path('config_spark', cfg_path, eskapade_settings.io_conf())
         if cfg_path and cfg_path != self.config_path:
             self.logger.debug('Setting configuration file path to "{path}".', path=cfg_path)
             self.config_path = cfg_path

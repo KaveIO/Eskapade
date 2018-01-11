@@ -1,21 +1,23 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : SparkHistogrammarFiller                                             *
-# * Created: 2017/06/09                                                          *
-# * Description:                                                                 *
-# *      Algorithm to fill histogrammar sparse-bin histograms from a spark       *
-# *      dataframe. It is possible to do cleaning of these histograms by         *
-# *      rejecting certain keys or removing inconsistent data types.             *
-# *      Timestamp columns are converted to nanoseconds before                   *
-# *      the binning is applied.                                                 *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: SparkHistogrammarFiller
+
+Created: 2017/06/09
+
+Description:
+    Algorithm to fill histogrammar sparse-bin histograms from a Spark
+    dataframe. It is possible to do cleaning of these histograms by
+    rejecting certain keys or removing inconsistent data types.
+    Timestamp columns are converted to nanoseconds before
+    the binning is applied.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import histogrammar
 import histogrammar.sparksql
@@ -38,11 +40,10 @@ def unit_func(x):
 
 
 class SparkHistogrammarFiller(HistogrammarFiller):
-
     """Fill histogrammar sparse-bin histograms with Spark.
 
     Algorithm to fill histogrammar style sparse-bin and category histograms
-    with spark.  It is possible to do after-filling cleaning of these
+    with Spark.  It is possible to do after-filling cleaning of these
     histograms by rejecting certain keys or removing inconsistent data
     types. Timestamp columns are converted to nanoseconds before the binning
     is applied. Final histograms are stored in the datastore.
@@ -151,23 +152,25 @@ class SparkHistogrammarFiller(HistogrammarFiller):
 
         @property
         def n_bins(self):
+            """Get number of bins."""
             if hasattr(self, 'num'):
                 return self.num
             elif hasattr(self, 'size'):
                 return self.size
             else:
-                raise RuntimeError('Cannot retrieve number of bins from hgr hist')
+                raise RuntimeError('Cannot retrieve number of bins from hgr hist.')
+
         hist.n_bins = n_bins
 
         return hist
 
     def assert_dataframe(self, df):
-        """Check that input data is a filled spark data frame.
+        """Check that input data is a filled Spark data frame.
 
-        :param df: input spark data frame
+        :param df: input Spark data frame
         """
         if not isinstance(df, pyspark.sql.dataframe.DataFrame):
-            raise TypeError('retrieved object not of type spark DataFrame')
+            raise TypeError('Retrieved object not of type Spark DataFrame.')
         # assert df.count() > 0, 'input dataframe is empty'
 
     def get_all_columns(self, data):
@@ -178,7 +181,7 @@ class SparkHistogrammarFiller(HistogrammarFiller):
         :rtype: list
         """
         if not isinstance(data, pyspark.sql.dataframe.DataFrame):
-            raise TypeError('retrieved object not of type spark DataFrame')
+            raise TypeError('Retrieved object not of type Spark DataFrame.')
         return sorted(data.columns)
 
     def get_data_type(self, df, col):
@@ -188,7 +191,7 @@ class SparkHistogrammarFiller(HistogrammarFiller):
         :param str col: column
         """
         if col not in df.columns:
-            raise KeyError('column "{0:s}" not in input dataframe'.format(col))
+            raise KeyError('Column "{0:s}" not in input dataframe.'.format(col))
         dt = dict(df.dtypes)[col]
         # spark conversions to numpy or python equivalent
         if dt == 'string':
@@ -208,7 +211,9 @@ class SparkHistogrammarFiller(HistogrammarFiller):
         """
         # histogrammar does not yet support long integers
         def to_ns(x):
+            """Convert to ns."""
             return float(hf.to_ns(x))
+
         udf_to_ns = udf(to_ns, FloatType())
 
         # udf_to_ns = udf(hf.to_ns, LongType())
@@ -242,8 +247,8 @@ class SparkHistogrammarFiller(HistogrammarFiller):
     def reset_hgr_quantity(self, hist, new_quantity=unit_func):
         """Reset quantity attribute of histogrammar histogram.
 
-        If quantity refers to a spark df the histogram cannot be pickled,
-        b/c we cannot pickle a spark df.
+        If quantity refers to a Spark df the histogram cannot be pickled,
+        b/c we cannot pickle a Spark df.
         Here we reset the quantity of a (filled) histogram to a neutral lambda function.
 
         :param hist: histogrammar histogram to reset quantity of.

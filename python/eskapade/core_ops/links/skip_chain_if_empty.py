@@ -1,23 +1,24 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : SkipChainIfEmpty                                                      *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm to skip to the next Chain if input dataset is empty             *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: SkipChainIfEmpty
+
+Created: 2016/11/08
+
+Description:
+    Algorithm to skip to the next Chain if input dataset is empty
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import process_manager, DataStore, Link, StatusCode
 
 
 class SkipChainIfEmpty(Link):
-
     """Sents a SkipChain deenums.StatusCode signal when an appointed dataset is empty.
 
     This signal causes that the processsManager to step immediately to the next Chain.

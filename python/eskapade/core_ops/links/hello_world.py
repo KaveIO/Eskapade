@@ -1,24 +1,25 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : HelloWorld                                                            *
-# * Created: 2017/01/31                                                            *
-# * Description:                                                                   *
-# *      Algorithm to do print Hello {}!                                           *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: HelloWorld
+
+Created: 2017/01/31
+
+Description:
+    Algorithm to do print Hello {}!
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import Link
 from eskapade import StatusCode
 
 
 class HelloWorld(Link):
-
     """Defines the content of link HelloWorld."""
 
     def __init__(self, **kwargs):

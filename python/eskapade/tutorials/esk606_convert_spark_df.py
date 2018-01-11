@@ -1,19 +1,24 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk606_convert_spark_df                                             *
-# * Created: 2017/06/08                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for converting Spark data frames into a different         *
-# *     data type and apply transformation functions on the resulting data       *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk606_convert_spark_df
+
+Created: 2017/06/08
+
+Description:
+    Tutorial macro for converting Spark data frames into a different
+    data type and apply transformation functions on the resulting data
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import pyspark
 
-from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis, Chain
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
@@ -80,7 +85,7 @@ process_meth_kwargs = {'df': {set_num_parts: dict(max_num_parts=2)},
                        'pd': {filter_pd: dict(min_index=20)}}
 
 # create chain and data-frame-creator links
-chain = process_manager.add_chain('Create')
+chain = Chain('Create')
 for out_format in process_methods:
     # create data-frame-conversion link
     lnk = spark_analysis.SparkDfConverter(name='df_to_{}_converter'.format(out_format),
@@ -94,7 +99,7 @@ for out_format in process_methods:
                                           process_meth_kwargs=process_meth_kwargs[out_format])
 
     # add link to chain
-    chain.add_link(lnk)
+    chain.add(lnk)
 
 ##########################################################################
 

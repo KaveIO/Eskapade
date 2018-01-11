@@ -46,7 +46,7 @@ To pull in the environment for running Eskapade (but excluding the Eskapade repo
 
 .. code-block:: bash
 
-  docker pull kave/eskapade-env:0.6
+  docker pull kave/eskapade-env:0.7
 
 Downloading this docker image can take a minute or two.
 
@@ -60,7 +60,7 @@ To start up the Eskapade docker environment, with access to the Eskapade reposit
 
   docker run -it --name es-ktb -p 8888:8888 -v /path/to/your/local/eskapade:/opt/eskapade kave/eskapade-env:0.6 bash
 
-This command will start up a bash shell in the docker ``kave/eskapade-env:0.6`` image, and opens port 8888.
+This command will start up a bash shell in the docker ``kave/eskapade-env:0.7`` image, and opens port 8888.
 The Eskapade setup file will be automatically sourced.
 
 The option ``-v /path/to/your/local/eskapade:/opt/eskapade`` mounts the local directory ``/path/to/your/local/eskapade``
@@ -91,7 +91,7 @@ Consider adding a permanent alias to your local ``~/.bashrc`` or ``~/.bash_profi
 
 .. code-block:: bash
 
-  alias eskapade_docker='docker run -it --name es-ktb -p 8888:8888 -v /path/to/local/eskapade:/opt/eskapade kave/eskapade-env:0.6 bash'
+  alias eskapade_docker='docker run -it --name es-ktb -p 8888:8888 -v /path/to/local/eskapade:/opt/eskapade kave/eskapade-env:0.7 bash'
 
 So the next time, in a fresh shell, you can simply run the command ``eskapade_docker``.
 
@@ -156,39 +156,39 @@ The repository is hosted on github, clone it to your machine with:
 Requirements
 ____________
 
-Eskapade requires Anaconda, which can be found `here <https://www.continuum.io/downloads>`_. Eskapade was 
-tested with version 4.3. 
+Eskapade requires Python 3 and some libraries, which can be found in `setup.py` at the root of the repository.
 
-It also uses some non-standard libraries, which can be found in `requirements.txt` in the repository. These
-can be installed by doing: 
+There are two optional subpackages which require external products: `root_analysis` and `spark_analysis` subpackages.
+
+To be able to run `root_analysis`, `ROOT CERN's data analysis package <http://root.cern.ch>`_
+need to be compiled with the following flags:
 
 .. code-block:: bash
 
-  $ pip install -r requirements.txt
+  $ -Dfftw3=ON -Dmathmore=ON -Dminuit2=ON -Droofit=ON -Dtmva=ON -Dsoversion=ON -Dthread=ON -Dpython3=ON \
+  $ -DPYTHON_EXECUTABLE=path_to_python_exe -DPYTHON_INCLUDE_DIR=path_to_python_include -DPYTHON_LIBRARY=path_to_python_lib
+
+`spark_analysis` requires `Apache Spark <https://spark.apache.org>`_ version 2.1.1 or higher.
+
+Eskapade can be installed as any other Python package with ``easy_install`` or ``pip``:
+
+.. code-block:: bash
+
+  $ pip install /path/to/eskapade
+
+Alternatively, consider installing `KaveToolbox <http://github.com/kaveio/KaveToolbox>`_ version 3.6 or higher,
+which can be found `here <http://github.com/kaveio/kavetoolbox>`_.
 
 **You are now ready to use Eskapade!**
 
 After installation
 __________________
 
-To get started, source Eskapade in the root of the repository:
-
-.. code-block:: bash
-
-  $ source setup.sh
-
-You can now call the path of Eskapade with:
-
-.. code-block:: bash
-
-  $ echo $ESKAPADE
-
-or in python with
+You can now use Eskapade in Python with:
 
 .. code-block:: python
 
-  import os
-  os.environ['ESKAPADE']
+  import eskapade
 
 See the readme files in other parts of the repository for specific usage.
 

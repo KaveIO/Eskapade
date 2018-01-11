@@ -1,17 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Module: spark_analysis.functions                                             *
-# * Created: 2017/05/24                                                          *
-# * Description:                                                                 *
-# *     Collection of Spark functions defined for Eskapade                       *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Module: spark_analysis.functions
+
+Created: 2017/05/24
+
+Description:
+    Collection of Spark functions defined for Eskapade
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import numpy as np
 import pandas as pd
@@ -177,7 +179,9 @@ def spark_query_func(spec):
 
     # build function
     def query_func(*args):
+        """Build query function."""
         return str(func_def).format(*args)
+
     query_func.__name__ = str(name)
 
     return query_func

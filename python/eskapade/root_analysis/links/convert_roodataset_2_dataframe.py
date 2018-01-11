@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : ConvertRooDataSet2DataFrame                                           *
-# * Created: 2017/03/25                                                            *
-# * Description:                                                                   *
-# *      Algorithm to convert an input roodataset to a pandas dataframe
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: ConvertRooDataSet2DataFrame
+
+Created: 2017/03/25
+
+Description:
+    Algorithm to convert an input roodataset to a pandas dataframe
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ROOT
 
@@ -21,7 +23,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertRooDataSet2DataFrame(Link):
-
     """Convert an input RooFit dataset into a Pandas dataframe.
 
     Input roodataset can be picked up from either datastore or rooworkspace.

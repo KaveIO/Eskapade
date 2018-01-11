@@ -1,18 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A Python-based package for data analysis                 *
-# * Module: root_analysis.roofit_utils                                           *
-# * Created: 2017/04/24                                                          *
-# * Description:                                                                 *
-# *     Basic utilities for interaction with RooFit                              *
-# *                                                                              *
-# * Authors:                                                                     *
-# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A Python-based package for data analysis.
 
+Module: root_analysis.roofit_utils
+
+Created: 2017/04/24
+
+Description:
+    Basic utilities for interaction with RooFit
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import pathlib
 from enum import IntEnum, unique
@@ -32,7 +33,6 @@ CUSTOM_ROOFIT_OBJECTS = ('RooComplementCoef',
 
 @unique
 class RooFitLogLevel(IntEnum):
-
     """RooFit logging level integer enumeration class.
 
     The enumerations are:
@@ -73,7 +73,7 @@ def set_rf_log_level(level):
 def load_libesroofit():
     """Load Eskapade RooFit library."""
     # don't rebuild/reload library if already loaded
-    if any((_.endswith('/libesroofit.so') for _ in ROOT.gSystem.GetLibraries().split())):
+    if any('libesroofit.so' in _ for _ in ROOT.gSystem.GetLibraries().split()):
         return
 
     logger.debug('(Re-)loading Eskapade RooFit library')

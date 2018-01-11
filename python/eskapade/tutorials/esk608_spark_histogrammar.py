@@ -1,16 +1,21 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk608_spark_histogrammar                                           *
-# * Created: 2017/05/31                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for making histograms of a spark dataframe                *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import process_manager, ConfigObject, visualization, resources, spark_analysis
+Macro: esk608_spark_histogrammar
+
+Created: 2017/05/31
+
+Description:
+    Tutorial macro for making histograms of a Spark dataframe
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import process_manager, ConfigObject, visualization, resources, spark_analysis, Chain
 from eskapade.logger import Logger, LogLevel
 from eskapade.spark_analysis import SparkManager
 
@@ -65,9 +70,10 @@ if num_partitions:
     read_link.read_meth_args['repartition'] = (num_partitions,)
 
 # add link to chain
-process_manager.add_chain('Read').add_link(read_link)
+read = Chain('Read')
+read.add(read_link)
 
-ch = process_manager.add_chain('Output')
+output = Chain('Output')
 
 # fill spark histograms
 hf = spark_analysis.SparkHistogrammarFiller()
@@ -78,12 +84,12 @@ hf.logger.log_level = LogLevel.DEBUG
 # note: can also be 2-dim: ['x','y']
 # in this example, the rest are one-dimensional histograms
 hf.columns = ['x', 'y', 'loc', ['x', 'y'], 'date']
-ch.add_link(hf)
+output.add(hf)
 
 # make a nice summary report of the created histograms
 hist_summary = visualization.DfSummary(name='HistogramSummary',
                                        read_key=hf.store_key)
-ch.add_link(hist_summary)
+output.add(hist_summary)
 
 ###########################################################################
 # --- the end

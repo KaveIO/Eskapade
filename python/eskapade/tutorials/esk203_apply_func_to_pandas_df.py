@@ -1,21 +1,26 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk203_apply_func_to_pandas_df                                        *
-# * Created: 2017/02/23                                                            *
-# * Description:                                                                   *
-# *      Illustrates link that calls basic apply() to columns of a pandas dataframes
-# *      See for more information pandas documentation:                            *
-# *                                                                                *
-# *      http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.apply.html
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk203_apply_func_to_pandas_df
+
+Created: 2017/02/23
+
+Description:
+    Illustrates link that calls basic apply() to columns of a pandas dataframes
+    See for more information pandas documentation:
+
+    http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.apply.html
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 from numpy.random import randn
 from pandas import DataFrame
 
-from eskapade import analysis, core_ops, process_manager, ConfigObject, DataStore
+from eskapade import analysis, core_ops, process_manager, ConfigObject, DataStore, Chain
 from eskapade.logger import Logger, LogLevel
 
 logger = Logger()
@@ -62,7 +67,7 @@ ds['incoming_data'] = df
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = process_manager.add_chain('DataPrep')
+data_prep = Chain('DataPrep')
 
 # query_set = seletions that are applies to incoming_records
 # after selections, only keep column in select_columns ('a', 'c')
@@ -74,15 +79,15 @@ link = analysis.ApplyFuncToDf(name='Transform',
 # Any other kwargs given to ApplyFuncToDf are passed on the the
 # pandas query() function.
 link.logger.log_level = LogLevel.DEBUG
-ch.add_link(link)
+data_prep.add(link)
 
 link = core_ops.DsObjectDeleter()
 link.deletion_keys = ['incoming_data']
-ch.add_link(link)
+data_prep.add(link)
 
 link = core_ops.PrintDs()
 link.keys = ['transformed_data']
-ch.add_link(link)
+data_prep.add(link)
 
 #########################################################################################
 

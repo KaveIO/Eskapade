@@ -1,11 +1,28 @@
+"""Project: Eskapade - A python-based package for data analysis.
+
+Classes: ValueCounts, BinningUtil, Histogram
+
+Created: 2017/03/14
+
+Description:
+    Generic 1D Histogram class.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+modification, are permitted according to the terms listed in the file
+Redistribution and use in source and binary forms, with or without
+LICENSE.
+"""
+
 from collections import Counter
 
 import numpy as np
 import pandas as pd
 from sortedcontainers import SortedDict
 
+from eskapade.core.mixin import ArgumentsMixin
 from eskapade.logger import Logger
-from eskapade.mixins import ArgumentsMixin
 
 
 def _check_num_vals(cnts_iter):
@@ -20,7 +37,7 @@ def _check_num_vals(cnts_iter):
             break
         try:
             float(val)
-        except:
+        except Exception:
             non_num = True
             break
     if non_num:
@@ -28,7 +45,6 @@ def _check_num_vals(cnts_iter):
 
 
 class ValueCounts(object):
-
     """A dictionary of value counts.
 
     The dictionary of value counts comes out of pandas.series.value_counts()
@@ -36,17 +52,21 @@ class ValueCounts(object):
     or multiple variables.
     """
 
-    def __init__(self, key, subkey=None, counts={}, sel={}):
+    def __init__(self, key, subkey=None, counts=None, sel=None):
         """Initialize link instance.
 
         :param list key: key is a tuple, list or string of (the) variable name(s), matching those and the structure of
                the keys in the value_counts dictionary.
-        :param dict counts: the value_counts dictionary.
         :param list subkey: subset of key. If provided, the value_counts dictionary will be projected from key onto the
                (subset of) subkey. E.g. use this to map a two dimensional value_counts dictionary onto one specified
                dimension. Default is None. Optional.
+        :param dict counts: the value_counts dictionary.
         :param dict sel: Apply selections to value_counts dictionary. Default is {}. Optional.
         """
+        if not counts:
+            raise AttributeError('counts is not specified.')
+        if sel is None:
+            sel = {}
         key = self._transform_key(key)
         subkey = self._transform_key(subkey) if subkey is not None else key
         counts = dict((k if isinstance(k, tuple) else (k,), v) for k, v in counts.items())
@@ -215,14 +235,14 @@ class ValueCounts(object):
         """
         return sum(self.nononecounts.values())
 
-    def create_sub_counts(self, subkey, sel={}):
+    def create_sub_counts(self, subkey, sel=None):
         """Project existing value counts onto a subset of keys.
 
         E.g. map variables x,y onto single dimension x, so for each bin in x integrate over y.
 
         :param tuple subkey: input sub-key, is a tuple, list, or string.
                              This is the new key of variables for the returned ValueCounts object.
-        :param dict sel: dictionary with selection. Default is {}.
+        :param dict sel: dictionary with selection. Optional.
         :returns: value_counts object where subkey has become the new key.
         :rtype: ValueCounts
         """
@@ -349,7 +369,6 @@ class ValueCounts(object):
 
 
 class BinningUtil(object):
-
     """Helper for interpreting bin specifications.
 
     BinningUtil is a helper class used for interpreting bin specification
@@ -533,10 +552,7 @@ class BinningUtil(object):
         """
         if not self.bin_specs:
             return None
-        if 'bin_edges' in self.bin_specs:
-            bin_edges = self.bin_specs['bin_edges']
-        else:
-            bin_edges = None
+        bin_edges = self.bin_specs.get('bin_edges', None)
         return bin_edges
 
     def get_bin_edges_range(self):
@@ -552,19 +568,19 @@ class BinningUtil(object):
         else:
             return None
 
-    def truncated_bin_edges(self, variable_range=[]):
+    def truncated_bin_edges(self, variable_range=None):
         """Bin edges corresponding to a given variable range.
 
-        :param list variable_range: variable range used for finding the right bin edges array
+        :param list variable_range: variable range used for finding the right bin edges array. Optional.
         :returns: truncated bin edges
         :rtype: array
         """
         # check type of input arguments
-        variable_range = tuple(variable_range)
-
-        # trivial cases
         if not variable_range:
             return self.get_bin_edges()
+
+        variable_range = tuple(variable_range)
+
         if not self.bin_specs:
             return np.array(variable_range)
 
@@ -573,7 +589,7 @@ class BinningUtil(object):
         try:
             if isinstance(variable_range[0], str) or isinstance(variable_range[1], str):
                 ttest = True
-        except:
+        except Exception:
             ttest = True
         if ttest or not len(variable_range) == 2 or variable_range[1] <= variable_range[0]:
             raise RuntimeError('expected a variable range (min, max); got "{!s}"'.format(variable_range))
@@ -597,7 +613,7 @@ class BinningUtil(object):
             try:
                 bin_width = self.bin_specs['bin_width']
                 # bin_offset = self.bin_specs['bin_offset']
-            except:
+            except Exception:
                 raise NotImplementedError('no bin_width and/or bin_offset in bin_specs')
 
             min_idx = self.value_to_bin_label(variable_range[0])
@@ -614,7 +630,6 @@ class BinningUtil(object):
 
 
 class Histogram(BinningUtil, ArgumentsMixin):
-
     """Generic 1D Histogram class.
 
     Histogram holds bin labels (name of each bin), value_counts (values of
@@ -681,7 +696,7 @@ class Histogram(BinningUtil, ArgumentsMixin):
             # try from NumPy-style histogram
             try:
                 counts, var_vals = list(counts[0]), list(counts[1])
-            except:
+            except Exception:
                 self.logger.fatal('Invalid type for specified counts: "{type}".', type=type(counts).__name__)
                 raise RuntimeError('Invalid type for specified counts.')
             self._from_numpy(counts, var_vals)
@@ -930,7 +945,7 @@ class Histogram(BinningUtil, ArgumentsMixin):
             return None
         if 'bin_edges' in self.bin_specs:
             return self.bin_specs['bin_edges'][0], self.bin_specs['bin_edges'][-1]
-        vals = [v[0] for v in self._val_counts.nononecounts.keys()]
+        vals = [v[0] for v in self._val_counts.nononecounts]
         min_max = (vals[0], vals[-1])
         if self.bin_specs:
             width = self.bin_specs['bin_width']
@@ -949,22 +964,23 @@ class Histogram(BinningUtil, ArgumentsMixin):
             bin_label = self.value_to_bin_label(var_value)
         except Exception as exc:
             self.logger.error('bin label for variable value "{value!s}" not found ({error})',
-                              value=var_value, error=exc.message)
+                              value=var_value, error=exc)
             return 0
         return self.get_bin_count(bin_label)
 
-    def get_bin_vals(self, variable_range=[], combine_values=True):
+    def get_bin_vals(self, variable_range=None, combine_values=True):
         """Get bin labels/edges and corresponding bin counts.
 
         Bin values corresponding to a given variable range.
 
-        :param list variable_range: variable range used for finding the right bins to get values from.
+        :param list variable_range: variable range used for finding the right bins to get values from. Optional.
         :param bool combine_values: if bin_specs is not set, combine existing bin labels with variable range.
         :returns: two arrays of bin values and bin edges
         :rtype: array
         """
         # check type of input arguments
-        variable_range = tuple(variable_range)
+        if variable_range is not None:
+            variable_range = tuple(variable_range)
         combine_values = bool(combine_values)
 
         # create NumPy arrays of bin labels/edges
@@ -1089,7 +1105,7 @@ class Histogram(BinningUtil, ArgumentsMixin):
 
         try:
             bin_vals = [h.get_bin_vals(**kwargs) for h in hists]
-        except:
+        except Exception:
             cls.logger.fatal('Unable to get bin values from specified histograms ({hists!s}).', hists=hists)
             raise RuntimeError('Invalid input histograms specified.')
         if not bin_vals:
@@ -1132,7 +1148,7 @@ class Histogram(BinningUtil, ArgumentsMixin):
         """
         # initialize value counts from dictionary
         counts = dict((k if isinstance(k, tuple) else (k,), v) for k, v in counts.items())
-        if not all(len(k) == 1 for k in counts.keys()):
+        if not all(len(k) == 1 for k in counts):
             self.logger.fatal('Specified counts dictionary contains keys with multiple variable values.')
             raise AssertionError('Invalid format for counts keys.')
         _check_num_vals(iter(counts.values()))

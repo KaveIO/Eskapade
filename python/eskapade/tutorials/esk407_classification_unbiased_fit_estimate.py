@@ -1,37 +1,35 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk407_classification_unbiased_fit_estimate                           *
-# * Created: 2017/04/12                                                            *
-# *
-# * Description:
-# *
-# * This macro illustrates how to get an unbiased estimate of the number of
-# * high risk clients, by doing a template fit to data.
-# *
-# * Assume a classifier has been trained and optimized to separate high-risk from
-# * low risk clients. But the high- to low-risk ratio in data is very low and unknown,
-# * so the false-positive rate is non-negligible.
-# *
-# * We can use templates of the score of the ML classifier of the high- and low-risk
-# * testing samples to (at least) get an unbiased estimate of the total number of
-# * high-risk clients. This is done by fitting the (unbiased) testing templates
-# * to the score distribution in the actual dataset. The shapes differentiate
-# * the number of high- and low-risk clients.
-# *
-# * Authors:                                                                       *
-# *      KPMG Big Data team                                                        *
-# *                                                                                *
-# * Licence:
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk407_classification_unbiased_fit_estimate
+
+Created: 2017/04/12
+
+Description:
+    This macro illustrates how to get an unbiased estimate of the number of
+    high risk clients, by doing a template fit to data.
+
+    Assume a classifier has been trained and optimized to separate high-risk from
+    low risk clients. But the high- to low-risk ratio in data is very low and unknown,
+    so the false-positive rate is non-negligible.
+
+    We can use templates of the score of the ML classifier of the high- and low-risk
+    testing samples to (at least) get an unbiased estimate of the total number of
+    high-risk clients. This is done by fitting the (unbiased) testing templates
+    to the score distribution in the actual dataset. The shapes differentiate
+    the number of high- and low-risk clients.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ROOT
 from ROOT import RooFit
 
-from eskapade import ConfigObject
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops, root_analysis
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -51,7 +49,7 @@ settings['version'] = 0
 # --- now set up the chains and links based on configuration flags
 
 # --- generate pdf, simulate, fit, and plot
-ch = process_manager.add_chain('WsOps')
+ch = Chain('WsOps')
 
 # 1. simulate output score of machine learning classifier
 wsu = root_analysis.WsUtils(name='DataSimulator')
@@ -66,7 +64,7 @@ wsu.add_plot(obs='score', data='data', pdf='model', key='simplot')
 wsu.add_plot(obs='score', pdf='model',
              pdf_args=(RooFit.Components('low_risk'), RooFit.LineColor(ROOT.kRed), RooFit.LineStyle(ROOT.kDashed)),
              output_file='data_with_generator_model.pdf', key='simplot')
-ch.add_link(wsu)
+ch.add(wsu)
 
 # 2a. turn data into roofit histograms
 wsu = root_analysis.WsUtils(name='HistMaker')
@@ -87,7 +85,7 @@ def make_histograms(w):
 
 
 wsu.apply = [make_histograms]
-ch.add_link(wsu)
+ch.add(wsu)
 
 # 2b. classification algorithms often return rather spiky scoring or probability distributions
 #     meaning: non-continuous distributions.
@@ -101,8 +99,8 @@ wsu = root_analysis.WsUtils(name='TemplateFixer')
 
 def nonzero_templates(w):
     """Fix histogram to make sure that all bins have a non-zero value."""
-    # fix non-zero bins
     def nonzero_hist(rdh, minimum_value=0.01):
+        """Fix non-zero bins."""
         if rdh.numEntries() == 0:
             return
         rdh.get(0)
@@ -120,7 +118,7 @@ def nonzero_templates(w):
 
 
 wsu.apply = [nonzero_templates]
-ch.add_link(wsu)
+ch.add(wsu)
 
 # 3. create pdfs out of roofit histograms
 wsu = root_analysis.WsUtils(name='TemplateMaker')
@@ -131,7 +129,7 @@ wsu.add_plot(obs='score', data='unbiased_high_risk_testdata', pdf='high_risk_pdf
              output_file='high_risk_data_template.pdf')
 wsu.add_plot(obs='score', data='unbiased_low_risk_testdata', pdf='low_risk_pdf',
              output_file='low_risk_data_template.pdf')
-ch.add_link(wsu)
+ch.add(wsu)
 
 # 4. fit combined pdf to actual dataset and show results
 wsu = root_analysis.WsUtils(name='TemplateFitter')
@@ -144,14 +142,14 @@ wsu.add_plot(obs='score', pdf='hist_model', key='data_plot')
 wsu.add_plot(obs='score', pdf='hist_model',
              pdf_args=(RooFit.Components('low_risk_pdf'), RooFit.LineColor(ROOT.kRed), RooFit.LineStyle(ROOT.kDashed)),
              output_file='template_fit_to_data.pdf', key='data_plot')
-ch.add_link(wsu)
+ch.add(wsu)
 
 # 5. Print overview
 pws = root_analysis.PrintWs()
-ch.add_link(pws)
+ch.add(pws)
 
 pds = core_ops.PrintDs()
-ch.add_link(pds)
+ch.add(pds)
 
 #########################################################################################
 

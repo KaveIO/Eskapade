@@ -1,20 +1,22 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : RecordFactorizer                                                      *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm to perform the factorization of an input column
-# *      of an input dataframe.
-# *      E.g. a columnn x with values 'apple', 'tree', 'pear', 'apple', 'pear'
-# *      is tranformed into columns x with values 0, 1, 2, 0, 2, etc.
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: RecordFactorizer
+
+Created: 2016/11/08
+
+Description:
+    Algorithm to perform the factorization of an input column
+    of an input dataframe.
+    E.g. a columnn x with values 'apple', 'tree', 'pear', 'apple', 'pear'
+    is tranformed into columns x with values 0, 1, 2, 0, 2, etc.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import copy
 import fnmatch
@@ -27,7 +29,6 @@ try:
 except ImportError:
     from pandas.core.dtypes.dtypes import CategoricalDtypeType
 
-
 from eskapade import process_manager
 from eskapade import Link
 from eskapade import StatusCode
@@ -35,7 +36,6 @@ from eskapade import DataStore
 
 
 class RecordFactorizer(Link):
-
     """Factorize data-frame columns.
 
     Perform factorization of input column of an input dataframe.  E.g. a
@@ -143,13 +143,10 @@ class RecordFactorizer(Link):
             matched_columns += match_c
         self.columns = matched_columns
         # convert booleans and categorical observables?
-        for c in df.columns:
-            if c in self.columns:
-                continue
+        for c in set(df.columns).difference(self.columns):
             dt = df[c].dtype
-            if issubclass(dt.type, CategoricalDtypeType) and self.convert_all_categories:
-                self.columns.append(c)
-            elif dt == 'bool' and self.convert_all_booleans:
+            if (issubclass(dt.type, CategoricalDtypeType) and self.convert_all_categories) \
+                    or (dt == 'bool' and self.convert_all_booleans):
                 self.columns.append(c)
         # retrieve map_to_original from ds
         if self.map_to_original:

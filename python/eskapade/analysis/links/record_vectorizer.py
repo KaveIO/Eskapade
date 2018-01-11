@@ -1,18 +1,20 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : RecordVectorizer                                                      *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm to perform the vectorization of an input column
-# *      of an input dataframe.
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: RecordVectorizer
+
+Created: 2016/11/08
+
+Description:
+    Algorithm to perform the vectorization of an input column
+    of an input dataframe.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from functools import reduce
 
@@ -26,7 +28,6 @@ from eskapade import process_manager
 
 
 class RecordVectorizer(Link):
-
     """Vectorize data-frame columns.
 
     Perform vectorization of input column of an input dataframe.  E.g. a

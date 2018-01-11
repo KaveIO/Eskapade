@@ -69,7 +69,7 @@ also includes several other new features and analyses.
 
 We include multiple Spark links and 10 Spark examples on:
 
-* The configuration of spark, reading, writing and converting spark dataframes, applying functions and queries to dataframes,
+* The configuration of Spark, reading, writing and converting Spark dataframes, applying functions and queries to dataframes,
   filling histograms and (very useful!) applying arbitrary functions (e.g. pandas) to groupby calls.
 
 In addition we hade added:

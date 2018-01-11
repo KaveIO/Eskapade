@@ -1,17 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : SparkDfConverter                                                    *
-# * Created: 2017/06/15                                                          *
-# * Description:                                                                 *
-# *     Convert a Spark data frame into data of a different format               *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: SparkDfConverter
+
+Created: 2017/06/15
+
+Description:
+    Convert a Spark data frame into data of a different format
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import pyspark
 
@@ -22,7 +24,6 @@ OUTPUT_FORMATS = ('df', 'rdd', 'list', 'pd')
 
 
 class SparkDfConverter(Link):
-
     """Link to convert a Spark data frame into a different format.
 
     A data frame from the data store is converted into data of a different

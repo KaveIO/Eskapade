@@ -1,17 +1,22 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk604_spark_execute_query                                          *
-# * Created: 2017/06/07                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for applying a SQL-query to one more objects in the       *
-# *     DataStore. Such SQL-queries can for instance be used to filter data.     *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import process_manager, ConfigObject, resources, spark_analysis
+Macro: esk604_spark_execute_query
+
+Created: 2017/06/07
+
+Description:
+    Tutorial macro for applying a SQL-query to one more objects in the
+    DataStore. Such SQL-queries can for instance be used to filter data.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import process_manager, ConfigObject, resources, spark_analysis, Chain
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
@@ -44,7 +49,7 @@ STORE_KEYS = ['spark_df1', 'spark_df2']
 ##########################################################################
 # Now set up the chains and links based on configuration flags
 
-process_manager.add_chain('Read')
+read = Chain('Read')
 
 # create read link for each data file
 for index, key in enumerate(STORE_KEYS):
@@ -57,7 +62,7 @@ for index, key in enumerate(STORE_KEYS):
     read_link.read_meth_kwargs['csv'] = dict(sep='|', header=True, inferSchema=True)
 
     # add link to chain
-    process_manager.get_chain('Read').add_link(read_link)
+    read.add(read_link)
 
 # create SQL-query link
 sql_link = spark_analysis.SparkExecuteQuery(name='SparkSQL',
@@ -70,7 +75,8 @@ sql_link.query = 'SELECT loc, sum(x) as sumx, sum(y) as sumy ' \
                  'GROUP BY loc'.format(STORE_KEYS[0], STORE_KEYS[1])
 
 # add link to chain
-process_manager.add_chain('ApplySQL').add_link(sql_link)
+sql = Chain('ApplySQL')
+sql.add(sql_link)
 
 ##########################################################################
 

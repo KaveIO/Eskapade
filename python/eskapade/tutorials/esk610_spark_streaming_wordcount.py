@@ -1,51 +1,53 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk610_spark_streaming                                              *
-# * Created: 2017/05/31                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro running Spark Streaming word count example in Eskapade,   *
-# *     derived from:                                                            *
-# *                                                                              *
-# *     https://spark.apache.org/docs/latest/streaming-programming-guide.html    *
-# *                                                                              *
-# *     Counts words in UTF8 encoded, '\n' delimited text received from a        *
-# *     stream every second. The stream can be from either files or network.     *
-# *                                                                              *
-# *     For example:                                                             *
-# *                                                                              *
-# *     i)  to run locally using tcp stream, use netcat and type random words:   *
-# *           `$ nc -lk 9999`                                                    *
-# *         and then run the example (in a second terminal):                     *
-# *           `$ eskapade_run -c stream_type='tcp' \                             *
-# *                  tutorials/esk610_spark_streaming_wordcount.py`              *
-# *                                                                              *
-# *         NB: hostname and port can be adapted in this macro                   *
-# *                                                                              *
-# *     ii) to run locally using file stream, create dummy files in /tmp:        *
-# *          `$ for i in $(seq -f \"%05g\" 0 100); \                             *
-# *                 do echo "Hello world" > /tmp/eskapade_stream_test/dummy_$i;  *
-# *                     sleep 0.1; \                                             *
-# *             done`                                                            *
-# *        and then run the example (in a second terminal):                      *
-# *          `$ eskapade_run -c stream_type='file' \                             *
-# *                 tutorials/esk610_spark_streaming_wordcount.py`               *
-# *                                                                              *
-# *         NB: only new files in /tmp/eskapade_stream_test are processed,       *
-# *             do not forget to delete this directory                           *
-# *                                                                              *
-# *      In both cases, the output stream is stored in flat files in             *
-# *      $ESKAPADE/results/esk610_spark_streaming/data/v0/dstream/               *
-# *                                                                              *
-# *      Do not forget to clean the results directory when testing.              *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+r"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk610_spark_streaming
+
+Created: 2017/05/31
+
+Description:
+    Tutorial macro running Spark Streaming word count example in Eskapade,
+    derived from:
+
+    https://spark.apache.org/docs/latest/streaming-programming-guide.html
+
+    Counts words in UTF8 encoded, '\n' delimited text received from a
+    stream every second. The stream can be from either files or network.
+
+    For example:
+
+    i)  to run locally using tcp stream, use netcat and type random words:
+         `$ nc -lk 9999`
+        and then run the example (in a second terminal):
+         `$ eskapade_run -c stream_type='tcp' \
+                python/eskapade/tutorials/esk610_spark_streaming_wordcount.py`
+
+        NB: hostname and port can be adapted in this macro
+
+    ii) to run locally using file stream, create dummy files in /tmp:
+         `$ for i in $(seq -f \"%05g\" 0 100); \
+               do echo "Hello world" > /tmp/eskapade_stream_test/dummy_$i;
+                   sleep 0.1; \
+           done`
+        and then run the example (in a second terminal):
+         `$ eskapade_run -c stream_type='file' \
+                python/eskapade/tutorials/esk610_spark_streaming_wordcount.py`
+
+        NB: only new files in /tmp/eskapade_stream_test are processed,
+            do not forget to delete this directory
+
+    In both cases, the output stream is stored in flat files in
+    ./results/esk610_spark_streaming/data/v0/dstream/
+
+    Do not forget to clean the results directory when testing.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from pyspark.streaming import StreamingContext
 
-from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis, Chain
 from eskapade.core import persistence
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
@@ -98,25 +100,26 @@ else:
 ##########################################################################
 # --- now set up the chains and links based on configuration flags
 
-process_manager.add_chain('SparkStreaming')
+spark_streaming = Chain('SparkStreaming')
 
 # the word count example
 wordcount_link = spark_analysis.SparkStreamingWordCount(
     name='SparkStreamingWordCount', read_key='dstream', store_key='wordcounts')
-process_manager.get_chain('SparkStreaming').add_link(wordcount_link)
+spark_streaming.add(wordcount_link)
 
 # store output
 writer_link = spark_analysis.SparkStreamingWriter(
     name='SparkStreamingWriter',
     read_key=wordcount_link.store_key,
-    output_path='file:' + persistence.io_dir('results_data', settings.io_conf()) + '/dstream/wordcount', suffix='txt',
+    output_path='file:' + persistence.io_path('results_data', '/dstream/wordcount'),
+    suffix='txt',
     repartition=1)
 
-process_manager.get_chain('SparkStreaming').add_link(writer_link)
+spark_streaming.add(writer_link)
 
 # start/stop of Spark Streaming
 control_link = spark_analysis.SparkStreamingController(name='SparkStreamingController', timeout=10)
-process_manager.get_chain('SparkStreaming').add_link(control_link)
+spark_streaming.add(control_link)
 
 ##########################################################################
 

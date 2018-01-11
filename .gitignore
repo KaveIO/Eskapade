@@ -35,6 +35,7 @@ dist
 .cache
 .eggs
 Eskapade.egg-info
+python/eskapade/version.py
 
 # documentation
 *.rst
@@ -46,6 +47,7 @@ Eskapade.egg-info
 !docs/source/developing.rst
 !docs/source/spark.rst
 !docs/source/tutorials.rst
+!docs/source/tutorial_bootstrap.rst
 !docs/source/tutorial_jupyter.rst
 !docs/source/tutorial_spark.rst
 !docs/source/tutorial_roofit.rst

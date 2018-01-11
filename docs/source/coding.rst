@@ -17,17 +17,17 @@ Stand-alone
   * Open project and point to the Eskapade source code
   * Configuration, in 'Preferences', check the following desired values:
       - Under 'Project: eskapade' / 'Project Interpreter':
-          - The correct Python version (currently 3.5.2 of Anaconda, use the interpreter of your conda environment)
+          - The correct Python version (Python 3)
       - Under 'Build, Execution & Deployment' / 'Console' / 'Python Console':
-          - The correct Python version (currently 3.5.2 of Anaconda, use the interpreter of your conda environment)
+          - The correct Python version (Python 3)
+  * Install Eskapade in editable mode
   * Run/Debug Configuration:
       - Under 'Python' add new configuration
-      - Script: ``scripts/run_eskapade.py``
-      - Script parameters: ``-w ../tutorials/tutorial_1.py``
-      - Working directory: ``$ESKAPADE``
-      - Python interpreter: check if it is the correct Python version (currently 3.5.2 of Anaconda, corresponding to
-        your conda environment)
-      - Environment variables: should contain those defined in ``$ESKAPADE/setup.sh``.
+      - Script: path to the console script ``eskapade_run`` (located in the same directory as the interpreter
+        specified above in 'Project Interpreter')
+      - Script parameters: path to a macro to be debugged, e.g. ``$ESKAPADE/python/eskapade/tutorials/tutorial_1.py``,
+        and ``eskapade_run`` command line arguments, e.g. ``--begin-with=Summary``
+      - Python interpreter: check if it is the correct Python version (Python 3)
 
 You should now be able to press the 'play button' to run Eskapade with the specified parameters.
 
@@ -37,15 +37,15 @@ Writing a new Link using Jupyter and notebooks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Running the framework works best from the command line (in our experience), but running experiments and trying new
-ideas is better left to an interactive environment like jupyter. How can we reconcile the difference in these work
+ideas is better left to an interactive environment like Jupyter. How can we reconcile the difference in these work
 flows? How can we use them together to get the most out of it?
 
 Well, when using the `data and config import functionality <tutorial_jupyter.html#reading-data-from-a-pickle>`_ of
-Eskapade together with jupyter we can interactively work on our objects and when we are satisfied with the results
+Eskapade together with Jupyter we can interactively work on our objects and when we are satisfied with the results
 integration into links is straight-forward. The steps to undertake this are *in general* the following:
 
   1. Import the DataStore and/or ConfigObject. Once you have imported the ConfigObject, run it to generate the output you want to use.
-  2. Grab the data you want from the DataStore using ``ds = DataStore`` and ``data = ds[key]``.
+  2. Grab the data you want from the DataStore using ``ds = DataStore.import_from_file`` and ``data = ds[key]``.
   3. Now you can apply the operation you want to do on the data, experiment on it and work towards the end result you
      want to have.
   4. Create a new link in the appropriate link folder using the eskapade_generate_link command.
@@ -114,13 +114,13 @@ use
 
 .. code-block:: python
 
-  import imp
-  imp.reload(eskapade.analysis.links.yourlink)
+  import importlib
+  importlib.reload(eskapade.analysis.links.yourlink)
   from yourlink import YourLink
   l = YourLink()
   l.execute()
 
-to reload the link you changed. This is equivalent to the python2 function ``reload(eskapade)``.
+to reload the link you changed. This is equivalent to the Python2 function ``reload(eskapade)``.
 
 Combined with the importing of the other objects it becomes clear that you can run every piece of the framework from
 a notebook. However working like this is only recommended for development purposes, running an entire analysis should

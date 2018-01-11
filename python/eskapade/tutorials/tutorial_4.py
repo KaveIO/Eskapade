@@ -1,35 +1,37 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : tutorial_4                                                            *
-# * Created: 2017/07/12                                                            *
-# * Description:                                                                   *
-# *      This tutorial macro illustrates how to define a new probability density   *
-# *      function (pdf) in RooFit, how to compile it, and how to use it in         *
-# *      Eskapade to simulate a dataset, fit it, and plot the results.             *
-# *                                                                                *
-# *      For a brief lesson on RooFit, see here:                                   *
-# *      https://root.cern.ch/roofit-20-minutes                                    *
-# *                                                                                *
-# *      This tutorial shows how to build, compile and load a new pdf model.       *
-# *                                                                                *
-# *      Many good RooFit tutorials exist. See $ROOTSYS/tutorials/roofit/          *
-# *      of your local ROOT installation.                                          *
-# *      This tutorial is partially based in RooFit tutorial:                      *
-# *      $ROOTSYS/tutorials/roofit/rf104_classfactory.C                            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG The Netherlands, Big Data & Advanced Analytics team                  *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: tutorial_4
+
+Created: 2017/07/12
+
+Description:
+    This tutorial macro illustrates how to define a new probability density
+    function (pdf) in RooFit, how to compile it, and how to use it in
+    Eskapade to simulate a dataset, fit it, and plot the results.
+
+    For a brief lesson on RooFit, see here:
+    https://root.cern.ch/roofit-20-minutes
+
+    This tutorial shows how to build, compile and load a new pdf model.
+
+    Many good RooFit tutorials exist. See $ROOTSYS/tutorials/roofit/
+    of your local ROOT installation.
+    This tutorial is partially based in RooFit tutorial:
+    $ROOTSYS/tutorials/roofit/rf104_classfactory.C
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import sys
 
 import ROOT
 
-from eskapade import process_manager, ConfigObject, root_analysis
+from eskapade import process_manager, ConfigObject, root_analysis, Chain
 from eskapade.logger import Logger
 from eskapade.root_analysis import roofit_utils
 
@@ -86,7 +88,7 @@ Now move the header files to their correct location:
 
 % mv MyPdfV*.h $ESKAPADE/cxx/esroofit/include/
 
-To make sure that these classes get picked up in Eskapade roofit libary, open the file:
+To make sure that these classes get picked up in Eskapade roofit library, open the file:
 
 $ESKAPADE/cxx/esroofit/dict/esroofit/LinkDef.h
 
@@ -121,6 +123,7 @@ logger.info(msg)
 settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'tutorial_4'
 settings['version'] = 0
+settings['onthefly'] = True
 
 #########################################################################################
 
@@ -162,7 +165,7 @@ logger.info(msg, path=settings['resultsDir'] + '/' + settings['analysisName'] + 
 # --- now set up the chains and links based on configuration flags
 
 # --- generate pdf, simulate, fit, and plot
-ch = process_manager.add_chain('WsOps')
+ch = Chain('WsOps')
 
 # --- 1. define a model by passing strings to the rooworkspace factory
 #     For the workspace factory syntax, see:
@@ -176,13 +179,13 @@ ch = process_manager.add_chain('WsOps')
 #     10 and 2 respectively.
 wsu = root_analysis.WsUtils(name='modeller')
 wsu.factory = ["MyPdfV3::testpdf(y[-10,10],A[10,0,100],B[2,-10,10])"]
-ch.add_link(wsu)
+ch.add(wsu)
 
 # --- 2. simulation: 400 records of observable 'y' with pdf 'testpdf' (of type MyPdfV3).
 #        the simulated data is stored in the datastore under key 'simdata'
 wsu = root_analysis.WsUtils(name='simulater')
 wsu.add_simulate(pdf='testpdf', obs='y', num=400, key='simdata')
-ch.add_link(wsu)
+ch.add(wsu)
 
 # --- 3. fit: perform fit of pdf 'testpdf' to dataset 'simdata'.
 #        store the fit result object in the datastore under key 'fit_result'
@@ -191,7 +194,7 @@ ch.add_link(wsu)
 wsu = root_analysis.WsUtils(name='fitter')
 wsu.pages_key = 'report_pages'
 wsu.add_fit(pdf='testpdf', data='simdata', key='fit_result')
-ch.add_link(wsu)
+ch.add(wsu)
 
 # --- 4. plot the fit result:
 #        a. plot the observable 'y' of the the dataset 'simdata' and plot the
@@ -204,7 +207,7 @@ wsu.pages_key = 'report_pages'
 wsu.add_plot(obs='y', data='simdata', pdf='testpdf', pdf_kwargs={'VisualizeError': 'fit_result', 'MoveToBack': ()},
              key='simdata_plot')
 wsu.add_plot(obs='y', pdf='testpdf', output_file='fit_of_simdata.pdf', key='simdata_plot')
-ch.add_link(wsu)
+ch.add(wsu)
 
 #########################################################################################
 

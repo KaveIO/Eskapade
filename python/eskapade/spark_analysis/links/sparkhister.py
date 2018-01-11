@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : SparkHister                                                           *
-# * Created: 2016/11/08                                                            *
-# * Description:                                                                   *
-# *      Algorithm to do...(fill in here)                                          *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: SparkHister
+
+Created: 2016/11/08
+
+Description:
+    Algorithm to do...(fill in here)
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import numpy as np
 
@@ -19,8 +21,9 @@ from eskapade import process_manager, StatusCode, DataStore, Link
 
 
 class SparkHister(Link):
-
     """Defines the content of link SparkHister."""
+
+    # TODO: Fix class docstring.
 
     def __init__(self, name='HiveHister'):
         """Initialize link instance.
@@ -30,7 +33,7 @@ class SparkHister(Link):
         :param str name: name of link
         :param str read_key: key of data to read from data store
         :param str store_key: key of data to store in data store
-        :param list columns: columns of the spark dataframe to make a histogram from
+        :param list columns: columns of the Spark dataframe to make a histogram from
         :param dict bins: the bin edges of the histogram
         :param bool convert_for_mongo: if True the data structure of the result is converted so it can be stored in
             mongo
@@ -60,10 +63,7 @@ class SparkHister(Link):
         for c in self.columns:
             pos = spark_df.columns.index(c)
             self.logger.debug("Processing column: {col}.", col=c)
-            if c in list(self.bins.keys()):
-                result[c] = spark_df.map(lambda r: r[pos]).histogram(self.bins[c])
-            else:
-                result[c] = spark_df.map(lambda r: r[pos]).histogram(25)
+            result[c] = spark_df.map(lambda r: r[pos]).histogram(self.bins.get(c, 25))
 
         # --- NOTE: this depends on how the data will be read by the BI tool
         #           - SQL/Tableau requires a row per histogram bin

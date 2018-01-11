@@ -24,7 +24,7 @@ class IntegrationTest(unittest.TestCase):
         """Tear down test"""
 
         # remove persisted results for this test
-        path = persistence.io_dir('ana_results', process_manager.service(ConfigObject).io_conf())
+        path = persistence.io_dir('ana_results')
         if os.path.exists(path):
             shutil.rmtree(path)
 
@@ -43,5 +43,5 @@ class TutorialMacrosTest(IntegrationTest):
         settings = process_manager.service(ConfigObject)
         settings['logLevel'] = LogLevel.DEBUG
         settings['macro'] = macro
-        status = execution.run_eskapade(settings)
+        status = execution.eskapade_run(settings)
         self.assertTrue(status == return_status)

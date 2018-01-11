@@ -8,7 +8,6 @@ Subpackages
 
     eskapade.root_analysis.decorators
     eskapade.root_analysis.links
-    eskapade.root_analysis.tests
 
 Submodules
 ----------
@@ -41,6 +40,14 @@ eskapade.root_analysis.roofit_utils module
 ------------------------------------------
 
 .. automodule:: eskapade.root_analysis.roofit_utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.root_analysis.root_helper module
+-----------------------------------------
+
+.. automodule:: eskapade.root_analysis.root_helper
     :members:
     :undoc-members:
     :show-inheritance:

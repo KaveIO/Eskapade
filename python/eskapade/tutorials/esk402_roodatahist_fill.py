@@ -1,26 +1,24 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk402_roodatahist_fill                                             *
-# * Created: 2017/03/28                                                            *
-# *                                                                                *
-# * Description:
-# *
-# * This macro illustrates how to fill a N-dimensional roodatahist from a
-# * pandas dataframe. (A roodatahist can be filled iteratively, while looping
-# * over multiple pandas dataframes.) The roodatahist can be used to create
-# * a roofit histogram-pdf (roohistpdf).
-# *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Licence:
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import ConfigObject
+Macro: esk402_roodatahist_fill
+
+Created: 2017/03/28
+
+Description:
+    This macro illustrates how to fill a N-dimensional roodatahist from a
+    pandas dataframe. (A roodatahist can be filled iteratively, while looping
+    over multiple pandas dataframes.) The roodatahist can be used to create
+    a roofit histogram-pdf (roohistpdf).
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops, analysis, root_analysis
 from eskapade import process_manager
 from eskapade import resources
@@ -45,14 +43,14 @@ input_files = [resources.fixture('mock_accounts.csv.gz')]
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = process_manager.add_chain('Data')
+ch = Chain('Data')
 
 # --- 0. readdata keeps on opening the next file in the file list.
 #     all kwargs are passed on to pandas file reader.
 read_data = analysis.ReadToDf(name='dflooper', key='accounts', reader='csv')
 read_data.path = input_files
 # readdata.itr_over_files = True
-ch.add_link(read_data)
+ch.add(read_data)
 
 # --- 1. add the record factorizer to convert categorical observables into integers
 #     Here the columns dummy and loc of the input dataset are factorized
@@ -68,7 +66,7 @@ fact.sk_map_to_original = 'to_original'
 # factorizer also stores a dict with the mappings back to the original observables
 fact.sk_map_to_factorized = 'to_factorized'
 fact.logger.log_level = LogLevel.DEBUG
-ch.add_link(fact)
+ch.add(fact)
 
 # --- 2. Fill a roodatahist
 df2rdh = root_analysis.RooDataHistFiller()
@@ -78,13 +76,13 @@ df2rdh.store_key = 'rdh_' + read_data.key
 df2rdh.map_to_factorized = 'to_factorized'
 df2rdh.columns = ['transaction', 'latitude', 'longitude', 'age', 'eyeColor', 'favoriteFruit']
 # df2rdh.into_ws = True
-ch.add_link(df2rdh)
+ch.add(df2rdh)
 
 # --- print contents of the datastore
-process_manager.add_chain('Overview')
+overview = Chain('Overview')
 pds = core_ops.PrintDs()
 pds.keys = ['n_rdh_accounts', 'n_accounts']
-process_manager.get_chain('Overview').add_link(pds)
+overview.add(pds)
 
 #########################################################################################
 

@@ -14,7 +14,6 @@ def setup_package() -> None:
           author_email='eskapade@eskapade',
           description='Eskapade test package',
           python_requires='>=3.5',
-          package_dir={'eskapade_python': ''},
           packages=['eskapade_python'],
           install_requires=[]
           )

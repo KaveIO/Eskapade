@@ -1,7 +1,7 @@
 import unittest
 import unittest.mock as mock
 
-from eskapade.mixins import ConfigMixin
+from eskapade.core.mixin import ConfigMixin
 
 
 class ConfigMixinTest(unittest.TestCase):

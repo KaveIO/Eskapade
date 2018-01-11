@@ -104,6 +104,7 @@ set(ESROOFIT_INCLUDE_FILES
         ${ESROOFIT_INCLUDE_DIR}/esroofit/ABCDUtils.h
         ${ESROOFIT_INCLUDE_DIR}/esroofit/DataUtils.h
         ${ESROOFIT_INCLUDE_DIR}/esroofit/DrawUtils.h
+        ${ESROOFIT_INCLUDE_DIR}/esroofit/RhhNDKeysPdf.h
         ${ESROOFIT_INCLUDE_DIR}/esroofit/RooABCDHistPdf.h
         ${ESROOFIT_INCLUDE_DIR}/esroofit/RooComplementCoef.h
         ${ESROOFIT_INCLUDE_DIR}/esroofit/RooExpandedFitResult.h
@@ -123,6 +124,7 @@ set(ESROOFIT_CXX_FILES
         ${ESROOFIT_SRC_DIR}/ABCDUtils.cxx
         ${ESROOFIT_SRC_DIR}/DataUtils.cxx
         ${ESROOFIT_SRC_DIR}/DrawUtils.cxx
+        ${ESROOFIT_SRC_DIR}/RhhNDKeysPdf.cxx
         ${ESROOFIT_SRC_DIR}/RooABCDHistPdf.cxx
         ${ESROOFIT_SRC_DIR}/RooComplementCoef.cxx
         ${ESROOFIT_SRC_DIR}/RooExpandedFitResult.cxx

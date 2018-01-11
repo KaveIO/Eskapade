@@ -1,3 +1,20 @@
+"""Project: Eskapade - A python-based package for data analysis.
+
+Classes: ArrayStats, GroupByStats
+
+Created: 2017/03/21
+
+Description:
+    Summary of an array.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
 import operator
 from collections import Counter
 
@@ -13,7 +30,6 @@ NUM_NS_DAY = 24 * 3600 * int(1e9)
 
 
 class ArrayStats:
-
     """Create summary of an array.
 
     Class to calculate statistics (mean, standard deviation, percentiles,
@@ -337,7 +353,6 @@ class ArrayStats:
 
 
 class GroupByStats(ArrayStats):
-
     """Create summary of an array in groups."""
 
     def __init__(self, data, col_name, groupby=None, weights=None, unit='', label=''):
@@ -398,7 +413,7 @@ def get_col_props(var_type):
     return dict(dtype=npdtype, is_num=is_num, is_int=is_int, is_ts=is_ts)
 
 
-def weighted_quantile(data, weights=None, probability=[0.5]):
+def weighted_quantile(data, weights=None, probability=0.5):
     """Compute the weighted quantile of a 1D numpy array.
 
     Weighted quantiles, inspired by:

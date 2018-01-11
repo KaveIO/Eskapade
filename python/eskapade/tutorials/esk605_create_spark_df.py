@@ -1,21 +1,26 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk605_create_spark_df                                              *
-# * Created: 2017/06/08                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for creating Spark data frames from                       *
-# *     different types of input data                                            *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk605_create_spark_df
+
+Created: 2017/06/08
+
+Description:
+    Tutorial macro for creating Spark data frames from
+    different types of input data
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from collections import OrderedDict as odict
 
 import pandas as pd
 
-from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis, Chain
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
@@ -61,7 +66,7 @@ def set_num_parts(df, max_num_parts):
 
 
 # create chain and data-frame-creator links
-chain = process_manager.add_chain('Create')
+chain = Chain('Create')
 for ds_key, lnk_schema in zip(('rows', 'rdd', 'df', 'pd'), (list(schema.keys()), schema, schema, None)):
     # create data-frame-creator link
     lnk = spark_analysis.SparkDfCreator(name='df_creator_{}'.format(ds_key),
@@ -75,7 +80,7 @@ for ds_key, lnk_schema in zip(('rows', 'rdd', 'df', 'pd'), (list(schema.keys()),
     lnk.process_meth_kwargs[set_num_parts] = dict(max_num_parts=2)  # set maximum number of partitions to 2
 
     # add link to chain
-    chain.add_link(lnk)
+    chain.add(lnk)
 
 ##########################################################################
 

@@ -1,17 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Module: spark_analysis.data_conversion                                       *
-# * Created: 2017/05/30                                                          *
-# * Description:                                                                 *
-# *     Converters between Spark, Pandas, and Python data formats                *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Module: spark_analysis.data_conversion
+
+Created: 2017/05/30
+
+Description:
+    Converters between Spark, Pandas, and Python data formats
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import uuid
 
@@ -62,6 +64,7 @@ def create_spark_df(spark, data, schema=None, process_methods=None, **kwargs):
     if isinstance(schema, int):
         # infer schema from a single row (prevents Spark >= 1.6.1 from checking schema of all rows)
         def get_row(data, ind):
+            """Get row."""
             try:
                 return data.iloc[ind].tolist()
             except AttributeError:
@@ -77,13 +80,16 @@ def create_spark_df(spark, data, schema=None, process_methods=None, **kwargs):
                 return data[ind]
             except TypeError:
                 raise TypeError('Unable to get row from data of type "{!s}" to infer schema.'.format(type(data)))
+
         row = get_row(data, schema)
 
         def to_python_type(var):
+            """Get item."""
             try:
                 return var.item()
             except AttributeError:
                 return var
+
         schema = pyspark.sql.types._infer_schema(tuple(to_python_type(it) for it in row))
         try:
             for t, n in zip(schema.fields, data.columns):

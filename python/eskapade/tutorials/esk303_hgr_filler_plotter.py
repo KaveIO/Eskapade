@@ -1,21 +1,23 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk303_hgr_filler_plotter                                             *
-# * Created: 2017/02/17                                                            *
-# * Description:                                                                   *
-# *      Macro that illustrates how to loop over multiple (possibly large!)        *
-# *      datasets in chunks, in each loop fill a histogrammar histograms,
-# *      and plot the final histograms.
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team.                                                       *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import analysis, core_ops, process_manager, resources, visualization, ConfigObject
+Macro: esk303_hgr_filler_plotter
+
+Created: 2017/02/17
+
+Description:
+    Macro that illustrates how to loop over multiple (possibly large!)
+    datasets in chunks, in each loop fill a histogrammar histograms,
+    and plot the final histograms.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import analysis, core_ops, process_manager, resources, visualization, ConfigObject, Chain
 from eskapade.logger import Logger, LogLevel
 
 logger = Logger()
@@ -70,7 +72,7 @@ def to_date(x):
 # --- example 2: readdata loops over the input files, with file chunking.
 
 if settings['do_loop']:
-    ch = process_manager.add_chain('Data')
+    ch = Chain('Data')
 
     # --- a loop is set up in the chain MyChain.
     #     we iterate over (chunks of) the next file in the list until the iterator is done.
@@ -81,14 +83,14 @@ if settings['do_loop']:
     read_data = analysis.ReadToDf(name='dflooper', key='rc', reader='csv')
     read_data.chunksize = chunk_size
     read_data.path = input_files
-    ch.add_link(read_data)
+    ch.add(read_data)
 
     # add conversion functions to "Data" chain
     # here, convert column 'registered', an integer, to an actual timestamp.
     conv_funcs = [{'func': to_date, 'colin': 'registered', 'colout': 'date'}]
     transform = analysis.ApplyFuncToDf(name='Transform', read_key=read_data.key,
                                        apply_funcs=conv_funcs)
-    ch.add_link(transform)
+    ch.add(transform)
 
     # --- As an example, will fill histogram iteratively over the file loop
     hf = analysis.HistogrammarFiller()
@@ -106,29 +108,29 @@ if settings['do_loop']:
     #                                       'bin_offset': np.datetime64('2010-01-04') } }
     hf.bin_specs = {'longitude': {'bin_width': 5, 'bin_offset': 0},
                     'latitude': {'bin_width': 5, 'bin_offset': 0}}
-    ch.add_link(hf)
+    ch.add(hf)
 
     # --- this serves as the continue statement of the loop. go back to start of the chain.
     repeater = core_ops.RepeatChain()
     # repeat until readdata says halt.
     repeater.listen_to = 'chainRepeatRequestBy_' + read_data.name
-    ch.add_link(repeater)
+    ch.add(repeater)
 
     link = core_ops.DsObjectDeleter()
     link.keep_only = ['hist', 'n_sum_rc', 'rc']
-    ch.add_link(link)
+    ch.add(link)
 
 # --- print contents of the datastore
 if settings['do_plotting']:
-    ch = process_manager.add_chain('Overview')
+    ch = Chain('Overview')
     pds = core_ops.PrintDs(name='End')
     pds.keys = ['n_sum_rc']
-    ch.add_link(pds)
+    ch.add(pds)
 
     # --- make a nice summary report of the created histograms
     hist_summary = visualization.DfSummary(name='HistogramSummary',
                                            read_key=hf.store_key)
-    ch.add_link(hist_summary)
+    ch.add(hist_summary)
 
 #########################################################################################
 

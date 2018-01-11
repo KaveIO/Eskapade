@@ -1,17 +1,22 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk609_map_df_groups                                                *
-# * Created: 2017/06/20                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for applying map functions on groups of rows              *
-# *     in Spark data frames                                                     *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+Macro: esk609_map_df_groups
+
+Created: 2017/06/20
+
+Description:
+    Tutorial macro for applying map functions on groups of rows
+    in Spark data frames
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis, Chain
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
@@ -53,7 +58,7 @@ ds['df'] = spark.createDataFrame(rows, schema=['index', 'foo', 'bar'])
 # --- now set up the chains and links based on configuration flags
 
 # create chain
-chain = process_manager.add_chain('Map')
+chain = Chain('Map')
 
 # create a link to convert the data frame into an RDD
 conv_lnk = spark_analysis.SparkDfConverter(name='DfConverter',
@@ -61,7 +66,7 @@ conv_lnk = spark_analysis.SparkDfConverter(name='DfConverter',
                                            store_key='rdd',
                                            output_format='rdd',
                                            preserve_col_names=True)
-chain.add_link(conv_lnk)
+chain.add(conv_lnk)
 
 # create a link to calculate the sum of "bar" for each group of ten rows
 map_lnk = spark_analysis.RddGroupMapper(name='Mapper',
@@ -70,7 +75,7 @@ map_lnk = spark_analysis.RddGroupMapper(name='Mapper',
                                         group_map=sum,
                                         input_map=lambda r: (r['index'] // 10, r['bar']),
                                         flatten_output_groups=False)
-chain.add_link(map_lnk)
+chain.add(map_lnk)
 
 # create a link to add a column with the sum of "bar" for each group of ten rows
 flmap_lnk = spark_analysis.RddGroupMapper(name='FlatMapper',
@@ -80,7 +85,7 @@ flmap_lnk = spark_analysis.RddGroupMapper(name='FlatMapper',
                                           input_map=lambda r: (r['index'] // 10, r),
                                           result_map=lambda g: g[1],
                                           flatten_output_groups=True)
-chain.add_link(flmap_lnk)
+chain.add(flmap_lnk)
 
 ##########################################################################
 

@@ -1,21 +1,26 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk205_concatenate_pandas_dfs                                         *
-# * Created: 2017/02/23                                                            *
-# * Description:                                                                   *
-# *      Illustrates link that calls basic concat() of pandas dataframes            *
-# *      See for more information pandas documentation:
-# *                                                                                *
-# *      http://pandas.pydata.org/pandas-docs/stable/merging.html
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk205_concatenate_pandas_dfs
+
+Created: 2017/02/23
+
+Description:
+    Illustrates link that calls basic concat() of pandas dataframes
+    See for more information pandas documentation:
+
+    http://pandas.pydata.org/pandas-docs/stable/merging.html
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from pandas import DataFrame
 
-from eskapade import ConfigObject, DataStore
+from eskapade import ConfigObject, DataStore, Chain
 from eskapade import core_ops, analysis
 from eskapade import process_manager
 from eskapade.logger import Logger, LogLevel
@@ -60,7 +65,7 @@ ds['df3'] = DataFrame({'A': ['A8', 'A9', 'A10', 'A11'],
 #########################################################################################
 # --- below we concatenate the dataframes found in the datastore
 
-ch = process_manager.add_chain('DataPrep')
+data_prep = Chain('DataPrep')
 
 # concatenate the three dataframes below each other during link execution
 link = analysis.DfConcatenator(read_keys=['df1', 'df2', 'df3'],
@@ -69,15 +74,15 @@ link = analysis.DfConcatenator(read_keys=['df1', 'df2', 'df3'],
 # Any other kwargs given to DfConcatenator are passed on the the
 # pandas concat() function.
 link.logger.log_level = LogLevel.DEBUG
-ch.add_link(link)
+data_prep.add(link)
 
 link = core_ops.DsObjectDeleter()
 link.deletion_keys = ['df1', 'df2', 'df3']
-ch.add_link(link)
+data_prep.add(link)
 
 link = core_ops.PrintDs()
 link.keys = ['n_outgoing', 'outgoing']
-ch.add_link(link)
+data_prep.add(link)
 
 #########################################################################################
 

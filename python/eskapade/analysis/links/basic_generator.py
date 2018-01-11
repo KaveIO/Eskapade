@@ -1,18 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : BasicGenerator                                                        *
-# * Created: 2017/02/26                                                            *
-# *                                                                                *
-# * Description:                                                                   *
-# *      Link to generate random data with basic distributions                     *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: BasicGenerator
+
+Created: 2017/02/26
+
+Description:
+    Link to generate random data with basic distributions
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import numpy as np
 import pandas as pd
@@ -24,7 +25,6 @@ from eskapade import process_manager
 
 
 class BasicGenerator(Link):
-
     """Generate data with basic distributions."""
 
     def __init__(self, **kwargs):

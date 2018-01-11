@@ -1,18 +1,20 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk603_read_csv_to_spark_df                                         *
-# * Created: 2017/06/08                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for writing Spark data to a CSV file                      *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro : esk603_read_csv_to_spark_df
+
+Created: 2017/06/08
+
+Description:
+    Tutorial macro for writing Spark data to a CSV file.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from collections import OrderedDict as odict
 
-from eskapade import process_manager, ConfigObject, DataStore, spark_analysis
+from eskapade import process_manager, ConfigObject, DataStore, spark_analysis, Chain
 from eskapade.core import persistence
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
@@ -36,7 +38,7 @@ spark = process_manager.service(SparkManager).create_session(eskapade_settings=s
 ##########################################################################
 # --- CSV and data settings
 
-output_dir = 'file:' + persistence.io_dir('results_data', settings.io_conf())
+output_dir = 'file:' + persistence.io_dir('results_data')
 num_files = 1
 separator = ','
 write_header = True
@@ -86,9 +88,9 @@ for input_format in ('df', 'rdd'):
                                                  mode='overwrite')
 
 # add links to chain
-chain = process_manager.add_chain('Write')
+chain = Chain('Write')
 for lnk in writers.values():
-    chain.add_link(lnk)
+    chain.add(lnk)
 
 ##########################################################################
 

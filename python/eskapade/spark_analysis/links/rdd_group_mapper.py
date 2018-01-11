@@ -1,17 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : RddGroupMapper                                                      *
-# * Created: 2017/06/20                                                          *
-# * Description:                                                                 *
-# *     Apply a map function on groups in a Spark RDD                            *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: RddGroupMapper
+
+Created: 2017/06/20
+
+Description:
+    Apply a map function on groups in a Spark RDD
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import pyspark
 
@@ -19,7 +21,6 @@ from eskapade import Link, StatusCode, process_manager, DataStore
 
 
 class RddGroupMapper(Link):
-
     """Apply a map function on groups in a Spark RDD.
 
     Group rows of key-value pairs in a Spark RDD by key and apply a custom

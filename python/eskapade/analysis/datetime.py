@@ -1,16 +1,27 @@
+"""Project: Eskapade - A python-based package for data analysis.
+
+Classes: TimePeriod, FreqTimePeriod
+
+Created: 2017/03/14
+
+Description:
+    Time period and time period with frequency.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+modification, are permitted according to the terms listed in the file
+Redistribution and use in source and binary forms, with or without
+LICENSE.
+"""
+
 import pandas as pd
 
+from eskapade.core.mixin import ArgumentsMixin
 from eskapade.logger import Logger
-from eskapade.mixins import ArgumentsMixin
-
-
-################
-# time periods #
-################
 
 
 class TimePeriod(ArgumentsMixin):
-
     """Time period."""
 
     logger = Logger()
@@ -59,7 +70,6 @@ class TimePeriod(ArgumentsMixin):
 
 
 class UniformTsTimePeriod(TimePeriod):
-
     """Time period with offset."""
 
     def __init__(self, **kwargs):
@@ -112,7 +122,6 @@ class UniformTsTimePeriod(TimePeriod):
 
 
 class FreqTimePeriod(TimePeriod):
-
     """Time period with frequency."""
 
     def __init__(self, **kwargs):
@@ -130,16 +139,14 @@ class FreqTimePeriod(TimePeriod):
 
         :param dt: specified date/time parameter
         """
-        return pd.tseries.period.Period(
-            freq=self.freq, value=pd.Timestamp(dt)).ordinal
+        return pd.Period(freq=self.freq, value=pd.Timestamp(dt)).ordinal
 
     def dt_string(self, period_index):
         """Convert period index into date/time string (start of period).
 
         :param int period_index: specified period index value.
         """
-        return str(pd.tseries.period.Period(
-            freq=self.freq, ordinal=period_index).start_time)
+        return str(pd.Period(freq=self.freq, ordinal=period_index).start_time)
 
     @property
     def freq(self):
@@ -153,7 +160,7 @@ class FreqTimePeriod(TimePeriod):
         :param freq: specified frequency
         """
         try:
-            per = pd.tseries.period.Period(freq=freq, value='1970-01-01')
+            per = pd.Period(freq=freq, value='1970-01-01')
         except Exception as ex:
             self.logger.fatal('Invalid frequency specified: {freq!s}.', freq=freq)
             raise ex

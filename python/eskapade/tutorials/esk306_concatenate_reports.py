@@ -1,24 +1,22 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk306_concatenate_reports                                             *
-# * Created: 2017/03/28                                                            *
-# *                                                                                *
-# * Description:
-# *
-# * This macro illustrates how to concatenate the reports of several
-# * visualization links into one big report.
-# *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Licence:
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import ConfigObject, resources
+Macro: esk306_concatenate_reports
+
+Created: 2017/03/28
+
+Description:
+    This macro illustrates how to concatenate the reports of several
+    visualization links into one big report.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import ConfigObject, resources, Chain
 from eskapade import analysis, visualization
 from eskapade import process_manager
 from eskapade.logger import Logger, LogLevel
@@ -42,18 +40,18 @@ input_files = resources.fixture('correlated_data.sv.gz')
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = process_manager.add_chain('Data')
+data = Chain('Data')
 
 # --- 0. readdata keeps on opening the next file in the file list.
 #     all kwargs are passed on to pandas file reader.
 read_data = analysis.ReadToDf(name='dflooper', key='accounts', reader='csv', sep=' ')
 read_data.path = input_files
-ch.add_link(read_data)
+data.add(read_data)
 
 # --- 1. add data-frame summary link to "Summary" chain
 summarizer = visualization.DfSummary(name='Create_stats_overview',
                                      read_key=read_data.key, pages_key='report_pages')
-ch.add_link(summarizer)
+data.add(summarizer)
 
 # --- 2. Fill 2d histogrammar histograms
 hf = analysis.HistogrammarFiller()
@@ -72,15 +70,15 @@ hf.columns = [
     ['x3', 'x4'],
     ['x4', 'x5']]
 hf._unit_bin_specs = {'bin_width': 0.2, 'bin_offset': 0.0}
-ch.add_link(hf)
+data.add(hf)
 
 hs = visualization.DfSummary(name='HistogramSummary1', read_key=hf.store_key, pages_key='report_pages')
-ch.add_link(hs)
+data.add(hs)
 
 # --- 3. make visualizations of correlations
 corr_link = visualization.CorrelationSummary(name='correlation_summary',
                                              read_key=read_data.key, pages_key='report_pages')
-ch.add_link(corr_link)
+data.add(corr_link)
 
 #########################################################################################
 

@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : IPythonEmbed                                                          *
-# * Created: 2017/02/26                                                            *
-# * Description:                                                                   *
-# *      Link that starts up an ipython console during execution for debuggin.     *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: IPythonEmbed
+
+Created: 2017/02/26
+
+Description:
+    Link that starts up an ipython console during execution for debugging.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from IPython import embed
 
@@ -20,7 +22,6 @@ from eskapade import StatusCode
 
 
 class IPythonEmbed(Link):
-
     """Link to start up ipython console.
 
     Start up an ipython console by simply adding this link at any location in a chain.

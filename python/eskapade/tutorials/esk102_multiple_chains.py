@@ -1,19 +1,21 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk102_multiple_chains                                                *
-# * Created: 2017/02/20                                                            *
-# * Description:                                                                   *
-# *      Macro to illustrate the use of multiple chains                            *
-# *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import ConfigObject
+Macro: esk102_multiple_chains
+
+Created: 2017/02/20
+
+Description:
+    Macro to illustrate the use of multiple chains
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops
 from eskapade import process_manager
 from eskapade.logger import Logger
@@ -42,24 +44,24 @@ settings['do_chain2'] = True
 # Three simple chains are set up.
 
 if settings['do_chain0']:
-    ch = process_manager.add_chain('Chain0')
+    ch = Chain('Chain0')
     link = core_ops.HelloWorld(name='hello0')
     link.hello = 'Town'
-    ch.add_link(link)
+    ch.add(link)
 
-# adding more chains is as easy as calling add_chain and passing a new name.
+# adding more chains is as easy as creating multiple chain instances with unique names.
 
 if settings['do_chain1']:
-    ch = process_manager.add_chain('Chain1')
+    ch = Chain('Chain1')
     link = core_ops.HelloWorld(name='hello1')
     link.hello = 'World'
-    ch.add_link(link)
+    ch.add(link)
 
 if settings['do_chain2']:
-    ch = process_manager.add_chain('Chain2')
+    ch = Chain('Chain2')
     link = core_ops.HelloWorld(name='hello2')
     link.hello = 'Universe'
-    ch.add_link(link)
+    ch.add(link)
 
 #########################################################################################
 

@@ -1,18 +1,19 @@
-# *****************************************************************************
-# * Project: Eskapade - A python-based package for data analysis              *
-# * Class  : TruncExpGen                                                      *
-# * Created: 2017/04/19                                                       *
-# *                                                                           *
-# * Description:                                                              *
-# *      Link to generate data with a truncated exponential PDF               *
-# *                                                                           *
-# * Authors:                                                                  *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                      *
-# *                                                                           *
-# * Redistribution and use in source and binary forms, with or without        *
-# * modification, are permitted according to the terms listed in the file     *
-# * LICENSE.                                                                  *
-# *****************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: TruncExpGen
+
+Created: 2017/04/19
+
+Description:
+    Link to generate data with a truncated exponential PDF
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import array
 
@@ -32,7 +33,6 @@ NUM_DUMMY_EVENTS = 10000
 
 
 class TruncExpGen(Link):
-
     """Generate with truncated exponential PDF.
 
     Generate data with an exponential PDF in a range with a variable upper

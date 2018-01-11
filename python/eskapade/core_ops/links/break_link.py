@@ -1,24 +1,25 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : Break                                                                 *
-# * Created: 2017/02/26                                                            *
-# * Description:                                                                   *
-# *      Algorithm to send break signal to process manager and halt execution      *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: Break
+
+Created: 2017/02/26
+
+Description:
+    Algorithm to send break signal to process manager and halt execution
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import Link
 from eskapade import StatusCode
 
 
 class Break(Link):
-
     """Halt execution.
 
     Link sends failure signal and halts execution of process manager.  Break

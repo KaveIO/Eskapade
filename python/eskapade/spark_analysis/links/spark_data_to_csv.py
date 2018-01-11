@@ -1,30 +1,30 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : SparkDataToCsv                                                      *
-# * Created: 2015-11-16                                                          *
-# *                                                                              *
-# * Description:                                                                 *
-# *     Write Spark data to local CSV files                                      *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class : SparkDataToCsv
+
+Created: 2015-11-16
+
+Description:
+    Write Spark data to local CSV files
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import os
 import shutil
 
 import pyspark
 
-from eskapade import Link, StatusCode, process_manager, DataStore, ConfigObject
+from eskapade import Link, StatusCode, process_manager, DataStore
 from eskapade.core import persistence
 
 
 class SparkDataToCsv(Link):
-
     """Write Spark data to local CSV files.
 
     Data to write to CSV are provided as a Spark RDD or a Spark data frame.
@@ -66,8 +66,7 @@ class SparkDataToCsv(Link):
 
         # set default output path
         if not self.output_path:
-            settings = process_manager.service(ConfigObject)
-            self.output_path = persistence.io_path('results_data', settings.io_conf(), '{}_output'.format(self.name))
+            self.output_path = persistence.io_path('results_data', '{}_output'.format(self.name))
 
         # parse header argument
         try:
@@ -118,10 +117,12 @@ class SparkDataToCsv(Link):
             raise TypeError('Got data of type "{!s}"; expected a Spark RDD/DataFrame.'.format(type(data)))
 
         # convert row to string
-        data = data.map(lambda r: self.sep.join(map(str, r)))
+        sep = self.sep
+        data = data.map(lambda r: sep.join(map(str, r)))
 
         # set number of partitions/output files
-        data = data.coalesce(self.num_files, shuffle=self.num_files > data.getNumPartitions())
+        num_files = self.num_files
+        data = data.coalesce(num_files, shuffle=num_files > data.getNumPartitions())
 
         # add header rows
         if self.header:

@@ -1,23 +1,24 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : Tutorial_5                                                          *
-# * Created: 2017/06/14                                                          *
-# * Description:                                                                 *
-# *     Macro illustrates basic setup of chains and links with Apache Spark,     *
-# *     by showing: how to open and run over a dataset,                          *
-# *     apply transformations to it, and plot the results.                       *
-# *                                                                              *
-# * Authors:                                                                     *
-# *     KPMG Big Data team.                                                      *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import process_manager, ConfigObject
+Macro: Tutorial_5
+
+Created: 2017/06/14
+
+Description:
+    Macro illustrates basic setup of chains and links with Apache Spark,
+    by showing: how to open and run over a dataset,
+    apply transformations to it, and plot the results.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import process_manager, ConfigObject, Chain, spark_analysis
 from eskapade.logger import Logger
-from eskapade.spark_analysis import SparkManager
 
 logger = Logger()
 
@@ -40,7 +41,7 @@ settings['analysisName'] = 'Tutorial_5'
 #########################################################################################
 # --- setup Spark
 
-process_manager.service(SparkManager).get_or_create_session()
+process_manager.service(spark_analysis.SparkManager).create_session(include_eskapade_modules=True)
 
 #########################################################################################
 # --- analysis values, settings, helper functions, configuration flags.
@@ -64,27 +65,27 @@ def mi_to_km(dist):
 # --- now set up the chains and links based on configuration flags
 
 # create first chain
-process_manager.add_chain('Data')
+data = Chain('Data')
 
 # # add data-frame reader to "Data" chain
 # reader = spark_analysis.SparkDfReader()
-# process_manager.get_chain('Data').add_link(reader)
+# data.add(reader)
 
 # # add conversion functions to "Data" chain
 # transform = spark_analysis.SparkWithColumn()
-# process_manager.get_chain('Data').add_link(transform)
+# data.add(transform)
 
 # create second chain
-process_manager.add_chain('Summary')
+summary = Chain('Summary')
 
 # # fill spark histograms
 # histo = spark_analysis.SparkHistogrammarFiller()
-# process_manager.get_chain('Summary').add_link(histo)
+# summary.add(histo)
 
 # # add data-frame summary link to "Summary" chain
 # summarizer = visualization.DfSummary(name='Create_stats_overview', read_key=histo.store_key,
-#                                     var_labels=VAR_LABELS, var_units=VAR_UNITS)
-# process_manager.get_chain('Summary').add_link(summarizer)
+#                                      var_labels=VAR_LABELS, var_units=VAR_UNITS)
+# summary.add(summarizer)
 
 
 #########################################################################################

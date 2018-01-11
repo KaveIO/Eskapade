@@ -1,17 +1,19 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Class  : ConvertRootHist2RooDataSet                                                            *
-# * Created: 2017/03/25                                                            *
-# * Description:                                                                   *
-# *      Algorithm to convert a root histogram into a roodataset (= roofit data)   *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: ConvertRootHist2RooDataSet
+
+Created: 2017/03/25
+
+Description:
+    Algorithm to convert a root histogram into a roodataset (= roofit data)
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ROOT
 
@@ -21,7 +23,6 @@ from eskapade.root_analysis.roofit_manager import RooFitManager
 
 
 class ConvertRootHist2RooDataSet(Link):
-
     """Convert a ROOT histogram into a RooFit dataset.
 
     Input histograms can have up to three dimensions. RooFit observables are
@@ -133,7 +134,7 @@ class ConvertRootHist2RooDataSet(Link):
                 ws = process_manager.service(RooFitManager).ws
                 ws.put(rds, ROOT.RooFit.Rename(self.store_key))
                 ws.defineSet(self.store_key_vars, obs_vars)
-            except:
+            except Exception:
                 raise RuntimeError('Could not import object "{}" into rooworkspace.'.format(self.read_key))
         # 2. put object into datastore
         else:

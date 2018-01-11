@@ -1,34 +1,31 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk410_testing_correlations_between_categories                        *
-# * Created: 2017/07/04                                                            *
-# *                                                                                *
-# * Description:                                                                   *
-# *                                                                                *
-# * This macro illustrates how to find correlations between categorical            *
-# * observables.                                                                   *
-# *                                                                                *
-# * Based on the hypothesis of no correlation expected frequencies of observations *
-# * are calculated. The measured frequencies are compared to expected frequencies. *
-# * From these the (significance of the) p-value of the hypothesis that the        *
-# * observables in the input dataset are not correlated is determined. The         *
-# * normalized residuals (pull values) for each bin in the dataset are also        *
-# * calculated. A detailed description of the method can be found in ABCDutils.h.  *
-# * A description of the method to calculate the expected frequencies can be found *
-# * in RooABCDHistPDF.cxx.                                                         *
-# *                                                                                *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *                                                                                *
-# * Licence:                                                                       *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import ConfigObject
+Macro: esk410_testing_correlations_between_categories
+
+Created: 2017/07/04
+
+Description:
+    This macro illustrates how to find correlations between categorical
+    observables.
+
+    Based on the hypothesis of no correlation expected frequencies of observations *
+    are calculated. The measured frequencies are compared to expected frequencies. *
+    From these the (significance of the) p-value of the hypothesis that the
+    observables in the input dataset are not correlated is determined. The
+    normalized residuals (pull values) for each bin in the dataset are also
+    calculated. A detailed description of the method can be found in ABCDutils.h.
+    A description of the method to calculate the expected frequencies can be found *
+    in RooABCDHistPDF.cxx.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import ConfigObject, Chain
 from eskapade import analysis, root_analysis, visualization
 from eskapade import process_manager
 from eskapade import resources
@@ -53,13 +50,13 @@ input_files = [resources.fixture('mock_accounts.csv.gz')]
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = process_manager.add_chain('Data')
+ch = Chain('Data')
 
 # --- 0. readdata keeps on opening the next file in the file list.
 #     all kwargs are passed on to pandas file reader.
 read_data = analysis.ReadToDf(name='dflooper', key='accounts', reader='csv')
 read_data.path = input_files
-ch.add_link(read_data)
+ch.add(read_data)
 
 # --- 1. add the record factorizer to convert categorical observables into integers
 #     Here the columns dummy and loc of the input dataset are factorized
@@ -74,7 +71,7 @@ fact.inplace = True
 fact.sk_map_to_original = 'to_original'
 # factorizer also stores a dict with the mappings back to the original observables
 fact.sk_map_to_factorized = 'to_factorized'
-ch.add_link(fact)
+ch.add(fact)
 
 # --- 2. turn the dataframe into a roofit dataset (= roodataset)
 df2rds = root_analysis.ConvertDataFrame2RooDataSet()
@@ -89,7 +86,7 @@ df2rds.columns = fact.columns + ['age']  # + ['longitude', 'latitude']
 df2rds.sk_map_to_original = 'rds_to_original'
 # store results in roofitmanager workspace?
 # df2rds.into_ws = True
-ch.add_link(df2rds)
+ch.add(df2rds)
 
 # --- 3. run hypothesis tester
 hypotest = root_analysis.UncorrelationHypothesisTester()
@@ -132,14 +129,14 @@ hypotest.sk_residuals_overview = 'residuals_overview'
 # hypotest.var_default_number_of_bins = ['obs1':10,'obs2':5,'obs1:obs2':[3,3]]
 
 hypotest.logger.log_level = LogLevel.DEBUG
-ch.add_link(hypotest)
+ch.add(hypotest)
 
 # --- 4. print contents of the datastore
-process_manager.add_chain('Overview')
+overview = Chain('Overview')
 hist_summary = visualization.DfSummary(name='HistogramSummary',
                                        read_key=hypotest.hist_dict_key,
                                        pages_key=hypotest.pages_key)
-process_manager.get_chain('Overview').add_link(hist_summary)
+overview.add(hist_summary)
 
 #########################################################################################
 

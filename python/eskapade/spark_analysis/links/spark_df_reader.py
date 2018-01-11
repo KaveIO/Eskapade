@@ -1,17 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Class  : SparkDfReader                                                       *
-# * Created: 2016/11/08                                                          *
-# * Description:                                                                 *
-# *     Read data into a Spark data frame                                        *
-# *                                                                              *
-# * Authors:                                                                     *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                         *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Class: SparkDfReader
+
+Created: 2016/11/08
+
+Description:
+    Read data into a Spark data frame
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from eskapade import Link, StatusCode, process_manager, DataStore
 from eskapade.helpers import apply_transform_funcs, process_transform_funcs
@@ -19,7 +21,6 @@ from eskapade.spark_analysis import SparkManager
 
 
 class SparkDfReader(Link):
-
     """Link to read data into a Spark dataframe.
 
     Data are read with the Spark-SQL data-frame reader

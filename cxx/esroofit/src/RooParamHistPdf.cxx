@@ -22,7 +22,7 @@
  *      function setModifiedData(), which requires noParams = false.
  *                                                                           *
  * Authors:                                                                  *
- *      KPMG Big Data team, Amstelveen, The Netherlands                      *
+ *      KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands                      *
  *                                                                           *
  * Redistribution and use in source and binary forms, with or without        *
  * modification, are permitted according to the terms listed in the file     *
@@ -59,7 +59,7 @@ ClassImp(RooParamHistPdf)
 /// for the entire life span of this PDF.
 
 RooParamHistPdf::RooParamHistPdf(const char *name, const char *title, const RooArgSet &vars,
-                                 const RooDataHist &dhist, Int_t intOrder, Bool_t noParams) :
+                                 const RooDataHist &dhist, Int_t intOrder, Bool_t noParams, Bool_t relParams) :
 //RooAbsPdf(name,title),
         RooHistPdf(name, title, vars, dhist, intOrder),
         _p("p", "p", this),
@@ -69,6 +69,7 @@ RooParamHistPdf::RooParamHistPdf(const char *name, const char *title, const RooA
         _dh(dhist),
         _dh_mod(0),
         _noParams(noParams),
+        _relParams(relParams),
         _sumWnorm(dhist.sumEntries())
 {
     _dh_mod = new FastHist(_dh);
@@ -114,6 +115,7 @@ RooParamHistPdf::RooParamHistPdf(const RooParamHistPdf &other, const char *name)
         _dh(other._dh),
         _dh_mod(0),
         _noParams(other._noParams),
+        _relParams(other._relParams),
         _sumWnorm(other._sumWnorm)
 {
     if (other._dh_mod != 0)
@@ -461,86 +463,78 @@ Double_t RooParamHistPdf::maxVal(Int_t code) const
 ////////////////////////////////////////////////////////////////////////////////
 void RooParamHistPdf::setNominalData(const RooDataHist &nomHist, Bool_t updateModifiedData)
 {
-    if (_noParams)
-    { return; } // nothing to set
+  if (_noParams) return; // nothing to set
 
-    R__ASSERT(_dh.numEntries() == nomHist.numEntries());
-    R__ASSERT(_c.getSize() == nomHist.numEntries());
-    R__ASSERT(_p.getSize() == nomHist.numEntries());
+  R__ASSERT( _dh.numEntries()==nomHist.numEntries() );
+  R__ASSERT( _c.getSize()==nomHist.numEntries() );
+  R__ASSERT( _p.getSize()==nomHist.numEntries() );
 
-    // check that all required observables exist in dataset
-    const RooArgSet *vars = nomHist.get();
-    const RooArgSet *obsSet = _dh.get();
-    R__ASSERT(vars->getSize() == obsSet->getSize());
+  // check that all required observables exist in dataset
+  const RooArgSet* vars = nomHist.get();
+  const RooArgSet* obsSet = _dh.get();
+  R__ASSERT( vars->getSize()==obsSet->getSize() );
 
-    TIterator *obsItr = obsSet->createIterator();
-    RooAbsArg *obs;
-    for (Int_t j = 0; (obs = (RooAbsArg *) obsItr->Next()); ++j)
-    {
-        RooAbsArg *var = vars->find(obs->GetName());
-        R__ASSERT(var != 0);
+  TIterator* obsItr = obsSet->createIterator();
+  RooAbsArg* obs ;
+  for (Int_t j=0; (obs = (RooAbsArg*)obsItr->Next()); ++j) {
+    RooAbsArg* var = vars->find( obs->GetName() );
+    R__ASSERT( var!=0 );
+  }
+  delete obsItr;
+
+  // MB: below I am assuming the dhists have identical binnings.
+
+  for (Int_t i=0; i<_dh.numEntries(); i++) {
+    // retrieve data
+    const RooArgSet* x = _dh.get(i);
+    nomHist.get(*x);
+    Double_t w = nomHist.weight();
+    //Double_t we = nomHist.weightError();
+    // 1. update constants
+    RooRealVar& c = (RooRealVar&)_c[i];
+    c.setError(0);
+    c.setConstant();
+    if (_relParams && (w>0)) {
+      c.setRange(w,w);
+      c.setVal(w);
+    } else {
+      // if nobs==0: c becomes relative, and p absolute
+      c.setRange(1,1);
+      c.setVal(1);
     }
-    delete obsItr;
-
-    // MB: below I am assuming the dhists have identical binnings.
-
-    for (Int_t i = 0; i < _dh.numEntries(); i++)
-    {
-        // retrieve data
-        const RooArgSet *x = _dh.get(i);
-        nomHist.get(*x);
-        Double_t w = nomHist.weight();
-        Double_t we = nomHist.weightError();
-        // update constants
-        RooRealVar &c = (RooRealVar &) _c[i];
-        c.setVal(w);
-        c.setError(we);
-        c.setConstant();
-        if (w == 0)
-        {
-            // if nobs==0: c becomes relative, and p absolute
-            c.setVal(1);
-        }
-        // update floating parameters
-        RooRealVar &p = (RooRealVar &) _p[i];
-        p.setVal(1);
-        Double_t y(w), ym1, yp1, yerr, yerrm, yerrp;
-        RooHistError::instance().getPoissonInterval(y, ym1, yp1, 1);
-        yerr = (yp1 - ym1) / 2.;
-        yerrm = ym1 - y;
-        yerrp = yp1 - y;
-        if (y > 0)
-        {
-            yerr /= y;
-            yerrm /= y;
-            yerrp /= y;
-        }
-        else
-        { // w == 0
-            // if nobs==0: c becomes relative, and p absolute
-            p.setVal(0);
-        }
-        Double_t pMin = p.getVal() - 10. * TMath::Abs(yerrm);
-        if (pMin <= 0)
-        { pMin = 0.; }
-        Double_t pMax = p.getVal() + 10. * yerrp;
-        if (pMax > 5)
-        { pMax = 6.; }
-        p.setRange(pMin, pMax);
-        p.setAsymError(yerrm, yerrp);
-        p.setError(yerr);
+    // 2. update floating parameters
+    RooRealVar& p = (RooRealVar&)_p[i];
+    Double_t y(w), ym1, yp1, yerr, yerrm, yerrp;
+    RooHistError::instance().getPoissonInterval(y,ym1,yp1,1);
+    yerr = (yp1-ym1)/2.;
+    yerrm = ym1-y;
+    yerrp = yp1-y;
+    if (_relParams && (w>0)) {
+      p.setVal(1) ;
+      yerr /= y;
+      yerrm /= y;
+      yerrp /= y;
+    } else { // absolute parameters or w==0
+      p.setVal(w);
     }
+    Double_t pMin = p.getVal() - 10.*TMath::Abs(yerrm);
+    if (pMin<=0) { pMin = 0.; }
+    Double_t pMax = p.getVal() + 10.*yerrp;
+    if (_relParams && pMax>6) { pMax = 6.; }
+    p.setRange( pMin, pMax );
+    p.setAsymError( yerrm, yerrp );
+    p.setError( yerr ) ;
+  }
 
-    _sumWnorm = this->getSumW();
+  _sumWnorm = this->getSumW();
 
-    // update internal histogram
-    if (updateModifiedData)
-        this->updateModifiedData();
-    else
-    {
-        // try update of matrix later
-        RooChangeTracker *tracker = ((RooChangeTracker *) _t.at(0));
-        if (tracker != 0)
-            tracker->hasChanged(true);
-    }
+  // update internal histogram
+  if (updateModifiedData)
+    this->updateModifiedData();
+  else {
+    // try update of matrix later
+    RooChangeTracker* tracker = ((RooChangeTracker*)_t.at(0));
+    if (tracker!=0)
+      tracker->hasChanged(true);
+  }
 }

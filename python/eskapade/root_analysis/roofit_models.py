@@ -1,18 +1,19 @@
-# ********************************************************************************
-# * Project: Eskapade - A Python-based package for data analysis                 *
-# * Module: root_analysis.roofit_models                                          *
-# * Created: 2017/04/24                                                          *
-# * Description:                                                                 *
-# *     Eskapade models based on RooFit PDFs                                     *
-# *                                                                              *
-# * Authors:                                                                     *
-# *     KPMG Big Data team, Amstelveen, The Netherlands                          *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A Python-based package for data analysis.
 
+Module: root_analysis.roofit_models
+
+Created: 2017/04/24
+
+Description:
+    Eskapade models based on RooFit PDFs
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 import ROOT
 import numpy as np
@@ -23,7 +24,6 @@ from eskapade.root_analysis import roofit_utils
 
 
 class RooFitModel:
-
     """Base class for RooFit models."""
 
     def __init__(self, ws, name='', load_libesroofit=False):
@@ -76,7 +76,6 @@ class RooFitModel:
 
 
 class TruncExponential(RooFitModel):
-
     """Exponential model with variable range upper bound."""
 
     def __init__(self, ws, name='', var_range=None, var=None, max_var=None, exp=None, fracs=None):
@@ -249,7 +248,6 @@ class TruncExponential(RooFitModel):
 
 
 class LinearRegression(RooFitModel):
-
     """Least-squares linear regression model."""
 
     def __init__(self, ws, name='', fit_intercept=True, minimizer='Minuit2', strategy=2):
@@ -335,7 +333,7 @@ class LinearRegression(RooFitModel):
         try:
             ntargets = len(y.iloc[0]) if isinstance(y, pd.DataFrame) else len(y[0]) if hasattr(y[0], '__len__') else 1
             self.target_names = ['y{0:d}'.format(tar_it) for tar_it in range(ntargets)]
-        except:
+        except Exception:
             raise RuntimeError('incorrect targets argument (y): (#samples, #targets) sequence expected')
 
         # check number of targets
@@ -346,7 +344,7 @@ class LinearRegression(RooFitModel):
         try:
             nfeats = len(X.iloc[0]) if isinstance(X, pd.DataFrame) else len(X[0]) if hasattr(X[0], '__len__') else 1
             self.feat_names = ['X{0:d}'.format(feat_it) for feat_it in range(nfeats)]
-        except:
+        except Exception:
             raise RuntimeError('incorrect features argument (X): (#samples, #features) sequence expected')
 
         # create target, feature, and coefficient variables

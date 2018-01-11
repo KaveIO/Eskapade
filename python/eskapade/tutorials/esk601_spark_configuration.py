@@ -1,16 +1,21 @@
-# ********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                 *
-# * Macro  : esk601_spark_configuration                                          *
-# * Created: 2017/05/31                                                          *
-# * Description:                                                                 *
-# *     Tutorial macro for configuring Spark in multiple ways                    *
-# *                                                                              *
-# * Redistribution and use in source and binary forms, with or without           *
-# * modification, are permitted according to the terms listed in the file        *
-# * LICENSE.                                                                     *
-# ********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import process_manager, ConfigObject, spark_analysis
+Macro: esk601_spark_configuration
+
+Created: 2017/05/31
+
+Description:
+    Tutorial macro for configuring Spark in multiple ways
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import process_manager, ConfigObject, spark_analysis, Chain
 from eskapade.logger import Logger
 from eskapade.spark_analysis import SparkManager
 
@@ -61,7 +66,9 @@ conf_link = spark_analysis.SparkConfigurator(name='SparkConfigurator', log_level
 conf_link.spark_settings = [('spark.app.name', settings['analysisName'] + '_link'),
                             ('spark.master', 'local[42]'),
                             ('spark.driver.host', '127.0.0.1')]
-process_manager.add_chain('Config').add_link(conf_link)
+
+config = Chain('Config')
+config.add(conf_link)
 
 logger.info('---> METHOD 2: link')
 logger.info('NB: settings will be printed at time of link execution.')

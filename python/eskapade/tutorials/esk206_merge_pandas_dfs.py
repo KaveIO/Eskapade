@@ -1,22 +1,26 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk206_merge_pandas_dfs                                               *
-# * Created: 2017/02/23                                                            *
-# * Description:                                                                   *
-# *      Illustrate link that calls basic merge() of pandas dataframes                      *
-# *      For more information see pandas documentation:
-# *                                                                                *
-# *      http://pandas.pydata.org/pandas-docs/stable/merging.html
-# *                                                                                *
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
+
+Macro: esk206_merge_pandas_dfs
+
+Created: 2017/02/23
+
+Description:
+    Illustrate link that calls basic merge() of pandas dataframes
+    For more information see pandas documentation:
+
+    http://pandas.pydata.org/pandas-docs/stable/merging.html
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
 
 from pandas import DataFrame
 
-from eskapade import ConfigObject, DataStore
+from eskapade import ConfigObject, DataStore, Chain
 from eskapade import core_ops, analysis
 from eskapade import process_manager
 from eskapade.logger import Logger, LogLevel
@@ -54,7 +58,7 @@ ds['right'] = DataFrame({'key': ['K0', 'K1', 'K2', 'K3'],
 #########################################################################################
 # --- below we merge the two dataframes found in the datastore
 
-ch = process_manager.add_chain('DataPrep')
+data_prep = Chain('DataPrep')
 
 # inner-join the two dataframes with each other on 'key' during link execution
 link = analysis.DfMerger(input_collection1='left',
@@ -65,15 +69,15 @@ link = analysis.DfMerger(input_collection1='left',
 # Any other kwargs given to DfMerger are passed on the the
 # pandas merge() function.
 link.logger.log_level = LogLevel.DEBUG
-ch.add_link(link)
+data_prep.add(link)
 
 link = core_ops.DsObjectDeleter()
 link.deletion_keys = ['left', 'right']
-ch.add_link(link)
+data_prep.add(link)
 
 link = core_ops.PrintDs()
 link.keys = ['n_outgoing', 'outgoing']
-ch.add_link(link)
+data_prep.add(link)
 
 #########################################################################################
 

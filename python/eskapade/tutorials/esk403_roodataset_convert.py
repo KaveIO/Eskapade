@@ -1,25 +1,23 @@
-# **********************************************************************************
-# * Project: Eskapade - A python-based package for data analysis                   *
-# * Macro  : esk403_roodataset_convert                                             *
-# * Created: 2017/03/28                                                            *
-# *                                                                                *
-# * Authors:                                                                       *
-# *      KPMG Big Data team, Amstelveen, The Netherlands                           *
-# *
-# * Description:
-# *
-# * This macro illustrates how to convert a pandas dataframe to a roofit dataset
-# * (= roodataset), do something to it with roofit, and then convert the roodataset
-# * back again to a pandas dataframe.
-# *                                                                                *
-# * Licence:
-# *                                                                                *
-# * Redistribution and use in source and binary forms, with or without             *
-# * modification, are permitted according to the terms listed in the file          *
-# * LICENSE.                                                                       *
-# **********************************************************************************
+"""Project: Eskapade - A python-based package for data analysis.
 
-from eskapade import ConfigObject
+Macro: esk403_roodataset_convert
+
+Created: 2017/03/28
+
+Description:
+    This macro illustrates how to convert a pandas dataframe to a roofit dataset
+    (= roodataset), do something to it with roofit, and then convert the roodataset
+    back again to a pandas dataframe.
+
+Authors:
+    KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted according to the terms listed in the file
+LICENSE.
+"""
+
+from eskapade import ConfigObject, Chain
 from eskapade import core_ops, analysis, root_analysis
 from eskapade import process_manager
 from eskapade import resources
@@ -44,15 +42,15 @@ input_files = [resources.fixture('mock_accounts.csv.gz')]
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
-ch = process_manager.add_chain('Data')
+ch = Chain('Data')
 
 # --- 0. read the input data
 #     all kwargs are passed on to pandas file reader.
 read_data = analysis.ReadToDf(name='dflooper', key='accounts', reader='csv')
 read_data.path = input_files
-ch.add_link(read_data)
+ch.add(read_data)
 
-ch = process_manager.add_chain('Conversion1')
+ch = Chain('Conversion1')
 
 # --- 1. add the record factorizer
 #     Here the columns dummy and loc of the input dataset are factorized
@@ -68,7 +66,7 @@ fact.sk_map_to_original = 'to_original'
 # factorizer also stores a dict with the mappings that have been applied to all observables
 fact.sk_map_to_factorized = 'to_factorized'
 fact.logger.log_level = LogLevel.DEBUG
-ch.add_link(fact)
+ch.add(fact)
 
 # --- 2. turn the dataframe into a roofit dataset (= roodataset)
 df2rds = root_analysis.ConvertDataFrame2RooDataSet()
@@ -82,24 +80,24 @@ df2rds.columns = ['gender', 'eyeColor', 'favoriteFruit', 'isActive']
 df2rds.sk_map_to_original = 'rds_to_original'
 # store results in roofitmanager workspace?
 # df2rds.into_ws = True
-ch.add_link(df2rds)
+ch.add(df2rds)
 
 pds = core_ops.PrintDs(name='pds1')
 pds.keys = [fact.sk_map_to_factorized, df2rds.sk_map_to_original]
-ch.add_link(pds)
+ch.add(pds)
 
 # --- you should do something to the roodataset here,
 #     possibly producting a new roodataset
-process_manager.add_chain('Action')
+action = Chain('Action')
 
 # --- example to convert a roodatset back to a pandas df
-ch = process_manager.add_chain('Conversion2')
+ch = Chain('Conversion2')
 
 # --- first, convert the roodataset back to a plain pandas dataframe
 rds2df = root_analysis.ConvertRooDataSet2DataFrame()
 rds2df.read_key = df2rds.store_key
 rds2df.store_key = 'df_from_rds'
-ch.add_link(rds2df)
+ch.add(rds2df)
 
 # --- add second record factorizer, which now maps all roocategory columns
 #     back to their original format.
@@ -109,11 +107,11 @@ refact.read_key = rds2df.store_key
 refact.store_key = 'df_refact'
 refact.map_to_original = df2rds.sk_map_to_original
 refact.logger.log_level = LogLevel.DEBUG
-ch.add_link(refact)
+ch.add(refact)
 
 pds = core_ops.PrintDs(name='pds2')
 pds.keys = ['n_df_from_rds', 'df_refact']
-ch.add_link(pds)
+ch.add(pds)
 
 #########################################################################################
 
