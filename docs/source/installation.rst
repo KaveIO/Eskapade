@@ -177,7 +177,40 @@ Eskapade can be installed as any other Python package with ``easy_install`` or `
   $ pip install /path/to/eskapade
 
 Alternatively, consider installing `KaveToolbox <http://github.com/kaveio/KaveToolbox>`_ version 3.6 or higher,
-which can be found `here <http://github.com/kaveio/kavetoolbox>`_.
+which can be found `here <http://github.com/kaveio/kavetoolbox>`_.To install the released version:
+
+.. code-block:: bash
+
+  $ yum -y install wget curl tar zip unzip gzip python
+  $ wget http://repos:kaverepos@repos.kave.io/noarch/KaveToolbox/3.6-Beta/kavetoolbox-installer-3.6-Beta.sh
+  $ sudo bash kavetoolbox-installer-3.6-Beta.sh [--quiet]
+
+(--quiet is for a quieter install, remove the brackets!)
+
+If anaconda is already installed in your machine, consider creating a conda virtual environment with Python 3.6 to install
+all the requirements and Eskapade itself to avoid collisions:
+
+.. code-block:: bash
+
+  $ conda create -n eskapade_env36 python=3.6 anaconda
+
+Then you can activate it as follows:
+
+.. code-block:: bash
+
+  $ source activate eskapade_env36
+
+More information about conda virtual environments can be found
+`here <https://conda.io/docs/user-guide/tasks/manage-environments.html>`_
+
+Eskapade Package Installation
+_____________________________
+
+Eskapade can be installed as any other Python package with ``easy_install`` or ``pip``:
+
+.. code-block:: bash
+
+  $ pip install /path/to/eskapade
 
 **You are now ready to use Eskapade!**
 

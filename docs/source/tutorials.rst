@@ -229,6 +229,15 @@ Now run the entire macro with the new code and compile the output .tex file. Thi
   $ pdflatex report.tex
 
 If you have pdflatex installed on your machine.
+
+.. note::
+
+   If you don't have pdflatex installed on your machine you can install it by executing the following command:
+   .. code-block:: bash
+
+      $ yum install texlive-latex-recommended
+
+
 Now take a look at the output pdf. The final output should look something like this:
 
 .. image:: ../images/output_tutorial_1.png

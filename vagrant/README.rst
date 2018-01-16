@@ -68,6 +68,11 @@ Eskapade users and developers log in as the user ``esdev`` on ``localhost``, by 
 
 This user can log in with the password ``esdev``. 
 
+By default  the local directory ``/path/to/your/local/eskapade`` is mounted
+(containing your local Eskapade repository) under ``/opt/eskapade`` in your vagrant machine.
+You can now edit the files in this directory, either locally or in the (vagrant) bash shell, and any updates
+to these files will be kept after exiting the virtual machine.
+
 **You are now ready to use Eskapade!** 
 
 The next time...
@@ -112,6 +117,7 @@ You can then log in using the command:
 
   ssh esdevbox
 
+
 Vagrant boxes
 _____________
 
@@ -119,3 +125,29 @@ Boxes are built and started with the command ``vagrant up`` in the directory of 
 A box can be restarted by executing ``vagrant reload``.  The virtual machines are administered by the ``vagrant`` user,
 which logs in by running ``vagrant ssh`` in the directory of the ``Vagrantfile``. The ``vagrant`` user has root access
 to the system by password-less ``sudo``.
+
+
+Starting Jupyter notebook
+_________________________
+
+To run the Jupyter notebook on port 8888 from the vagrant machine:
+
+.. code-block:: bash
+
+  cd /opt/eskapade
+  jupy &
+
+And press enter twice to return to the shell prompt.
+
+The command ``jupy &`` starts up Jupyter notebook in the background on port 8888 and pipes the output to the log file ``nohup.out``.
+
+In your local browser then go to address:
+
+  localhost:8888/
+
+And you will see the familiar Jupyter environment.
+
+E.g. you can now do ``import eskapade`` (shift-enter) to get access to the Eskapade library.
+
+Be sure to run ``jupy &`` from a directory that is mounted in the vagrant machine, such as ``/opt/eskapade``.
+In this way any notebook(s) you create are kept after you exit the docker run.

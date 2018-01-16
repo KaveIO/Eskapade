@@ -1,4 +1,4 @@
-Tutorial 5: using RooFit
+Tutorial5: using RooFit
 ------------------------
 
 This section provides a tutorial on how to use RooFit in Eskapade. RooFit is an advanced fitting library in ROOT, which is great
@@ -101,7 +101,7 @@ In fact, this last snippet of code is used in the tutorial macro right below.
 Running the tutorial macro
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's take a look at the steps in tutorial macro  ``python/eskapade/tutorials/tutorial_4.py``.
+Let's take a look at the steps in tutorial macro  ``python/eskapade/tutorials/tutorial_5.py``.
 The macro illustrates how do basic statistical data analysis with roofit, by making use of the ``RooWorkspace`` functionality.
 A ``RooWorkspace`` is a persistable container for RooFit projects. A workspace can contain and own variables, p.d.f.s, functions and datasets.
 The example shows how to define a pdf, simulate data, fit this data, and then plot the fit result.
@@ -111,7 +111,7 @@ The next step is to run the tutorial macro.
 
 .. code-block:: bash
 
-  $ eskapade_run python/eskapade/tutorials/tutorial_4.py
+  $ eskapade_run python/eskapade/tutorials/tutorial_5.py
 
 Let's discuss what we are seeing on the screen.
 
@@ -231,7 +231,7 @@ The fit report can be found at:
 
 .. code-block:: bash
 
-  $ cd results/tutorial_4/data/v0/report/
+  $ cd results/tutorial_5/data/v0/report/
   $ pdflatex report.tex
 
 Take a look at the resulting fit report: ``report.pdf``.

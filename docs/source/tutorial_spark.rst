@@ -9,7 +9,7 @@ paragraphs describe step-by-step how to run a Spark job, use existing links and 
 
 .. note::
 
-  To get familiar with Spark in Eskapade you can follow the exercises in ``python/eskapade/tutorials/tutorial_5.py``.
+  To get familiar with Spark in Eskapade you can follow the exercises in ``python/eskapade/tutorials/tutorial_6.py``.
 
 
 Running the tutorial macro
@@ -19,7 +19,7 @@ The very first step to run the tutorial Spark job is:
 
 .. code-block:: bash
 
-  $ eskapade_run python/eskapade/tutorials/tutorial_5.py
+  $ eskapade_run python/eskapade/tutorials/tutorial_6.py
 
 Eskapade will start a Spark session, do nothing, and quit - there are no chains/links defined yet.
 The Spark session is created via the ``SparkManager`` which, like the ``DataStore``,
@@ -168,7 +168,7 @@ To set the ``nrows`` attribute, add ``nrows`` to the key-value arguments in the 
       self._process_kwargs(kwargs, read_key=None, store_key=None, nrows=1)
 
 In order to configure Eskapade to run this link, the link needs to be added to a chain, e.g. ``Summary``, in the
-``tutorial/tutorial_5.py`` macro. This should look similar to:
+``tutorial/tutorial_6.py`` macro. This should look similar to:
 
 .. code-block:: python
 
@@ -181,7 +181,7 @@ Eskapade should now be ready to finally execute the macro and provide the desire
 
 .. code-block:: bash
 
-  $ eskapade_run python/eskapade/tutorials/tutorial_5.py
+  $ eskapade_run python/eskapade/tutorials/tutorial_6.py
 
   * * * Welcome to Eskapade * * *
   ...

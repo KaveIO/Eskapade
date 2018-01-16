@@ -371,8 +371,8 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
             statinfo = os.stat(path)
             self.assertGreater(statinfo.st_size, 0)
 
-    def test_tutorial4(self):
-        """Test Tutorial 4: Workspace create PDF, simulate, fit, plot."""
+    def test_tutorial5(self):
+        """Test Tutorial 5: Workspace create PDF, simulate, fit, plot."""
 
         def remove_pdf():
             # cleanup of temporary pdf files
@@ -387,7 +387,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         settings['onthefly'] = True
 
         # run Eskapade
-        macro = resources.tutorial('tutorial_4.py')
+        macro = resources.tutorial('tutorial_5.py')
         self.eskapade_run(macro)
 
         # check existence of class MyPdfV3

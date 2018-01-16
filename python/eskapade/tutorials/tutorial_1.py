@@ -98,6 +98,7 @@ summary.add(summarizer)
 # Now add your own transformation to the ApplyFuncToDf class.
 # We want to transform the temperature to Celsius, so use the code in the comments and fill it out.
 # As you can see the output will be written in the DataFrame to the column 'temp_c'.
+# We also want to include in the plot the wind speed in km/h.
 # Rerun the macro and take a look at the output. The output can be found in decision_engine/results
 
 # 3.
