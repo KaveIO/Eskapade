@@ -24,7 +24,7 @@ import numpy as np
 import pandas as pd
 import root_numpy
 import tabulate
-from numba import jit
+#from numba import jit # disabled
 
 from eskapade import process_manager, resources, Link, DataStore, StatusCode
 from eskapade.core import persistence
@@ -590,7 +590,7 @@ class UncorrelationHypothesisTester(Link):
         return df
 
 
-@jit(cache=True)
+#@jit(cache=True) # disabled
 def extract_matrix(df, x_col, y_col, v_col='normResid'):
     """Extract matrix from dataframe.
 

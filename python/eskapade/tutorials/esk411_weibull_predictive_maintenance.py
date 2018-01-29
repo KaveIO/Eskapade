@@ -17,9 +17,6 @@ Licence:
     LICENSE.
 """
 
-import ROOT
-from ROOT import RooFit
-
 from eskapade import ConfigObject, Chain
 from eskapade import process_manager
 from eskapade import root_analysis
@@ -29,6 +26,9 @@ from eskapade.root_analysis import roofit_utils
 
 # make sure Eskapade RooFit library is loaded
 roofit_utils.load_libesroofit()
+
+import ROOT
+from ROOT import RooFit
 
 logger = Logger()
 

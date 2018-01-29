@@ -32,13 +32,17 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-import ROOT
-from ROOT import RooFit
-
 from eskapade import ConfigObject, Chain
 from eskapade import core_ops, visualization, root_analysis
 from eskapade import process_manager
 from eskapade.logger import Logger
+from eskapade.root_analysis import roofit_utils
+
+# make sure Eskapade RooFit library is loaded
+roofit_utils.load_libesroofit()
+
+import ROOT
+from ROOT import RooFit
 
 logger = Logger()
 
