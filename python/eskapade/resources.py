@@ -16,6 +16,7 @@ LICENSE.
 """
 
 import pathlib
+import sys
 
 from pkg_resources import resource_filename
 
@@ -25,7 +26,10 @@ import eskapade
 _FIXTURE = {_.name: _ for _ in pathlib.Path(resource_filename(eskapade.__name__, 'data')).glob('*')}
 
 # C/C++ libraries that are shipped with eskapade.
-_LIBS = {_.name: _ for _ in pathlib.Path(resource_filename(eskapade.__name__, 'lib')).glob('*.so')}
+if sys.platform == 'darwin':
+    _LIBS = {_.name: _ for _ in pathlib.Path(resource_filename(eskapade.__name__, 'lib')).glob('*.dylib')}
+else:
+    _LIBS = {_.name: _ for _ in pathlib.Path(resource_filename(eskapade.__name__, 'lib')).glob('*.so')}
 
 # Tutorials that are shipped with eskapade.
 _TUTORIALS = {_.name: _ for _ in pathlib.Path(resource_filename(eskapade.__name__, 'tutorials')).glob('*.py')}

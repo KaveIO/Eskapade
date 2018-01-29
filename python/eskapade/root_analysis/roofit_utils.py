@@ -21,6 +21,8 @@ from enum import IntEnum, unique
 import ROOT
 from ROOT import RooFit
 
+import sys
+
 from eskapade.logger import LogLevel, Logger
 from eskapade import resources
 
@@ -72,13 +74,22 @@ def set_rf_log_level(level):
 
 def load_libesroofit():
     """Load Eskapade RooFit library."""
+
+    # the Eskapade RooFit library name
+    esroofit_lib_base = 'libesroofit'
+    if sys.platform == 'darwin':
+        esroofit_lib_ext = '.dylib'
+    else:
+        esroofit_lib_ext = '.so'
+    esroofit_lib_name = esroofit_lib_base + esroofit_lib_ext
+
     # don't rebuild/reload library if already loaded
-    if any('libesroofit.so' in _ for _ in ROOT.gSystem.GetLibraries().split()):
+    if any(esroofit_lib_base in _ for _ in ROOT.gSystem.GetLibraries().split()):
         return
 
     logger.debug('(Re-)loading Eskapade RooFit library')
 
-    path_to_esroofit = resources.lib('libesroofit.so')
+    path_to_esroofit = resources.lib(esroofit_lib_name)
     # The ROOT/Cling dictionary needs the esroofit header files.
     # These are located relative to the libesroofit library.
     esroofit_parent = str(pathlib.PurePath(path_to_esroofit).parent)

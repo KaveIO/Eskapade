@@ -24,8 +24,10 @@ endif()
 set(ESROOFIT_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O2 -Wmissing-field-initializers -Wall -Wpedantic -Wextra")
 # Set to TRUE to turn ROOT configuration debugging.
 set(ROOT_CONFIG_DEBUG FALSE)
-# The version of ROOT that we require.
-set(REQUIRED_ROOT_VERSION 6.10.04)
+# The version of ROOT that we require when using Linux.
+set(REQUIRED_ROOT_VERSION_LINUX 6.10.04)
+# The version of ROOT that we require when using macOS.
+set(REQUIRED_ROOT_VERSION_MACOS 6.10.08)
 # The set of options that ROOT should have been compiled with.
 set(ROOT_OPTIONS cxx11 fftw3 mathmore python3 roofit soversion thread tmva)
 # The set of components that should be present in ROOT.
@@ -43,7 +45,11 @@ info()
 info("Searching for ROOT Data Analysis Framework:")
 
 # Let's try to find ROOT and the necessary ROOT components.
-find_package(ROOT ${REQUIRED_ROOT_VERSION} EXACT REQUIRED COMPONENTS ${ROOT_COMPONENTS})
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    find_package(ROOT ${REQUIRED_ROOT_VERSION_MACOS} EXACT REQUIRED COMPONENTS ${ROOT_COMPONENTS})
+else()
+    find_package(ROOT ${REQUIRED_ROOT_VERSION_LINUX} EXACT REQUIRED COMPONENTS ${ROOT_COMPONENTS})
+endif()
 
 if(ROOT_FOUND)
     info("Found ROOT Data Analysis Framework ${HAPPY} ")
