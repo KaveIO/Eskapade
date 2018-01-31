@@ -79,7 +79,7 @@ log "installing Eskapade"
 source ${KTBDIR}/pro/scripts/KaveEnv.sh
 "${ANADIR}/pro/bin/pip" install -e "${ESDIR}" &> "${LOGDIR}/install-Python-requirements.log"
 log "installing Python requirements"
-"${ANADIR}/pro/bin/conda" install -y django pymongo &>> "${LOGDIR}/install-Python-requirements.log"
+"${ANADIR}/pro/bin/conda" install -y django pymongo sphinx_rtd_theme &>> "${LOGDIR}/install-Python-requirements.log"
 "${ANADIR}/pro/bin/pip" install djangorestframework markdown django-filter celery cherrypy names jaydebeapi \
 	&>> "${LOGDIR}/install-Python-requirements.log"
 

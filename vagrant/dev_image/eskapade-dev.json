@@ -9,7 +9,7 @@
           "name": "virtualbox",
           "url": "https://s3-eu-west-1.amazonaws.com/kpmg-eskapade-share/release/0.7/eskapade-dev-0.7.box",
           "checksum_type": "sha1",
-          "checksum": "1350e77f77cc3b2eb26f0ff754e8a617db34ce46"
+          "checksum": "dd58a7937929b20c72d1878a00e35f9ff794572a"
         }
       ]
     }
