@@ -58,10 +58,16 @@ apt-get -y dist-upgrade &> "${LOGDIR}/dist-upgrade.log"
 log "installing additional packages"
 apt-get -y install python &> "${LOGDIR}/install.log"
 
-# install KAVE Toolbox
+# set locale properly
+log "setting locale"
+echo -e "LC_ALL=en_US.UTF-8" >> /etc/default/locale
+
+# install KAVE Toolbox with customised installation script
 log "installing KAVE Toolbox"
 cd "${TMPDIR}"
 wget -q "http://repos:kaverepos@repos.dna.kpmglab.com/noarch/KaveToolbox/${KTBRELEASE}/kavetoolbox-installer-${KTBRELEASE}.sh"
+mkdir -p /etc/kave
+cp /vagrant/ktb/CustomInstall.py /etc/kave/
 bash "kavetoolbox-installer-${KTBRELEASE}.sh" --node &> "${LOGDIR}/install-ktb.log"
 
 # install additional packages
@@ -70,6 +76,7 @@ apt-get install -y --no-install-recommends mongodb-clients &> "${LOGDIR}/install
 
 # install Eskapade and its Python requirements
 log "installing Eskapade"
+source ${KTBDIR}/pro/scripts/KaveEnv.sh
 "${ANADIR}/pro/bin/pip" install -e "${ESDIR}" &> "${LOGDIR}/install-Python-requirements.log"
 log "installing Python requirements"
 "${ANADIR}/pro/bin/conda" install -y django pymongo &>> "${LOGDIR}/install-Python-requirements.log"
