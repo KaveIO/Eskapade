@@ -3,13 +3,13 @@
   "description": "ESKAPADE development box",
   "versions": [
     {
-      "version": "0.6",
+      "version": "0.7",
       "providers": [
         {
           "name": "virtualbox",
-          "url": "https://s3-eu-west-1.amazonaws.com/kpmg-eskapade-share/release/0.6/eskapade-dev-0.6.box",
+          "url": "https://s3-eu-west-1.amazonaws.com/kpmg-eskapade-share/release/0.7/eskapade-dev-0.7.box",
           "checksum_type": "sha1",
-          "checksum": "b988de0d3a62ddfde1817a4ff64a40186f5bda4a"
+          "checksum": "1350e77f77cc3b2eb26f0ff754e8a617db34ce46"
         }
       ]
     }
