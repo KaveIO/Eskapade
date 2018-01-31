@@ -32,6 +32,9 @@ Vagrant.configure("2") do |config|
   # mount ESKAPADE repository
   config.vm.provision "shell", path: "mount.sh", run: "always"
 
+  # mount ESKAPADE repository
+  config.vm.provision "shell", path: "pip.sh", run: "always"
+
   # reboot machine
   config.vm.provision "shell", inline: <<-SHELL
     echo "$(date +'%F %T %Z'): system reboot in one minute"
