@@ -94,7 +94,6 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file
 LICENSE.
 \"\"\"
-from time import sleep
 
 from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 
@@ -141,7 +140,6 @@ class {link_name!s}(Link):
 
         # --- your algorithm code goes here
         self.logger.debug('Now executing link: {{link}}.', link=self.name)
-        sleep(2)
 
         return StatusCode.Success
 
