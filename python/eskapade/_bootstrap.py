@@ -15,9 +15,11 @@ LICENSE.
 
 import datetime
 import os
+import shutil
 import sys
 
 from eskapade.logger import Logger
+from eskapade import resources
 
 logger = Logger(__name__)
 
@@ -265,6 +267,24 @@ def generate_notebook(notebook_dir, notebook_name, macro_path=None):
         create_file(path=notebook_dir,
                     file_name='{notebook_name!s}.ipynb'.format(notebook_name=notebook_name),
                     content=content)
+
+
+def generate_configs(root_dir: str) -> None:
+    """Generate default configs.
+
+    :param str root_dir: Absolute path to package root directory.
+    """
+    config_dir = root_dir + '/config/'
+    create_dir(config_dir)
+
+    spark_cfg_dir = config_dir + '/spark'
+    create_dir(spark_cfg_dir)
+
+    # Default spark config.
+    spark_cfg_file = 'spark.cfg'
+    spark_cfg = resources.config(spark_cfg_file)
+    logger.info('Creating {file_name} in the directory {dir!s}.', file_name=spark_cfg_file, dir=spark_cfg_dir)
+    shutil.copy2(spark_cfg, spark_cfg_dir)
 
 
 def generate_setup(root_dir, package_name):
