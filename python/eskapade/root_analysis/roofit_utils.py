@@ -77,10 +77,10 @@ def load_libesroofit():
 
     # the Eskapade RooFit library name
     esroofit_lib_base = 'libesroofit'
+    esroofit_lib_ext = '.so'  # Default is nix.
     if sys.platform == 'darwin':
         esroofit_lib_ext = '.dylib'
-    else:
-        esroofit_lib_ext = '.so'
+
     esroofit_lib_name = esroofit_lib_base + esroofit_lib_ext
 
     # don't rebuild/reload library if already loaded
