@@ -373,25 +373,22 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
 
     def test_tutorial5(self):
         """Test Tutorial 5: Workspace create PDF, simulate, fit, plot."""
+        my_pdf = 'MyPdf'
 
         def remove_pdf():
             # cleanup of temporary pdf files
-            rm_files = glob('MyPdfV3.*') + glob('MyPdfV3_cxx*') + glob('doesnotexit.cxx')
+            rm_files = glob(my_pdf+'.*') + glob(my_pdf+'_cxx*') + glob('doesnotexit.cxx')
             for rm_file in rm_files:
                 os.remove(rm_file)
 
         self.addCleanup(remove_pdf)
-
-        # turn on creation and loading of MyPdfV3
-        settings = process_manager.service(ConfigObject)
-        settings['onthefly'] = True
 
         # run Eskapade
         macro = resources.tutorial('tutorial_5.py')
         self.eskapade_run(macro)
 
         # check existence of class MyPdfV3
-        cl = ROOT.TClass.GetClass('MyPdfV3')
+        cl = ROOT.TClass.GetClass(my_pdf)
         self.assertTrue(cl)
 
         ds = process_manager.service(DataStore)
