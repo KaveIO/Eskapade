@@ -224,4 +224,4 @@ def eskapade_bootstrap():
     bootstrap.generate_macro(macro_dir=package_dir, macro_name=args.macro_name,
                              link_module=args.package_name, link_name=args.link_name, is_create_init=True)
     bootstrap.generate_notebook(notebook_dir=package_dir, notebook_name=args.notebook_name, macro_path=marco_path)
-    bootstrap.generate_setup(root_dir=args.project_root_dir, package_name=args.package_name)
+    bootstrap.generate_setup(root_dir=package_dir, package_name=args.package_name)

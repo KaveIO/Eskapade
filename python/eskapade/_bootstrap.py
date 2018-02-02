@@ -204,7 +204,7 @@ LICENSE.
 from eskapade import process_manager, Chain, ConfigObject
 from eskapade.logger import Logger, LogLevel
 
-from {link_module} import {link_name!s}
+from links import {link_name!s}
 
 logger = Logger()
 
@@ -231,9 +231,8 @@ logger.debug('Done parsing configuration file {macro_name!s}.')
                               link_module=link_module,
                               link_name=link_name)
     if is_create_init:
-        init_content = '# Created by Eskapade on {date!s}\n' \
-                       'from {link_module}.links import *\n'.format(link_module=link_module,
-                                                                    date=datetime.date.today())
+        init_content = '# Created by Eskapade on {date!s}\n'.format(date=datetime.date.today())
+
         create_file(path=macro_dir,
                     file_name='__init__.py',
                     content=init_content)
@@ -279,6 +278,16 @@ def generate_setup(root_dir, package_name):
 
 NAME = '{package_name}'
 
+MAJOR = 1
+REVISION = 0
+PATCH = 0
+DEV = True
+
+VERSION = '{{major}}.{{revision}}.{{patch}}'.format(major=MAJOR, revision=REVISION, patch=PATCH)
+FULL_VERSION = VERSION
+if DEV:
+    FULL_VERSION += '.dev'
+
 
 def setup_package() -> None:
     \"\"\"The main setup method.
@@ -287,6 +296,7 @@ def setup_package() -> None:
     \"\"\"
 
     setup(name=NAME,
+          version=VERSION,
           python_requires='>=3.5',
           package_dir={{'': '.'}},
           packages=find_packages(),
