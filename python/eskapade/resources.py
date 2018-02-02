@@ -37,21 +37,25 @@ _TUTORIALS = {_.name: _ for _ in pathlib.Path(resource_filename(eskapade.__name_
 # Templates that are shipped with eskapade.
 _TEMPLATES = {_.name: _ for _ in pathlib.Path(resource_filename(eskapade.__name__, 'templates')).glob('*')}
 
+# Configs that are shipped with eskapade.
+_CONFIGS = {_.name: _ for _ in pathlib.Path(resource_filename(eskapade.__name__, 'config')).glob('**/*')}
+
 # Resource types
 _RESOURCES = {
     'fixture': _FIXTURE,
     'library': _LIBS,
     'tutorial': _TUTORIALS,
     'template': _TEMPLATES,
+    'config': _CONFIGS
 }
 
 
 def _resource(resource_type, name: str) -> str:
     """Return the full path filename of a resource.
 
-    :param resource_type The type of the resource.
-    :param name: The name of the resource.
-    :return: The full path filename of the fixture data set.
+    :param str resource_type: The type of the resource.
+    :param str  name: The name of the resource.
+    :returns: The full path filename of the fixture data set.
     :rtype: str
     :raises FileNotFoundError: If the resource cannot be found.
     """
@@ -67,8 +71,8 @@ def _resource(resource_type, name: str) -> str:
 def fixture(name: str) -> str:
     """Return the full path filename of a fixture data set.
 
-    :param name: The name of the fixture.
-    :return: The full path filename of the fixture data set.
+    :param str name: The name of the fixture.
+    :returns: The full path filename of the fixture data set.
     :rtype: str
     :raises FileNotFoundError: If the fixture cannot be found.
     """
@@ -78,8 +82,8 @@ def fixture(name: str) -> str:
 def lib(name: str) -> str:
     """Return the full path filename of a library.
 
-    :param name: The name of the library.
-    :return: The full path filename of the library.
+    :param str name: The name of the library.
+    :returns: The full path filename of the library.
     :rtype: str
     :raises FileNotFoundError: If the library cannot be found.
     """
@@ -89,8 +93,8 @@ def lib(name: str) -> str:
 def tutorial(name: str) -> str:
     """Return the full path filename of a tutorial.
 
-    :param name: The name of the tutorial.
-    :return: The full path filename of the tutorial.
+    :param str name: The name of the tutorial.
+    :returns: The full path filename of the tutorial.
     :rtype: str
     :raises FileNotFoundError: If the tutorial cannot be found.
     """
@@ -100,9 +104,19 @@ def tutorial(name: str) -> str:
 def template(name: str) -> str:
     """Return the full path filename of a tutorial.
 
-    :param name: The name of the template.
-    :return: The full path filename of the tutorial.
+    :param str name: The name of the template.
+    :returns: The full path filename of the tutorial.
     :rtype: str
     :raises FileNotFoundError: If the template cannot be found.
     """
     return _resource('template', name)
+
+
+def config(name: str) -> str:
+    """Return the absolute path of a config.
+
+    :param str name: The name of the config.
+    :returns: The absolute path of the config.
+    :raises FileNotFoundError: If the config cannot be found.
+    """
+    return _resource('config', name)
