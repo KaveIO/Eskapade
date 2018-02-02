@@ -15,9 +15,11 @@ LICENSE.
 
 import datetime
 import os
+import shutil
 import sys
 
 from eskapade.logger import Logger
+from eskapade import resources
 
 logger = Logger(__name__)
 
@@ -204,7 +206,7 @@ LICENSE.
 from eskapade import process_manager, Chain, ConfigObject
 from eskapade.logger import Logger, LogLevel
 
-from {link_module} import {link_name!s}
+from links import {link_name!s}
 
 logger = Logger()
 
@@ -231,9 +233,8 @@ logger.debug('Done parsing configuration file {macro_name!s}.')
                               link_module=link_module,
                               link_name=link_name)
     if is_create_init:
-        init_content = '# Created by Eskapade on {date!s}\n' \
-                       'from {link_module}.links import *\n'.format(link_module=link_module,
-                                                                    date=datetime.date.today())
+        init_content = '# Created by Eskapade on {date!s}\n'.format(date=datetime.date.today())
+
         create_file(path=macro_dir,
                     file_name='__init__.py',
                     content=init_content)
@@ -268,6 +269,24 @@ def generate_notebook(notebook_dir, notebook_name, macro_path=None):
                     content=content)
 
 
+def generate_configs(root_dir: str) -> None:
+    """Generate default configs.
+
+    :param str root_dir: Absolute path to package root directory.
+    """
+    config_dir = root_dir + '/config/'
+    create_dir(config_dir)
+
+    spark_cfg_dir = config_dir + '/spark'
+    create_dir(spark_cfg_dir)
+
+    # Default spark config.
+    spark_cfg_file = 'spark.cfg'
+    spark_cfg = resources.config(spark_cfg_file)
+    logger.info('Creating {file_name} in the directory {dir!s}.', file_name=spark_cfg_file, dir=spark_cfg_dir)
+    shutil.copy2(spark_cfg, spark_cfg_dir)
+
+
 def generate_setup(root_dir, package_name):
     """Generate project setup.py.
 
@@ -279,6 +298,16 @@ def generate_setup(root_dir, package_name):
 
 NAME = '{package_name}'
 
+MAJOR = 1
+REVISION = 0
+PATCH = 0
+DEV = True
+
+VERSION = '{{major}}.{{revision}}.{{patch}}'.format(major=MAJOR, revision=REVISION, patch=PATCH)
+FULL_VERSION = VERSION
+if DEV:
+    FULL_VERSION += '.dev'
+
 
 def setup_package() -> None:
     \"\"\"The main setup method.
@@ -287,6 +316,7 @@ def setup_package() -> None:
     \"\"\"
 
     setup(name=NAME,
+          version=VERSION,
           python_requires='>=3.5',
           package_dir={{'': '.'}},
           packages=find_packages(),
