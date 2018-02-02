@@ -275,7 +275,10 @@ class Logger(object):
         Note that :func:`logging.getLogger` will either create or get a logger with said name.
         """
         source = instance or instance_type
-        name = '.'.join([instance_type.__module__, instance_type.__name__])
+        paths = [instance_type.__module__, instance_type.__name__]
+        if global_log_publisher.name not in instance_type.__module__:
+            paths.insert(0, global_log_publisher.name)
+        name = '.'.join(paths)
         return self.__class__(name=name,
                               source=source,
                               observer=logging.getLogger(name))
