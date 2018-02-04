@@ -50,8 +50,6 @@ settings['version'] = 0
 pdf_name = 'MyPdf'
 pdf_lib_base = pdf_name + '_cxx'
 pdf_lib_ext = '.so'
-if sys.platform == 'darwin':
-        pdf_lib_ext = '.dylib'
 pdf_lib_name = pdf_lib_base + pdf_lib_ext
 
 if ROOT.gSystem.Load(pdf_lib_name) != 0:
