@@ -178,9 +178,9 @@ class SparkManagerTest(unittest.TestCase):
             SparkManager.get_session(mock_sm)
         mock_sm.reset_mock()
 
-    @mock.patch('eskapade.core.persistence.io_path')
+    @mock.patch('eskapade.resources.config')
     @mock.patch('pyspark.conf')
-    def test_create_spark_conf(self, mock_conf_mod, mock_io_path):
+    def test_create_spark_conf(self, mock_conf_mod, mock_resources):
         """Test creation of Spark configuration"""
 
         # create mock-ups
@@ -190,7 +190,7 @@ class SparkManagerTest(unittest.TestCase):
         eskapade_settings = mock.Mock(name='eskapade_settings')
         spark_settings = mock.Mock(name='custom_spark_settings')
         mock_conf_mod.SparkConf.return_value = created_config
-        mock_io_path.return_value = lambda a, b, c: '/foo/bar'
+        mock_resources.return_value = lambda x: '/foo/bar'
 
         # test creating config without settings
         mock_sm.config_path = None
@@ -209,7 +209,6 @@ class SparkManagerTest(unittest.TestCase):
             return {'sparkCfgFile': 'spark.cfg'}[arg]
 
         eskapade_settings.get = get
-        eskapade_settings.io_conf.return_value = dict(foo='bar')
 
         def get_config(*args):
             class MockConf(list):
@@ -225,12 +224,12 @@ class SparkManagerTest(unittest.TestCase):
 
         mock_sm.get_config.side_effect = get_config
         eskapade_config = SparkManager._create_spark_conf(mock_sm, eskapade_settings=eskapade_settings)
-        mock_io_path.assert_called_once_with('config_spark', 'spark.cfg', {'foo': 'bar'})
+        mock_resources.assert_called_once_with('spark.cfg') 
         mock_sm.reset_config.assert_called_once_with()
         created_config.setAll.assert_called_once_with([('foo', 'bar')])
         self.assertIs(eskapade_config, created_config, 'incorrect config set')
         mock_sm.reset_mock()
-        mock_io_path.reset_mock()
+        mock_resources.reset_mock()
         created_config.reset_mock()
 
         # test creating config with alternative configuration file path
@@ -238,12 +237,12 @@ class SparkManagerTest(unittest.TestCase):
 
         mock_sm.get_config.side_effect = get_config
         file_config = SparkManager._create_spark_conf(mock_sm, config_path='/foo/bar')
-        mock_io_path.assert_not_called()
+        mock_resources.assert_not_called()
         mock_sm.reset_config.assert_called_once_with()
         created_config.setAll.assert_called_once_with([('foo', 'bar')])
         self.assertIs(file_config, created_config, 'incorrect config set')
         mock_sm.reset_mock()
-        mock_io_path.reset_mock()
+        mock_resources.reset_mock()
         created_config.reset_mock()
 
         # test failing of creating config due to absence spark section in configuration file
@@ -263,10 +262,10 @@ class SparkManagerTest(unittest.TestCase):
         mock_sm.get_config.side_effect = get_config_wrong
         with self.assertRaises(RuntimeError):
             SparkManager._create_spark_conf(mock_sm, config_path='/foo/bar')
-        mock_io_path.assert_not_called()
+        mock_resources.assert_not_called()
         mock_sm.reset_config.assert_called_once_with()
         mock_sm.reset_mock()
-        mock_io_path.reset_mock()
+        mock_resources.reset_mock()
         created_config.reset_mock()
 
         # test creating config with custom Spark settings
@@ -281,19 +280,18 @@ class SparkManagerTest(unittest.TestCase):
 
         # test creating config with all parameters set
         mock_sm.config_path = None
-        eskapade_settings.io_conf.return_value = dict(foo='bar')
 
         mock_sm.get_config.side_effect = get_config
         SparkManager._create_spark_conf(
             mock_sm, config_path='foo.bar', eskapade_settings=eskapade_settings, spark_settings=spark_settings)
-        mock_io_path.assert_called_once_with('config_spark', 'foo.bar', {'foo': 'bar'})
+        mock_resources.assert_called_once_with('foo.bar')
         mock_sm.reset_config.assert_called_once_with()
         calls = [mock.call(get_config().items()), mock.call(spark_settings)]
         created_config.setAll.assert_has_calls(calls, any_order=False)
         self.assertEqual(created_config.setAll.call_count, 2)
         self.assertIs(eskapade_config, created_config, 'incorrect config set')
         mock_sm.reset_mock()
-        mock_io_path.reset_mock()
+        mock_resources.reset_mock()
         created_config.reset_mock()
 
     def test_get_spark_streaming_context(self):
