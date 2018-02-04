@@ -26,8 +26,8 @@ Vagrant.configure("2") do |config|
   # mount ESKAPADE repository
   config.vm.provision "shell", path: "mount.sh", run: "always"
 
-  # install ESKAPADE 
-  config.vm.provision "shell", path: "pip.sh", run: "always"
+  # install ESKAPADE (when starting with clean instance)
+  config.vm.provision "shell", path: "pip.sh", run: "once"
 
   # login 
   config.ssh.username = "vagrant"
