@@ -61,3 +61,5 @@ python/eskapade/version.py
 docs/source/_static/
 python/eskapade/core/context.py
 python/eskapade/play_logger.py
+.pytest_cache/
+__pycache__/

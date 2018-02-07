@@ -337,6 +337,27 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
         link.parent = self
         super().add(link)
 
+    # TODO (janos4276) This is a copy past of the Process Manager method. We could/should probably move this to
+    # ProcesserSequence.
+    def get(self, link_name: str) -> Link:
+        """Find the link with the given name.
+
+        :param link_name: Find a link with the given name.
+        :type link_name: str
+        :return: The chain.
+        :rtype: Chain
+        :raise ValueError: When the given chain name cannot be found.
+        """
+        iterator = iter(self)
+        link = next(iterator, None)
+        while link and link.name != link_name:
+            link = next(iterator, None)
+
+        if link is None:
+            raise ValueError('Found no chain with name "{name}"!'.format(name=link_name))
+
+        return link
+
     def discard(self, link: Link) -> None:
         """Remove a link from the chain.
 

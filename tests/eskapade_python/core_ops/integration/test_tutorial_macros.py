@@ -5,7 +5,7 @@ import unittest
 import unittest.mock as mock
 
 import eskapade.utils
-from eskapade import process_manager, resources, ConfigObject, DataStore, StatusCode
+from eskapade import process_manager, resources, ConfigObject, DataStore, StatusCode, entry_points
 from eskapade.core import execution
 from eskapade.core_ops import Break
 from eskapade.logger import LogLevel
@@ -106,8 +106,9 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(True, settings.get('do_chain1', True))
         self.assertEqual('Universe', list(list(process_manager)[0])[0].hello)
 
-    # TODO (janos4276): Ugh ... Fix this or remove this. This test relies on the old way of doing things.
-    @unittest.skip('Fix or remove this test. This test relies on the old way of doing things!')
+    @unittest.skip('TODO: Rewrite this test! It is supposed to test argument passing to Eskapade via the command '
+                   'line, which is currently not working. For some reason the analysis name is not picked up from the'
+                   ' macro. We could look at the eskapade_bootstrap test for inspiration.')
     @mock.patch('sys.argv')
     def test_esk106_script(self, mock_argv):
         """Test Eskapade run with esk106 macro from script"""
@@ -116,21 +117,14 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         settings = process_manager.service(ConfigObject)
         settings['analysisName'] = 'esk106_cmdline_options'
         settings_ = settings.copy()
-        script_path = eskapade.utils.get_file_path('run_eskapade')
         macro_path = resources.tutorial('esk106_cmdline_options.py')
-
-        # import run-script module
-        orig_mod_path = sys.path.copy()
-        sys.path.append(os.path.dirname(script_path))
-        script_mod = os.path.splitext(os.path.basename(script_path))[0]
-        run_eskapade = importlib.import_module(script_mod)
 
         # mock command-line arguments
         args = []
         mock_argv.__getitem__ = lambda s, k: args.__getitem__(k)
 
         # base settings
-        args_ = [script_path, macro_path, '-LDEBUG', '--batch-mode']
+        args_ = [macro_path, '-LDEBUG', '--batch-mode']
         settings_['macro'] = macro_path
         settings_['logLevel'] = LogLevel.DEBUG
         settings_['batchMode'] = True
@@ -144,7 +138,7 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
 
             # run Eskapade
             process_manager.reset()
-            run_eskapade.main()
+            entry_points.eskapade_run()
             settings_run = process_manager.service(ConfigObject)
 
             # check results
@@ -169,10 +163,6 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
                ['-cdo_chain0=False', '-cdo_chain1=True'],
                dict(do_chain0=False, do_chain1=True),
                ['Chain1'])
-
-        # restore module search path
-        sys.path.clear()
-        sys.path += orig_mod_path
 
     def test_esk107(self):
         self.eskapade_run(resources.tutorial('esk107_chain_looper.py'))

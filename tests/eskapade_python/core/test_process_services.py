@@ -128,7 +128,8 @@ class ConfigObjectTest(unittest.TestCase):
 
         self.assertTrue(ConfigObject._persist, 'unexpected value for config-object persist flag')
 
-    @unittest.skip('This test needs to fixed or removed!')
+    @unittest.skip('TODO: Rewrite this test once we have refactored and re-written the configuration logic. This test '
+                   'tests job configuration and initialisation.')
     @mock.patch.dict('eskapade.core.definitions.CONFIG_DEFAULTS', clear=True)
     @mock.patch.dict('eskapade.core.definitions.CONFIG_VARS', clear=True)
     @mock.patch('eskapade.utils.get_env_var')
@@ -290,30 +291,6 @@ class ConfigObjectTest(unittest.TestCase):
         args = {}
         set_opt_var('opt6', settings, args)
         self.assertDictEqual(settings, settings_, 'unexpected settings dictionary after "opt6"')
-
-    @unittest.skip('What are we testing here? This either needs to be removed or rewritten.')
-    @mock.patch.dict('eskapade.core.definitions.USER_OPTS_CONF_KEYS', clear=True)
-    def test_set_log_level_opt(self):
-        """Test setter function for log level"""
-
-        # set option keys and log levels
-        USER_OPTS_CONF_KEYS.update(log_level1='logLevel1')
-        mock_level = mock.Mock(name='mock_log_level')
-
-        # create arguments and settings
-        args = dict(log_level1='LEVEL', log_level2='LEVEL', log_level3=None)
-        args_ = args.copy()
-        settings = dict(var0='zero', logLevel1=None)
-        settings_ = dict(var0='zero', logLevel1=mock_level, log_level2=mock_level)
-
-        # test normal operation
-        self.loop_set_opt_vars(set_log_level_opt, args, args_, settings, settings_)
-
-        # test with invalid log level
-        args = dict(log_level4='LEVEL4')
-
-        with self.assertRaises(ValueError):
-            set_log_level_opt('log_level4', settings, args)
 
     @mock.patch.dict('eskapade.core.definitions.USER_OPTS_CONF_KEYS', clear=True)
     def test_set_begin_end_chain_opt(self):

@@ -274,8 +274,8 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue(frac.getVal() > 0)
         self.assertTrue(frac.getError() > 0)
 
-    @unittest.skip('The new chain interface does not have a method get. '
-                   'BTW how do I know which chains/links are defined?')
+    #@unittest.skip('The new chain interface does not have a method get. '
+    #               'BTW how do I know which chains/links are defined?')
     def test_esk409(self):
         """Test Esk-409: Unredeemed vouchers."""
         # run Eskapade
@@ -293,7 +293,7 @@ class RootAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(ds['voucher_ages'].numEntries(), 10000)
 
         # check fit result
-        fit_link = process_manager.get_chain('Fitting').get_link('Fit')
+        fit_link = process_manager.get('Fitting').get('Fit')
         self.assertEqual(fit_link.fit_result.status(), 0)
         n_ev_pull = (fit_link.results['n_ev'][0] - 6000.) / fit_link.results['n_ev'][1]
         self.assertGreater(n_ev_pull, -3.)

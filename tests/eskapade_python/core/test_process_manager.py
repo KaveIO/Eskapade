@@ -13,8 +13,7 @@ class ProcessServiceMock(ProcessService):
 
 
 class ProcessManagerTest(unittest.TestCase):
-    @unittest.skip("Test fails with AttributeError: 'NoneType' object has no attribute 'finish'."
-                   " Please investigate!")
+
     @mock.patch('eskapade.core.process_services.ProcessService.create')
     def test_service(self, mock_create):
         pm = process_manager
@@ -22,29 +21,24 @@ class ProcessManagerTest(unittest.TestCase):
         # register service by specifying type
         ps = ProcessServiceMock()
         mock_create.return_value = ps
-        pm._services = {}
         ps_ = process_manager.service(ProcessServiceMock)
         self.assertIn(ProcessServiceMock, pm._services)
         self.assertIs(ps_, ps)
         self.assertIs(pm._services[ProcessServiceMock], ps)
+        pm.reset()
 
         # register service by specifying instance
         ps = ProcessServiceMock()
-        pm._services = {}
         ps_ = process_manager.service(ps)
         self.assertIn(ProcessServiceMock, pm._services)
         self.assertIs(ps_, ps)
         self.assertIs(pm._services[ProcessServiceMock], ps)
-
-        # register service with wrong value
-        ps = ProcessServiceMock()
-        pm._services = {ProcessServiceMock: None}
-        with self.assertRaises(ValueError):
-            process_manager.service(ps)
+        pm.reset()
 
         # register service with wrong type
         with self.assertRaises(TypeError):
             process_manager.service(object)
+        pm.reset()
 
     def test_chain(self):
         pm = process_manager
