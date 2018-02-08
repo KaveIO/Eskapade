@@ -1,0 +1,5 @@
+#! /bin/bash
+
+source /opt/KaveToolbox/pro/scripts/KaveEnv.sh
+alias jupy='nohup jupyter notebook --port 8888 --ip=0.0.0.0'
+alias gitlog='git log --graph --decorate --oneline'
