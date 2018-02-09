@@ -123,8 +123,6 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
             self.assertListEqual(cont, contents[0],
                                  'CSV content of "{0:s}" differs from content of "{1:s}"'.format(name, names[0]))
 
-    @unittest.skip('The new chain interface does not have a method get. '
-                   'BTW how do I know which chains/links are defined?')
     def test_esk604(self):
         """Test Esk-604: Execute Spark-SQL query."""
         # check if running in local mode
@@ -142,7 +140,7 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertIsInstance(ds['spark_df_sql'], pyspark.sql.DataFrame, '"spark_df_sql" is not a Spark data frame')
         self.assertEqual(ds['spark_df_sql'].count(), 4, 'unexpected number of rows in filtered data frame')
         self.assertListEqual(ds['spark_df_sql'].columns, ['loc', 'sumx', 'sumy'], 'unexpected columns in data frame')
-        self.assertEqual(ds['spark_df_sql'].schema, process_manager.get_chain('ApplySQL').get_link('SparkSQL').schema,
+        self.assertEqual(ds['spark_df_sql'].schema, process_manager.get('ApplySQL').get('SparkSQL').schema,
                          'schema of data frame does not correspond to schema stored in link')
         self.assertSetEqual(set(tuple(r) for r in ds['spark_df_sql'].collect()),
                             set([('e', 10, 15), ('d', 2, 11), ('b', 6, 16), ('a', 2, 18)]),
@@ -228,8 +226,6 @@ class SparkAnalysisTutorialMacrosTest(TutorialMacrosTest):
                                  ('foo', 20090104, 'd', 1, 6, 1.0, 1.0)]),
                             'unexpected values in columns')
 
-    # FIXME: Test fails because of the bugs in histogrammar package. Apply the patches before running the test.
-    @unittest.skip('Test fails because of the bugs in histogrammar package. Apply the patches before running the test')
     def test_esk608(self):
         """Test Esk-608: Execute Spark histogram filling macro."""
         # check if required Python and Java libraries are made available to worker nodes
