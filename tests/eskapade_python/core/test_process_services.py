@@ -128,8 +128,9 @@ class ConfigObjectTest(unittest.TestCase):
 
         self.assertTrue(ConfigObject._persist, 'unexpected value for config-object persist flag')
 
-    @unittest.skip('TODO: Rewrite this test once we have refactored and re-written the configuration logic. This test '
-                   'tests job configuration and initialisation.')
+    @unittest.skip('TODO (v0.8): this test tests job configuration and '
+                   'initialisation - to be re-written when configuartion logic '
+                   'is refactored.')
     @mock.patch.dict('eskapade.core.definitions.CONFIG_DEFAULTS', clear=True)
     @mock.patch.dict('eskapade.core.definitions.CONFIG_VARS', clear=True)
     @mock.patch('eskapade.utils.get_env_var')

@@ -106,9 +106,9 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(True, settings.get('do_chain1', True))
         self.assertEqual('Universe', list(list(process_manager)[0])[0].hello)
 
-    @unittest.skip('TODO: Rewrite this test! It is supposed to test argument passing to Eskapade via the command '
-                   'line, which is currently not working. For some reason the analysis name is not picked up from the'
-                   ' macro. We could look at the eskapade_bootstrap test for inspiration.')
+    @unittest.skip('TODO (v0.8): this test tests argument passing to Eskapade '
+            'via command line - the analysis name should be picked up from '
+            'the macro - to be re-written analogue to the eskapade_bootstrap test.')
     @mock.patch('sys.argv')
     def test_esk106_script(self, mock_argv):
         """Test Eskapade run with esk106 macro from script"""
