@@ -10,7 +10,7 @@ installed and working properly. Alternatively, you can download the repository a
 * See `Eskapade on a virtual machine`_ to get started with Vagrant.
 * See `Eskapade on your own machine`_ for the local installation requirements.
 
-This manual is written for Linux systems, but Eskapade also runs fine on `MacOS <mac_os.html>`_ systems.
+This manual is written for Linux systems, but Eskapade also runs fine on `macOS <mac_os.html>`_ systems.
 
 
 Eskapade with Docker
@@ -226,7 +226,7 @@ You can now use Eskapade in Python with:
 See the readme files in other parts of the repository for specific usage.
 
 
-Installing Eskapade on MacOS
+Installing Eskapade on macOS
 ----------------------------
 
-To install eskapade on MacOS, see our `MacOS appendix <mac_oS.html>`_.
+To install eskapade on macOS, see our `MacOS appendix <mac_oS.html>`_.
