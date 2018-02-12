@@ -52,14 +52,16 @@ Then compile it with the additional flags to ensure the desired functionality:
 .. code-block:: bash
 
   $ mkdir ~/root_v06-10-08_p36m && cd ~/root_v06-10-08_p36m
-  $ cmake -Doracle=OFF -Dfftw3=ON -Dmathmore=ON -Dminuit2=ON -Droofit=ON -Dtmva=ON -Dsoversion=ON -Dthread=ON -Dpython3=ON -DPYTHON_EXECUTABLE=/usr/local/opt/python3/Frameworks/Python.framework/Versions/3.6/bin/python3.6m -DPYTHON_INCLUDE_DIR=/usr/local/opt/python3/Frameworks/Python.framework/Versions/3.6/include/python3.6m/ -DPYTHON_LIBRARY=/usr/local/opt/python3/Frameworks/Python.framework/Versions/3.6/lib/libpython3.6m.dylib /Users/gossie/git/root
+  $ cmake -Dfftw3=ON -Dmathmore=ON -Dminuit2=ON -Droofit=ON -Dtmva=ON -Dsoversion=ON -Dthread=ON -Dpython3=ON -DPYTHON_EXECUTABLE=/usr/local/opt/python3/Frameworks/Python.framework/Versions/3.6/bin/python3.6m -DPYTHON_INCLUDE_DIR=/usr/local/opt/python3/Frameworks/Python.framework/Versions/3.6/include/python3.6m/ -DPYTHON_LIBRARY=/usr/local/opt/python3/Frameworks/Python.framework/Versions/3.6/lib/libpython3.6m.dylib $HOME/root
   $ cmake --build . -- -j7
+
+PS: make sure all the flags are picked up correctly (for example, ``-Dfftw3`` requires ``fftw`` to be installed with Homebrew).
 
 To setup the ROOT environment each time a new shell is started, set the following environment variables:
 
 .. code-block:: bash
 
-  set -xg ROOTSYS "/Users/gossie/root_v06-10-08_p36m"
+  set -xg ROOTSYS "$HOME/root_v06-10-08_p36m"
   set -xg PATH $ROOTSYS/bin $PATH
   set -xg LD_LIBRARY_PATH "$ROOTSYS/lib:$LD_LIBRARY_PATH"
   set -xg DYLD_LIBRARY_PATH "$ROOTSYS/lib:$DYLD_LIBRARY_PATH"
@@ -132,7 +134,7 @@ To set up the Eskapade environment (Python, Spark, ROOT) each time a new termina
   set -xg PYTHONPATH "$SPARK_HOME/python:$PYTHONPATH"
 
   # --- setup Eskapade
-  cd ~/git/gitlab-nl/decision-engine
+  cd /path/to/eskapade
 
 Finally, install Eskapade (and it's dependencies) by simply running:
 

@@ -229,4 +229,4 @@ See the readme files in other parts of the repository for specific usage.
 Installing Eskapade on macOS
 ----------------------------
 
-To install eskapade on macOS, see our `MacOS appendix <mac_oS.html>`_.
+To install eskapade on macOS, see our `macOS appendix <mac_os.html>`_.
