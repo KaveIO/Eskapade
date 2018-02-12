@@ -87,18 +87,53 @@ Or build the Eskapade docker image with ``esdev`` user installation, from scratc
 
 This will produce the ``kave/eskapade-usr:0.7`` image.
 
+From this image, containers with the Eskapade environment set up, can be run out-of-the-box:
+
+.. code:: bash
+
+  $ docker run -e HOST_USER_ID=$(id -u) -e HOST_USER_GID=$(id -g) -p 8888:8888 -it kave/eskapade-usr:0.7
+
+The first time you run this command it will likely take some time. The ``HOST_USER_ID`` and ``HOST_USER_GID`` environment
+variables are used to dynamically map user & group id's between Docker host and container ensuring proper read/write permissions.
+
+
+Remapping the user id permanently
+:::::::::::::::::::::::::::::::::
+
+To prevent the remapping of user and group id from happening the next time you boot up the image, open another shell:
+
+.. code:: bash
+
+  $ docker ps
+
+Copy the top CONTAINER-ID string, matching the running instance of the ``kave/eskapade-usr:0.7`` image, and then paste it:
+
+.. code:: bash
+
+  $ docker commit CONTAINER-ID kave/eskapade-usr:0.7
+
+Next time when you run:
+
+.. code:: bash
+
+  $ docker run -e HOST_USER_ID=$(id -u) -e HOST_USER_GID=$(id -g) -p 8888:8888 -it kave/eskapade-usr:0.7
+
+the remapping of user and group id should no longer happen.
+
+
+Mounting source code
+::::::::::::::::::::
+
 Containers with the user-specific Eskapade environment setup, can be run out-of-the-box, and with your own mounted (customised) source code using:
 
 .. code:: bash
 
   $  docker run -e HOST_USER_ID=$(id -u) -e HOST_USER_GID=$(id -g) -v <ESKAPADE>:/home/esdev/eskapade -p 8888:8888 -it kave/eskapade-usr:0.7
 
-Where ``<ESKAPADE>`` specifies the path of the Eskapade source code and the ``HOST_USER_ID`` and ``HOST_USER_GID`` environment variables are used to map user & group id's between Docker host and container ensuring proper read/write permissions.
+Where ``<ESKAPADE>`` specifies the path of the Eskapade source code.
 
 NOTE: in case you mount a clean installation of the Eskapade source code, you have to (re-)build the libraries by executing:
 
 .. code:: bash
 
   $ pip install -e /home/esdev/eskapade
-
-NOTE: you may want to save the current state of the container, such that you do not have to wait for settings the permissions each time the container is initialized.
