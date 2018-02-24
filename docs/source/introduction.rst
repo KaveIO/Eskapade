@@ -29,9 +29,3 @@ basis for all your analyses, which can both be used across a company, or for dif
 
 More about the purpose can be read at the general `readme <http://github.com/kaveio/eskapade>`_.
 
-Naming convention
------------------
-
-Before settling on the name `Eskapade`, this project had internal naming conventions
-including `Decision Engine` and `Analytics Engine`. We are working on removing all old names and
-streamlining this all into future versions, but one might still find these in certain parts of the repository.

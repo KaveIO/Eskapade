@@ -61,6 +61,12 @@ and more.
 Release notes
 =============
 
+Version 0.7
+-----------
+
+In version 0.7 of Eskapade the code has been made pip friendly.
+
+
 Version 0.6
 -----------
 
