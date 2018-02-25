@@ -70,15 +70,13 @@ Version 0.7 of Eskapade (February 2018) contains several major updates:
 * There has been a cleanup of the core code, removing obsolete code and making it better maintainable.
   This has resulted in a (small) change in the api of the process manager, adding chains, and using the logger.
   All tutorials and example macro files have been updated accordingly.
-  See the `migration section <migration.html#from-version-0-6-to-0-7>`_ for detailed tips on migrating existing Eskapade code to version 0.7.
+  See the `migration section <misc.html#from-version-0-6-to-0-7>`_ for detailed tips on migrating existing Eskapade code to version 0.7.
 * All eskapade commands now start with the prefix ``eskapade_``. All tutorials have been updated accordingly. We have the commands:
 
   - ``eskapade_bootstrap``, for creating a new Eskapade analysis project. See this new `tutorial <tutorials.html#tutorial-4-creating-a-new-analysis-project>`_ for all the details.
   - ``eskapade_run``, for running the Eskapade macros.
   - ``eskapade_trail``, for running the Eskapade unit and integration tests.
   - ``eskapade_generate_link``, ``eskapade_generate_macro``, ``eskapade_generate_notebook``, for generating a new link, macro, or Jupyter notebook respectively.
-
-
 
 Version 0.6
 -----------
@@ -132,7 +130,6 @@ Contents
    package_structure
    command_line_arguments
    developing
-   migration_tips
 
 API
 ---
@@ -148,8 +145,7 @@ Appendices
 .. toctree::
    :maxdepth: 2
 
-   mac_os
-   spark
+   misc
 
 
 Indices and tables

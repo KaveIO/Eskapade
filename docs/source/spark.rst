@@ -1,6 +1,3 @@
-============
-Apache Spark
-============
 
 Eskapade supports the use of `Apache Spark <https://spark.apache.org>`_ for parallel processing of large data volumes.
 Jobs can run on a single laptop using Spark libraries as well as on a Spark/Hadoop cluster in combination with YARN.

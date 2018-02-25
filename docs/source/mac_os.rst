@@ -1,5 +1,3 @@
-macOS
-=====
 
 To install Eskapade on macOS there are basically four steps:
 

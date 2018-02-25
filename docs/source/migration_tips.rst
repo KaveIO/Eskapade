@@ -1,14 +1,11 @@
-==============
-Migration Tips
-==============
 
 From version 0.6 to 0.7
-=======================
+-----------------------
 
 Below we list the API changes needed to migrate from Eskapade version 0.6 to version 0.7.
 
 Links
------
+_____
 
 * Process manager definition:
 
@@ -22,7 +19,7 @@ Links
 
 
 Macros
-------
+______
 
 * Process manager definition:
 
@@ -54,7 +51,7 @@ Macros
 
 
 Tests
------
+_____
 
 * Process manager definition:
 
