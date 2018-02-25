@@ -43,20 +43,10 @@ Each chain has a specific purpose, for example: data quality checks of incoming 
 booking and/or training of predictive algorithms, validation of these algorithms, and their evaluation.
 By using this work methodology, analysis links can be more easily reused in future data analysis projects.
 
-Eskapade is analysis-library agnostic. It is used to set up typical data analysis problems from multiple packages.
-The machine learning packages include:
+Eskapade is analysis-library agnostic. It is used to set up typical data analysis problems from multiple packages, e.g.:
+scikit-learn, Spark MLlib, and ROOT. Likewise, Eskapade can use a manner of different data structures to handle
+data, such as: pandas DataFrames, numpy arrays, Spark DataFrames/RDDs, and more.
 
-  - scikit-learn,
-  - Spark MLlib,
-  - ROOT.
-
-Likewise, Eskapade uses a manner of different data structures to handle the data, such as:
-
-  - pandas DataFrames,
-  - numpy arrays,
-  - Spark DataFrames
-
-and more.
 
 Release notes
 =============
@@ -64,7 +54,29 @@ Release notes
 Version 0.7
 -----------
 
-In version 0.7 of Eskapade the code has been made pip friendly.
+Version 0.7 of Eskapade (February 2018) contains several major updates:
+
+* The Eskapade code has been made pip friendly. Having checked out the code from git, one can now simply do:
+
+  .. code:: bash
+
+    $ pip install <ESKAPADE>
+
+  where ``<ESKAPADE>`` specifies the path of the Eskapade source code.
+  This change has resulted in some restructuring of the python directories, making the overall structure more transparent:
+  all python code, including the tutorials, now fall under the (single) ``python/`` directory.
+  Additionally, thanks to the pip convention, our prior dependence on environment variables (``$ESKAPADE``)
+  has now been fully stripped out of the code.
+* There has been a cleanup of the core code, removing obsolete code and making it better maintainable.
+  This has resulted in a (small) change in the api of the process manager, adding chains, and using the logger.
+  See `here <this link>`_ for detailed tips on migrating existing Eskapade code to version 0.7.
+* All eskapade commands now start with the prefix ``eskapade_``. All tutorials have been updated accordingly. We have the commands:
+
+  - NEW: ``eskapade_bootstrap``, for creating a new Eskapade analysis project. See `this new tutorial <tutorials.html#tutorial-4-creating-a-new-analysis-project>`_ for all the details.
+  - ``eskapade_run``, for running the Eskapade macros.
+  - ``eskapade_trail``, for running the Eskapade unit and integration tests.
+  - ``eskapade_generate_link``, ``eskapade_generate_macro``, ``eskapade_generate_notebook``, for generating a new link, macro, or Jupyter notebook respectively.
+
 
 
 Version 0.6
@@ -105,7 +117,7 @@ Anyone can use this to learn Eskapade, build data analyses with the link-chain m
 and start experiencing its advantages.
 
 The focus of the provided documentation is on constructing a data analysis setup in Eskapade.
-Machine learning interfaces will be included in an upcoming release. Stay tuned!
+Machine learning interfaces will be included in an upcoming release.
 
 Contents
 ========

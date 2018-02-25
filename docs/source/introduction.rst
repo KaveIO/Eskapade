@@ -10,9 +10,9 @@ What is Eskapade?
 -----------------
 
 Eskapade is an abbreviation for: 'Enterprise Solution KPMG Advanced Predictive Analytics Decision Engine'.
-It is a framework to make your data analytics modular. This results in faster roll-out of analytics
+It is a light-weight Python framework to help make your data analytics modular. This results in faster roll-out of analytics
 solutions in your business and less overhead when taking multiple analyses in production. In particular, it is
-intended for building Machine Learning models that are retrained when a certain trigger is reached.
+intended for building data processing pipe lines and using implemented machine learning models in a production environment.
 
 Why did we build this?
 ----------------------
