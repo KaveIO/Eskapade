@@ -451,6 +451,9 @@ class ProcessManager(Processor, ProcessorSequence, TimerMixin):
             status = chain.execute()
         if status.is_failure():
             return status
+        elif status.is_break_chain():
+            # skip rest of chain execution, go to finalize
+            pass
         elif status.is_skip_chain():
             self.prev_chain_name = chain.name
             return status
