@@ -206,15 +206,8 @@ Eskapade should now be ready to finally execute the macro and provide the desire
 That's it!
 
 
-Spark examples
-~~~~~~~~~~~~~~
-
-Example Eskapade macros using Spark can be found in the ``python/eskapade/tutorials`` directory,
-see ``esk601_spark_configuration.py`` and further.
-
-
 Spark Streaming
----------------
+~~~~~~~~~~~~~~~
 
 Eskapade supports the use of Spark Streaming as demonstrated in the word count example ``tutorials/esk610_spark_streaming_wordcount.py``.
 The data is processed in (near) real-time as micro batches of RDD's, so-called discretized streaming, where the stream
@@ -224,7 +217,7 @@ can be defined and applied in subsequent Eskapade links.
 For details on Spark Streaming, see also https://spark.apache.org/docs/2.1.1/streaming-programming-guide.html.
 
 File stream
-~~~~~~~~~~~
+***********
 
 The word count example using the file stream method can be run by executing in two different terminals:
 
@@ -242,7 +235,7 @@ Only new files in /tmp/eskapade_stream_test are processed, do not forget to dele
 
 
 TCP stream
-~~~~~~~~~~
+**********
 
 The word count example using the TCP stream method can be run by executing in two different terminals:
 
@@ -256,4 +249,10 @@ Where ``nc`` (netcat) will stream data to port 9999 and Spark Streaming will lis
 In ``terminal 2`` random words can be type (followed by enter) and in ``terminal 1`` a word count of the processed data
 will by displayed. Output is stored in ``results/esk610_spark_streaming/data/v0/dstream/wordcount``.
 
+
+All Spark examples
+~~~~~~~~~~~~~~~~~~
+
+All example Eskapade macros using Spark can be found in the ``python/eskapade/tutorials`` directory,
+see ``esk601_spark_configuration.py`` and further.
 

@@ -35,22 +35,21 @@ if DEV:
     FULL_VERSION += '.dev'
 
 REQUIREMENTS = [
-    'pendulum>=1.2.5',
-    'numba>=0.33.0',
-    'jupyter>=1.0.0',
-    'matplotlib>=2.0.2',
-    'numpy>=1.12.1',
-    'scipy>=0.19.0',
-    'scikit-learn>=0.18.1',
-    'statsmodels>=0.8.0',
-    'pandas>=0.20.1',
-    'tabulate>=0.8.2',
-    'sortedcontainers>=1.5.7',
-    'histogrammar>=1.0.9',
-    'names>=0.3.0',
-    'fastnumbers>=2.0.2',
-    'pytest>=3.0.7',
-    'pytest-pylint>=0.7.1'
+    'pendulum==1.2.5',
+    'jupyter==1.0.0',
+    'matplotlib==2.0.2',
+    'numpy==1.12.1',
+    'scipy==0.19.0',
+    'scikit-learn==0.18.1',
+    'statsmodels==0.8.0',
+    'pandas==0.20.1',
+    'tabulate==0.8.2',
+    'sortedcontainers==1.5.7',
+    'histogrammar==1.0.9',
+    'names==0.3.0',
+    'fastnumbers==2.0.2',
+    'pytest==3.0.7',
+    'pytest-pylint==0.7.1'
 ]
 CMD_CLASS = dict()
 COMMAND_OPTIONS = dict()

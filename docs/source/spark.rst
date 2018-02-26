@@ -1,6 +1,3 @@
-============
-Apache Spark
-============
 
 Eskapade supports the use of `Apache Spark <https://spark.apache.org>`_ for parallel processing of large data volumes.
 Jobs can run on a single laptop using Spark libraries as well as on a Spark/Hadoop cluster in combination with YARN.
@@ -9,23 +6,20 @@ Eskapade, see the `Spark tutorial <tutorial_spark.html>`_.
 
 .. note ::
 
-  Eskapade supports both batch and real-time streaming (micro batch) processing with Apache Spark.
+  Eskapade supports both batch and streaming processing with Apache Spark.
 
 Requirements
 ------------
 
-A default working setup of the Apache Spark libraries is included in both the Eskapade docker and vagrant image
+A working setup of the Apache Spark libraries is included in both the Eskapade docker and vagrant image
 (see section `Installation <installation.html>`_). For installation of Spark libraries in a custom setup,
 please refer to the Spark `documentation <https://spark.apache.org/docs/latest/>`_.
 
-NB: not all combinations of Spark and Python versions work properly together.
-
-
 Spark installation
-~~~~~~~~~~~~~~~~~~
+::::::::::::::::::
 
 The environment variables ``SPARK_HOME`` and ``PYTHONPATH`` need be set and to point to the location of the Spark
-installation and the Python libraries of Spark and py4j (dependency). In the Eskapade docker, for example, it is set to:
+installation and the Python libraries of Spark and ``py4j`` (dependency). In the Eskapade docker, for example, it is set to:
 
 .. code-block:: bash
 
@@ -34,15 +28,13 @@ installation and the Python libraries of Spark and py4j (dependency). In the Esk
   $ echo $PYTHONPATH
   /opt/spark/pro/python:/opt/spark/pro/python/lib/py4j-0.10.4-src.zip:...
 
-
 Configuration
 -------------
 
-The Spark configuration can be set using three different methods:
+The Spark configuration can be set in two ways:
 
-1. environment variables
-2. an Eskapade macro (preferred)
-3. an Eskapade link 
+1. an Eskapade macro (preferred)
+2. an Eskapade link 
 
 This is demonstrated in the following tutorial macro:
 
@@ -50,58 +42,62 @@ This is demonstrated in the following tutorial macro:
 
   $ eskapade_run python/eskapade/tutorials/esk601_spark_configuration.py
 
-The methods are described in the sections below. For a description of configuration settings, see
+Both methods are described below. For a full explanation of Spark configuration settings, see
 `Spark Configuration <http://spark.apache.org/docs/2.1.1/configuration.html>`_.
 In case configuration settings seem not to be picked up correctly, please check `Notes`_ at the end of this section.
 
-Environment variables
-~~~~~~~~~~~~~~~~~~~~~
-
-Configuration for Spark jobs can be set through the ``PYSPARK_SUBMIT_ARGS`` environment variable, e.g.:
-
-.. code-block:: bash
-
-  PYSPARK_SUBMIT_ARGS=--master local[4] --num-executors 1 --executor-cores 4 --executor-memory 4g pyspark-shell
-
-The Spark session is then started directly from a macro with specified settings.
-
-.. code-block:: python
-
-  from eskapade import process_manager
-  from eskapade.spark_analysis import SparkManager
-
-  sm = process_manager.service(SparkManager)
-  spark = sm.create_session()
-  sc = spark.sparkContext
-
-
 Eskapade macro (preferred)
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+::::::::::::::::::::::::::
 
 This method allows to specify settings per macro, i.e. per analysis, and is therefore the preferred way for bookkeeping analysis-specific settings. 
 
-Configuration for Spark jobs can be set through the ``spark_settings`` argument of the ``create_session`` method.
+The most easy way to start a Spark session is:
 
 .. code-block:: python
 
   from eskapade import process_manager
   from eskapade.spark_analysis import SparkManager
 
-  sm = process_manager.service(SparkManager)
-  spark = sm.create_session(spark_settings=[('spark.driver.host', '127.0.0.1'), ('spark.master', 'local[2]')])
+  spark = sm.create_session(eskapade_settings=settings)
+  sc = spark.sparkContext
 
-It creates the ``SparkConf`` object that holds a list of key/value pairs with configuration settings, e.g.:
+The default Spark configuration file ``python/eskapade/config/spark/spark.cfg`` will be picked up. It contains the following settings:
+
+.. code-block:: bash
+
+  [spark]
+  spark.app.name=es_spark
+  spark.jars.packages=org.diana-hep:histogrammar-sparksql_2.11:1.0.4
+  spark.master=local[*]
+  spark.driver.host=localhost
+
+The default Spark settings can be adapted here for all macros at once. In case, alternative settings are only relevant for a single analysis, those settings can also be specified in the macro using the argument variables in the ``create_session`` method of the SparkManager:
 
 .. code-block:: python
 
-  import pyspark
+  from eskapade import process_manager
+  from eskapade.spark_analysis import SparkManager
 
-  conf = pyspark.conf.SparkConf()
-  conf.setAll(spark_settings)
+  spark = sm.create_session(spark_settings=[('spark.app.name', 'es_spark_alt_config'), ('spark.master', 'local[42]')])
 
+  sm = process_manager.service(SparkManager)
+  spark = sm.create_session(eskapade_settings=settings,
+                            spark_settings=spark_settings,
+                            config_path='/path/to/alternative/spark.cfg',
+                            enable_hive_support=False,
+                            include_eskapade_modules=False
+                           )
+
+Where all arguments are optional:
+
+   * ``eskapade_settings`` default configuration file as specified by the ``sparkCfgFile`` key in ConfigObject (i.e. ``spark.cfg``)
+   * ``config_path`` alternative path to configuration file 
+   * ``spark_settings``  list of key-value pairs to specify additional Spark settings
+   * ``enable_hive_support``: switch to disable/enable Spark Hive support
+   * ``include_eskapade_modules``: switch to include/exclude Eskapade modules in Spark job submission (e.g. for user-defined functions)
 
 Eskapade link
-~~~~~~~~~~~~~
+:::::::::::::
 
 This method allows to (re-)start Spark sessions from within a ``SparkConfigurator`` link. This means that by specifying
 multiple instances of this link in a macro, multiple Spark sessions with different settings can sequentially be run.
@@ -123,7 +119,6 @@ Configurations for Spark jobs are set via the ``SparkConf`` class that holds a l
 Note that the ``SparkConfigurator`` stops any existing Spark session before starting a new one. This means that the user
 should make sure all relevant data is stored at this point, since all cached Spark data will be cleared from memory.
 
-
 Parameters
 ----------
 
@@ -134,9 +129,8 @@ The most important parameters to play with for optimal performance:
 - ``executor-memory``
 - ``driver-memory``
 
-
 Dynamic allocation
-~~~~~~~~~~~~~~~~~~
+::::::::::::::::::
 Since version 2.1, Spark allows for `dynamic resouce allocation <https://spark.apache.org/docs/2.1.1/job-scheduling.html#dynamic-resource-allocation>`_.
 This requires the following settings:
 
@@ -144,7 +138,6 @@ This requires the following settings:
 - ``spark.shuffle.service.enabled=true``
 
 Depending on the mode (standalone, YARN, Mesos), an additional shuffle service needs to be set up. See the documentation for details.
-
 
 Logging
 -------
@@ -175,7 +168,6 @@ PS: the loggers in Python can be controlled through:
    logging.getLogger('py4j.java_gateway').setLevel('INFO')  
 
 However, not all Spark-related loggers are available here (as they are JAVA-based).
-
 
 Notes
 -----
@@ -209,4 +201,3 @@ instead of using ``SparkConf`` in an Eskapade macro or link:
 3. In case a Spark machine is not connected to a network, setting the ``SPARK_LOCAL_HOSTNAME`` environment variable or
 the ``spark.driver.host`` key in ``SparkConf`` to the value ``localhost`` may fix DNS resolution timeouts which prevent
 Spark from starting jobs.
-

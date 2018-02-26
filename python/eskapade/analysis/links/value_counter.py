@@ -209,12 +209,6 @@ class ValueCounter(HistogramFillerBase):
         # and store
         ds[self.store_key_hists] = self._hists
 
-        # cleanup
-        if self.store_key_counts is None:
-            del self._valcnts
-        if self.store_key_hists is None:
-            del self._hists
-
     def drop_inconsistent_keys(self, columns, obj):
         """Drop inconsistent keys.
 
@@ -236,3 +230,15 @@ class ValueCounter(HistogramFillerBase):
         # keep only keys of types in comp_dtype
         obj.remove_keys_of_inconsistent_type(prefered_key_type=comp_dtype)
         return obj
+
+    def finalize(self):
+        """Finalize ValueCounter"""
+
+        status = HistogramFillerBase.finalize(self)
+        # cleanup
+        if self.store_key_counts is None:
+            del self._valcnts
+        if self.store_key_hists is None:
+            del self._hists
+
+        return status

@@ -10,9 +10,9 @@ What is Eskapade?
 -----------------
 
 Eskapade is an abbreviation for: 'Enterprise Solution KPMG Advanced Predictive Analytics Decision Engine'.
-It is a framework to make your data analytics modular. This results in faster roll-out of analytics
+It is a light-weight Python framework to help make your data analytics modular. This results in faster roll-out of analytics
 solutions in your business and less overhead when taking multiple analyses in production. In particular, it is
-intended for building Machine Learning models that are retrained when a certain trigger is reached.
+intended for building data processing pipe lines and using implemented machine learning models in a production environment.
 
 Why did we build this?
 ----------------------
@@ -29,9 +29,3 @@ basis for all your analyses, which can both be used across a company, or for dif
 
 More about the purpose can be read at the general `readme <http://github.com/kaveio/eskapade>`_.
 
-Naming convention
------------------
-
-Before settling on the name `Eskapade`, this project had internal naming conventions
-including `Decision Engine` and `Analytics Engine`. We are working on removing all old names and
-streamlining this all into future versions, but one might still find these in certain parts of the repository.

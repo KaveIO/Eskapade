@@ -38,11 +38,12 @@ class StatusCode(IntEnum):
 
     * Undefined (-1): Default status.
     * Success (0 == EX_OK / EXIT_SUCCESS): All OK, i.e. there were no errors.
-    * RepeatChain (1): Repeat this chain.
-    * SkipChain (2): Skip this chain.
-    * Recoverable (3): Not OK, but can continue, i.e. there was an error, but the
+    * RepeatChain (1): Repeat execution of this chain.
+    * SkipChain (2): Skip this chain: initialize, execute, and finalize.
+    * BreakChain (3): Skip the further execution of this this, but do perform finalize.
+    * Recoverable (4): Not OK, but can continue, i.e. there was an error, but the
       application can recover from it.
-    * Failure (4): An error occurred and the application cannot recover from it.
+    * Failure (5): An error occurred and the application cannot recover from it.
       In this case the application should just quit.
     """
 
@@ -50,8 +51,9 @@ class StatusCode(IntEnum):
     Success = 0  # type: int
     RepeatChain = 1  # type: int
     SkipChain = 2  # type: int
-    Recoverable = 3  # type: int
-    Failure = 4  # type: int
+    BreakChain = 3  # type: int
+    Recoverable = 4  # type: int
+    Failure = 5  # type: int
 
     def __str__(self) -> str:
         """Get string representation of :class:`StatusCode`.
@@ -86,12 +88,20 @@ class StatusCode(IntEnum):
         return StatusCode.RepeatChain == self
 
     def is_skip_chain(self) -> bool:
-        """Check if status is `StatusCode.RepeatChain`.
+        """Check if status is `StatusCode.SkipChain`.
 
-        :return: True when `StatusCode.RepeatChain`, False otherwise.
+        :return: True when `StatusCode.SkipChain`, False otherwise.
         :rtype: bool
         """
         return StatusCode.SkipChain == self
+
+    def is_break_chain(self) -> bool:
+        """Check if status is `StatusCode.BreakChain`.
+
+        :return: True when `StatusCode.BreakChain`, False otherwise.
+        :rtype: bool
+        """
+        return StatusCode.BreakChain == self
 
     def is_recoverable(self) -> bool:
         """Check if status is `StatusCode.Recoverable`.

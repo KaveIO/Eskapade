@@ -1,0 +1,5 @@
+#! /bin/bash
+
+alias jupy='nohup jupyter notebook --port 8888 --ip=0.0.0.0'
+alias gitlog='git log --graph --decorate --oneline'
+source activate eskapade_env
