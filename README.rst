@@ -76,7 +76,7 @@ Anyone can use this to learn Eskapade, build data analyses with the link-chain m
 and start experiencing its advantages.
 
 The focus of the provided documentation is on constructing a data analysis setup in Eskapade.
-Machine learning interfaces will be included in an upcoming release. Stay tuned!
+Machine learning interfaces will be included in an upcoming release.
 
 
 Installation
