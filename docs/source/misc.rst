@@ -10,19 +10,19 @@ Collection of miscelleneous Eskapade related items.
 
 
 Migration Tips
-==============
+--------------
 
 .. include:: migration_tips.rst
 
 
 macOS
-=====
+-----
 
 .. include:: mac_os.rst
 
 
 Apache Spark
-============
+------------
 
 .. include:: spark.rst
 

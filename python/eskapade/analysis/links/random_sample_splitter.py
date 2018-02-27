@@ -26,9 +26,7 @@ class RandomSampleSplitter(Link):
 
     After assigning classes does one of the following:
 
-    - splits the input dataframe into sub dataframes according classes
-    and stores the sub dataframes into the datastore;
-
+    - splits the input dataframe into sub dataframes according classes and stores the sub dataframes into the datastore;
     - add a new column with assigned classes to the dataframe.
 
     Records are assigned randomly.

@@ -127,8 +127,8 @@ Contents
    introduction
    installation
    tutorials
-   package_structure
    command_line_arguments
+   package_structure
    developing
 
 API

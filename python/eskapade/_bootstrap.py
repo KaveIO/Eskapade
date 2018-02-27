@@ -58,7 +58,7 @@ def create_file(path, file_name, content=''):
     :param path: an absolute path to the directory
     :param file_name: file name
     :param content: file's content
-    :return path to created file
+    :returns: path to created file
     """
     try:
         logger.info('Creating {file_name} in the directory {dir!s}.', file_name=file_name, dir=path)

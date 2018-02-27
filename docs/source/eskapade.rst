@@ -14,7 +14,6 @@ Subpackages
     eskapade.root_analysis
     eskapade.spark_analysis
     eskapade.visualization
-    eskapade.tutorials
 
 Submodules
 ----------

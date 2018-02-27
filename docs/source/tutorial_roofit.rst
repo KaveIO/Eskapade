@@ -148,11 +148,11 @@ Instantiating a pdf
 
 The link ``WsUtils``, which stands for ``RooWorkspace`` utils, allows us to instantiate a pdf.
 Technically, one defines a model by passing strings to the rooworkspace factory.
-For examples on using the rooworkspace factory see `here <https://root.cern.ch/root/html/tutorials/roofit/rf511_wsfactory_basic.C.html>`_,
-`here <https://root.cern.ch/root/html/tutorials/roofit/rf512_wsfactory_oper.C.html>`_ and
-`here <https://root.cern.ch/root/html/tutorials/roofit/rf513_wsfactory_tools.C.html>`_
+For examples on using the rooworkspace factory see `basic <https://root.cern.ch/root/html/tutorials/roofit/rf511_wsfactory_basic.C.html>`_,
+`operations <https://root.cern.ch/root/html/tutorials/roofit/rf512_wsfactory_oper.C.html>`_ and
+`tools <https://root.cern.ch/root/html/tutorials/roofit/rf513_wsfactory_tools.C.html>`_
 for more details. The entire rooworkspace factory syntax can be
-found `here <https://root.cern.ch/doc/master/RooFactoryWSTool_8cxx_source.html#l00722>`_.
+found at `commands <https://root.cern.ch/doc/master/RooFactoryWSTool_8cxx_source.html#l00722>`_.
 
 .. code-block:: python
 

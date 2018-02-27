@@ -12,7 +12,7 @@ To install Eskapade on macOS there are basically four steps:
 
 
 Setting up Python 3.6
----------------------
+_____________________
 
 Homebrew provides Python 3.6 for macOS:
 
@@ -35,7 +35,7 @@ Each time a new terminal is started, set up the virtual python environment:
 
 
 Setting up ROOT 6
------------------
+_________________
 
 Clone ROOT from the git repository:
 
@@ -77,7 +77,7 @@ Finally, install the Python packages for ROOT bindings:
 
 
 Setting up Apache Spark 2.x 
----------------------------
+___________________________
 
 Apache Spark is provided through Homebrew:
 
@@ -101,7 +101,7 @@ To set up the Spark environment each time a new terminal is started set:
 
 
 Setting up Eskapade
--------------------
+___________________
 
 The Eskapade source code can be obtained from git:
 

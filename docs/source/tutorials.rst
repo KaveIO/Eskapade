@@ -4,7 +4,7 @@ Tutorials
 
 This section contains materials on how to use Eskapade. There are additional side notes on how certain
 aspects work and where to find parts of the code. For more in depth explanations on the functionality of the code-base,
-try the `API-docs <eskapade_index.html>`_.
+try the `API docs <eskapade_index.html>`_.
 All command examples are run from the root of the repository if not otherwise stated.
 
 Running your first macro
@@ -316,7 +316,7 @@ Every subpackage of Eskapade contains links in its ``links/`` subdirectory.
 * ``spark_analysis`` contains Spark related analysis links.
   
 The name of every link indicates its basic function. If you want to know explicitly you can read the
-`API-docs <eskapade_index.html>`_.
+`API documentation <eskapade_index.html>`_.
 If that does not help, read and try to understand the example macros in ``python/eskapade/tutorials/``, which show the basic usage
 of most Eskapade functionality. (See also the `Examples <tutorial.html#examples>`_ section right below.)
 If still unclear, go into the link's code to find out how it exactly works.

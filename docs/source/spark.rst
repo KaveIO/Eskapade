@@ -9,7 +9,7 @@ Eskapade, see the `Spark tutorial <tutorial_spark.html>`_.
   Eskapade supports both batch and streaming processing with Apache Spark.
 
 Requirements
-------------
+____________
 
 A working setup of the Apache Spark libraries is included in both the Eskapade docker and vagrant image
 (see section `Installation <installation.html>`_). For installation of Spark libraries in a custom setup,
@@ -29,7 +29,7 @@ installation and the Python libraries of Spark and ``py4j`` (dependency). In the
   /opt/spark/pro/python:/opt/spark/pro/python/lib/py4j-0.10.4-src.zip:...
 
 Configuration
--------------
+_____________
 
 The Spark configuration can be set in two ways:
 
@@ -120,7 +120,7 @@ Note that the ``SparkConfigurator`` stops any existing Spark session before star
 should make sure all relevant data is stored at this point, since all cached Spark data will be cleared from memory.
 
 Parameters
-----------
+__________
 
 The most important parameters to play with for optimal performance:
 
@@ -131,6 +131,7 @@ The most important parameters to play with for optimal performance:
 
 Dynamic allocation
 ::::::::::::::::::
+
 Since version 2.1, Spark allows for `dynamic resouce allocation <https://spark.apache.org/docs/2.1.1/job-scheduling.html#dynamic-resource-allocation>`_.
 This requires the following settings:
 
@@ -140,7 +141,7 @@ This requires the following settings:
 Depending on the mode (standalone, YARN, Mesos), an additional shuffle service needs to be set up. See the documentation for details.
 
 Logging
--------
+_______
 
 The logging level of Spark can be controlled in two ways:
 
@@ -170,7 +171,7 @@ PS: the loggers in Python can be controlled through:
 However, not all Spark-related loggers are available here (as they are JAVA-based).
 
 Notes
------
+_____
 
 There are a few pitfalls w.r.t. setting up Spark correctly: 
 
