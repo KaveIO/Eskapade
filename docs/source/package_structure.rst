@@ -69,7 +69,7 @@ under ``tests`` directory. Ideally, there is a test module
 for each (link) module in the Eskapade package.  Optionally, integration tests
 are implemented in ``integration``. For the ``eskapade.analysis`` package, there is
 the module ``test_tutorial_macros`` with integration tests that run the
-tutorial macros corresponding to this subpackage.
+tutorial macros corresponding to this subpackage::
 
    |-eskapade_python
       |-analysis
