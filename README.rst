@@ -2,13 +2,41 @@
 Eskapade
 ========
 
-Version: 0.6
+Version: 0.7
+Released: Feb 2018
 
-Eskapade is a light-weight, python-based data analysis framework, meant for all sorts of data analysis problems.
+Eskapade is a light-weight, python-based data analysis framework, meant for modularizing all sorts of data analysis problems.
 
 
 Release notes
 =============
+
+Version 0.7
+-----------
+
+Version 0.7 of Eskapade (February 2018) contains several major updates:
+
+* The Eskapade code has been made pip friendly. Having checked out the code from git, one can now simply do:
+
+  .. code:: bash
+
+    $ pip install <ESKAPADE>
+
+  where ``<ESKAPADE>`` specifies the path of the Eskapade source code.
+  This change has resulted in some restructuring of the python directories, making the overall structure more transparent:
+  all python code, including the tutorials, now fall under the (single) ``python/`` directory.
+  Additionally, thanks to the pip convention, our prior dependence on environment variables (``$ESKAPADE``)
+  has now been fully stripped out of the code.
+* There has been a cleanup of the core code, removing obsolete code and making it better maintainable.
+  This has resulted in a (small) change in the api of the process manager, adding chains, and using the logger.
+  All tutorials and example macro files have been updated accordingly.
+  See the `migration section <misc.html#from-version-0-6-to-0-7>`_ of the documentation for detailed tips on migrating existing Eskapade code to version 0.7.
+* All eskapade commands now start with the prefix ``eskapade_``. All tutorials have been updated accordingly. We have the commands:
+
+  - ``eskapade_bootstrap``, for creating a new Eskapade analysis project. See this new `tutorial <tutorials.html#tutorial-4-creating-a-new-analysis-project>`_ for all the details.
+  - ``eskapade_run``, for running the Eskapade macros.
+  - ``eskapade_trail``, for running the Eskapade unit and integration tests.
+  - ``eskapade_generate_link``, ``eskapade_generate_macro``, ``eskapade_generate_notebook``, for generating a new link, macro, or Jupyter notebook respectively.
 
 Version 0.6
 -----------
@@ -74,24 +102,23 @@ Eskapade requires Python 3 and Anaconda version 4.3 (or greater), which can be f
 
 Path
 ----
-To get started, source Eskapade in the root of the repository:
+To get started, simply do:
 
 .. code-block:: bash
 
-  $ source setup.sh
+  $ pip install Eskapade/
 
-You can now call the path of Eskapade with:
+or install in edit mode:
 
 .. code-block:: bash
 
-  $ echo $ESKAPADE
+  $ pip install -e Eskapade/
 
-or in python with
+You can now use Eskapade in Python with:
 
 .. code-block:: python
 
-  import os
-  os.environ['ESKAPADE']
+  import eskapade
 
 
 Documentation
