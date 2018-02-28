@@ -17,7 +17,26 @@ Version 0.7
 
 Version 0.7 of Eskapade (February 2018) contains several major updates:
 
-* The Eskapade code has been made pip friendly. Having checked out the code from git, one can now simply do:
+* The Eskapade code has been made pip friendly. One can now simply do:
+
+  .. code-block:: bash
+
+    $ pip install Eskapade
+
+  or check out the code from out github repository:
+
+  .. code-block:: bash
+
+    $ git clone git@github.com:KaveIO/Eskapade.git
+    $ pip install -e Eskapade/
+
+  where in this example the code is installed in edit mode (option -e).
+
+  You can now use Eskapade in Python with:
+
+  .. code-block:: python
+
+    import eskapade
 
   .. code:: bash
 
