@@ -6,11 +6,42 @@ Let's get Eskapade up and running! In order to make this as easy as possible,
 we provide both a Docker image and a virtual machine where everything you need is
 installed and working properly. Alternatively, you can download the repository and run it on your own machine.
 
+* See `Eskapade on your own machine`_ for the local installation requirements.
 * See `Eskapade with Docker`_ to get started with Docker.
 * See `Eskapade on a virtual machine`_ to get started with Vagrant.
-* See `Eskapade on your own machine`_ for the local installation requirements.
 
 This manual is written for Linux systems, but Eskapade also runs fine on `macOS <mac_os.html>`_ systems.
+
+
+Eskapade on your own machine
+----------------------------
+
+Eskapade can be installed as any other Python package with ``easy_install`` or ``pip``. To get started, simply do:
+
+.. code-block:: bash
+
+  $ pip install Eskapade
+
+We have verified that this works on Linux 16.04 and MacOS based machines.
+
+Or check out the code from out github repository:
+
+.. code-block:: bash
+
+  $ git clone git@github.com:KaveIO/Eskapade.git
+  $ pip install -e Eskapade/
+
+where the code is installed in editable mode (option -e).
+
+You can now use Eskapade in Python with:
+
+.. code-block:: python
+
+  import eskapade
+
+**Congratulations, you are now ready to use Eskapade!**
+
+See the readme files in other parts of the repository for specific usage.
 
 
 Eskapade with Docker
@@ -24,14 +55,6 @@ Eskapade on a virtual machine
 
 .. include:: ../../vagrant/README.rst
 
-Eskapade on your own machine
-----------------------------
-
-The repository is hosted on github, clone it to your machine with:
-
-.. code-block:: bash
-
-  $ git clone git@github.com:KaveIO/Eskapade.git
 
 Requirements
 ____________
@@ -82,28 +105,6 @@ Then you can activate it as follows:
 
 More information about conda virtual environments can be found
 `here <https://conda.io/docs/user-guide/tasks/manage-environments.html>`_
-
-Eskapade Package Installation
-_____________________________
-
-Eskapade can be installed as any other Python package with ``easy_install`` or ``pip``:
-
-.. code-block:: bash
-
-  $ pip install /path/to/eskapade
-
-**You are now ready to use Eskapade!**
-
-After installation
-__________________
-
-You can now use Eskapade in Python with:
-
-.. code-block:: python
-
-  import eskapade
-
-See the readme files in other parts of the repository for specific usage.
 
 
 Installing Eskapade on macOS
