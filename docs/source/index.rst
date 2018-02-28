@@ -26,7 +26,8 @@ Eskapade: Modular Analytics
 Eskapade
 ========
 
-Eskapade is a light-weight, python-based data analysis framework, meant for all sorts of data analysis problems.
+Eskapade is a light-weight, python-based data analysis framework, meant for modularizing
+all sorts of data analysis problems.
 
 In particular, Eskapade can be used as a self-learning framework for typical machine learning problems.
 Trained algorithms can predict real-time or batch data, these models can be evaluated over time,
@@ -54,13 +55,27 @@ Version 0.7
 
 Version 0.7 of Eskapade (February 2018) contains several major updates:
 
-* The Eskapade code has been made pip friendly. Having checked out the code from git, one can now simply do:
+* The Eskapade code has been made pip friendly. One can now simply do:
 
-  .. code:: bash
+  .. code-block:: bash
 
-    $ pip install <ESKAPADE>
+    $ pip install Eskapade
 
-  where ``<ESKAPADE>`` specifies the path of the Eskapade source code.
+  or check out the code from out github repository:
+
+  .. code-block:: bash
+
+    $ git clone git@github.com:KaveIO/Eskapade.git
+    $ pip install -e Eskapade/
+
+  where in this example the code is installed in edit mode (option -e).
+
+  You can now use Eskapade in Python with:
+
+  .. code-block:: python
+
+    import eskapade
+
   This change has resulted in some restructuring of the python directories, making the overall structure more transparent:
   all python code, including the tutorials, now fall under the (single) ``python/`` directory.
   Additionally, thanks to the pip convention, our prior dependence on environment variables (``$ESKAPADE``)

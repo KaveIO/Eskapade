@@ -3,6 +3,7 @@ Eskapade
 ========
 
 Version: 0.7
+
 Released: Feb 2018
 
 Eskapade is a light-weight, python-based data analysis framework, meant for modularizing all sorts of data analysis problems.
@@ -20,9 +21,8 @@ Version 0.7 of Eskapade (February 2018) contains several major updates:
 
   .. code:: bash
 
-    $ pip install <ESKAPADE>
+    $ pip install Eskapade
 
-  where ``<ESKAPADE>`` specifies the path of the Eskapade source code.
   This change has resulted in some restructuring of the python directories, making the overall structure more transparent:
   all python code, including the tutorials, now fall under the (single) ``python/`` directory.
   Additionally, thanks to the pip convention, our prior dependence on environment variables (``$ESKAPADE``)
@@ -82,37 +82,30 @@ Machine learning interfaces will be included in an upcoming release.
 Installation
 ============
 
-Eskapade on your own machine
-----------------------------
-
-The repository is hosted on github, clone it to your machine with:
-
-.. code-block:: bash
-
-  $ git clone git@github.com:KaveIO/Eskapade.git
-
-See the readme's in other parts of the repository for specific requirements and usage.
-
-
 Requirements
 ------------
 
 Eskapade requires Python 3 and Anaconda version 4.3 (or greater), which can be found `here <https://www.continuum.io/downloads>`_.
+See the Readme's in the ``docs/`` directory of the repository for specific requirements and usage.
 
 
-Path
-----
+Eskapade on your own machine
+----------------------------
+
 To get started, simply do:
 
 .. code-block:: bash
 
-  $ pip install Eskapade/
+  $ pip install Eskapade
 
-or install in edit mode:
+or check out the code from out github repository:
 
 .. code-block:: bash
 
+  $ git clone git@github.com:KaveIO/Eskapade.git
   $ pip install -e Eskapade/
+
+where in this example the code is installed in edit mode (option -e).
 
 You can now use Eskapade in Python with:
 
