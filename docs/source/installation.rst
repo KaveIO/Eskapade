@@ -41,7 +41,7 @@ You can now use Eskapade in Python with:
 
 **Congratulations, you are now ready to use Eskapade!**
 
-See the readme files in other parts of the repository for specific usage.
+See the other parts of the documentation for specific usage.
 
 
 Eskapade with Docker

@@ -38,10 +38,6 @@ Version 0.7 of Eskapade (February 2018) contains several major updates:
 
     import eskapade
 
-  .. code:: bash
-
-    $ pip install Eskapade
-
   This change has resulted in some restructuring of the python directories, making the overall structure more transparent:
   all python code, including the tutorials, now fall under the (single) ``python/`` directory.
   Additionally, thanks to the pip convention, our prior dependence on environment variables (``$ESKAPADE``)
