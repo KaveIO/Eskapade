@@ -18,16 +18,8 @@ Subpackages
 Submodules
 ----------
 
-eskapade._bootstrap module
---------------------------
-
-.. automodule:: eskapade._bootstrap
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-eskapade.entry_points module
-----------------------------
+eskapade.entry\_points module
+-----------------------------
 
 .. automodule:: eskapade.entry_points
     :members:
@@ -62,6 +54,14 @@ eskapade.utils module
 ---------------------
 
 .. automodule:: eskapade.utils
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade.version module
+-----------------------
+
+.. automodule:: eskapade.version
     :members:
     :undoc-members:
     :show-inheritance:

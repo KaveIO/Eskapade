@@ -1,5 +1,5 @@
-eskapade.spark_analysis package
-===============================
+eskapade.spark\_analysis package
+================================
 
 Subpackages
 -----------
@@ -11,32 +11,32 @@ Subpackages
 Submodules
 ----------
 
-eskapade.spark_analysis.data_conversion module
-----------------------------------------------
+eskapade.spark\_analysis.data\_conversion module
+------------------------------------------------
 
 .. automodule:: eskapade.spark_analysis.data_conversion
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade.spark_analysis.decorators module
------------------------------------------
+eskapade.spark\_analysis.decorators module
+------------------------------------------
 
 .. automodule:: eskapade.spark_analysis.decorators
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade.spark_analysis.functions module
-----------------------------------------
+eskapade.spark\_analysis.functions module
+-----------------------------------------
 
 .. automodule:: eskapade.spark_analysis.functions
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade.spark_analysis.spark_manager module
---------------------------------------------
+eskapade.spark\_analysis.spark\_manager module
+----------------------------------------------
 
 .. automodule:: eskapade.spark_analysis.spark_manager
     :members:

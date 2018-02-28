@@ -9,7 +9,7 @@ Eskapade: Modular Analytics
 
 .. module:: eskapade
 
-**Version**: 0.7
+**Version**: |version|
 
 **Date**: |today|
 

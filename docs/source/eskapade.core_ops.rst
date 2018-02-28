@@ -1,5 +1,5 @@
-eskapade.core_ops package
-=========================
+eskapade.core\_ops package
+==========================
 
 Subpackages
 -----------

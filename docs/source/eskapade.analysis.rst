@@ -27,8 +27,8 @@ eskapade.analysis.histogram module
     :undoc-members:
     :show-inheritance:
 
-eskapade.analysis.histogram_filling module
-------------------------------------------
+eskapade.analysis.histogram\_filling module
+-------------------------------------------
 
 .. automodule:: eskapade.analysis.histogram_filling
     :members:

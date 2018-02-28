@@ -11,8 +11,8 @@ Subpackages
 Submodules
 ----------
 
-eskapade.visualization.vis_utils module
----------------------------------------
+eskapade.visualization.vis\_utils module
+----------------------------------------
 
 .. automodule:: eskapade.visualization.vis_utils
     :members:

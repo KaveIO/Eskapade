@@ -60,24 +60,24 @@ eskapade.core.persistence module
     :undoc-members:
     :show-inheritance:
 
-eskapade.core.process_manager module
-------------------------------------
+eskapade.core.process\_manager module
+-------------------------------------
 
 .. automodule:: eskapade.core.process_manager
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade.core.process_services module
--------------------------------------
+eskapade.core.process\_services module
+--------------------------------------
 
 .. automodule:: eskapade.core.process_services
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade.core.run_utils module
-------------------------------
+eskapade.core.run\_utils module
+-------------------------------
 
 .. automodule:: eskapade.core.run_utils
     :members:
