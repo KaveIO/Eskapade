@@ -184,7 +184,7 @@ def setup_package() -> None:
           # This is a feature and not a bug, see
           # http://setuptools.readthedocs.io/en/latest/setuptools.html#non-package-data-files
           package_data={
-              NAME.lower(): ['config/*', 'templates/*', 'data/*', 'tutorials/*.sh']
+              NAME.lower(): ['config/spark/*.cfg', 'templates/*', 'data/*', 'tutorials/*.sh']
           },
           install_requires=REQUIREMENTS,
           tests_require=['pytest==3.2.2'],
