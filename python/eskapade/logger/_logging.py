@@ -276,7 +276,7 @@ class Logger(object):
         """
         source = instance or instance_type
         paths = [instance_type.__module__, instance_type.__name__]
-        if global_log_publisher.name not in instance_type.__module__:
+        if not instance_type.__module__.startswith(global_log_publisher.name + '.'):
             paths.insert(0, global_log_publisher.name)
         name = '.'.join(paths)
         return self.__class__(name=name,
