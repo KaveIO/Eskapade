@@ -10,6 +10,7 @@ from eskapade.core_ops.links.print_ds import PrintDs
 from eskapade.core_ops.links.repeat_chain import RepeatChain
 from eskapade.core_ops.links.skip_chain_if_empty import SkipChainIfEmpty
 from eskapade.core_ops.links.to_ds_dict import ToDsDict
+from eskapade.core_ops.links.import_data_store import ImportDataStore
 
 __all__ = ['AssertInDs',
            'Break',
@@ -22,4 +23,5 @@ __all__ = ['AssertInDs',
            'PrintDs',
            'RepeatChain',
            'SkipChainIfEmpty',
-           'ToDsDict']
+           'ToDsDict',
+           'ImportDataStore']
