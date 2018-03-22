@@ -249,6 +249,27 @@ class Link(Processor, ArgumentsMixin, TimerMixin):
         """
         return StatusCode.Success
 
+    def run(self) -> StatusCode:
+        """Initialize, execute, and finalize the Link in one go.
+
+        This method is useful for testing purposes, e.g. when developing and testing functionality
+        of a link stand-alone and interactively.
+
+        It is not used internally by Eskapade, where the functions are called individually by the chain,
+        and all links are initialized together before their common execution,
+        and all links in the chain are also finalized together, after their common execution.
+
+        :return: Status code.
+        :rtype: StatusCode
+        """
+        status = StatusCode.Success
+        if status.is_success():
+            status = self.initialize()
+        if status.is_success():
+            status = self.execute()
+        if status.is_success():
+            status = self.finalize()
+        return status
 
 class Chain(Processor, ProcessorSequence, TimerMixin):
     """Execution Chain.
