@@ -20,8 +20,6 @@ from setuptools import find_packages
 from setuptools import setup
 from setuptools.command.test import test as TestCommand
 
-from setup_cxx import CMakeExtension, CMakeBuild
-
 NAME = 'Eskapade'
 
 MAJOR = 0
@@ -51,6 +49,7 @@ REQUIREMENTS = [
     'pytest==3.0.7',
     'pytest-pylint==0.7.1'
 ]
+
 CMD_CLASS = dict()
 COMMAND_OPTIONS = dict()
 
@@ -91,17 +90,6 @@ release = {is_release!s}
 # If ROOT is not set up, ROOT analysis modules are excluded.
 EXCLUDE_PACKAGES = []
 EXTERNAL_MODULES = []
-try:
-    import ROOT
-    import ROOT.RooFit
-    import ROOT.RooStats
-
-    EXTERNAL_MODULES.append(CMakeExtension('eskapade.lib.esroofit', 'cxx/esroofit'))
-    CMD_CLASS['build_ext'] = CMakeBuild
-    REQUIREMENTS.append('root_numpy==4.7.3')
-except ImportError:
-    logger.fatal('PyROOT and RooFit are missing! Not going to install ROOT analysis modules!')
-    EXCLUDE_PACKAGES.append('*root_analysis*')
 
 # This is for auto-generating documentation.
 # One can generate documentation by executing:
