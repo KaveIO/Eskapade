@@ -34,15 +34,6 @@ Tools for visualization of analysis results
 * tutorials: esk3*
 
 
-root_analysis
--------------
-
-Interfaces for analysis with the ROOT framework
-
-* dependencies: core, core_ops, analysis, visualization
-* tutorials: esk4*
-
-
 data_quality
 ------------
 

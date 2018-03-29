@@ -81,6 +81,7 @@ def eskapade_run(settings=None):
         raise RuntimeError('macro is not set')
     process_manager.execute_macro(settings['macro'])
 
+    # TODO Do we want to keep this here?
     if 'ROOT.RooFit' in sys.modules:
         # initialize logging for RooFit
         from eskapade.root_analysis.roofit_utils import set_rf_log_level

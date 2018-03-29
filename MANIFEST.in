@@ -1,6 +1,3 @@
-graft cxx
-
-include setup_cxx.py
 include NOTICE
 include LICENSE
 

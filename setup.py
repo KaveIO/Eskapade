@@ -23,9 +23,9 @@ from setuptools.command.test import test as TestCommand
 NAME = 'Eskapade'
 
 MAJOR = 0
-REVISION = 7
+REVISION = 8
 PATCH = 0
-DEV = False
+DEV = True
 
 VERSION = '{major}.{revision}.{patch}'.format(major=MAJOR, revision=REVISION, patch=PATCH)
 FULL_VERSION = VERSION
@@ -86,8 +86,6 @@ release = {is_release!s}
         version_file.close()
 
 
-# Determine if ROOT analysis modules will be installed.
-# If ROOT is not set up, ROOT analysis modules are excluded.
 EXCLUDE_PACKAGES = []
 EXTERNAL_MODULES = []
 
@@ -159,7 +157,7 @@ def setup_package() -> None:
     # logger.info("Requiremeant = {}".format(resource_filename(Requirement.parse(NAME), 'cxx')))
 
     setup(name=NAME,
-          version=VERSION,
+          version=FULL_VERSION,
           url='http://eskapade.kave.io',
           license='',
           author='KPMG N.V. The Netherlands',

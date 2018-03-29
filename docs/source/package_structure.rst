@@ -85,7 +85,6 @@ Eskapade contains the following list of subpackages:
 * ``core_ops`` contains links pertaining to the core functionality of Eskapade.
 * ``analysis`` contains pandas links and code.
 * ``visualization`` contains visualization code and plotter links.
-* ``root_analysis`` contains ROOT links and code for data generation, fitting, and plotting.
 * ``data_quality`` contains links and code for fixing messy data.
 * ``spark_analysis`` contains Spark related analysis links and code.
 
