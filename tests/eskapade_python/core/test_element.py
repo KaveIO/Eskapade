@@ -109,7 +109,7 @@ class ChainTest(unittest.TestCase):
 
         # Assert that forward/insertion order is maintained.
         self.assertEqual(list(chain),
-                         self.links,
+                         None,
                          msg='Links order mismatch!')
 
         # Assert that the reversed order is maintained.
