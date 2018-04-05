@@ -36,7 +36,7 @@ REQUIREMENTS = [
     'pendulum==1.2.5',
     'jupyter==1.0.0',
     'matplotlib==2.0.2',
-    'numpy==1.12.1',
+    'numpy==1.14.2',
     'scipy==0.19.0',
     'scikit-learn==0.18.1',
     'statsmodels==0.8.0',
@@ -153,9 +153,6 @@ def setup_package() -> None:
     """
     write_version_py()
 
-    # from pkg_resources import Requirement, resource_filename
-    # logger.info("Requiremeant = {}".format(resource_filename(Requirement.parse(NAME), 'cxx')))
-
     setup(name=NAME,
           version=FULL_VERSION,
           url='http://eskapade.kave.io',
@@ -170,7 +167,7 @@ def setup_package() -> None:
           # This is a feature and not a bug, see
           # http://setuptools.readthedocs.io/en/latest/setuptools.html#non-package-data-files
           package_data={
-              NAME.lower(): ['config/spark/*.cfg', 'templates/*', 'data/*', 'tutorials/*.sh']
+              NAME.lower(): ['config/*', 'templates/*', 'data/*', 'tutorials/*.sh']
           },
           install_requires=REQUIREMENTS,
           tests_require=['pytest==3.2.2'],
