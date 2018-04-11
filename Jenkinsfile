@@ -11,11 +11,12 @@ def python_packages = [ 'pip', 'virtualenv', 'tox']
 // Note that Groovy always returns the last evaluated
 // statement.
 def status_string(String msg, String result) {
-    if (msg.empty) {
-        result
-    } else {
+    if (!msg.empty) {
         msg += "\n"
         msg += result
+        return msg
+    } else {
+        return "\n" + result
     }
 }
 
@@ -89,7 +90,7 @@ podTemplate(
         status_msg = ''
         stage('Unit Test') {
             try {
-                echo "Going to run unit tests for ${env.JOB_NAME}:${env.BRANCH_NAME}"
+                echo "Going to run unit tests for ${env.JOB_NAME}:${env.BRANCH_NAME}."
 
                 // Build shell script to run unit tests.
                 //
