@@ -63,3 +63,9 @@ python/eskapade/core/context.py
 python/eskapade/play_logger.py
 .pytest_cache/
 __pycache__/
+.tox/
+flake.txt
+python/eskapade/root_analysis/
+python/eskapade/spark_analysis/
+tests/eskapade_python/root_analysis/
+tests/eskapade_python/spark_analysis/

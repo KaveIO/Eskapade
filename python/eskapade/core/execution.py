@@ -13,8 +13,6 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-import sys
-
 import eskapade.utils
 from eskapade.core.process_manager import process_manager
 from eskapade.core.process_services import ConfigObject

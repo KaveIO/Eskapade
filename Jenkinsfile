@@ -14,7 +14,8 @@ def status_string(String msg, String result) {
     if (msg.empty) {
         result
     } else {
-        msg += "\n" + result
+        msg += "\n"
+        msg += result
     }
 }
 
@@ -35,7 +36,7 @@ podTemplate(
 ) {
     node(pod_label) {
 
-        def status_msg
+        def status_msg = ''
 
         stage('Setup') {
             try {
@@ -62,7 +63,7 @@ podTemplate(
                 currentBuild.result = 'SUCCESS'
                 echo "${status_string(status_msg, currentBuild.result)}"
             } catch (exc) {
-                echo 'Failed to setup project environment!'
+                echo "Failed to setup project environment ${env.JOB_NAME}:${env.BRANCH_NAME}!"
                 echo exc.toString()
                 currentBuild.result = 'FAILURE'
             }
@@ -79,7 +80,7 @@ podTemplate(
                 currentBuild.result = 'SUCCESS'
                 echo "${status_string(status_msg, currentBuild.result)}"
             } catch (exc) {
-                echo 'Failed to checkout source!'
+                echo "Failed to checkout source for ${env.JOB_NAME}:${env.BRANCH_NAME}!"
                 echo exc.toString()
                 currentBuild.result = 'FAILURE'
             }
@@ -106,7 +107,7 @@ podTemplate(
                 currentBuild.result = 'SUCCESS'
                 echo "${status_string(status_msg, currentBuild.result)}"
             } catch (exc) {
-                echo 'Unit tests failed for ${env.JOB_NAME}:${env.BRANCH_NAME}!'
+                echo "Unit tests failed for ${env.JOB_NAME}:${env.BRANCH_NAME}!"
                 echo exc.toString()
                 currentBuild.result = 'FAILURE'
             }

@@ -33,7 +33,7 @@ else:
 
 # Tutorials that are shipped with eskapade.
 _TUTORIALS = {_.name if _.parent.name == 'tutorials' else _.parent.name + '/' + _.name:
-                  _ for _ in pathlib.Path(resource_filename(eskapade.__name__, 'tutorials')).glob('**/*.py')}
+              _ for _ in pathlib.Path(resource_filename(eskapade.__name__, 'tutorials')).glob('**/*.py')}
 
 # Templates that are shipped with eskapade.
 _TEMPLATES = {_.name: _ for _ in pathlib.Path(resource_filename(eskapade.__name__, 'templates')).glob('*')}

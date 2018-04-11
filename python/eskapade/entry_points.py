@@ -82,7 +82,7 @@ def eskapade_run():
         pd.set_option('display.max_columns', 50)
 
         # start interactive session
-        ds = process_manager.service(DataStore)
+        process_manager.service(DataStore)
         logger.info("Continuing interactive session ... press Ctrl+d to exit.\n")
         IPython.embed()
 
