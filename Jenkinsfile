@@ -74,7 +74,6 @@ podTemplate(
                 echo "Going to checkout ${env.JOB_NAME}:${env.BRANCH_NAME}"
                 container(name: 'jnlp', shell: '/bin/bash') {
                     checkout scm
-                    sh 'pwd && ls -l'
                 }
 
                 currentBuild.result = 'SUCCESS'
@@ -90,8 +89,18 @@ podTemplate(
         stage('Unit Test') {
             try {
                 echo "Going to run unit tests for ${env.JOB_NAME}:${env.BRANCH_NAME}"
+
+                // Build shell script to run unit tests.
+                //
+                // Note that we first need to activate the
+                // Python virtualenv that was created in the
+                // Setup stage.
+                def to_execute = "#!/bin/bash\n" +
+                    "source activate jenkinsenv\n" +
+                    "tox -r\n"
+
                 container(name: 'jnlp', shell: '/bin/bash') {
-                    sh 'pwd && ls -l'
+                    status_msg = sh(returnStdout: true, script: to_execute).trim()
                 }
 
                 currentBuild.result = 'SUCCESS'
