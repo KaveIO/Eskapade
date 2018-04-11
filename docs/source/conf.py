@@ -5,7 +5,6 @@
 #
 
 import os
-import sys
 from unittest.mock import MagicMock
 
 import eskapade
@@ -21,16 +20,6 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
         return MagicMock()
 
-
-MOCK_MODULES = ['ROOT',
-                'root_numpy',
-                'pyspark',
-                'pyspark.streaming',
-                'pyspark.sql',
-                'pyspark.sql.types',
-                'pyspark.sql.functions']
-
-sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

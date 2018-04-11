@@ -61,18 +61,6 @@ ____________
 
 Eskapade requires Python 3 and some libraries, which can be found in `setup.py` at the root of the repository.
 
-There are two optional subpackages which require external products: `root_analysis` and `spark_analysis` subpackages.
-
-To be able to run `root_analysis`, `ROOT CERN's data analysis package <http://root.cern.ch>`_
-need to be compiled with the following flags:
-
-.. code-block:: bash
-
-  $ -Dfftw3=ON -Dmathmore=ON -Dminuit2=ON -Droofit=ON -Dtmva=ON -Dsoversion=ON -Dthread=ON -Dpython3=ON \
-  $ -DPYTHON_EXECUTABLE=path_to_python_exe -DPYTHON_INCLUDE_DIR=path_to_python_include -DPYTHON_LIBRARY=path_to_python_lib
-
-`spark_analysis` requires `Apache Spark <https://spark.apache.org>`_ version 2.1.1 or higher.
-
 Eskapade can be installed as any other Python package with ``easy_install`` or ``pip``:
 
 .. code-block:: bash

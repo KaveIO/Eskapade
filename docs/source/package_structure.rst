@@ -86,7 +86,6 @@ Eskapade contains the following list of subpackages:
 * ``analysis`` contains pandas links and code.
 * ``visualization`` contains visualization code and plotter links.
 * ``data_quality`` contains links and code for fixing messy data.
-* ``spark_analysis`` contains Spark related analysis links and code.
 
 Imports
 -------

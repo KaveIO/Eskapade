@@ -298,10 +298,6 @@ In `All available examples`_ we give some tips to find the right Links your anal
 
 .. include:: tutorial_jupyter.rst
 .. include:: tutorial_bootstrap.rst
-.. include:: tutorial_roofit.rst
-.. include:: tutorial_spark.rst
-
-
 
 All available examples
 ----------------------
@@ -311,9 +307,7 @@ Every subpackage of Eskapade contains links in its ``links/`` subdirectory.
 * ``core_ops`` contains links pertaining to the core functionality of Eskapade, where the ``core`` package is the core framework of Eskapade.
 * ``analysis`` contains pandas links.
 * ``visualization`` contains plotter links.
-* ``root_analysis`` contains ROOT links for data generation, fitting, and plotting.
 * ``data_quality`` contains links for fixing messy data.
-* ``spark_analysis`` contains Spark related analysis links.
   
 The name of every link indicates its basic function. If you want to know explicitly you can read the
 `API documentation <eskapade_index.html>`_.
@@ -327,9 +321,7 @@ The numbering of the example macros follows the package structure:
 * ``esk100+``: basic macros describing the chains, links, and datastore functionality of Eskapade.
 * ``esk200+``: macros describing links to do basic processing of pandas dataframes.
 * ``esk300+``: visualization macros for making histograms, plots and reports of datasets.
-* ``esk400+``: macros for processing ROOT datasets and performing fits to data using RooFit.
 * ``esk500+``: macros for doing data quality assessment and cleaning.
-* ``esk600+``: macros describing links to do basic processing of data and RDDs with Spark.
 
 The basic Eskapade macros (esk100+) are briefly described below.
 They explain the basic architecture of Eskapade,

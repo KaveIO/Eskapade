@@ -88,28 +88,34 @@ podTemplate(
 
         status_msg = ''
         stage('Unit Test') {
-            try {
-                echo "Going to run unit tests for ${env.JOB_NAME}:${env.BRANCH_NAME}"
+            try
+            echo "Going to run unit tests for ${env.JOB_NAME}:${env.BRANCH_NAME}"
 
-                // Build shell script to run unit tests.
-                //
-                // Note that we first need to activate the
-                // Python virtualenv that was created in the
-                // Setup stage.
-                def to_execute = "#!/bin/bash\n" +
-                    "source activate jenkinsenv\n" +
-                    "tox -r\n"
+            // Build shell script to run unit tests.
+            //
+            // Note that we first need to activate the
+            // Python virtualenv that was created in the
+            // Setup stage.
+            def to_execute = "#!/bin/bash\n" +
+                "source activate jenkinsenv\n" +
+                "tox\n"
 
-                container(name: 'jnlp', shell: '/bin/bash') {
-                    status_msg = sh(returnStdout: true, script: to_execute).trim()
-                }
-
-                echo status_string(status_msg, 'SUCCESS')
-                currentBuild.result = 'SUCCESS'
+            container(name: 'jnlp', shell: '/bin/bash') {
+                status_msg = sh(returnStdout: true, script: to_execute).trim()
             } catch (exc) {
                 echo "Unit tests failed for ${env.JOB_NAME}:${env.BRANCH_NAME}!"
                 echo exc.toString()
                 currentBuild.result = 'FAILURE'
+            } finally {
+                // Grab junit and coverarage reports.
+                container(name: 'jnlp', shell: '/bin/bash') {
+                    junit '**/junit-*.xml'
+                    try {
+                        step([$class: 'CoberturaPublisher', coberturaReportFile: '**/coverage.xml'])
+                    } catch (exc) {
+                        echo 'Missing Cobertura plugin for coverage reports.'
+                    }
+                }
             }
         }
     }
