@@ -60,8 +60,8 @@ podTemplate(
                     status_msg = sh(returnStdout: true, script: to_execute).trim()
                 }
 
+                echo status_string(status_msg, 'SUCCESS')
                 currentBuild.result = 'SUCCESS'
-                echo "${status_string(status_msg, currentBuild.result)}"
             } catch (exc) {
                 echo "Failed to setup project environment ${env.JOB_NAME}:${env.BRANCH_NAME}!"
                 echo exc.toString()
@@ -77,8 +77,8 @@ podTemplate(
                     checkout scm
                 }
 
+                echo status_string(status_msg, 'SUCCESS')
                 currentBuild.result = 'SUCCESS'
-                echo "${status_string(status_msg, currentBuild.result)}"
             } catch (exc) {
                 echo "Failed to checkout source for ${env.JOB_NAME}:${env.BRANCH_NAME}!"
                 echo exc.toString()
@@ -104,8 +104,8 @@ podTemplate(
                     status_msg = sh(returnStdout: true, script: to_execute).trim()
                 }
 
+                echo status_string(status_msg, 'SUCCESS')
                 currentBuild.result = 'SUCCESS'
-                echo "${status_string(status_msg, currentBuild.result)}"
             } catch (exc) {
                 echo "Unit tests failed for ${env.JOB_NAME}:${env.BRANCH_NAME}!"
                 echo exc.toString()
