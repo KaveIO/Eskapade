@@ -14,11 +14,9 @@ LICENSE.
 """
 
 import logging
-import sys
 
 from setuptools import find_packages
 from setuptools import setup
-from setuptools.command.test import test as TestCommand
 
 NAME = 'Eskapade'
 
@@ -31,6 +29,10 @@ VERSION = '{major}.{revision}.{patch}'.format(major=MAJOR, revision=REVISION, pa
 FULL_VERSION = VERSION
 if DEV:
     FULL_VERSION += '.dev'
+
+TEST_REQUIREMENTS = ['pytest==3.5.0',
+                     'pytest-pylint==0.9.0',
+                     ]
 
 REQUIREMENTS = [
     'pendulum==1.2.5',
@@ -46,12 +48,15 @@ REQUIREMENTS = [
     'histogrammar==1.0.9',
     'names==0.3.0',
     'fastnumbers==2.0.2',
-    'pytest==3.0.7',
-    'pytest-pylint==0.7.1'
-]
+    ]
+
+REQUIREMENTS = REQUIREMENTS + TEST_REQUIREMENTS
 
 CMD_CLASS = dict()
 COMMAND_OPTIONS = dict()
+
+EXCLUDE_PACKAGES = []
+EXTERNAL_MODULES = []
 
 logging.basicConfig()
 logger = logging.getLogger(__file__)
@@ -86,67 +91,10 @@ release = {is_release!s}
         version_file.close()
 
 
-EXCLUDE_PACKAGES = []
-EXTERNAL_MODULES = []
-
-# This is for auto-generating documentation.
-# One can generate documentation by executing:
-# python setup.py build_sphinx -i
-HAVE_SPHINX = True
-try:
-    from sphinx.setup_command import BuildDoc
-
-    cmd_string = 'build_sphinx'
-
-    CMD_CLASS[cmd_string] = BuildDoc
-    COMMAND_OPTIONS[cmd_string] = {
-        'project': ('setup.py', NAME),
-        'version': ('setup.py', VERSION),
-        'release': ('setup.py', FULL_VERSION)
-    }
-except ImportError:
-    logger.fatal('Missing Sphinx packages!')
-    HAVE_SPHINX = False
-
-
-class PyTest(TestCommand):
-    """A pytest runner helper."""
-
-    user_options = [('pytest-args=', 'a', 'Arguments to pass to pytest')]
-
-    def initialize_options(self):
-        TestCommand.initialize_options(self)
-        self.pytest_args = ''
-
-    def run_tests(self):
-        import shlex
-        # We only install this when needed.
-        import pytest
-        errno = pytest.main(shlex.split(self.pytest_args))
-        sys.exit(errno)
-
-
-CMD_CLASS['test'] = PyTest
-
-
 def setup_package() -> None:
     """The main setup method.
 
     It is responsible for setting up and installing the package.
-
-    It also provides commands for generating docs and running tests.
-
-    To generate sphinx docs execute:
-
-    >>> python setup.py build_sphinx -i
-
-    in the project folder.
-
-    To run tests execute:
-
-    >>> python setup test -a "some pytest test arguments"
-
-    in the project folder.
 
     :return:
     :rtype: None
@@ -170,16 +118,20 @@ def setup_package() -> None:
               NAME.lower(): ['config/*', 'templates/*', 'data/*', 'tutorials/*.sh']
           },
           install_requires=REQUIREMENTS,
-          tests_require=['pytest==3.2.2'],
+          tests_require=TEST_REQUIREMENTS,
           ext_modules=EXTERNAL_MODULES,
           cmdclass=CMD_CLASS,
           command_options=COMMAND_OPTIONS,
           # The following 'creates' executable scripts for *nix and Windows.
-          # As an added the bonus the Windows scripts will auto-magically
+          # As an added bonus the Windows scripts will auto-magically
           # get a .exe extension.
           #
-          # eskapade: main/app application entry point.
-          # eskapade_trial: test entry point.
+          # eskapade_run: main application to let loose on macros.
+          # eskapade_trial: test application to let loose on tests. This is just a wrapper around pytest.
+          # eskapade_generate_link: utility to generate link boilerplate/template.
+          # eskapade_generate_macro: utility to generate macro boilerplate/template.
+          # eskapade_generate_notebook: utility to generate notebook boilerplate/template.
+          # eskapade_bootstrap: utility to bootstrap an Eskapade project.
           entry_points={
               'console_scripts': [
                   'eskapade_ignite = eskapade.entry_points:eskapade_ignite',
