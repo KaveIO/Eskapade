@@ -10,7 +10,7 @@ def python_packages = [ 'pip', 'virtualenv', 'tox']
 //
 // Note that Groovy always returns the last evaluated
 // statement.
-def status_msg(String msg, String result) {
+def status_string(String msg, String result) {
     if (msg.empty) {
         result
     } else {
@@ -39,7 +39,7 @@ podTemplate(
 
         stage('Setup') {
             try {
-                echo "Creating and setting up Python virtual environment for ${env.JOB_NAME}."
+                echo "Creating and setting up Python virtual environment for ${env.JOB_NAME}:${env.BRANCH_NAME}."
 
                 // Build the shell script to setup and create the
                 // virtual environment. This will be executed by
@@ -60,7 +60,7 @@ podTemplate(
                 }
 
                 currentBuild.result = 'SUCCESS'
-                echo "${status_msg(status_msg, currentBuild.result)}"
+                echo "${status_string(status_msg, currentBuild.result)}"
             } catch (exc) {
                 echo 'Failed to setup project environment!'
                 echo exc.toString()
@@ -78,7 +78,7 @@ podTemplate(
                 }
 
                 currentBuild.result = 'SUCCESS'
-                echo "${status_msg(status_msg, currentBuild.result)}"
+                echo "${status_string(status_msg, currentBuild.result)}"
             } catch (exc) {
                 echo 'Failed to checkout source!'
                 echo exc.toString()
