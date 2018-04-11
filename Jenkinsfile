@@ -14,7 +14,7 @@ def status_string(String msg, String result) {
     if (msg.empty) {
         result
     } else {
-        msg += "\n${result}"
+        msg += "\n" + result
     }
 }
 
@@ -81,6 +81,23 @@ podTemplate(
                 echo "${status_string(status_msg, currentBuild.result)}"
             } catch (exc) {
                 echo 'Failed to checkout source!'
+                echo exc.toString()
+                currentBuild.result = 'FAILURE'
+            }
+        }
+
+        status_msg = ''
+        stage('Unit Test') {
+            try {
+                echo "Going to run unit tests for ${env.JOB_NAME}:${env.BRANCH_NAME}"
+                container(name: 'jnlp', shell: '/bin/bash') {
+                    sh 'pwd && ls -l'
+                }
+
+                currentBuild.result = 'SUCCESS'
+                echo "${status_string(status_msg, currentBuild.result)}"
+            } catch (exc) {
+                echo 'Unit tests failed for ${env.JOB_NAME}:${env.BRANCH_NAME}!'
                 echo exc.toString()
                 currentBuild.result = 'FAILURE'
             }
