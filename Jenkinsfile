@@ -16,22 +16,30 @@ def status_string(String msg, String result) {
         msg += result
         return msg
     } else {
-        return "\n" + result
+        return result
     }
 }
 
 
 podTemplate(
+    cloud: 'kubernetes',
     name: pod_name,
     label: pod_label,
     namespace: 'jenkins',
+    nodeUsageMode: 'EXCLUSIVE',
     containers: [
         containerTemplate(name: 'jnlp',
                           image: 'kave/jnlp-slave-kavetoolbox',
+                          alwaysPullImage: true,
                           workingDir: '/home/jenkins',
                           args: '${computer.jnlpmac} ${computer.name}',
-                          envVars: [ envVar(key: 'JENKINS_URL', value: 'http://its-jenkins:8080')
-            ]
+                          envVars: [ envVar(key: 'JENKINS_URL', value: 'http://its-jenkins:8080')]
+        ),
+        containerTemplate(name: 'docker',
+                          image: 'docker',
+                          alwaysPullImage: true,
+                          command: 'cat',
+                          ttyEnabled: true
         )
     ]
 ) {
@@ -40,8 +48,12 @@ podTemplate(
         def status_msg = ''
 
         stage('Setup') {
+
             try {
-                echo "Creating and setting up Python virtual environment for ${env.JOB_NAME}:${env.BRANCH_NAME}."
+                // Clean up workspace
+                deleteDir()
+
+                echo "Creating and setting up Python virtual environment for ${env.JOB_NAME}."
 
                 // Build the shell script to setup and create the
                 // virtual environment. This will be executed by
@@ -56,41 +68,43 @@ podTemplate(
                 }
 
                 // Let's execute the script and capture the output
-                // on the slave.
-                container(name: 'jnlp', shell: '/bin/bash') {
-                    status_msg = sh(returnStdout: true, script: to_execute).trim()
-                }
+                // on the jnlp slave. By default everything is executed
+                // on the jnlp slave.
+                status_msg = sh(returnStdout: true, script: to_execute).trim()
 
                 echo status_string(status_msg, 'SUCCESS')
                 currentBuild.result = 'SUCCESS'
             } catch (exc) {
-                echo "Failed to setup project environment ${env.JOB_NAME}:${env.BRANCH_NAME}!"
-                echo exc.toString()
-                currentBuild.result = 'FAILURE'
+                // Abort! It does not make sense to continue!
+                status_msg = "Failed to create and setup project environment for ${env.JOB_NAME}!\n"
+                status_msg += exc.toString()
+                currentBuild.result = 'ABORT'
+                error status_msg
             }
         }
 
-        status_msg = ''
         stage('Checkout') {
+            status_msg = ''
             try {
-                echo "Going to checkout ${env.JOB_NAME}:${env.BRANCH_NAME}"
-                container(name: 'jnlp', shell: '/bin/bash') {
-                    checkout scm
-                }
+                echo "Going to checkout ${env.JOB_NAME}."
+
+                checkout scm
 
                 echo status_string(status_msg, 'SUCCESS')
                 currentBuild.result = 'SUCCESS'
             } catch (exc) {
-                echo "Failed to checkout source for ${env.JOB_NAME}:${env.BRANCH_NAME}!"
-                echo exc.toString()
-                currentBuild.result = 'FAILURE'
+                // Abort! It does not make sense to continue!
+                status_msg = "Failed to checkout ${env.JOB_NAME}!\n"
+                status_msg exc.toString()
+                currentBuild.result = 'ABORT'
+                error status_msg
             }
         }
 
-        status_msg = ''
         stage('Unit Test') {
+            status_msg = ''
             try {
-                echo "Going to run unit tests for ${env.JOB_NAME}:${env.BRANCH_NAME}."
+                echo "Going to run unit tests for ${env.JOB_NAME}."
 
                 // Build shell script to run unit tests.
                 //
@@ -101,37 +115,55 @@ podTemplate(
                     "source activate jenkinsenv\n" +
                     "tox\n"
 
-                container(name: 'jnlp', shell: '/bin/bash') {
-                    status_msg = sh(returnStdout: true, script: to_execute).trim()
-                }
+                status_msg = sh(returnStdout: true, script: to_execute).trim()
 
                 echo status_string(status_msg, 'SUCCESS')
                 currentBuild.result = 'SUCCESS'
             } catch (exc) {
-                echo "Unit tests failed for ${env.JOB_NAME}:${env.BRANCH_NAME}!"
-                echo exc.toString()
+                // We do not abort here. We mark this stage as a failure and continue
+                // with the cleanup stage.
+                status_msg = "Unit tests failed for ${env.JOB_NAME}!\n"
+                status_msg += exc.toString()
+                echo status_msg
                 currentBuild.result = 'FAILURE'
             }
         }
 
-        status_msg = ''
-        stage('Cleanup') {
-            try {
-                echo "Going to gather test results and reports for ${env.JOB_NAME}:${env.BRANCH_NAME}"
+        stage('Build Docker') {
+            // This is where we build the eskapade docker image
+            // and push it to docker hub.
+            // Google for docker jenkins pipeline kubernetes for inspiration.
+            echo 'Going to build docker image.'
+            container(name: 'docker', shell: '/bin/bash') {
+                echo 'Hello from docker container.'
+            }
+        }
 
-                container(name: 'jnlp', shell: '/bin/bash') {
-                    junit '**/junit-*.xml'
-                    try {
-                        step([$class: 'CoberturaPublisher', coberturaReportFile: '**/coverage.xml'])
-                    } catch (exc) {
-                        echo 'Missing Cobertura plugin for coverage reports.'
-                    }
+        stage('Cleanup') {
+            status_msg = ''
+            try {
+                echo "Going to gather test results and reports for ${env.JOB_NAME}."
+
+                // Gather unit testing reports. We need the junit plugin
+                // to display them.
+                junit '**/junit-*.xml'
+
+                // Gather coverage reports. We need the Cobertura plugin
+                // to display them.
+                try {
+                    step([$class: 'CoberturaPublisher', coberturaReportFile: '**/coverage.xml'])
+                } catch (exc) {
+                    echo 'Missing Cobertura plugin for coverage reports.'
                 }
 
                 currentBuild.result = 'SUCCESS'
             } catch (exc) {
-                echo "Failed to gather test resutls and reports for ${env.JOB_NAME}:${env.BRANCH_NAME}"
+                echo "Failed to gather test resutls and reports for ${env.JOB_NAME}!"
                 currentBuild.result = 'FAILURE'
+            } finally {
+                // Cleanup workspace
+                echo "Cleaning up workspace."
+                deleteDir()
             }
         }
     }
