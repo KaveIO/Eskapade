@@ -177,6 +177,15 @@ Consider adding a permanent alias to your local ``~/.bashrc`` or ``~/.bash_profi
 So the next time, in a fresh shell, you can simply run the command ``eskapade_docker``.
 
 
+Opening a second terminal in the docker
+:::::::::::::::::::::::::::::::::::::::
+
+By default you are logged into the docker container as a root user when you use docker exec. To open a second terminal
+inside your running docker as another user then root, use the option -u:
+
+.. code:: bash
+
+  $ docker exec -u esdev -it <name docker container> /bin/bash
 
 
 Starting Jupyter notebook
