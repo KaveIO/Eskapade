@@ -11,8 +11,6 @@ Subpackages
     eskapade.core_ops
     eskapade.data_quality
     eskapade.logger
-    eskapade.root_analysis
-    eskapade.spark_analysis
     eskapade.visualization
 
 Submodules

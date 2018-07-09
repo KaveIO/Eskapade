@@ -45,21 +45,22 @@ python/eskapade/version.py
 !docs/source/installation.rst
 !docs/source/code.rst
 !docs/source/developing.rst
-!docs/source/spark.rst
 !docs/source/tutorials.rst
 !docs/source/tutorial_bootstrap.rst
 !docs/source/tutorial_jupyter.rst
-!docs/source/tutorial_spark.rst
-!docs/source/tutorial_roofit.rst
 
 !README.rst
 !python/eskapade/README.rst
 !vagrant/README.rst
 
-*cmake-build-debug
-
 docs/source/_static/
-python/eskapade/core/context.py
-python/eskapade/play_logger.py
 .pytest_cache/
 __pycache__/
+.tox/
+flake.txt
+python/eskapade/root_analysis/
+python/eskapade/spark_analysis/
+
+junit-py35.xml
+/.coverage
+/coverage.xml

@@ -1,10 +1,7 @@
-import importlib
 import os
-import sys
 import unittest
 import unittest.mock as mock
 
-import eskapade.utils
 from eskapade import process_manager, resources, ConfigObject, DataStore, StatusCode, entry_points
 from eskapade.core import execution
 from eskapade.core_ops import Break
@@ -107,8 +104,8 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual('Universe', list(list(process_manager)[0])[0].hello)
 
     @unittest.skip('TODO (v0.8): this test tests argument passing to Eskapade '
-            'via command line - the analysis name should be picked up from '
-            'the macro - to be re-written analogue to the eskapade_bootstrap test.')
+                   'via command line - the analysis name should be picked up from '
+                   'the macro - to be re-written analogue to the eskapade_bootstrap test.')
     @mock.patch('sys.argv')
     def test_esk106_script(self, mock_argv):
         """Test Eskapade run with esk106 macro from script"""

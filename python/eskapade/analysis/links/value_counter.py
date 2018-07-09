@@ -232,8 +232,7 @@ class ValueCounter(HistogramFillerBase):
         return obj
 
     def finalize(self):
-        """Finalize ValueCounter"""
-
+        """Finalize ValueCounter."""
         status = HistogramFillerBase.finalize(self)
         # cleanup
         if self.store_key_counts is None:

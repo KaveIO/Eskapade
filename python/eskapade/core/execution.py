@@ -13,8 +13,6 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-import sys
-
 import eskapade.utils
 from eskapade.core.process_manager import process_manager
 from eskapade.core.process_services import ConfigObject
@@ -80,11 +78,6 @@ def eskapade_run(settings=None):
     if not settings['macro']:
         raise RuntimeError('macro is not set')
     process_manager.execute_macro(settings['macro'])
-
-    if 'ROOT.RooFit' in sys.modules:
-        # initialize logging for RooFit
-        from eskapade.root_analysis.roofit_utils import set_rf_log_level
-        set_rf_log_level(settings['logLevel'])
 
     # check analysis name
     if not settings['analysisName']:

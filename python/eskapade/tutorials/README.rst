@@ -11,7 +11,6 @@ The numbering of the example macros is as follows:
            datastore, and process manager interact.
 * esk200+: macros describing links to do basic processing of pandas dataframes.
 * esk300+: visualization macros for making histograms, plots and reports of datasets.
-* esk400+: macros for processing ROOT datasets and performing fits to data using RooFit.
 * esk500+: macros for doing data quality assessment and cleaning.
 * esk600+: macros describing links to do basic processing of data and rdds with Spark.
 

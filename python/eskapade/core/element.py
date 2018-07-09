@@ -302,7 +302,8 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
                                   link=_, code=status, chain=self)
                 break
             # A link may request to skip the rest of the processing during initialization and execution.
-            # Why should a link decide to skip the chain it is in during execution? When an essential input collection is empty.
+            # Why would a link decide to skip the chain it is in during execution?
+            # When an essential input collection is empty.
             elif status == StatusCode.SkipChain:
                 self.logger.warning('Skipping chain "{chain!s} as requested by link "{link!s}"!',
                                     chain=self, link=_)
@@ -312,7 +313,8 @@ class Chain(Processor, ProcessorSequence, TimerMixin):
                 self.logger.warning('Breaking of exection of chain "{chain!s} as requested by link "{link!s}"!',
                                     chain=self, link=_)
                 break
-            # A link may request that the chain needs to be repeated during execution. When looping over input file in chunks.
+            # A link may request that the chain needs to be repeated during execution, e.g.
+            # when looping over input file in chunks.
             elif status == StatusCode.RepeatChain:
                 self.logger.warning('Repeating chain "{chain!s}" as requested by link "{link!s}"!',
                                     chain=self, link=_)

@@ -19,9 +19,9 @@ from eskapade import process_manager, DataStore, Link, StatusCode
 
 
 class SkipChainIfEmpty(Link):
-    """Sents a SkipChain deenums.StatusCode signal when an appointed dataset is empty.
+    """Sends a SkipChain enums.StatusCode signal when an appointed dataset is empty.
 
-    This signal causes that the processsManager to step immediately to the next Chain.
+    This signal causes that the Processs Manager to step immediately to the next Chain.
     Input collections can be either mongo collections or dataframes in the datastore.
     """
 
@@ -29,9 +29,11 @@ class SkipChainIfEmpty(Link):
         """Initialize link instance.
 
         :param str name: name of link
-        :param list collection_set: datastore keys holding the datasets to be checked. If any of these is empty, the chain is skipped.
-        :param bool skip_chain_when_key_not_in_ds: skip the chain as well if the dataframe is not present in the datastore. \
-        When True and if type is 'pandas.DataFrame', sents a SkipChain signal if key not in DataStore
+        :param list collection_set: datastore keys holding the datasets to be checked. If any of these is empty,
+                                    the chain is skipped.
+        :param bool skip_chain_when_key_not_in_ds: skip the chain as well if the dataframe is not present in the
+                                                   datastore. When True and if type is 'pandas.DataFrame', sends
+                                                   a SkipChain signal if key not in DataStore
         :param bool check_at_initialize: perform dataset empty is check at initialize. Default is true.
         :param bool check_at_execute: perform dataset empty is check at initialize. Default is false.
         """
@@ -65,9 +67,8 @@ class SkipChainIfEmpty(Link):
         Collections need to be both present and not empty.
 
         - For mongo collections a dedicated filter can be applied before doing the count.
-        - For pandas dataframes the additional option 'skip_chain_when_key_not_in_ds' exists. Meaning, \
-        skip the chain as well if the dataframe is not present in the datastore.
-
+        - For pandas dataframes the additional option 'skip_chain_when_key_not_in_ds' exists. Meaning,
+          skip the chain as well if the dataframe is not present in the datastore.
         """
         # check if collection names are present in datastore
         ds = process_manager.service(DataStore)
