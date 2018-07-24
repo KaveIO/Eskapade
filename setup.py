@@ -30,8 +30,8 @@ FULL_VERSION = VERSION
 if DEV:
     FULL_VERSION += '.dev'
 
-TEST_REQUIREMENTS = ['pytest==3.5.0',
-                     'pytest-pylint==0.9.0',
+TEST_REQUIREMENTS = ['pytest>=3.5.0',
+                     'pytest-pylint>=0.9.0',
                      ]
 
 REQUIREMENTS = [
