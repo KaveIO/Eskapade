@@ -71,7 +71,7 @@ can be overwritten by settings in the configuration macro.
 +--------------------+--------------+-------------------+---------------------------------------------------------+
 | --batch-mode       |              |                   | run in batch mode (no X Windows)                        |
 +--------------------+--------------+-------------------+---------------------------------------------------------+
-| --interactive      | -i           |                   | start IPython shell after run                           |
+| --interactive      | -i           |                   | start Python shell after run                            |
 +--------------------+--------------+-------------------+---------------------------------------------------------+
 | --log-level        | -L           | LEVEL             | set logging level                                       |
 +--------------------+--------------+-------------------+---------------------------------------------------------+
@@ -168,7 +168,7 @@ controlled with ``--interactive``:
 
   $ eskapade_run -i python/eskapade/tutorials/tutorial_1.py
 
-At the end of the session an ``IPython`` console is started from which
+At the end of the session a ``Python`` console is started from which
 e.g. the data store can be accessed.
   
 Saving states

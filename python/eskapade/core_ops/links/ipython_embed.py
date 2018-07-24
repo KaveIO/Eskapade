@@ -5,7 +5,7 @@ Class: IPythonEmbed
 Created: 2017/02/26
 
 Description:
-    Link that starts up an ipython console during execution for debugging.
+    Link that starts up a python console during execution for debugging.
 
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
@@ -15,16 +15,15 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from IPython import embed
-
 from eskapade import Link
 from eskapade import StatusCode
 
 
 class IPythonEmbed(Link):
-    """Link to start up ipython console.
+    """Link to start up a python console.
 
-    Start up an ipython console by simply adding this link at any location in a chain.
+    Start up a python console by simply adding this link at any location in a chain.
+    Note: not an ipython console, but regular python console.
     """
 
     def __init__(self, **kwargs):
@@ -40,9 +39,10 @@ class IPythonEmbed(Link):
 
     def execute(self):
         """Execute the link."""
-        self.logger.info("Starting interactive session ... press Ctrl+d to exit.\n")
-        # this function calls the interactive ipython session
+        # this function calls the python session
         # in this session ds, settings, and process_manager are available
-        embed()
+        from code import InteractiveConsole
+        cons = InteractiveConsole(locals())
+        cons.interact("\nStarting interactive session ... press Ctrl+d to exit.\n")
 
         return StatusCode.Success

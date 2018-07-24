@@ -39,11 +39,8 @@ def eskapade_run():
     Top-level entry point for an Eskapade run started from the
     command line.  Arguments specified by the user are parsed and
     converted to settings in the configuration object.  Optionally, an
-    interactive IPython session is started when the run is finished.
+    interactive Python session is started when the run is finished.
     """
-    import IPython
-    import pandas as pd
-
     from eskapade import process_manager, ConfigObject, DataStore
     from eskapade.core import execution
     from eskapade.core.run_utils import create_arg_parser
@@ -78,13 +75,18 @@ def eskapade_run():
     # start interpreter if requested (--interactive on command line)
     if settings.get('interactive'):
         # set Pandas display options
+        import pandas as pd
         pd.set_option('display.width', 120)
         pd.set_option('display.max_columns', 50)
 
+        # make datastore and config available in interactive session
+        ds = process_manager.service(DataStore)
+        settings = process_manager.service(ConfigObject)
+
         # start interactive session
-        process_manager.service(DataStore)
-        logger.info("Continuing interactive session ... press Ctrl+d to exit.\n")
-        IPython.embed()
+        from code import InteractiveConsole
+        cons = InteractiveConsole(locals())
+        cons.interact("\nContinuing interactive session ... press Ctrl+d to exit.\n")
 
 
 def eskapade_trial():
