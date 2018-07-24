@@ -23,6 +23,7 @@ from collections import Counter
 
 import numpy as np
 import pandas as pd
+import fastnumbers
 
 from eskapade import DataStore
 from eskapade import Link
@@ -272,8 +273,13 @@ class FixPandasDataFrame(Link):
 
         # --- Next: fix datatypes - all rows in a column get consistent datatype, except for nans
 
-        # convert all values to real numbers if possible
-        # df_ = df_.apply(fastnumbers.fast_real)
+        # init - data types not object nor float have already been assessed correctly by pandas
+        #        and have no polution. Can skip these.
+        for col in set(self.fixed_columns).difference(self.var_dtype):
+            # convert to consistent types
+            dt = df_[col].dtype.type
+            if dt is not np.object_ and dt is not np.float64:
+                self.var_dtype[col] = dt
 
         # init - assess data types of columns as earlier assessed by pandas
         for col in set(self.fixed_columns).difference(self._df_orig_dtype):
@@ -291,6 +297,7 @@ class FixPandasDataFrame(Link):
         for col in self.fixed_columns:
             is_nan[col] = df_[col].apply(check_nan_func)
             n_nan = is_nan[col].values.sum()
+            self._cnts[col] = Counter({'NaN': n_nan})
             if n_nan:
                 self.logger.debug('Column "{col}" contains {n:d} NaNs out of {total:d}.', col=col, n=n_nan, total=n_df)
             dt = self._df_orig_dtype[col]
@@ -298,17 +305,22 @@ class FixPandasDataFrame(Link):
             if n_nan and dt is not np.float64:
                 if col not in self.contaminated_columns:
                     self.contaminated_columns.append(col)
-        df_[is_nan] = self.nan_default
+        df_[is_nan.columns] = df_[is_nan.columns].mask(is_nan, self.nan_default)
 
         # 3. multiple datatypes in columns besides nans?
         #    find most common one per column
         keep = ~is_nan
         for col in set(self.fixed_columns).difference(self.var_dtype):
-            df_[col] = df_[col].apply(convert)  # fastnumbers.fast_real) #convert)
+            try:
+                # fast, but does not work for timestamps
+                df_[col] = df_[col].apply(fastnumbers.fast_real)
+            except:
+                # slow, but works for timestamps
+                df_[col] = df_[col].apply(convert)
             dfcol = df_[col][keep[col]]
             dtype_cnt = Counter(dfcol.apply(type).value_counts().to_dict())
             # for bookkeeping
-            self._cnts[col] = dtype_cnt
+            self._cnts[col].update(dtype_cnt)
             if len(dtype_cnt) == 0:
                 # column contains only nans!
                 if col not in self.var_dtype:
@@ -383,7 +395,10 @@ class FixPandasDataFrame(Link):
             for col, dt in self.var_dtype.items():
                 if dt != str and dt != np.str_:
                     continue
-                df_[col] = df_[col].str.strip()
+                try:
+                    df_[col] = df_[col].str.strip()
+                except:
+                    pass
 
         # cleaning up of string columns (2/2)
         if self.cleanup_string_columns:
@@ -395,6 +410,7 @@ class FixPandasDataFrame(Link):
 
         # storage
         ds[self.store_key] = df_
+        ds[self.store_key + '_cnts'] = pd.DataFrame(self._cnts).T
 
         return StatusCode.Success
 

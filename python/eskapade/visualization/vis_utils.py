@@ -332,7 +332,7 @@ def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
     def tick(lab):
         """Get tick."""
         if isinstance(lab, (float, int)):
-            lab = 'NaN' if np.isnan(lab) else '{0:.1e}'.format(lab)
+            lab = 'NaN' if np.isnan(lab) else '{0:.2e}'.format(lab)
         lab = str(lab)
         if len(lab) > top:
             lab = lab[:17] + '...'
@@ -342,9 +342,9 @@ def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
     nlabs = max(len(y_labels), len(x_labels))
     fontsize_factor = 1
     if nlabs >= 10:
-        fontsize_factor = 0.6
+        fontsize_factor = 0.55
     if nlabs >= 20:
-        fontsize_factor = 0.3
+        fontsize_factor = 0.25
 
     # make plot look pretty
     ax.set_title(title, fontsize=14 * fontsize_factor)
@@ -373,7 +373,13 @@ def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
                     elif m == 1:
                         y_offset = 0.25
                 point = float(matrix[j][i])
-                label = 'NaN' if np.isnan(point) else '{0:.2f}'.format(point)
+                if np.isnan(point):
+                    label = 'NaN'
+                elif print_both_numbers and m == 0: # number of entries
+                    pointi = int(matrix[j][i])
+                    label = '{0:d}'.format( pointi )
+                else:
+                    label = '{0:.2f}'.format(point)
                 color = 'w' if white_cond else 'k'
                 ax.annotate(label, xy=(i + 0.5, j + y_offset), color=color, horizontalalignment='center',
                             verticalalignment='center', fontsize=10 * fontsize_factor)

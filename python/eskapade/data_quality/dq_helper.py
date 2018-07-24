@@ -136,7 +136,7 @@ def to_float(val, **kwargs):
     return kwargs['nan']
 
 
-def to_date_time(val):
+def to_date_time(val, **kwargs):
     """Convert input to numpy.datetime64.
 
     :param val: value to be evaluated
