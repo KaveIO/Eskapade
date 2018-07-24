@@ -388,7 +388,7 @@ Example esk109: Debugging tips
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This macro illustrates basic debugging features of Eskapade.
-The macro shows how to start interactive ipython sessions while
+The macro shows how to start a python session while
 running through the chains, and also how to break out of a chain.
 
 Example esk110: Code profiling

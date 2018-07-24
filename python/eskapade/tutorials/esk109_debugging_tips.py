@@ -6,7 +6,7 @@ Created: 2017/02/26
 
 Description:
     Macro to illustrate basic debugging features of Eskapade.
-    The macro shows how to start interactive ipython sessions while
+    The macro shows how to start a python sessions while
     running through the chains, and also how to break out of a chain.
 
 Authors:
@@ -39,7 +39,7 @@ settings['version'] = 0
 
 msg = r"""
 
-To end the eskapade_run session with an interactive ipython shell,
+To end the eskapade_run session with a python console,
 from the cmd line use the this flag: -i
 """
 logger.info(msg)
@@ -67,7 +67,7 @@ link = core_ops.PrintDs(name='printer1')
 link.keys = ['hello', 'd']
 ch.add(link)
 
-# 2. This link will start an interactive ipython session.
+# 2. This link will start a python session.
 # from this session, one can access the datastore and the configobject with:
 # >>> ds
 # or
@@ -96,7 +96,7 @@ ch = Chain('End')
 link = core_ops.PrintDs(name='printer3')
 ch.add(link)
 
-# 6. eskapade_run with cmd line option -i to end the eskapade session with an interactive ipython shell
+# 6. eskapade_run with cmd line option -i to end the eskapade session with a python shell
 
 #########################################################################################
 

@@ -35,19 +35,18 @@ TEST_REQUIREMENTS = ['pytest==3.5.0',
                      ]
 
 REQUIREMENTS = [
-    'pendulum==1.2.5',
-    'jupyter==1.0.0',
-    'matplotlib==2.0.2',
-    'numpy==1.14.2',
-    'scipy==0.19.0',
-    'scikit-learn==0.18.1',
-    'statsmodels==0.8.0',
-    'pandas==0.20.1',
-    'tabulate==0.8.2',
-    'sortedcontainers==1.5.7',
-    'histogrammar==1.0.9',
-    'names==0.3.0',
-    'fastnumbers==2.0.2',
+    'pendulum>=1.2.5',
+    'matplotlib>=2.0.2',
+    'numpy>=1.14.2',
+    'scipy>=0.19.0',
+    'scikit-learn>=0.18.1',
+    'statsmodels>=0.8.0',
+    'pandas>=0.20.1',
+    'tabulate>=0.8.2',
+    'sortedcontainers>=1.5.7',
+    'histogrammar>=1.0.9',
+    'names>=0.3.0',
+    'fastnumbers>=2.0.2',
     ]
 
 REQUIREMENTS = REQUIREMENTS + TEST_REQUIREMENTS
