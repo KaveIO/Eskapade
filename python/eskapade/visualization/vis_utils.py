@@ -332,7 +332,7 @@ def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
     def tick(lab):
         """Get tick."""
         if isinstance(lab, (float, int)):
-            lab = 'NaN' if np.isnan(lab) else '{0:.2e}'.format(lab)
+            lab = 'NaN' if np.isnan(lab) else '{0:.1f}'.format(lab)
         lab = str(lab)
         if len(lab) > top:
             lab = lab[:17] + '...'
