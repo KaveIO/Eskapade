@@ -187,12 +187,12 @@ class CoreOpsTutorialMacrosTest(TutorialMacrosTest):
 
     def test_esk109(self):
         settings = process_manager.service(ConfigObject)
-        # this flag turns off ipython embed link
+        # this flag turns off python embed link
         settings['TESTING'] = True
 
         self.eskapade_run(resources.tutorial('esk109_debugging_tips.py'), StatusCode.Failure)
 
-        self.assertTrue(isinstance(list(list(process_manager)[0])[2], Break))
+        self.assertTrue(isinstance(list(list(process_manager)[0])[3], Break))
 
     def test_esk110(self):
         self.eskapade_run(resources.tutorial('esk110_code_profiling.py'))
