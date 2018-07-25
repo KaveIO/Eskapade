@@ -44,7 +44,7 @@ class DataQualityTutorialMacrosTest(TutorialMacrosTest):
         self.assertListEqual(ds['vrh']['G'].values.tolist(), ['a', 'b', 'c', 'd', np.nan])
         self.assertListEqual(ds['vrh']['H'].values.tolist(), ['a', 'b', '1', '2', '3'])
 
-        self.assertListEqual(ds['vrh_fix1']['A'].values.tolist(), ['True', 'False', np.nan, np.nan, np.nan])
+        self.assertListEqual(ds['vrh_fix1']['A'].values.tolist()[:2], [1.0, 0.0])
         self.assertListEqual(ds['vrh_fix1']['B'].values.tolist(), ['foo', 'bar', '3', np.nan, np.nan])
         self.assertListEqual(ds['vrh_fix1']['C'].values.tolist()[:2], [1.0, 2.0])
         self.assertListEqual(ds['vrh_fix1']['D'].values.tolist()[:3], [1.0, 2.0, 3.0])
@@ -56,8 +56,7 @@ class DataQualityTutorialMacrosTest(TutorialMacrosTest):
         self.assertListEqual(ds['vrh_fix2']['B'].values.tolist()[2:3], [3])
         self.assertListEqual(ds['vrh_fix2']['C'].values.tolist(), ['1.0', '2.0', 'bal', np.nan, np.nan])
 
-        self.assertListEqual(ds['vrh_fix3']['A'].values.tolist(),
-                             ['True', 'False', 'not_a_bool', 'not_a_bool', 'not_a_bool'])
+        self.assertListEqual(ds['vrh_fix3']['A'].values.tolist()[:2], [1.0, 0.0])
         self.assertListEqual(ds['vrh_fix3']['B'].values.tolist(), ['foo', 'bar', '3', 'not_a_str', 'not_a_str'])
         self.assertListEqual(ds['vrh_fix3']['C'].values.tolist()[:2], [1.0, 2.0])
         self.assertListEqual(ds['vrh_fix3']['D'].values.tolist()[:3], [1.0, 2.0, 3.0])
