@@ -84,19 +84,26 @@ link = core_ops.PrintDs(name='printer2')
 link.keys = ['foo', 'hello', 'd']
 ch.add(link)
 
-# 4. This link sends out a break signal!
+# 4. print keys in store
+def print_store(ds):
+    print (ds.keys())
+link = core_ops.DsApply()
+link.apply = [print_store]
+ch.add(link)
+
+# 5. This link sends out a break signal!
 # eskapade execution or any remaining links and chains is skipped.
 link = core_ops.Break()
 # keys are the items for which the contents of the actual item is printed.
 ch.add(link)
 link.keys = ['foo', 'hello', 'd']
 
-# 5. this link should not be reached because of the Break!
+# 6. this link should not be reached because of the Break!
 ch = Chain('End')
 link = core_ops.PrintDs(name='printer3')
 ch.add(link)
 
-# 6. eskapade_run with cmd line option -i to end the eskapade session with a python shell
+# 7. eskapade_run with cmd line option -i to end the eskapade session with a python shell
 
 #########################################################################################
 
