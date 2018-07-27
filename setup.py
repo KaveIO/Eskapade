@@ -35,7 +35,7 @@ TEST_REQUIREMENTS = ['pytest>=3.5.0',
                      ]
 
 REQUIREMENTS = [
-    'pendulum>=1.2.5',
+    'pendulum==1.2.5',
     'matplotlib>=2.0.2',
     'numpy>=1.14.2',
     'scipy>=0.19.0',
@@ -46,7 +46,7 @@ REQUIREMENTS = [
     'sortedcontainers>=1.5.7',
     'histogrammar>=1.0.9',
     'names>=0.3.0',
-    'fastnumbers>=2.0.2',
+    'fastnumbers>=2.0.2'
     ]
 
 REQUIREMENTS = REQUIREMENTS + TEST_REQUIREMENTS

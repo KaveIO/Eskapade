@@ -13,6 +13,7 @@ First install Sphinx. Go to http://www.sphinx-doc.org/en/stable/ or run
 ::
 
     pip install -U Sphinx
+    pip install -U sphinx-rtd-theme
 
 The eskapade/docs folder has the structure of a Sphinx project.
 However, if you want to make a new Sphinx project run:

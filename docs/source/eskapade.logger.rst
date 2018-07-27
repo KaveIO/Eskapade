@@ -1,5 +1,5 @@
-eskapade.logger package
-=======================
+eskapade\.logger package
+========================
 
 Module contents
 ---------------

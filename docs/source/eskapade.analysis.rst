@@ -1,5 +1,5 @@
-eskapade.analysis package
-=========================
+eskapade\.analysis package
+==========================
 
 Subpackages
 -----------
@@ -11,32 +11,40 @@ Subpackages
 Submodules
 ----------
 
-eskapade.analysis.datetime module
----------------------------------
+eskapade\.analysis\.correlation module
+--------------------------------------
+
+.. automodule:: eskapade.analysis.correlation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+eskapade\.analysis\.datetime module
+-----------------------------------
 
 .. automodule:: eskapade.analysis.datetime
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade.analysis.histogram module
-----------------------------------
+eskapade\.analysis\.histogram module
+------------------------------------
 
 .. automodule:: eskapade.analysis.histogram
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade.analysis.histogram\_filling module
--------------------------------------------
+eskapade\.analysis\.histogram\_filling module
+---------------------------------------------
 
 .. automodule:: eskapade.analysis.histogram_filling
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade.analysis.statistics module
------------------------------------
+eskapade\.analysis\.statistics module
+-------------------------------------
 
 .. automodule:: eskapade.analysis.statistics
     :members:
