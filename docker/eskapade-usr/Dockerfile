@@ -1,5 +1,5 @@
 # --- base image: latest known Eskapade environment
-FROM kave/eskapade-env:0.7
+FROM kave/eskapade-env:0.8
 
 # --- me
 MAINTAINER Max Baak <baak.max@kpmg.nl>
@@ -38,8 +38,8 @@ RUN . /opt/KaveToolbox/pro/scripts/KaveEnv.sh && \
     . activate eskapade_env && \
     cd /home/esdev && cp -r /opt/eskapade . && \
     rm -rf eskapade/build eskapade/python/eskapade/lib && rm -r $(find . -iname __pycache__) && \
-    pip install -e eskapade && \
-    pip uninstall -y root-numpy && pip install --force-reinstall --no-cache-dir root-numpy==4.7.3 rootpy==1.0.1 py4j==0.10.6
+    pip install -e eskapade
+    #pip uninstall -y root-numpy && pip install --force-reinstall --no-cache-dir root-numpy==4.7.3 rootpy==1.0.1 py4j==0.10.6
 
 # --- apply user mapping
 USER root

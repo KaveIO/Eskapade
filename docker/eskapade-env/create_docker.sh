@@ -18,4 +18,4 @@ cd -
 mv ../../${ESKAPADE_TAR} .
 
 echo 'Building docker image'
-docker build -t kave/eskapade-env:0.7 .
+docker build -t kave/eskapade-env:0.8 .

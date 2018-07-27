@@ -1,5 +1,5 @@
 # --- base image: latest known kavetoolbox
-FROM kave/kavetoolbox:3.6-Beta.u16.node
+FROM kave/kavetoolbox:3.7-Beta.u16.node
 
 # --- me
 MAINTAINER Max Baak <baak.max@kpmg.nl>
@@ -10,14 +10,11 @@ ARG DEBIAN_FRONTEND=noninteractive
 # --- link sh to bash
 SHELL ["/bin/bash", "-c"]
 
-# --- Python package(s) for ROOT, needs Kave env.
-ENV KAVE_ENV_SCRIPT "/opt/KaveToolbox/pro/scripts/KaveEnv.sh"
-RUN source "${KAVE_ENV_SCRIPT}" \
-    && /opt/anaconda/pro/bin/pip install root_numpy==4.7.3 \
-    && /opt/anaconda/pro/bin/pip install rootpy==1.0.1
-
 # --- Eskapade location
 ENV ESKAPADE "/opt/eskapade"
+
+# --- KAVE setup script
+ENV KAVE_ENV_SCRIPT "/opt/KaveToolbox/pro/scripts/KaveEnv.sh"
 
 # --- installation of Eskapade through tar file
 COPY eskapade.tar.gz ./
@@ -28,6 +25,7 @@ RUN source "${KAVE_ENV_SCRIPT}" \
 
 # --- useful Python packages
 RUN /opt/anaconda/pro/bin/pip install sphinx_rtd_theme
+RUN /opt/anaconda/pro/bin/pip install py4j==0.10.6
 
 # --- useful Ubuntu packages, e.g. pdflatex. 
 RUN apt-get update
@@ -35,6 +33,12 @@ RUN apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-
 
 # --- useful Conda packages
 RUN  /opt/anaconda/pro/bin/conda install -y django pymongo
+
+# --- useful Python package(s) for ROOT, needs Kave env.
+ENV KAVE_ENV_SCRIPT "/opt/KaveToolbox/pro/scripts/KaveEnv.sh"
+RUN source "${KAVE_ENV_SCRIPT}" \
+    && /opt/anaconda/pro/bin/pip install root_numpy==4.7.3 \
+    && /opt/anaconda/pro/bin/pip install rootpy==1.0.1
 
 # --- trigger automatic installation of required Spark dependencies. Requires Spark setup.
 RUN echo "print('Hello world!')" > /tmp/test.py \
