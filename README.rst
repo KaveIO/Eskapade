@@ -2,15 +2,24 @@
 Eskapade
 ========
 
-Version: 0.7
+Version: 0.8
 
-Released: Feb 2018
+Released: Aug 2018
 
-Eskapade is a light-weight, python-based data analysis framework, meant for modularizing all sorts of data analysis problems.
+Eskapade is a light-weight, python-based data analysis framework, meant for modularizing all sorts of data analysis problems into reusable analysis components.
 
 
 Release notes
 =============
+
+Version 0.8
+-----------
+
+In version 0.8 of Eskapade (August 2018) the modules ``root-analysis`` and ``spark-analysis`` have been split off
+into separate packages called ``Eskapade-ROOT`` and ``Eskapade-Spark``.
+
+This make it much easier for people to try out the core functionality of Eskapade.
+
 
 Version 0.7
 -----------
