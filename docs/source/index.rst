@@ -50,6 +50,16 @@ data, such as: pandas DataFrames, numpy arrays, Spark DataFrames/RDDs, and more.
 Release notes
 =============
 
+Version 0.8
+-----------
+
+In version 0.8 of Eskapade (August 2018) the modules ``root-analysis`` and ``spark-analysis`` have been split off
+into separate packages called ``Eskapade-ROOT`` and ``Eskapade-Spark``.
+
+So the (core) Eskapade package no longer depends on ROOT and Spark, just on plain python packages.
+This make it much easier for people to try out the core functionality of Eskapade.
+
+
 Version 0.7
 -----------
 
