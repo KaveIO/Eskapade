@@ -16,26 +16,18 @@ ENV ESKAPADE "/opt/eskapade"
 # --- KAVE setup script
 ENV KAVE_ENV_SCRIPT "/opt/KaveToolbox/pro/scripts/KaveEnv.sh"
 
-# --- installation of Eskapade through tar file
-COPY eskapade.tar.gz ./
-RUN source "${KAVE_ENV_SCRIPT}" \
-    && mkdir /opt/eskapade \
-    && tar -xzf eskapade.tar.gz -C /opt/eskapade \
-    && /opt/anaconda/pro/bin/pip install -e /opt/eskapade
+# --- Eskapade directories
+RUN mkdir /opt/eskapade \
+    && mkdir /opt/esroofit \
+    && mkdir /opt/esspark
 
 # --- useful Ubuntu packages, e.g. pdflatex. 
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-extra texlive-fonts-recommended pandoc
 
-# --- useful Conda packages
-RUN  /opt/anaconda/pro/bin/conda install -y django pymongo
-
-# --- useful Python package(s); for ROOT installation need Kave env first.
+# --- useful Python package(s); for ROOT packages need Kave env first.
 ENV KAVE_ENV_SCRIPT "/opt/KaveToolbox/pro/scripts/KaveEnv.sh"
 RUN source "${KAVE_ENV_SCRIPT}" \
-    && /opt/anaconda/pro/bin/pip install pyspark==2.1.2 \
-    && /opt/anaconda/pro/bin/pip install root_numpy==4.7.3 \
-    && /opt/anaconda/pro/bin/pip install rootpy==1.0.1 \
     && /opt/anaconda/pro/bin/pip install sphinx_rtd_theme==0.4.1
 
 # --- trigger automatic installation of required Spark dependencies. Requires Spark setup.

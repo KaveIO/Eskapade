@@ -35,7 +35,7 @@ or you could just execute the tests using either the eskapade test runner, e.g.
 .. code-block:: bash
 
   cd eskapade
-  eskapade_trial
+  eskapade_trial .
 
 or
 

@@ -33,18 +33,17 @@ COPY bashrc_appendum /tmp/
 RUN cat /tmp/bashrc_appendum >> "${HOME}"/.bashrc 
 
 # --- setup user's own python Eskapade environment
-#     therefore need to reinstall useful Python packages installed with pip
-#     (packages installed with conda are fine.)
-RUN . /opt/KaveToolbox/pro/scripts/KaveEnv.sh && \
-    conda create -y -n eskapade_env python=3.6 && \
-    . activate eskapade_env && \
-    cd /home/esdev && cp -r /opt/eskapade . && \
-    rm -rf eskapade/build eskapade/python/eskapade/lib && rm -r $(find . -iname __pycache__) && \
-    pip install -e eskapade && \
-    pip install pyspark==2.1.2 && \
-    pip install root_numpy==4.7.3 && \
-    pip install rootpy==1.0.1 && \
-    pip install sphinx_rtd_theme==0.4.1
+RUN . /opt/KaveToolbox/pro/scripts/KaveEnv.sh \
+    && conda create -y -n eskapade_env python=3.6 \
+    && . activate eskapade_env \
+    && pip install Eskapade==0.8.0 \
+    && pip install Eskapade-ROOT==0.8.0 \
+    && pip install Eskapade-Spark==0.8.0 \
+    && pip install rootpy==1.0.1 \
+    && pip install sphinx_rtd_theme==0.4.1 \
+    && pip install pymongo==3.4.0 \
+    && pip install jaydebeapi==1.1.1 \
+    && pip install django==2.0.5
 
 # --- apply user mapping
 USER root
