@@ -9,19 +9,13 @@ Eskapade: Modular Analytics
 
 .. module:: eskapade
 
-**Version**: |version|
-
-**Date**: |today|
-
-**Web page:** http://eskapade.kave.io
-
-**Repository:** http://github.com/kaveio/eskapade
-
-**Code reference:** `API Documentation <code.html>`_
-
-**Issues & Ideas:** https://github.com/kaveio/eskapade/issues
-
-**Q&A Support:** contact us at: kave [at] kpmg [dot] com
+* Version: |version|
+* Date: |today|
+* Web page: http://eskapade.kave.io
+* Repository: http://github.com/kaveio/eskapade
+* Code reference: `API Documentation <code.html>`_
+* Issues & Ideas: https://github.com/kaveio/eskapade/issues
+* Q&A Support: contact us at: kave [at] kpmg [dot] com
 
 Eskapade
 ========
@@ -73,7 +67,25 @@ You can now use Eskapade in Python with:
 
 **Congratulations, you are now ready to use Eskapade!**
 
-For all available examples, please see the `tutorials section <tutorials.html>`_.
+
+Quick run
+=========
+
+To see the available Eskapade example, do:
+
+.. code-block:: bash
+
+  $ export TUTDIR=`pip show Eskapade | grep Location | awk '{ print $2"/eskapade/tutorials" }'`
+  $ ls -l $TUTDIR/
+
+E.g. you can now run:
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk101_helloworld.py 
+
+For all available Eskapade example macros, please see the `tutorials section <tutorials.html>`_.
+
 
 
 Contents

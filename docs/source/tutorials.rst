@@ -5,13 +5,24 @@ Tutorials
 This section contains materials on how to use Eskapade. There are additional side notes on how certain
 aspects work and where to find parts of the code. For more in depth explanations on the functionality of the code-base,
 try the `API docs <eskapade_index.html>`_.
-All command examples are run from the root of the repository if not otherwise stated.
+
+All command examples below can be run from any directory with write access.
+
+
 
 Running your first macro
 ------------------------
 
 After successfully `installing <installation.html>`_ Eskapade, it is now time to run your very first
 macro, the classic code example: Hello World!
+
+For ease of use, let's make a shortcut to the directory containing the Eskapade tutorials:
+
+.. code-block:: bash
+
+  $ export TUTDIR=`pip show Eskapade | grep Location | awk '{ print $2"/eskapade/tutorials" }'`
+  $ ls -l $TUTDIR/
+
 
 Hello World!
 ~~~~~~~~~~~~
@@ -20,7 +31,7 @@ If you just want to run it plain and simple, go to the root of the repository an
 
 .. code-block:: bash
 
-  $ eskapade_run python/eskapade/tutorials/esk101_helloworld.py
+  $ eskapade_run $TUTDIR/esk101_helloworld.py
 
 This will run the macro that prints out Hello World. There is a lot of output, but try to find back these
 lines (or similar):
@@ -94,7 +105,7 @@ To run the macro type on your CLI:
 
 .. code-block:: bash
 
-  $ eskapade_run python/eskapade/tutorials/tutorial_1.py
+  $ eskapade_run $TUTDIR/tutorial_1.py
 
 If you want to add command line arguments, for example to change the output logging level, read the
 page on `command line arguments <command_line_arguments.html>`_.
@@ -122,7 +133,7 @@ Short introduction to the Framework
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 At this point we will not go into the underlying structure of the code that is underneath the macro, but later in this
-tutorial we will. For now we will take a look in the macro. So open ``python/eskapade/tutorials/tutorial_1.py`` in your
+tutorial we will. For now we will take a look in the macro. So open ``$TUTDIR/tutorial_1.py`` in your
 favorite editor. We notice the structure: first imports, then defining all the settings, and finally the actual
 analysis: Chains and Links.
 
@@ -151,7 +162,7 @@ Uncomment the code and run the macro again with:
 
 .. code-block:: bash
 
-  $ eskapade_run python/eskapade/tutorials/tutorial_1.py
+  $ eskapade_run $TUTDIR/tutorial_1.py
 
 And notice that it takes a bit longer to run, and the output is longer, since it now executes the Link in chain 2. This Link takes the data from chain 1
 and makes plots of the data in the data set and saves it to your disk. Go to this path and open one of the pdfs found
@@ -302,20 +313,14 @@ In `All available examples`_ we give some tips to find the right Links your anal
 All available examples
 ----------------------
 
-Every subpackage of Eskapade contains links in its ``links/`` subdirectory.
+To see the available Eskapade example, do:
 
-* ``core_ops`` contains links pertaining to the core functionality of Eskapade, where the ``core`` package is the core framework of Eskapade.
-* ``analysis`` contains pandas links.
-* ``visualization`` contains plotter links.
-* ``data_quality`` contains links for fixing messy data.
-  
-The name of every link indicates its basic function. If you want to know explicitly you can read the
-`API documentation <eskapade_index.html>`_.
-If that does not help, read and try to understand the example macros in ``python/eskapade/tutorials/``, which show the basic usage
-of most Eskapade functionality. (See also the `Examples <tutorial.html#examples>`_ section right below.)
-If still unclear, go into the link's code to find out how it exactly works.
+.. code-block:: bash
 
-Many Eskapade example macros can be found in the ``python/eskapade/tutorials`` directory.
+  $ export TUTDIR=`pip show Eskapade | grep Location | awk '{ print $2"/eskapade/tutorials" }'`
+  $ ls -l $TUTDIR/
+
+Many Eskapade example macros exist in the tutorials directory.
 The numbering of the example macros follows the package structure:
 
 * ``esk100+``: basic macros describing the chains, links, and datastore functionality of Eskapade.
@@ -323,7 +328,7 @@ The numbering of the example macros follows the package structure:
 * ``esk300+``: visualization macros for making histograms, plots and reports of datasets.
 * ``esk500+``: macros for doing data quality assessment and cleaning.
 
-The basic Eskapade macros (esk100+) are briefly described below.
+The Eskapade macros are briefly described below.
 They explain the basic architecture of Eskapade,
 i.e. how the chains, links, datastore, and process manager interact.
 
@@ -335,8 +340,12 @@ You are encouraged to run all examples to see what Eskapade can do for you!
 Example esk101: Hello World!
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Macro 101 runs the Hello World Link. It runs the Link twice using a repeat kwarg, showing how to use kwargs in
-Links.
+Macro 101 runs the Hello World Link. It runs the Link twice using a repeat kwarg, showing how to use kwargs in Links.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk101_helloworld.py 
+
 
 Example esk102: Multiple chains
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -344,16 +353,31 @@ Example esk102: Multiple chains
 Macro 102 uses multiple chains to print different kinds of output from one Link. This link is initialized multiple
 times with different kwargs and names. There are if-statements in the macro to control the usage of the chains.
 
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk102_multiple_chains.py
+
+
 Example esk103: Print the DataStore
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Macro 103 has some objects in the DataStore. The contents of the DataStore are printed in the standard output.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk103_printdatastore.py
+
 
 Example esk104: Basic DataStore operations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Macro 104 adds some objects from a dictionary to the DataStore and then moves or deletes some of the items. Next it
 adds more items and prints some of the objects.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk104_basic_datastore_operations.py
+
 
 Example esk105: DataStore Pickling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -367,22 +391,44 @@ something slightly different:
 
 Using these examples one can see how the way macro's are run can be controlled and what it saves to disk.
 
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk105_A_dont_store_results.py
+  $ eskapade_run $TUTDIR/esk105_B_store_each_chain.py
+  $ eskapade_run $TUTDIR/esk105_C_begin_at_chain3.py
+
+
 Example esk106: Command line arguments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Macro 106 shows us how command line arguments can be used to control the chains in a macro. By adding the arguments
 from the message inside of the macro we can see that the chains are not run.
 
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk106_cmdline_options.py
+
+
 Example esk107: Chain loop
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Example 107 adds a chain to the macro and using a repeater Link it repeats the chain 10 times in a row.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk107_chain_looper.py
+
 
 Example esk108: Event loop
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Example 108 processes a textual data set, to loop through every word and do a Map and Reduce operation on the data set.
 Finally a line printer prints out the result.
+
+.. code-block:: bash
+
+  $ source $TUTDIR/esk108_eventlooper.sh
+
 
 Example esk109: Debugging tips
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -391,22 +437,227 @@ This macro illustrates basic debugging features of Eskapade.
 The macro shows how to start a python session while
 running through the chains, and also how to break out of a chain.
 
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk109_debugging_tips.py
+
+
 Example esk110: Code profiling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This macro demonstrates how to run Eskapade with code profiling turned on.
 
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk110_code_profiling.py
+
+
 Example esk201: Read data
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Macro 201 reads a file into the DataStore. The first chain reads one csv into the DataStore, the second chain reads
+Macro 201 illustrates how to open files as pandas datasets.
+It reads a file into the DataStore. The first chain reads one csv into the DataStore, the second chain reads
 multiple files (actually the same file multiple times) into the DataStore. (Looping over data is shown in example
 esk209.)
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk201_readdata.py
+
 
 Example esk202: Write data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Macro 202 reads a DataFrame into the data store and then writes the DataFrame to csv format on the disk.
+Macro 202 illustrate writing pandas dataframes to file.
+It reads a DataFrame into the data store and then writes the DataFrame to csv format on the disk.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk202_writedata.py
+
+
+Example esk203: apply func to pandas df
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Illustrates the link that calls basic apply() to columns of a pandas dataframes.
+See for more information pandas documentation:
+
+http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.apply.html
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk203_apply_func_to_pandas_df.py
+
+
+
+Example esk204: apply query to pandas df
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Illustrates the link that applies basic queries to pandas dataframe.
+See for more information pandas documentation:
+
+http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.query.html
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk204_apply_query_to_pandas_df.py
+
+
+
+Example esk205: concatenate pandas dfs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Illustrates the link that calls basic concat() of pandas dataframes.
+See for more information pandas documentation:
+
+http://pandas.pydata.org/pandas-docs/stable/merging.html
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk205_concatenate_pandas_dfs.py
+
+
+
+Example esk206: merge pandas dfs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Illustrate link that calls basic merge() of pandas dataframes.
+For more information see pandas documentation:
+
+http://pandas.pydata.org/pandas-docs/stable/merging.html
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk206_merge_pandas_dfs.py
+
+
+
+Example esk207: record vectorizer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This macro performs the vectorization of an input column of an input dataframe.
+E.g. a columnn x with values 1, 2 is tranformed into columns x_1 and x_2,
+with values True or False assigned per record.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk207_record_vectorizer.py
+
+
+Example esk208: record factorizer
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This macro performs the factorization of an input column of an input
+dataframe.  E.g. a columnn x with values 'apple', 'tree', 'pear',
+'apple', 'pear' is tranformed into columns x with values 0, 1, 2, 0, 2.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk208_record_factorizer.py
+
+
+
+Example esk209: read big data itr
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macro to that illustrates how to loop over multiple (possibly large!) datasets in chunks.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk209_read_big_data_itr.py
+
+
+
+Example esk301: dfsummary plotter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macro shows how to plot the content of a dataframe in a nice summary pdf file.
+(Example similar to ``$TUTDIR/tutorial_1.py``.)
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk301_dfsummary_plotter.py
+
+
+
+Example esk302: histogram_filler_plotter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macro that illustrates how to loop over multiple (possibly large!)
+datasets in chunks, in each loop fill a (common) histogram, and plot the
+final histogram.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk302_histogram_filler_plotter.py
+
+
+
+Example esk303: histogrammar filler plotter
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macro that illustrates how to loop over multiple (possibly large!)
+datasets in chunks, in each loop fill a histogrammar histograms,
+and plot the final histograms.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk302_histogram_filler_plotter.py
+
+
+
+Example esk304: df boxplot
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macro shows how to boxplot the content of a dataframe in a nice summary pdf file.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk304_df_boxplot.py
+
+
+
+
+Example esk305: correlation summary
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macro to demonstrate generating nice correlation heatmaps using various types of correlation coefficients.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk305_correlation_summary.py
+
+
+Example esk306: concatenate reports
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This macro illustrates how to concatenate the reports of several
+visualization links into one big report.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk306_concatenate_reports.py
+
+
+
+Example esk501: fix pandas dataframe
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macro illustrates how to call FixPandasDataFrame link that gives columns
+consistent names and datatypes.
+Default settings perform the following clean-up steps on an
+input dataframe:
+
+* Fix all column names. Eg. remove punctuation and strange characters, and convert spaces to underscores.
+* Check for various possible nans in the dataset, then make all nans consistent by turning them into numpy.nan (= float)
+* Per column, assess dynamically the most consistent datatype (ignoring all nans in that column). Eg. bool, int, float, datetime64, string.
+* Per column, make the data types of all rows consistent, by using the identified (or imposed) data type (by default ignoring all nans)
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk501_fix_pandas_dataframe.py
+
+
 
 
 .. include:: coding.rst
