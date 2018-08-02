@@ -29,9 +29,9 @@ The official Eskapade docker image is provided on `DockerHub <https://hub.docker
 
 .. code:: bash
 
-  $  docker pull kave/eskapade-env:0.7 
+  $  docker pull kave/eskapade-env:0.8 
 
-This will download the ``kave/eskapade-env:0.7`` image locally.
+This will download the ``kave/eskapade-env:0.8`` image locally.
 Downloading this docker image can take a minute or two.
 
 
@@ -45,7 +45,7 @@ To build the docker image from scratch using the Eskapade source code, do:
 
   $  cd eskapade/docker/eskapade-env && sh create_docker.sh
 
-This will produce the ``kave/eskapade-env:0.7`` image locally.
+This will produce the ``kave/eskapade-env:0.8`` image locally.
 
 
 Spinning up docker containers
@@ -58,7 +58,7 @@ From this image, containers with the Eskapade environment set up, can be run out
 
 .. code:: bash
 
-  $  docker run -p 8888:8888 -it kave/eskapade-env:0.7 
+  $  docker run -p 8888:8888 -it kave/eskapade-env:0.8 
 
 Where port 8888 is forwarded to the docker host to make Jupyter notebook available (below).
 
@@ -85,7 +85,7 @@ Mounting source code
 
 .. code:: bash
 
-  $  docker run -v <ESKAPADE>:/opt/eskapade -p 8888:8888 -it kave/eskapade-env:0.7 
+  $  docker run -v <ESKAPADE>:/opt/eskapade -p 8888:8888 -it kave/eskapade-env:0.8 
 
 Where ``<ESKAPADE>`` specifies the path of the Eskapade source code on the docker host, and where ``/opt/eskapade`` is the location of the Eskapade source code inside the container.
 
@@ -105,21 +105,21 @@ To obtain a centrally produced Eskapade image, use:
 
 .. code:: bash
 
-  $ docker pull kave/eskapade-usr:0.7
+  $ docker pull kave/eskapade-usr:0.8
 
 Or build the Eskapade docker image with ``esdev`` user installation, from scratch:
 
 .. code:: bash
 
-  $  cd docker/eskapade-usr && docker build -t kave/eskapade-usr:0.7 .
+  $  cd docker/eskapade-usr && docker build -t kave/eskapade-usr:0.8 .
 
-This will produce the ``kave/eskapade-usr:0.7`` image.
+This will produce the ``kave/eskapade-usr:0.8`` image.
 
 From this image, containers with the Eskapade environment set up, can be run out-of-the-box:
 
 .. code:: bash
 
-  $ docker run -e HOST_USER_ID=$(id -u) -e HOST_USER_GID=$(id -g) -p 8888:8888 -it kave/eskapade-usr:0.7
+  $ docker run -e HOST_USER_ID=$(id -u) -e HOST_USER_GID=$(id -g) -p 8888:8888 -it kave/eskapade-usr:0.8
 
 The first time you run this command it will likely take some time. The ``HOST_USER_ID`` and ``HOST_USER_GID`` environment
 variables are used to dynamically map user- and group id's between the host and Docker container, ensuring proper read/write permissions.
@@ -134,17 +134,17 @@ To prevent the remapping of user and group id from happening the next time you b
 
   $ docker ps
 
-Copy the top CONTAINER-ID string, matching the running instance of the ``kave/eskapade-usr:0.7`` image, and then paste it:
+Copy the top CONTAINER-ID string, matching the running instance of the ``kave/eskapade-usr:0.8`` image, and then paste it:
 
 .. code:: bash
 
-  $ docker commit CONTAINER-ID kave/eskapade-usr:0.7
+  $ docker commit CONTAINER-ID kave/eskapade-usr:0.8
 
 Next time when you run:
 
 .. code:: bash
 
-  $ docker run -e HOST_USER_ID=$(id -u) -e HOST_USER_GID=$(id -g) -p 8888:8888 -it kave/eskapade-usr:0.7
+  $ docker run -e HOST_USER_ID=$(id -u) -e HOST_USER_GID=$(id -g) -p 8888:8888 -it kave/eskapade-usr:0.8
 
 the remapping of user and group id should no longer happen.
 
@@ -156,7 +156,7 @@ Containers with the user-specific Eskapade environment setup can be run out-of-t
 
 .. code:: bash
 
-  $  docker run -e HOST_USER_ID=$(id -u) -e HOST_USER_GID=$(id -g) -v <ESKAPADE>:/home/esdev/eskapade -p 8888:8888 -it kave/eskapade-usr:0.7
+  $  docker run -e HOST_USER_ID=$(id -u) -e HOST_USER_GID=$(id -g) -v <ESKAPADE>:/home/esdev/eskapade -p 8888:8888 -it kave/eskapade-usr:0.8
 
 Where ``<ESKAPADE>`` specifies the path of the Eskapade source code.
 
@@ -172,7 +172,7 @@ Consider adding a permanent alias to your local ``~/.bashrc`` or ``~/.bash_profi
 
 .. code-block:: bash
 
-  alias eskapade_docker='docker run -e HOST_USER_ID=$(id -u) -e HOST_USER_GID=$(id -g) -v <ESKAPADE>:/home/esdev/eskapade -p 8888:8888 -it kave/eskapade-usr:0.7'
+  alias eskapade_docker='docker run -e HOST_USER_ID=$(id -u) -e HOST_USER_GID=$(id -g) -v <ESKAPADE>:/home/esdev/eskapade -p 8888:8888 -it kave/eskapade-usr:0.8'
 
 So the next time, in a fresh shell, you can simply run the command ``eskapade_docker``.
 
