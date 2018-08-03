@@ -20,6 +20,7 @@ Contents
    package_structure
    releasenotes
    developing
+   references
 
 API
 ---
