@@ -40,7 +40,8 @@ class Resampler(Link):
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
         self._process_kwargs(kwargs, data_smoothed_read_key=None, data_normalized_read_key=None,
                              data_read_key=None, bws_read_key=None, qts_read_key=None, new_column_order_read_key=None,
-                             maps_read_key=None, n_resample=None, ids=None, store_key=None)
+                             maps_read_key=None, n_resample=None, ids=None, df_resample_store_key=None,
+                             resample_store_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -97,7 +98,8 @@ class Resampler(Link):
             inv_m = {v: k for k, v in m.items()}
             df_resample[c] = df_resample[c].map(inv_m)
 
-        ds[self.store_key] = df_resample
+        ds[self.resample_store_key] = resample
+        ds[self.df_resample_store_key] = df_resample
 
         # --- your algorithm code goes here
         self.logger.debug('Now executing link: {link}.', link=self.name)

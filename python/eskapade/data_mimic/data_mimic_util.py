@@ -1,7 +1,9 @@
 import numpy as np
-from sklearn.preprocessing import scale
+from sklearn.preprocessing import scale, QuantileTransformer
 import string
-from eskapade.data_mimic import QuantileTransformer
+import scipy
+import pandas as pd
+# from eskapade.data_mimic import QuantileTransformer
 
 
 def generate_unordered_categorical_random_data(n_obs, p):
@@ -188,3 +190,38 @@ def scale_and_invert_normal_transformation(resample_normalized_unscaled, continu
         resample[i_not_nan, d] = qt.inverse_transform(scale(resample[i_not_nan, d]))
         i += 1
     return resample
+
+
+def generate_data(n_obs, p_unordered, p_ordered, means_stds):
+    unordered_categorical_data = generate_unordered_categorical_random_data(n_obs, p_unordered)
+    ordered_categorical_data = generate_ordered_categorical_random_data(n_obs, p_ordered)
+    continuous_data = generate_continuous_random_data(n_obs, means_stds)
+
+    df = pd.DataFrame(np.concatenate((continuous_data,
+                                      unordered_categorical_data,
+                                      ordered_categorical_data), axis=1))
+    alphabet = np.array(list(string.ascii_lowercase))
+    df.columns = list(alphabet[0:df.shape[1]])
+
+    df['f'] = pd.to_numeric(df['f'])
+    df['g'] = pd.to_numeric(df['g'])
+
+    return df
+
+
+def sample_chi2(data_binned, bins, continuous_columns, string_columns, new_column_order, maps):
+    df = generate_data(100000, np.array([[0.2, 0.2, 0.3, 0.3], [0.3, 0.7]]),
+                               np.array([[0.1, 0.2, 0.7], [0.15, 0.4, 0.05, 0.3, 0.1]]),
+                               np.array([[8, 8, 3], [2, 5, 2]]))
+
+    for c in continuous_columns:
+        df[c] = df[c].astype(np.float)
+
+    for c in string_columns:
+        m = maps[c]
+        df[c] = df[c].map(m)
+
+    sample = df[new_column_order].values.copy()
+    sample_binned = np.histogramdd(sample, bins=bins)
+    chi2 = scipy.stats.chisquare(sample_binned[0].flatten(), data_binned[0].flatten())[0]
+    return chi2

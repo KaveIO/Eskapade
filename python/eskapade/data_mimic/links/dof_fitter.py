@@ -1,6 +1,6 @@
 """Project: Eskapade - A python-based package for data analysis.
 
-Class: MixedVariablesSimulation
+Class: DoFFitter
 
 Created: 2018-07-18
 
@@ -16,14 +16,14 @@ LICENSE.
 """
 
 import numpy as np
-import pandas as pd
-import string
+import multiprocessing as mp
+import sys
 
 from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
-from eskapade.data_mimic.data_mimic_util import generate_data
+from eskapade.data_mimic.data_mimic_util import sample_chi2, generate_data
 
 
-class MixedVariablesSimulation(Link):
+class DoFFitter(Link):
 
     """Defines the content of link."""
 
@@ -35,12 +35,11 @@ class MixedVariablesSimulation(Link):
         :param str store_key: key of output data to store in data store
         """
         # initialize Link, pass name from kwargs
-        Link.__init__(self, kwargs.pop('name', 'MixedVariablesSimulation'))
+        Link.__init__(self, kwargs.pop('name', 'Resampler'))
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, read_key=None, store_key=None, n_obs=100000, p_ordered=None, p_unordered=None,
-                             means_stds=None)
+        self._process_kwargs(kwargs, maps_read_key=None, continuous_columns=None, bins=None, n_bins=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -61,18 +60,40 @@ class MixedVariablesSimulation(Link):
         :returns: status code of execution
         :rtype: StatusCode
         """
+        settings = process_manager.service(ConfigObject)
         ds = process_manager.service(DataStore)
 
-        df = generate_data(self.n_obs, self.p_unordered, self.p_ordered, self.means_stds)
+        df = generate_data(100000, np.array([[0.2, 0.2, 0.3, 0.3], [0.3, 0.7]]),
+                           np.array([[0.1, 0.2, 0.7], [0.15, 0.4, 0.05, 0.3, 0.1]]),
+                           np.array([[8, 8, 3], [2, 5, 2]]))
 
-        # simulate heaping
-        df.loc[np.random.randint(0, 100000, size=3000), 'a'] = np.ones(3000) * 35.1
+        for c in self.continuous_columns:
+            df[c] = df[c].astype(np.float)
 
-        # simulate nans
-        df.loc[np.random.randint(0, 100000, size=2000), 'b'] = np.ones(2000) * np.nan
-        df.loc[np.random.randint(0, 100000, size=2000), 'f'] = np.ones(2000) * np.nan
+        for c in self.string_columns:
+            m = self.maps[c]
+            df[c] = df[c].map(m)
 
-        ds[self.store_key] = df
+        data = df[self.new_column_order].values.copy()
+        data_binned = np.histogramdd(data, bins=[np.array([-10, 1.5, 10]),
+                                                 np.array([-10, 0.5, 10]),
+                                                 np.array([-10, 0.5, 10]),
+                                                 np.array([-10, 1.5, 10]),
+                                                 np.array([-100, 0, 100]),
+                                                 np.array([-100, 0, 100]),
+                                                 np.array([-100, 0, 100])])
+
+        chi2s = []
+        pool = mp.Pool(processes=(mp.cpu_count() - 1))
+        for i, chi2 in enumerate(pool.imap_unordered(sample_chi2, [(data_binned, self.bins, self.continuous_columns,
+                                                                    self.string_columns, self.new_column_order,
+                                                                    self.maps)] * 10000), 1):
+            chi2s.append(chi2)
+            sys.stderr.write('\rdone {0:%}'.format(i / 10000))
+        pool.close()
+        pool.join()
+
+        # todo fit chi2 distribution with dof as variable
 
         # --- your algorithm code goes here
         self.logger.debug('Now executing link: {link}.', link=self.name)

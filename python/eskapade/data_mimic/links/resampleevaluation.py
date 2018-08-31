@@ -14,6 +14,8 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file
 LICENSE.
 """
+import numpy as np
+import scipy
 
 from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
 
@@ -34,7 +36,8 @@ class ResampleEvaluation(Link):
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, read_key=None, store_key=None)
+        self._process_kwargs(kwargs, data_read_key=None, resample_read_key=None, bins=None, n_bins=None,
+                             store_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -57,6 +60,16 @@ class ResampleEvaluation(Link):
         """
         settings = process_manager.service(ConfigObject)
         ds = process_manager.service(DataStore)
+
+        data = ds[self.data_read_key]
+        resample = ds[self.resample_read_key]
+
+        resample_binned = np.histogramdd(resample, bins=self.bins)
+        data_binned = np.histogramdd(data, bins=self.bins)
+
+        dof = 2*self.n_bins  # times two because of the reference (simulated) has a DoF per bin as well
+        ddof = self.n_bins - 1  # see the docs for ddof from scipy.stats.chisquare
+        chi2, p_value = scipy.stats.chisquare(resample_binned[0].flatten(), data_binned[0].flatten(), ddof=ddof)
 
         # --- your algorithm code goes here
         self.logger.debug('Now executing link: {link}.', link=self.name)
