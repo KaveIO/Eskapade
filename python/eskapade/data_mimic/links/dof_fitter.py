@@ -16,8 +16,10 @@ LICENSE.
 """
 
 import numpy as np
+import scipy
 import multiprocessing as mp
 import sys
+from functools import partial
 
 from eskapade import process_manager, DataStore, Link, StatusCode
 from eskapade.data_mimic.data_mimic_util import sample_chi2, generate_data
@@ -35,11 +37,13 @@ class DoFFitter(Link):
         :param str store_key: key of output data to store in data store
         """
         # initialize Link, pass name from kwargs
-        Link.__init__(self, kwargs.pop('name', 'Resampler'))
+        Link.__init__(self, kwargs.pop('name', 'DoFFitter'))
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, maps_read_key=None, continuous_columns=None, bins=None, n_bins=None)
+        self._process_kwargs(kwargs, n_obs=100000, p_ordered=None, p_unordered=None,
+                             means_stds=None, continuous_columns=None, string_columns=None, maps_read_key=None,
+                             new_column_order_read_key=None, bins=None, dof_store_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -60,42 +64,46 @@ class DoFFitter(Link):
         :returns: status code of execution
         :rtype: StatusCode
         """
-        ds = process_manager.service(DataStore)
+        # --- your algorithm code goes here
+        self.logger.debug('Now executing link: {link}.', link=self.name)
 
-        df = generate_data(100000, np.array([[0.2, 0.2, 0.3, 0.3], [0.3, 0.7]]),
-                           np.array([[0.1, 0.2, 0.7], [0.15, 0.4, 0.05, 0.3, 0.1]]),
-                           np.array([[8, 8, 3], [2, 5, 2]]))
+        ds = process_manager.service(DataStore)
+        maps = ds[self.maps_read_key]
+
+        df = generate_data(self.n_obs, self.p_unordered, self.p_ordered, self.means_stds)
 
         for c in self.continuous_columns:
             df[c] = df[c].astype(np.float)
 
         for c in self.string_columns:
-            m = self.maps[c]
+            m = maps[c]
             df[c] = df[c].map(m)
 
-        data = df[self.new_column_order].values.copy()
-        data_binned = np.histogramdd(data, bins=[np.array([-10, 1.5, 10]),
-                                                 np.array([-10, 0.5, 10]),
-                                                 np.array([-10, 0.5, 10]),
-                                                 np.array([-10, 1.5, 10]),
-                                                 np.array([-100, 0, 100]),
-                                                 np.array([-100, 0, 100]),
-                                                 np.array([-100, 0, 100])])
+        new_column_order = ds[self.new_column_order_read_key]
+        data = df[new_column_order].values.copy()
+        data_binned = np.histogramdd(data, bins=self.bins)
 
         chi2s = []
         pool = mp.Pool(processes=(mp.cpu_count() - 1))
-        for i, chi2 in enumerate(pool.imap_unordered(sample_chi2, [(data_binned, self.bins, self.continuous_columns,
-                                                                    self.string_columns, self.new_column_order,
-                                                                    self.maps)] * 10000), 1):
+        for i, chi2 in enumerate(pool.imap_unordered(partial(sample_chi2,
+                                                             n_obs=self.n_obs,
+                                                             p_unordered=self.p_unordered,
+                                                             p_ordered=self.p_ordered,
+                                                             means_stds=self.means_stds,
+                                                             bins=self.bins,
+                                                             continuous_columns=self.continuous_columns,
+                                                             string_columns=self.string_columns,
+                                                             new_column_order=new_column_order,
+                                                             maps=maps), [data_binned] * 100), 1):
             chi2s.append(chi2)
-            sys.stderr.write('\rdone {0:%}'.format(i / 10000))
+            sys.stdout.write('\r{0:%} done with sampling chi2s'.format(i / 100))
         pool.close()
         pool.join()
 
-        # todo fit chi2 distribution with dof as variable
+        dof, loc, scale = scipy.stats.chi2.fit(chi2s, floc=0, fscale=1)
+        self.logger.info('Fitted DoF: {}'.format(dof))
 
-        # --- your algorithm code goes here
-        self.logger.debug('Now executing link: {link}.', link=self.name)
+        ds[self.dof_store_key] = dof
 
         return StatusCode.Success
 

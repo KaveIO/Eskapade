@@ -209,10 +209,9 @@ def generate_data(n_obs, p_unordered, p_ordered, means_stds):
     return df
 
 
-def sample_chi2(data_binned, bins, continuous_columns, string_columns, new_column_order, maps):
-    df = generate_data(100000, np.array([[0.2, 0.2, 0.3, 0.3], [0.3, 0.7]]),
-                               np.array([[0.1, 0.2, 0.7], [0.15, 0.4, 0.05, 0.3, 0.1]]),
-                               np.array([[8, 8, 3], [2, 5, 2]]))
+def sample_chi2(data_binned, n_obs, p_unordered, p_ordered, means_stds, bins, continuous_columns, string_columns,
+                new_column_order, maps):
+    df = generate_data(n_obs, p_unordered, p_ordered, means_stds)
 
     for c in continuous_columns:
         df[c] = df[c].astype(np.float)
