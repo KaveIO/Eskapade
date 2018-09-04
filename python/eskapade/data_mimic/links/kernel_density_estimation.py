@@ -1,6 +1,6 @@
 """Project: Eskapade - A python-based package for data analysis.
 
-Class: MixedVariablesSimulation
+Class: KernelDensityEstimation
 
 Created: 2018-07-18
 
@@ -16,14 +16,12 @@ LICENSE.
 """
 
 import numpy as np
-import pandas as pd
-import string
+from statsmodels.nonparametric.kernel_density import KDEMultivariate
 
-from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
-from eskapade.data_mimic.data_mimic_util import generate_data
+from eskapade import process_manager, DataStore, Link, StatusCode
 
 
-class MixedVariablesSimulation(Link):
+class KernelDensityEstimation(Link):
 
     """Defines the content of link."""
 
@@ -35,12 +33,11 @@ class MixedVariablesSimulation(Link):
         :param str store_key: key of output data to store in data store
         """
         # initialize Link, pass name from kwargs
-        Link.__init__(self, kwargs.pop('name', 'MixedVariablesSimulation'))
+        Link.__init__(self, kwargs.pop('name', 'KernelDensityEstimation'))
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, read_key=None, store_key=None, n_obs=100000, p_ordered=None, p_unordered=None,
-                             means_stds=None)
+        self._process_kwargs(kwargs, data_no_nans_read_key=None, data_normalized_read_key=None, store_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -61,21 +58,30 @@ class MixedVariablesSimulation(Link):
         :returns: status code of execution
         :rtype: StatusCode
         """
-        ds = process_manager.service(DataStore)
-
-        df = generate_data(self.n_obs, self.p_unordered, self.p_ordered, self.means_stds)
-
-        # simulate heaping
-        df.loc[np.random.randint(0, 100000, size=3000), 'a'] = np.ones(3000) * 35.1
-
-        # simulate nans
-        df.loc[np.random.randint(0, 100000, size=2000), 'b'] = np.ones(2000) * np.nan
-        df.loc[np.random.randint(0, 100000, size=2000), 'f'] = np.ones(2000) * np.nan
-
-        ds[self.store_key] = df
-
         # --- your algorithm code goes here
         self.logger.debug('Now executing link: {link}.', link=self.name)
+
+        ds = process_manager.service(DataStore)
+
+        unordered_categorical_i = ds['unordered_categorical_i']
+        ordered_categorical_i = ds['ordered_categorical_i']
+        continuous_i = ds['continuous_i']
+
+        data_no_nans = ds[self.data_no_nans_read_key]
+        data_normalized = ds[self.data_normalized_read_key]
+
+        # Concatenate normalized data with categorical data
+        d = np.concatenate((data_no_nans[:, unordered_categorical_i],
+                            data_no_nans[:, ordered_categorical_i], data_normalized),
+                           axis=1)
+
+        var_type = 'u' * len(unordered_categorical_i) + 'o' * len(ordered_categorical_i) + \
+                   'c' * len(continuous_i)
+
+        # LET OP! statsmodels uses normal reference for unordered categorical variables as well!
+        kde = KDEMultivariate(d, var_type=var_type, bw='normal_reference')
+
+        ds[self.store_key] = kde.bw
 
         return StatusCode.Success
 

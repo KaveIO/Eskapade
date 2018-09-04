@@ -19,7 +19,7 @@ import numpy as np
 import multiprocessing as mp
 import sys
 
-from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
+from eskapade import process_manager, DataStore, Link, StatusCode
 from eskapade.data_mimic.data_mimic_util import sample_chi2, generate_data
 
 
@@ -60,7 +60,6 @@ class DoFFitter(Link):
         :returns: status code of execution
         :rtype: StatusCode
         """
-        settings = process_manager.service(ConfigObject)
         ds = process_manager.service(DataStore)
 
         df = generate_data(100000, np.array([[0.2, 0.2, 0.3, 0.3], [0.3, 0.7]]),

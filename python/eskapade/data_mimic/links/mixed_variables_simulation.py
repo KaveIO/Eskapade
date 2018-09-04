@@ -1,6 +1,6 @@
 """Project: Eskapade - A python-based package for data analysis.
 
-Class: ResampleEvaluation
+Class: MixedVariablesSimulation
 
 Created: 2018-07-18
 
@@ -14,13 +14,14 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file
 LICENSE.
 """
+
 import numpy as np
-import scipy
 
-from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
+from eskapade import process_manager, DataStore, Link, StatusCode
+from eskapade.data_mimic.data_mimic_util import generate_data
 
 
-class ResampleEvaluation(Link):
+class MixedVariablesSimulation(Link):
 
     """Defines the content of link."""
 
@@ -32,12 +33,12 @@ class ResampleEvaluation(Link):
         :param str store_key: key of output data to store in data store
         """
         # initialize Link, pass name from kwargs
-        Link.__init__(self, kwargs.pop('name', 'ResampleEvaluation'))
+        Link.__init__(self, kwargs.pop('name', 'MixedVariablesSimulation'))
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, data_read_key=None, resample_read_key=None, bins=None, n_bins=None,
-                             store_key=None)
+        self._process_kwargs(kwargs, store_key=None, n_obs=100000, p_ordered=None, p_unordered=None,
+                             means_stds=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -58,21 +59,21 @@ class ResampleEvaluation(Link):
         :returns: status code of execution
         :rtype: StatusCode
         """
-        settings = process_manager.service(ConfigObject)
-        ds = process_manager.service(DataStore)
-
-        data = ds[self.data_read_key]
-        resample = ds[self.resample_read_key]
-
-        resample_binned = np.histogramdd(resample, bins=self.bins)
-        data_binned = np.histogramdd(data, bins=self.bins)
-
-        dof = 2*self.n_bins  # times two because of the reference (simulated) has a DoF per bin as well
-        ddof = self.n_bins - 1  # see the docs for ddof from scipy.stats.chisquare
-        chi2, p_value = scipy.stats.chisquare(resample_binned[0].flatten(), data_binned[0].flatten(), ddof=ddof)
-
         # --- your algorithm code goes here
         self.logger.debug('Now executing link: {link}.', link=self.name)
+
+        ds = process_manager.service(DataStore)
+
+        df = generate_data(self.n_obs, self.p_unordered, self.p_ordered, self.means_stds)
+
+        # simulate heaping
+        df.loc[np.random.randint(0, 100000, size=3000), 'a'] = np.ones(3000) * 35.1
+
+        # simulate nans
+        df.loc[np.random.randint(0, 100000, size=2000), 'b'] = np.ones(2000) * np.nan
+        df.loc[np.random.randint(0, 100000, size=2000), 'f'] = np.ones(2000) * np.nan
+
+        ds[self.store_key] = df
 
         return StatusCode.Success
 

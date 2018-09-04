@@ -18,7 +18,7 @@ LICENSE.
 import numpy as np
 import pandas as pd
 
-from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
+from eskapade import process_manager, DataStore, Link, StatusCode
 from eskapade.data_mimic.data_mimic_util import find_peaks, smooth_peaks, remove_nans, append_extremes, \
                                                 transform_to_normal
 
@@ -65,7 +65,9 @@ class KDEPreparation(Link):
         :returns: status code of execution
         :rtype: StatusCode
         """
-        settings = process_manager.service(ConfigObject)
+        # --- your algorithm code goes here
+        self.logger.debug('Now executing link: {link}.', link=self.name)
+
         ds = process_manager.service(DataStore)
 
         df_to_resample = ds[self.read_key]
@@ -112,9 +114,6 @@ class KDEPreparation(Link):
         ds['unordered_categorical_i'] = unordered_categorical_i
         ds['ordered_categorical_i'] = ordered_categorical_i
         ds['continuous_i'] = continuous_i
-
-        # --- your algorithm code goes here
-        self.logger.debug('Now executing link: {link}.', link=self.name)
 
         return StatusCode.Success
 

@@ -1,6 +1,6 @@
 """Project: Eskapade - A python-based package for data analysis.
 
-Class: KernelDensityEstimation
+Class: ResampleEvaluation
 
 Created: 2018-07-18
 
@@ -14,14 +14,13 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file
 LICENSE.
 """
-
 import numpy as np
-from statsmodels.nonparametric.kernel_density import KDEMultivariate
+import scipy
 
-from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode
+from eskapade import process_manager, DataStore, Link, StatusCode
 
 
-class KernelDensityEstimation(Link):
+class ResampleEvaluation(Link):
 
     """Defines the content of link."""
 
@@ -33,11 +32,12 @@ class KernelDensityEstimation(Link):
         :param str store_key: key of output data to store in data store
         """
         # initialize Link, pass name from kwargs
-        Link.__init__(self, kwargs.pop('name', 'KernelDensityEstimation'))
+        Link.__init__(self, kwargs.pop('name', 'ResampleEvaluation'))
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, data_no_nans_read_key=None, data_normalized_read_key=None, store_key=None)
+        self._process_kwargs(kwargs, data_read_key=None, resample_read_key=None, bins=None, n_bins=None,
+                             chi2_store_key=None, p_value_store_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -58,31 +58,26 @@ class KernelDensityEstimation(Link):
         :returns: status code of execution
         :rtype: StatusCode
         """
-        settings = process_manager.service(ConfigObject)
-        ds = process_manager.service(DataStore)
-
-        unordered_categorical_i = ds['unordered_categorical_i']
-        ordered_categorical_i = ds['ordered_categorical_i']
-        continuous_i = ds['continuous_i']
-
-        data_no_nans = ds[self.data_no_nans_read_key]
-        data_normalized = ds[self.data_normalized_read_key]
-
-        # Concatenate normalized data with categorical data
-        d = np.concatenate((data_no_nans[:, unordered_categorical_i],
-                            data_no_nans[:, ordered_categorical_i], data_normalized),
-                           axis=1)
-
-        var_type = 'u' * len(unordered_categorical_i) + 'o' * len(ordered_categorical_i) + \
-                   'c' * len(continuous_i)
-
-        # LET OP! statsmodels uses normal reference for unordered categorical variables as well!
-        kde = KDEMultivariate(d, var_type=var_type, bw='normal_reference')
-
-        ds[self.store_key] = kde.bw
-
         # --- your algorithm code goes here
         self.logger.debug('Now executing link: {link}.', link=self.name)
+
+        ds = process_manager.service(DataStore)
+
+        data = ds[self.data_read_key]
+        resample = ds[self.resample_read_key]
+
+        resample_binned = np.histogramdd(resample, bins=self.bins)
+        data_binned = np.histogramdd(data, bins=self.bins)
+
+        dof = 2*self.n_bins  # times two because of the reference (simulated) has a DoF per bin as well
+        ddof = self.n_bins - 1 - dof  # see the docs for ddof from scipy.stats.chisquare
+        chi2, p_value = scipy.stats.chisquare(resample_binned[0].flatten(), data_binned[0].flatten(), ddof=ddof)
+
+        self.logger.info('CHI2: {}'.format(chi2))
+        self.logger.info('P value: {}'.format(p_value))
+
+        ds[self.chi2_store_key] = chi2
+        ds[self.p_value_store_key] = p_value
 
         return StatusCode.Success
 
