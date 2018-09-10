@@ -3,20 +3,23 @@ from sklearn.preprocessing import scale, QuantileTransformer
 import string
 import scipy
 import pandas as pd
-# from eskapade.data_mimic import QuantileTransformer
 
 
-def generate_unordered_categorical_random_data(n_obs, p):
+def generate_unordered_categorical_random_data(n_obs, p, dtype=np.str):
     """
     Generates random uniform data with c[j] categories per dimension
     """
     n_dim = p.shape[0]
     alphabet = np.array(list(string.ascii_lowercase))
 
-    # data = np.empty((n_obs, n_dim), dtype=np.int)
-    data = np.empty((n_obs, n_dim), dtype=np.str)
+    data = np.empty((n_obs, n_dim), dtype=dtype)
     for j in range(n_dim):
-        data[:, j] = alphabet[np.random.choice(np.arange(0, len(p[j])), n_obs, p=p[j])]
+        if dtype == np.str:
+            data[:, j] = alphabet[np.random.choice(np.arange(0, len(p[j])), n_obs, p=p[j])]
+        elif dtype == np.int:
+            data[:, j] = np.random.choice(np.arange(0, len(p[j])), n_obs, p=p[j])
+        else:
+            raise NotImplementedError
 
     return data
 
@@ -88,7 +91,7 @@ def make_extremes(X, fraction=0.15):
         xmax.append(np.max(Y))
         xdiff.append((xmax[i]-xmin[i]))
     for i in range(X.shape[1]):
-        if xmin[i]!=0:
+        if xmin[i] != 0:
             xmin[i] -= fraction * xdiff[i]
         xmax[i] += fraction * xdiff[i]
     return xmin, xmax
@@ -192,35 +195,23 @@ def scale_and_invert_normal_transformation(resample_normalized_unscaled, continu
     return resample
 
 
-def generate_data(n_obs, p_unordered, p_ordered, means_stds):
-    unordered_categorical_data = generate_unordered_categorical_random_data(n_obs, p_unordered)
+def generate_data(n_obs, p_unordered, p_ordered, means_stds, dtype_unordered_categorical_data=np.str):
+    unordered_categorical_data = generate_unordered_categorical_random_data(n_obs, p_unordered,
+                                                                            dtype=dtype_unordered_categorical_data)
     ordered_categorical_data = generate_ordered_categorical_random_data(n_obs, p_ordered)
     continuous_data = generate_continuous_random_data(n_obs, means_stds)
 
-    df = pd.DataFrame(np.concatenate((continuous_data,
-                                      unordered_categorical_data,
-                                      ordered_categorical_data), axis=1))
     alphabet = np.array(list(string.ascii_lowercase))
-    df.columns = list(alphabet[0:df.shape[1]])
+    columns1 = list(alphabet[0:continuous_data.shape[1]])
+    columns2 = list(alphabet[continuous_data.shape[1]:
+                             continuous_data.shape[1] + unordered_categorical_data.shape[1]])
+    columns3 = list(alphabet[continuous_data.shape[1] + unordered_categorical_data.shape[1]:
+                             continuous_data.shape[1] + unordered_categorical_data.shape[1] +
+                             ordered_categorical_data.shape[1]])
 
-    df['f'] = pd.to_numeric(df['f'])
-    df['g'] = pd.to_numeric(df['g'])
+    df1 = pd.DataFrame(continuous_data, columns=columns1)
+    df2 = pd.DataFrame(unordered_categorical_data, columns=columns2)
+    df3 = pd.DataFrame(ordered_categorical_data, columns=columns3)
+    df = pd.concat([df1, df2, df3], axis=1)
 
     return df
-
-
-def sample_chi2(data_binned, n_obs, p_unordered, p_ordered, means_stds, bins, continuous_columns, string_columns,
-                new_column_order, maps):
-    df = generate_data(n_obs, p_unordered, p_ordered, means_stds)
-
-    for c in continuous_columns:
-        df[c] = df[c].astype(np.float)
-
-    for c in string_columns:
-        m = maps[c]
-        df[c] = df[c].map(m)
-
-    sample = df[new_column_order].values.copy()
-    sample_binned = np.histogramdd(sample, bins=bins)
-    chi2 = scipy.stats.chisquare(sample_binned[0].flatten(), data_binned[0].flatten())[0]
-    return chi2

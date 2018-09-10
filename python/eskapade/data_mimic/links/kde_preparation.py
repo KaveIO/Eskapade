@@ -73,11 +73,7 @@ class KDEPreparation(Link):
         df_to_resample = ds[self.read_key]
         ds[self.ids_store_key] = df_to_resample.index.values
 
-        # make sure all continuous columns are made of numpy floats for later calculations
-        for c in self.continuous_columns:
-            df_to_resample[c] = df_to_resample[c].astype(np.float)
-
-        # maps the string columns
+        # map the string columns
         maps = {}
         for c in self.string_columns:
             m = pd.Series(range(0, len(df_to_resample[c].dropna().unique())),

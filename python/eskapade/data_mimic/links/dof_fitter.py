@@ -22,7 +22,7 @@ import sys
 from functools import partial
 
 from eskapade import process_manager, DataStore, Link, StatusCode
-from eskapade.data_mimic.data_mimic_util import sample_chi2, generate_data
+from eskapade.data_mimic.data_mimic_util import generate_data
 
 
 class DoFFitter(Link):
@@ -41,9 +41,8 @@ class DoFFitter(Link):
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, n_obs=100000, p_ordered=None, p_unordered=None,
-                             means_stds=None, continuous_columns=None, string_columns=None, maps_read_key=None,
-                             new_column_order_read_key=None, bins=None, dof_store_key=None)
+        self._process_kwargs(kwargs, n_obs=100000, p_ordered=None, p_unordered=None, means_stds=None,
+                             bins=None, n_chi2_samples=10000, dof_store_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -68,18 +67,14 @@ class DoFFitter(Link):
         self.logger.debug('Now executing link: {link}.', link=self.name)
 
         ds = process_manager.service(DataStore)
-        maps = ds[self.maps_read_key]
 
-        df = generate_data(self.n_obs, self.p_unordered, self.p_ordered, self.means_stds)
+        df = generate_data(self.n_obs, self.p_unordered, self.p_ordered, self.means_stds,
+                           dtype_unordered_categorical_data=np.int)
 
-        for c in self.continuous_columns:
-            df[c] = df[c].astype(np.float)
-
-        for c in self.string_columns:
-            m = maps[c]
-            df[c] = df[c].map(m)
-
-        new_column_order = ds[self.new_column_order_read_key]
+        unordered_categorical_columns = ['d', 'e']
+        ordered_categorical_columns = ['f', 'g']
+        continuous_columns = ['a', 'b', 'c']
+        new_column_order = unordered_categorical_columns + ordered_categorical_columns + continuous_columns
         data = df[new_column_order].values.copy()
         data_binned = np.histogramdd(data, bins=self.bins)
 
@@ -91,12 +86,10 @@ class DoFFitter(Link):
                                                              p_ordered=self.p_ordered,
                                                              means_stds=self.means_stds,
                                                              bins=self.bins,
-                                                             continuous_columns=self.continuous_columns,
-                                                             string_columns=self.string_columns,
-                                                             new_column_order=new_column_order,
-                                                             maps=maps), [data_binned] * 100), 1):
+                                                             new_column_order=new_column_order),
+                                                     [data_binned] * self.n_chi2_samples), 1):
             chi2s.append(chi2)
-            sys.stdout.write('\r{0:%} done with sampling chi2s'.format(i / 100))
+            sys.stdout.write('\r{0:%} done with sampling chi2s'.format(i / self.n_chi2_samples))
         pool.close()
         pool.join()
 
@@ -116,3 +109,12 @@ class DoFFitter(Link):
         # --- any code to finalize the link follows here
 
         return StatusCode.Success
+
+
+def sample_chi2(data_binned, n_obs, p_unordered, p_ordered, means_stds, bins, new_column_order):
+    df = generate_data(n_obs, p_unordered, p_ordered, means_stds, dtype_unordered_categorical_data=np.int)
+
+    sample = df[new_column_order].values.copy()
+    sample_binned = np.histogramdd(sample, bins=bins)
+    chi2 = scipy.stats.chisquare(sample_binned[0].flatten(), data_binned[0].flatten())[0]
+    return chi2

@@ -21,8 +21,8 @@ from eskapade import data_mimic
 from eskapade import process_manager
 from eskapade.logger import Logger, LogLevel
 
-logger = Logger()
 
+logger = Logger()
 logger.debug('Now parsing configuration file esk701_mimic_data')
 
 #########################################################################################
@@ -30,8 +30,6 @@ logger.debug('Now parsing configuration file esk701_mimic_data')
 settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk701_mimic_data'
 settings['version'] = 0
-
-# settings.logger.log_lovel = LogLevel.DEBUG
 
 np.random.seed(42)
 
@@ -86,27 +84,12 @@ resampler = data_mimic.Resampler(data_smoothed_read_key='data_smoothed',
 resampler.logger.log_level = LogLevel.DEBUG
 ch.add(resampler)
 
-# At the moment, the number of DoF is equal to two times the number of bins because the reference (data_to_resample)
-# has a DoF per bin as well
+# The number of DoF is equal to two times the number of bins because the reference (data_to_resample)
+# has a DoF per bin as well, see the esk702 tutorial
 bins = [np.array([-10, 1.5, 10]), np.array([-10, 0.5, 10]), np.array([-10, 0.5, 10]), np.array([-10, 1.5, 10]),
         np.array([-100, 0, 100]), np.array([-100, 0, 100]), np.array([-100, 0, 100])]
-dof_fitter = data_mimic.DoFFitter(n_obs=100000,
-                                  p_unordered=np.array([[0.2, 0.2, 0.3, 0.3], [0.3, 0.7]]),
-                                  p_ordered=np.array([[0.1, 0.2, 0.7], [0.15, 0.4, 0.05, 0.3, 0.1]]),
-                                  means_stds=np.array([[8, 8, 3], [2, 5, 2]]),
-                                  continuous_columns=['a', 'b', 'c'],
-                                  string_columns=['d', 'e'],
-                                  maps_read_key='maps',
-                                  new_column_order_read_key='new_column_order',
-                                  bins=bins,
-                                  dof_store_key='dof')
-dof_fitter.logger.log_level = LogLevel.DEBUG
-ch.add(dof_fitter)
-
-
 evaluater = data_mimic.ResampleEvaluation(data_read_key='data',
                                           resample_read_key='data_resample',
-                                          dof_read_key='dof',
                                           bins=bins,
                                           n_bins=2**7,
                                           chi2_store_key='chi2', p_value_store_key='p_value')
