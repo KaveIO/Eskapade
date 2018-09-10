@@ -5,7 +5,9 @@ Macro: esk201_readdata
 Created: 2018/09/04
 
 Description:
-    Macro to that illustrates how to open files as pandas datasets.
+    TODO!!!!!
+
+    TODO: write good summary with explanation of choices made
 
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands

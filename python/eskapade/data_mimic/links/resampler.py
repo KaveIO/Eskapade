@@ -7,6 +7,8 @@ Created: 2018-07-18
 Description:
     Algorithm to ...(fill in one-liner here)
 
+    TODO: write good summary with explanation of choices made
+
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
 
