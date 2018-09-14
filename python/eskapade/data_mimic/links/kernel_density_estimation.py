@@ -9,6 +9,11 @@ Description:
 
     TODO: write good summary with explanation of choices made
 
+    Data flow:
+    5. concatenation of data_no_nans (unordered categorical and ordered categorical) and data_normalized (only
+       continuous) -> d
+        + 5b KDEMultivariate() on d -> bw (bandwiths)
+
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
 

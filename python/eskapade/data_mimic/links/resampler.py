@@ -9,6 +9,15 @@ Description:
 
     TODO: write good summary with explanation of choices made
 
+    Data flow:
+    6. insert_back_nans() on data_smoothed, data_normalized and data -> data_to_resample. Data_smoothed is used to
+       determine the original index of the nans for the continuous columns. Data_normalized is used to insert the
+       non-nans for the continuous columns. We want to use data_normalized because we want to resample in the
+       transformed space because the bandwiths are determined in the transformed space. Data is used to insert to
+       the nans and non-nans for the categorical column.
+    7. kde_resample() on data_to_resample -> resample_normalized_unscaled
+    8. scale_and_invert_normal_transformation() on resample_normalized_unscaled -> resample
+
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
 

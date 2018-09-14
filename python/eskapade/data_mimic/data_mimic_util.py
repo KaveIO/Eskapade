@@ -122,12 +122,13 @@ def generate_data(n_obs, p_unordered, p_ordered, means_stds, dtype_unordered_cat
 
 def find_peaks(data, continuous_i, count=1):
     """
-    Finds peaks in a set of data points.
+    Finds peaks in a set of data points. A peak is a set of data points with more then 'count' data points with equal
+    value.
 
     :param np.ndarray data: the data
     :param iterable continuous_i: column indices. In these columns, this function searches for peaks.
-    :param int count: the minimum number of data points with equal value for the value te be flagged as a peak
-    :return: dict with column index-np.array with peak values as key-value pairs
+    :param int count: the minimum number of data points per unique value for the value te be flagged as a peak
+    :return: (column index, np.array of peak values) as key-value pairs
     :rtype: dict
     """
     peaks = {}
@@ -139,27 +140,32 @@ def find_peaks(data, continuous_i, count=1):
 
 def smooth_peaks(data, peaks, smoothing_fraction=0.0002):
     """
+    Smooths the peaks in the data. All data points in the peaks (data points with equal value) are replaced by a sample
+    drawn from a normal distribution. The mean of this normal distribution is equal to the value of the peak and the
+    standard deviation of this normal distribution is equal to the smoothing_fraction times the range of the data (
+    for the column holding the peak).
 
-    :param np.ndarray data:
-    :param dict peaks:
-    :param float smoothing_fraction:
-    :return:
+    :param np.ndarray data: the data
+    :param dict peaks: (column index, np.array of peak values) as key-value pairs
+    :param float smoothing_fraction: fraction of the range (of the column) to use for smoothing
+    :return: smoothed data
     :rtype: np.ndarray
     """
     data_smoothed = data.copy()
     for d, vs in peaks.items():
         for v in vs:
             i = np.where(data[:, d] == v)[0]
-            s = (data[:, 4].max() - data[:, d].min())*smoothing_fraction
-            data_smoothed[i, 4] = np.random.normal(v, s, size=len(i))
+            s = (data[:, d].max() - data[:, d].min())*smoothing_fraction
+            data_smoothed[i, d] = np.random.normal(v, s, size=len(i))
     return data_smoothed
 
 
 def remove_nans(data_smoothed):
     """
+    Removes np.nan from data_smoothed. If a row contains at least one np.nan then the whole row is removed.
 
-    :param np.ndarray data_smoothed:
-    :return:
+    :param np.ndarray data_smoothed: the data
+    :return: the data without np.nan's
     :rtype: np.ndarray
     """
     data_no_nans = data_smoothed.copy()
@@ -167,40 +173,41 @@ def remove_nans(data_smoothed):
     return data_no_nans
 
 
-# add extreme values if you want to extend the range in which data is generated
 def make_extremes(x, fraction=0.15):
     """
+    Calculates extremes: extreme_max = max + fraction * range, extreme_min = min - fraction * range
 
-    :param x:
-    :param float fraction:
-    :return:
+    :param np.ndarray x: the data
+    :param float fraction: fraction of range to add to min and max
+    :return: extreme_min and extreme_max
     :rtype: tuple
     """
     xmin = []
     xmax = []
     xdiff = []
     for i in range(x.shape[1]):
-        y = x[...,i]
+        y = x[..., i]
         y = y[~np.isnan(y)]
         xmin.append(np.min(y))
         xmax.append(np.max(y))
-        xdiff.append((xmax[i]-xmin[i]))
+        xdiff.append((xmax[i] - xmin[i]))
     for i in range(x.shape[1]):
-        if xmin[i] != 0:
-            xmin[i] -= fraction * xdiff[i]
+        xmin[i] -= fraction * xdiff[i]
         xmax[i] += fraction * xdiff[i]
     return xmin, xmax
 
 
 def append_extremes(data_continuous, fraction=0.15):
     """
+    Appends extremes to the data.
 
-    :param data_continuous:
-    :param fraction:
-    :return:
-    :rtype:
+    :param data_continuous: the data
+    :param fraction: fraction to use for calculation of the extremes
+    :return: the extremes appended to data_continuous
+    :rtype: tuple
     """
     xmin, xmax = make_extremes(data_continuous, fraction=fraction)
+    # extremes are added because we want to extend the range on which the data is transformed to a normal distribution.
     data_extremes = np.append(data_continuous, [xmin, xmax], axis=0).copy()
     # save inidices, we want to remove the min and max after quantile transformation
     imin = np.argmin(data_extremes, axis=0)
@@ -210,8 +217,8 @@ def append_extremes(data_continuous, fraction=0.15):
 
 def transform_to_normal(data_extremes, imin, imax):
     """
-    Transforms a random distribution to a normal distribution in the following way:
-    1. Compute the values of the CDF. These values are the percentiles. These are uniformly distributed.
+    Transforming a random distribution to a normal distribution can be done in the following way:
+    1. Compute the values of the CDF. These values are the percentiles. These are (always) uniformly distributed.
     2. Use the percent point function (inverse of cdf) of a normal distribution to transform the uniform
        distribution to a normal distribution.
 
@@ -327,6 +334,8 @@ def scale_and_invert_normal_transformation(resample_normalized_unscaled, continu
         # scaling and inverting quantile transformation can only be done on the not NaN values
         i_not_nan = np.argwhere(~np.isnan(resample[:, d]))
         qt = qts[i]
+        # todo: test without scaling step. What is the effect of the scaling step? Does it bring the data closer to
+        # the true distribution or to the one with statistical fluctuations (the original data)?
         resample[i_not_nan, d] = qt.inverse_transform(scale(resample[i_not_nan, d]))
         i += 1
     return resample

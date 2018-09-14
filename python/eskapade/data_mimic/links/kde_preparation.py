@@ -9,6 +9,15 @@ Description:
 
     TODO: write good summary with explanation of choices made
 
+    Data flow:
+
+    1. change column order (unordered categorical, ordered categorical, continuous) on df_to_resample -> data
+    2. smooth_peaks() on data -> data_smoothed
+    3. remove_nans() on data_smoothed -> data_no_nans
+    4. select only continuous columns from data_no_nans -> data_continuous
+        + 4b append_extremes() on data_continuous -> data_extremes (contains two data points extra, the extremes)
+        + 4c transform_to_normal() on data_extremes -> data_normalized. Extremes are deleted from data_normalized.
+
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
 
