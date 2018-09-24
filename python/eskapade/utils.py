@@ -36,9 +36,11 @@ def set_matplotlib_backend(backend=None, batch=None, silent=True):
     :param bool silent: do not raise exception if backend cannot be set
     :raises: RuntimeError
     """
+
     # determine if batch mode is required
-    display = get_env_var('display')
-    run_batch = bool(batch) or display is None or not display.startswith(':') or not display[1].isdigit()
+    run_interactive = check_interactive_backend()
+    run_batch = bool(batch) or not run_interactive
+
     if run_batch:
         matplotlib.interactive(False)
 
@@ -90,6 +92,38 @@ def get_env_var(key):
     """
     var_name = ENV_VARS[key]
     return os.environ.get(var_name)
+
+
+def check_interactive_backend():
+    """Check whether an interactive backend is required
+    """
+    display = get_env_var('display')
+
+    run_ipynb = in_ipynb()
+    run_display = display is None or not display.startswith(':') or not display[1].isdigit()
+    if run_ipynb or not run_display:
+        # interactive backend required
+        return True
+    else:
+        # non-interactive backend required
+        return False
+
+
+def in_ipynb():
+    """Detect whether an Jupyter/Ipython-kernel is being run
+
+    :raises: NameError
+    """
+    try:
+        import IPython.core.getipython as gip
+        cfg = gip.get_ipython().config
+        if 'IPKernelApp' in cfg.keys():
+            logger.info('Ipython-kernel was found, batch-mode (non-interactive) will be set to false.')
+            return True
+        else:
+            return False
+    except (ModuleNotFoundError, AttributeError):
+        return False
 
 
 def collect_python_modules():
