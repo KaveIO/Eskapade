@@ -38,7 +38,8 @@ class MixedVariablesSimulation(Link):
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
         self._process_kwargs(kwargs, store_key=None, n_obs=100000, p_ordered=None, p_unordered=None,
-                             means_stds=None)
+                             means_stds=None, heaping_values=None, heaping_columns=None, heaping_sizes=None,
+                             nan_sizes=None, nan_columns=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -67,11 +68,16 @@ class MixedVariablesSimulation(Link):
         df = generate_data(self.n_obs, self.p_unordered, self.p_ordered, self.means_stds)
 
         # simulate heaping
-        df.loc[np.random.randint(0, 100000, size=3000), 'a'] = np.ones(3000) * 35.1
+        for i, heaping_column in enumerate(self.heaping_columns):
+            heaping_size = self.heaping_sizes[i]
+            heaping_value = self.heaping_values[i]
+            df.loc[np.random.randint(0, self.n_obs, size=heaping_size), heaping_column] = \
+                np.ones(3000) * heaping_value
 
         # simulate nans
-        df.loc[np.random.randint(0, 100000, size=2000), 'b'] = np.ones(2000) * np.nan
-        df.loc[np.random.randint(0, 100000, size=2000), 'f'] = np.ones(2000) * np.nan
+        for i, nan_column in enumerate(self.nan_columns):
+            nan_size = self.nan_sizes[i]
+            df.loc[np.random.randint(0, self.n_obs, size=nan_size), nan_column] = np.ones(nan_size) * np.nan
 
         ds[self.store_key] = df
 

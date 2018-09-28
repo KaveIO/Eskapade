@@ -1,7 +1,6 @@
 import numpy as np
 from sklearn.preprocessing import scale, QuantileTransformer
 import string
-import scipy
 import pandas as pd
 
 

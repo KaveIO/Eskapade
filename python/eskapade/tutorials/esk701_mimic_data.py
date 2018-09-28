@@ -60,7 +60,12 @@ sim_data = data_mimic.MixedVariablesSimulation(store_key='df',
                                                n_obs=100000,
                                                p_unordered=np.array([[0.2, 0.2, 0.3, 0.3], [0.3, 0.7]]),
                                                p_ordered=np.array([[0.1, 0.2, 0.7], [0.15, 0.4, 0.05, 0.3, 0.1]]),
-                                               means_stds=np.array([[8, 8, 3], [2, 5, 2]]))
+                                               means_stds=np.array([[8, 8, 3], [2, 5, 2]]),
+                                               heaping_values=[35.1],
+                                               heaping_columns=['a'],
+                                               heaping_sizes=[3000],
+                                               nan_sizes=[2000, 2000],
+                                               nan_columns=['b', 'f'])
 sim_data.logger.log_level = LogLevel.DEBUG
 ch.add(sim_data)
 
