@@ -49,7 +49,7 @@ class Resampler(Link):
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, data_smoothed_read_key=None, data_normalized_read_key=None,
+        self._process_kwargs(kwargs, data_normalized_read_key=None,
                              data_read_key=None, bws_read_key=None, qts_read_key=None, new_column_order_read_key=None,
                              maps_read_key=None, ids_read_key=None, df_resample_store_key=None,
                              resample_store_key=None)
@@ -82,7 +82,6 @@ class Resampler(Link):
         ordered_categorical_i = ds['ordered_categorical_i']
         continuous_i = ds['continuous_i']
 
-        data_smoothed = ds[self.data_smoothed_read_key]
         data_normalized = ds[self.data_normalized_read_key]
         data = ds[self.data_read_key]
         band_widths = ds[self.bws_read_key]
@@ -91,7 +90,9 @@ class Resampler(Link):
         maps = ds[self.maps_read_key]
         ids = ds[self.ids_read_key]
 
-        data_to_resample = insert_back_nans(data_smoothed, data_normalized, data, unordered_categorical_i,
+        # because the bandwiths are determined on the normalized continuous data and on the original categorical data,
+        # resampling is done with the input data in the same state.
+        data_to_resample = insert_back_nans(data_normalized, data, unordered_categorical_i,
                                             ordered_categorical_i, continuous_i)
 
         c_array = []  # list containg all possible categories per u dimension

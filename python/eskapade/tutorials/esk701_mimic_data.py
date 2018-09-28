@@ -91,8 +91,7 @@ kde = data_mimic.KernelDensityEstimation(data_no_nans_read_key='data_no_nans',
 kde.logger.log_level = LogLevel.DEBUG
 ch.add(kde)
 
-resampler = data_mimic.Resampler(data_smoothed_read_key='data_smoothed',
-                                 data_normalized_read_key='data_normalized',
+resampler = data_mimic.Resampler(data_normalized_read_key='data_normalized',
                                  data_read_key='data',
                                  bws_read_key='bw',
                                  qts_read_key='qts',

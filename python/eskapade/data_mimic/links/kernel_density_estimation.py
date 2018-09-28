@@ -77,17 +77,16 @@ class KernelDensityEstimation(Link):
         data_no_nans = ds[self.data_no_nans_read_key]
         data_normalized = ds[self.data_normalized_read_key]
 
-        # Concatenate normalized data with categorical data
+        # Concatenate normalized data with original categorical data
         d = np.concatenate((data_no_nans[:, unordered_categorical_i],
-                            data_no_nans[:, ordered_categorical_i], data_normalized),
-                           axis=1)
+                            data_no_nans[:, ordered_categorical_i], data_normalized), axis=1)
 
         var_type = 'u' * len(unordered_categorical_i) + 'o' * len(ordered_categorical_i) + \
                    'c' * len(continuous_i)
 
-        # LET OP! statsmodels uses normal reference for unordered categorical variables as well!
+        # NB: statsmodels uses normal reference for unordered categorical variables as well!
+        # NB: the bandwiths are determined on the normalized continuous data and on the original categorical data
         kde = KDEMultivariate(d, var_type=var_type, bw='normal_reference')
-
         ds[self.store_key] = kde.bw
 
         return StatusCode.Success

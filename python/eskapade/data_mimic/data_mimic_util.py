@@ -201,8 +201,8 @@ def append_extremes(data_continuous, fraction=0.15):
     """
     Appends extremes to the data.
 
-    :param data_continuous: the data
-    :param fraction: fraction to use for calculation of the extremes
+    :param np.ndarray data_continuous: the data
+    :param float fraction: fraction to use for calculation of the extremes
     :return: the extremes appended to data_continuous
     :rtype: tuple
     """
@@ -222,11 +222,11 @@ def transform_to_normal(data_extremes, imin, imax):
     2. Use the percent point function (inverse of cdf) of a normal distribution to transform the uniform
        distribution to a normal distribution.
 
-    :param data_extremes:
-    :param imin:
-    :param imax:
-    :return:
-    :rtype:
+    :param np.ndarray data_extremes: the continuous data columns with smoothed peaks and extremes appended
+    :param np.array imin: indices of the minimum per continuous column
+    :param np.array imax: indices of the maximum per continuous column
+    :return: the continuous columns normalized
+    :rtype: tuple (np.ndarray, list of trained sklearn.preprocessing.data.QuantileTransformer)
     """
     qts = []
     data_normalized_ = []
@@ -242,16 +242,61 @@ def transform_to_normal(data_extremes, imin, imax):
     return data_normalized, qts
 
 
+def insert_back_nans(data_normalized, data, unordered_categorical_i, ordered_categorical_i,
+                     continuous_i):
+    """
+    Insert np.nan's back into the transformed continuous variables (data_normalized) before resampling and concatenates
+    to original unordered and ordered categorical columns (with np.nan's).
+
+    :param np.ndarray data_normalized: continuous data (without nan's) and normalized
+    :param np.ndarray data: the original data (with nan's)
+    :param list unordered_categorical_i: indeces of the unordered categorical columns in the original data
+    :param list ordered_categorical_i: indeces of the ordered categorical columns in the original data
+    :param list continuous_i: indeces of the continuous columns in the original data
+    :return: data ready for resampling
+    :rtype: np.ndarray
+    """
+    data_continuous_nans = data[:, continuous_i].copy()
+    data_to_resample = []
+    l = len(data)
+    for d in range(0, data_normalized.shape[1]):
+        i_nan = np.argwhere(np.isnan(data_continuous_nans[:, d]))
+        i_not_nan = np.argwhere(~np.isnan(data_continuous_nans[:, d]))
+        a = np.zeros(l)
+        a.put(i_not_nan, data_normalized[:, d])
+        a.put(i_nan, np.nan)
+        data_to_resample.append(a)
+
+    data_to_resample = np.stack(data_to_resample, axis=-1)
+    data_to_resample = np.concatenate((data[:, unordered_categorical_i],
+                                       data[:, ordered_categorical_i], data_to_resample), axis=1)
+    return data_to_resample
+
+
 def kde_resample(n_resample, data, bw, variable_types, c_array):
     """
+    Generates new data with length n_resample based on the input data. This function loops over all data points and
+    draws a new data point from a kernel layed over the data point. The size of the kernel is determined by the
+    bandwiths. The kernels are:
+    - the Aitchison and Aitken kernel for unordered categorical columns
+    - a symmetric geometric distribution for ordered categorical columns
+    - a gaussian distribution for continuous columns
 
-    :param n_resample:
-    :param data:
-    :param bw:
-    :param variable_types:
-    :param c_array:
-    :return:
-    :rtype:
+    If a data point is missing (NaN) a NaN is returned.
+    If n_resample is larger then the input data, then some (randomly chosen) data points will be used twice.
+
+    :param int n_resample: the size of the resample
+    :param np.ndarray data: the input data used for resampling.
+    :param np.array bw: the bandwiths per column from the kernel density estimation
+    :param str variable_types: the type of the variables:
+                                - c : continuous
+                                - u : unordered (discrete)
+                                - o : ordered (discrete)
+                                The string should contain a type specifier for each variable, for example
+                                ``var_type='ccuo'``.
+    :param list c_array: list of np.arrays containing all possible categories per uordered categorical dimension
+    :return: the resampled data and the indices of the rows of the input data used to generate the resampled row.
+    :rtype: tuple (np.ndarray, np.array)
     """
     # get dimensions
     n_obs = data.shape[0]
@@ -261,7 +306,7 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
     # convert variable types
     variable_types_array = np.array(list(variable_types))
 
-    # pick a random observation from the original data
+    # pick a random set from the original data
     indices = np.random.choice(np.arange(n_obs), size=n_resample, replace=True)
 
     # get the original data for the indices
@@ -279,6 +324,7 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
                     other_categories = categories[categories != resample[i, j]]
                     resample[i, j] = np.random.choice(other_categories)
             elif variable_types_array[j] == 'o':
+                # todo: try the Wang-Ryzin kernel
                 d = np.random.geometric(1 - bw[j]) - 1
                 if np.random.rand() < .5:
                     d = -d
@@ -287,46 +333,15 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
     return resample, indices
 
 
-def insert_back_nans(data_smoothed, data_normalized, data, unordered_categorical_i, ordered_categorical_i,
-                     continuous_i):
-    """
-    Insert np.nan's back into the transformed continuous variables before resampling.
-
-    :param data_smoothed:
-    :param data_normalized:
-    :param data:
-    :param unordered_categorical_i:
-    :param ordered_categorical_i:
-    :param continuous_i:
-    :return:
-    :rtype:
-    """
-    data_continuous_nans = data_smoothed[:, continuous_i].copy()
-    data_to_resample = []
-    l = len(data)
-    for d in range(0, data_normalized.shape[1]):
-        i_nan = np.argwhere(np.isnan(data_continuous_nans[:, d]))
-        i_not_nan = np.argwhere(~np.isnan(data_continuous_nans[:, d]))
-        a = np.zeros(l)
-        a.put(i_not_nan, data_normalized[:, d])
-        a.put(i_nan, np.nan)
-        data_to_resample.append(a)
-
-    data_to_resample = np.stack(data_to_resample, axis=-1)
-    data_to_resample = np.concatenate((data[:, unordered_categorical_i],
-                                       data[:, ordered_categorical_i], data_to_resample),
-                                       axis=1)
-    return data_to_resample
-
-
 def scale_and_invert_normal_transformation(resample_normalized_unscaled, continuous_i, qts):
     """
+    Transforms the resampled data back from normalized form.
 
-    :param resample_normalized_unscaled:
-    :param continuous_i:
-    :param qts:
-    :return:
-    :rtype:
+    :param np.ndarray resample_normalized_unscaled: the data in normalized form
+    :param list continuous_i: indeces of the continuous columns in the original data
+    :param list qts: the trained trained sklearn.preprocessing.data.QuantileTransformer
+    :return: the resample transformed back from normalized form
+    :rtype: np.ndarray
     """
     resample = resample_normalized_unscaled.copy()
     i = 0
@@ -334,7 +349,8 @@ def scale_and_invert_normal_transformation(resample_normalized_unscaled, continu
         # scaling and inverting quantile transformation can only be done on the not NaN values
         i_not_nan = np.argwhere(~np.isnan(resample[:, d]))
         qt = qts[i]
-        # todo: test without scaling step. What is the effect of the scaling step? Does it bring the data closer to
+        # todo:
+        # test without scaling step. What is the effect of the scaling step? Does it bring the data closer to
         # the true distribution or to the one with statistical fluctuations (the original data)?
         resample[i_not_nan, d] = qt.inverse_transform(scale(resample[i_not_nan, d]))
         i += 1
