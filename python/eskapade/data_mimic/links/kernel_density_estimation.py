@@ -5,8 +5,8 @@ Class: KernelDensityEstimation
 Created: 2018-07-18
 
 Description:
-    Algorithm to execute kernel density estimation on a data set with mixed data types (unordered categorical,
-    ordered categorical and continuous).
+    Algorithm to execute kernel density estimation (kernel bandwith fitting) on a data set with mixed data types
+    (unordered categorical, ordered categorical and continuous).
 
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
@@ -24,9 +24,8 @@ from eskapade import process_manager, DataStore, Link, StatusCode
 
 class KernelDensityEstimation(Link):
     """
-    TODO: write good summary with explanation of choices made
-    Executes kernel density estimation on a data set with mixed data types (unordered categorical,
-    ordered categorical and continuous).
+    Executes kernel density estimation (kernel bandwith fitting) on a data set with mixed data types (unordered
+    categorical, ordered categorical and continuous).
 
     For now, only the normal rule of thumb is implemented using the statsmodels implementation because the
     implementation of statsmodels using least squares or maximum likelihood cross validation is too slow for a data

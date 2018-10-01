@@ -5,11 +5,26 @@ Macro: esk201_readdata
 Created: 2018/09/04
 
 Description:
-    TODO!!!!!
+    This macro illustrates how to resample an existing data set, containing mixed data types, using kernel density
+    estimation (KDE) and a direct resampling technique. First, a data set is simulated containing mixed data types.
+    This data sets represents a general input data set. Then the dataframe KDE is applied on a processed dataframe
+    resulting in kernel bandwiths per dimension. These bandwiths are used to resample a new data set using the
+    existing input data set.
 
-    TODO: write good summary with explanation of choices made
+    For now, only the normal rule of thumb is implemented using the statsmodels implementation because the
+    implementation of statsmodels using least squares or maximum likelihood cross validation is too slow for a data
+    set of practical size. We are working on an implementation for least squares cross validation that is significant
+    faster then the current implementation in statsmodels for categorical observables.
 
-    Data flow:
+    In the resampling step it is chosen to use direct resampling, i.e., using an existing data point to define a kernel
+    around it and sample a new data point from that kernel. Direct resampling is chosen because it is a
+    straightforward technique.
+    Another technique would be to define or describe (binned) the entire multidimensional distribution (the sum of
+    the kernels of all original data points) and sample from that distribution. This is, however, not straightforward
+    to do because such a distribution could take up a lot of memory. Maybe it is possible to define such a
+    distribution sparsely.
+
+    Data flow description:
     1. change column order (unordered categorical, ordered categorical, continuous) on df_to_resample -> data
     2. smooth_peaks() on data -> data_smoothed
     3. remove_nans() on data_smoothed -> data_no_nans

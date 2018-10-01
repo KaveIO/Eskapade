@@ -5,9 +5,7 @@ Class: ResampleEvaluation
 Created: 2018-07-18
 
 Description:
-    Algorithm to ...(fill in one-liner here)
-
-    TODO: write good summary with explanation of choices made
+    Algorithm to evaluate the statistical simularity between 2 data sets using a chiˆ2 test.
 
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
@@ -23,15 +21,30 @@ from eskapade import process_manager, DataStore, Link, StatusCode
 
 
 class ResampleEvaluation(Link):
+    """
+    Evaluates the statistical simularity between 2 (multi-dimensional) data sets using a chiˆ2 test. The 2 data sets
+    are binned and the chi^2 statistic is calculated using the counts per bin. To calculate the p-value, the number
+    of degrees of freedom (DoF) is set equal to 2 times the number of bins because data is not compared with a fixed
+    model but with another (reference/input) data set contributing with a degree of freedom per bin as well.
 
-    """Defines the content of link."""
+    Usually, DoF = number of bins - number of model parameters. In the case of comparing two data sets, the number of
+    model parameters is not known. Therefore, the number of model parameters is ignored for now.
+    """
 
     def __init__(self, **kwargs):
         """Initialize an instance.
 
         :param str name: name of link
-        :param str read_key: key of input data to read from data store
-        :param str store_key: key of output data to store in data store
+        :param str data_read_key: key of input data to read from data store
+        :param str resample_read_key: key of resampled data to read from data store
+        :param sequence or int bins: Specification:
+                                     * A sequence of arrays describing the bin edges along each dimension
+                                     * The number of bins for each dimension (nx, ny, ... =bins)
+                                     * The number of bins for all dimensions (nx=ny=...=bins)
+        :param int n_bins: number of total bins (for all dimensions)
+        :param str chi2_store_key: key of chiˆ2 value to store in data store
+        :param str p_value_store_key: key of p-value to store in data store
+        :param str dof_read_key: key of DoF to read from data store. If None, DoF is set to 2 * n_bins
         """
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'ResampleEvaluation'))
@@ -82,7 +95,7 @@ class ResampleEvaluation(Link):
             # todo:
             # DoF = 2*number of bins - number of model parameters. Check if (unknown) number of model parameters is
             # relevant.
-            # times 2 because of the reference has a DoF per bin as well.
+            # Times 2 because of the reference has a DoF per bin as well.
             dof = 2*self.n_bins
         else:
             self.logger.info('Using DoF from DataStore')

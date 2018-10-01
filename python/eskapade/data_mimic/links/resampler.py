@@ -5,18 +5,8 @@ Class: Resampler
 Created: 2018-07-18
 
 Description:
-    Algorithm to ...(fill in one-liner here)
-
-    TODO: write good summary with explanation of choices made
-
-    Data flow:
-    6. insert_back_nans() on data_smoothed, data_normalized and data -> data_to_resample. Data_smoothed is used to
-       determine the original index of the nans for the continuous columns. Data_normalized is used to insert the
-       non-nans for the continuous columns. We want to use data_normalized because we want to resample in the
-       transformed space because the bandwiths are determined in the transformed space. Data is used to insert to
-       the nans and non-nans for the categorical column.
-    7. kde_resample() on data_to_resample -> resample_normalized_unscaled
-    8. scale_and_invert_normal_transformation() on resample_normalized_unscaled -> resample
+    Algorithm to resample an existing data set by defining a kernel around a data point from the original data set and
+    sampling a new data point from that kernel.
 
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
@@ -34,15 +24,39 @@ from eskapade.data_mimic.data_mimic_util import insert_back_nans, kde_resample, 
 
 
 class Resampler(Link):
+    """
+    Resamples an existing data set by defining a kernel around a data point from the original data set and
+    sampling a new data point from that kernel. The bandwiths of the kernels are read from the data store.
 
-    """Defines the content of link."""
+    It is chosen to use direct resampling, i.e., using an existing data point to define a kernel around it and
+    sample a new data point from that kernel. Direct resampling is chosen because it is a straightforward technique.
+    Another technique would be to define or describe (binned) the entire multidimensional distribution (the sum of
+    the kernels of all original data points) and sample from that distribution. This is, however, not straightforward
+    to do because such a distribution could take up a lot of memory. Maybe it is possible to define such a
+    distribution sparsely.
+
+    Data flow:
+    6. insert_back_nans() on data_smoothed, data_normalized and data -> data_to_resample. Data_smoothed is used to
+       determine the original index of the nans for the continuous columns. Data_normalized is used to insert the
+       non-nans for the continuous columns. We want to use data_normalized because we want to resample in the
+       transformed space because the bandwiths are determined in the transformed space. Data is used to insert to
+       the nans and non-nans for the categorical column.
+    7. kde_resample() on data_to_resample -> resample_normalized_unscaled
+    8. scale_and_invert_normal_transformation() on resample_normalized_unscaled -> resample
+    """
 
     def __init__(self, **kwargs):
         """Initialize an instance.
 
         :param str name: name of link
-        :param str read_key: key of input data to read from data store
-        :param str store_key: key of output data to store in data store
+        :param str data_normalized_read_key: key of data_normalized to read from data store
+        :param str data_read_key: key of input data to read from data store
+        :param str bws_read_key: key of bandwiths to read from data store
+        :param str new_column_order_read_key: key of new column order to read from data store
+        :param str maps_read_key: key of strings-to-integer maps (dicts) per string column to read from data store
+        :param str ids_read_key: key of the original indices to read from the data store
+        :param str df_resample_store_key: key of the dataframe resample to store in data store
+        :param str resample_store_key: key of the resample to store in data store
         """
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'Resampler'))
@@ -96,7 +110,7 @@ class Resampler(Link):
         maps = ds[self.maps_read_key]
         ids = ds[self.ids_read_key]
 
-        # because the bandwiths are determined on the normalized continuous data and on the original categorical data,
+        # Because the bandwiths are determined on the normalized continuous data and on the original categorical data,
         # resampling is done with the input data in the same state.
         data_to_resample = insert_back_nans(data_normalized, data, unordered_categorical_i,
                                             ordered_categorical_i, continuous_i)
