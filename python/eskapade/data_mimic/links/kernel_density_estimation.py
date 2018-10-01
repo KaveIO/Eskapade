@@ -5,14 +5,8 @@ Class: KernelDensityEstimation
 Created: 2018-07-18
 
 Description:
-    Algorithm to ...(fill in one-liner here)
-
-    TODO: write good summary with explanation of choices made
-
-    Data flow:
-    5. concatenation of data_no_nans (unordered categorical and ordered categorical) and data_normalized (only
-       continuous) -> d
-        + 5b KDEMultivariate() on d -> bw (bandwiths)
+    Algorithm to execute kernel density estimation on a data set with mixed data types (unordered categorical,
+    ordered categorical and continuous).
 
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
@@ -29,14 +23,28 @@ from eskapade import process_manager, DataStore, Link, StatusCode
 
 
 class KernelDensityEstimation(Link):
+    """
+    TODO: write good summary with explanation of choices made
+    Executes kernel density estimation on a data set with mixed data types (unordered categorical,
+    ordered categorical and continuous).
 
-    """Defines the content of link."""
+    For now, only the normal rule of thumb is implemented using the statsmodels implementation because the
+    implementation of statsmodels using least squares or maximum likelihood cross validation is too slow for a data
+    set of practical size. We are working on an implementation for least squares cross validation that is significant
+    faster then the current implementation in statsmodels for categorical observables.
+
+    Data flow:
+    5. concatenation of data_no_nans (unordered categorical and ordered categorical) and data_normalized (only
+       continuous) -> d
+        + 5b KDEMultivariate() on d -> bw (bandwiths)
+    """
 
     def __init__(self, **kwargs):
         """Initialize an instance.
 
         :param str name: name of link
-        :param str read_key: key of input data to read from data store
+        :param str data_no_nans_read_key: key of data_no_nans to read from data store
+        :param str data_normalized_read_key: key of data_normalized to read from data store
         :param str store_key: key of output data to store in data store
         """
         # initialize Link, pass name from kwargs

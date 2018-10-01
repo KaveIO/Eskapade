@@ -34,6 +34,15 @@ Redistribution and use in source and binary forms, with or without
 modification, are permitted according to the terms listed in the file
 LICENSE.
 """
+
+# todo:
+# - add visualization chain
+# - add mirroring in resampling
+# - use faster implementation of least squares cross validation
+# - add binning and/or taylor expansion option for continuous columns
+# - add business rules
+# - save (sparse binned) PDF to resample (not direct resampling)
+
 import numpy as np
 
 from eskapade import ConfigObject, Chain
@@ -108,8 +117,9 @@ resampler = data_mimic.Resampler(data_normalized_read_key='data_normalized',
 resampler.logger.log_level = LogLevel.DEBUG
 ch.add(resampler)
 
-# The number of DoF is equal to two times the number of bins because the reference (data_to_resample)
-# has a DoF per bin as well, see the esk702 tutorial
+# Usually, DoF = number of bins - number of model parameters. However, in this case, DoF is equal to 2 * the
+# number of bins - number of model parameters. Two times the number of bins the reference (data_to_resample) has a
+# DoF per bin as well.
 bins = [np.array([-10, 1.5, 10]), np.array([-10, 0.5, 10]), np.array([-10, 0.5, 10]), np.array([-10, 1.5, 10]),
         np.array([-100, 0, 100]), np.array([-100, 0, 100]), np.array([-100, 0, 100])]
 evaluater = data_mimic.ResampleEvaluation(data_read_key='data',

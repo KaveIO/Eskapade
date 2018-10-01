@@ -49,9 +49,15 @@ class Resampler(Link):
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, data_normalized_read_key=None,
-                             data_read_key=None, bws_read_key=None, qts_read_key=None, new_column_order_read_key=None,
-                             maps_read_key=None, ids_read_key=None, df_resample_store_key=None,
+        self._process_kwargs(kwargs,
+                             data_normalized_read_key=None,
+                             data_read_key=None,
+                             bws_read_key=None,
+                             qts_read_key=None,
+                             new_column_order_read_key=None,
+                             maps_read_key=None,
+                             ids_read_key=None,
+                             df_resample_store_key=None,
                              resample_store_key=None)
 
         # check residual kwargs; exit if any present

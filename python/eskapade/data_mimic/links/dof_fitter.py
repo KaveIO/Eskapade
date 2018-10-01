@@ -43,8 +43,14 @@ class DoFFitter(Link):
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, n_obs=100000, p_ordered=None, p_unordered=None, means_stds=None,
-                             bins=None, n_chi2_samples=10000, dof_store_key=None)
+        self._process_kwargs(kwargs,
+                             n_obs=100000,
+                             p_ordered=None,
+                             p_unordered=None,
+                             means_stds=None,
+                             bins=None,
+                             n_chi2_samples=10000,
+                             dof_store_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)

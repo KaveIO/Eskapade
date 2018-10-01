@@ -5,7 +5,8 @@ Class: MixedVariablesSimulation
 Created: 2018-07-18
 
 Description:
-    Algorithm to ...(fill in one-liner here)
+    Algorithm to generate a pandas dataframe containing columns with unordered categorical, ordered categorical and
+    continuous data types.
 
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
@@ -22,24 +23,53 @@ from eskapade.data_mimic.data_mimic_util import generate_data
 
 
 class MixedVariablesSimulation(Link):
-
-    """Defines the content of link."""
+    """
+    Generates a pandas dataframe containing columns with unordered categorical, ordered categorical and continuous
+    data types. The column names are alphabetically ascending starting with the continuous columns, then the unordered
+    categorical columns and finally the ordered categorical columns.
+    It is possible to include heaping effects and np.nan's.
+    """
 
     def __init__(self, **kwargs):
         """Initialize an instance.
 
         :param str name: name of link
-        :param str read_key: key of input data to read from data store
         :param str store_key: key of output data to store in data store
+        :param int n_obs: the number of rows to generate
+        :param np.2darray p_ordered: The probabilities associated with each category per dimension. The length of
+                                     p_ordered determines the number of dimensions, the length of the j-th element of
+                                     p_ordered is the number of categories for dimension j and p_ordered[j] are the
+                                     probabilities for the categories of dimension j.
+        :param np.2darray p_unordered: The probabilities associated with each category per dimension. The length of
+                                       p_unordered determines the number of dimensions, the length of the j-th element
+                                       of p_unordered is the number of categories for dimension j and p_unordered[j]
+                                       are the probabilities for the categories of dimension j.
+        :param np.2darray means_stds: The length of means_stds determines the number of dimensions. means_stds[0]
+                                      are the means for each dimension. means_stds[1] are the standard deviations for
+                                      each dimension.
+        :param list heaping_columns: The columns to include heaping effects.
+        :param list heaping_values: The value where the heaping will be simulated (mean of the heap). The length
+                                    should be equal to the length of heaping_columns.
+        :param list heaping_sizes: The size of the heap. The length should be equal to the length of heaping_columns.
+        :param list nan_columns: The columns to include np.nan's.
+        :param list nan_sizes: The size (number) of np.nan's to include per column.
         """
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'MixedVariablesSimulation'))
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, store_key=None, n_obs=100000, p_ordered=None, p_unordered=None,
-                             means_stds=None, heaping_values=None, heaping_columns=None, heaping_sizes=None,
-                             nan_sizes=None, nan_columns=None)
+        self._process_kwargs(kwargs,
+                             store_key=None,
+                             n_obs=100000,
+                             p_ordered=None,
+                             p_unordered=None,
+                             means_stds=None,
+                             heaping_values=None,
+                             heaping_columns=None,
+                             heaping_sizes=None,
+                             nan_sizes=None,
+                             nan_columns=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)

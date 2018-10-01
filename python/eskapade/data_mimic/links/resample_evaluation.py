@@ -38,8 +38,14 @@ class ResampleEvaluation(Link):
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, data_read_key=None, resample_read_key=None, bins=None, n_bins=None,
-                             chi2_store_key=None, p_value_store_key=None, dof_read_key=None)
+        self._process_kwargs(kwargs,
+                             data_read_key=None,
+                             resample_read_key=None,
+                             bins=None,
+                             n_bins=None,
+                             chi2_store_key=None,
+                             p_value_store_key=None,
+                             dof_read_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -71,8 +77,13 @@ class ResampleEvaluation(Link):
         resample_binned = np.histogramdd(resample, bins=self.bins)
         data_binned = np.histogramdd(data, bins=self.bins)
 
+        # dof is only needed to calculate the p-value, not for chiˆ2
         if self.dof_read_key is None:
-            dof = 2*self.n_bins  # times two because of the reference (simulated) has a DoF per bin as well
+            # todo:
+            # DoF = 2*number of bins - number of model parameters. Check if (unknown) number of model parameters is
+            # relevant.
+            # times 2 because of the reference has a DoF per bin as well.
+            dof = 2*self.n_bins
         else:
             self.logger.info('Using DoF from DataStore')
             dof = ds[self.dof_read_key]

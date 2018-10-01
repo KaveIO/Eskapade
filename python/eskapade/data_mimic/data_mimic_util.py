@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.preprocessing import scale, QuantileTransformer
+from sklearn import preprocessing
 import string
 import pandas as pd
 
@@ -89,16 +89,19 @@ def generate_data(n_obs, p_unordered, p_ordered, means_stds, dtype_unordered_cat
     See the docs of the functions generate_unordered_categorical_random_data, generate_ordered_categorical_random_data
     and generate_continuous_random_data for more explanation about the p_unordered, p_ordered and means_stds
     parameters.
+    The column names are alphabetically ascending starting with the continuous columns, then the unordered
+    categorical columns and finally the ordered categorical columns.
 
     :param int n_obs: Number of data points (rows) to generate
     :param np.2darray p_unordered: The probabilities associated with each category per unordered categorical dimension
     :param np.2darray p_ordered: The probabilities associated with each category per ordered categorical dimension
-    :param np.2darray means_stds: The means and standard deviations for each dimension per continuous dimension
+    :param np.2darray means_stds: The means and standard deviations per continuous dimension
     :param type dtype_unordered_categorical_data: The type of the unordered categorical data (str or int)
     :return: The generated data
     :rtype: pd.DataFrame
     """
-    unordered_categorical_data = generate_unordered_categorical_random_data(n_obs, p_unordered,
+    unordered_categorical_data = generate_unordered_categorical_random_data(n_obs,
+                                                                            p_unordered,
                                                                             dtype=dtype_unordered_categorical_data)
     ordered_categorical_data = generate_ordered_categorical_random_data(n_obs, p_ordered)
     continuous_data = generate_continuous_random_data(n_obs, means_stds)
@@ -230,8 +233,8 @@ def transform_to_normal(data_extremes, imin, imax):
     qts = []
     data_normalized_ = []
     for d in range(0, data_extremes.shape[1]):
-        qt = QuantileTransformer(n_quantiles=len(data_extremes), subsample=len(data_extremes),
-                                 output_distribution='normal', copy=True)
+        qt = preprocessing.QuantileTransformer(n_quantiles=len(data_extremes), subsample=len(data_extremes),
+                                               output_distribution='normal', copy=True)
         a = qt.fit_transform(data_extremes[:, d].reshape(-1, 1))
         a = np.delete(a, np.array([imin[d], imax[d]]))
         data_normalized_.append(a)
@@ -351,6 +354,6 @@ def scale_and_invert_normal_transformation(resample_normalized_unscaled, continu
         # todo:
         # test without scaling step. What is the effect of the scaling step? Does it bring the data closer to
         # the true distribution or to the one with statistical fluctuations (the original data)?
-        resample[i_not_nan, d] = qt.inverse_transform(scale(resample[i_not_nan, d]))
+        resample[i_not_nan, d] = qt.inverse_transform(preprocessing.scale(resample[i_not_nan, d]))
         i += 1
     return resample

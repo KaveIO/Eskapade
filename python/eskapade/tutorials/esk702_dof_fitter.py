@@ -38,8 +38,11 @@ np.random.seed(42)
 ch = Chain('DoFFitter')
 ch.logger.log_level = LogLevel.DEBUG
 
-# The number of DoF turns out to two times the number of bins because the reference (data_to_resample)
-# has a DoF per bin as well
+# Usually, DoF = number of bins - number of model parameters. However, in this case, DoF is equal to 2 * the
+# number of bins - number of model parameters. Two times the number of bins the reference (data_to_resample) has a
+# DoF per bin as well.
+# In the case of kernel density estimation, the number of model parameters is not known. Nonetheless, Dof can be
+# estimated by itting a chiˆ2 distribution to a sample of chiˆ2's with DoF as the fitting parameter.
 bins = [np.array([-10, 1.5, 10]), np.array([-10, 0.5, 10]), np.array([-10, 0.5, 10]), np.array([-10, 1.5, 10]),
         np.array([-100, 0, 100]), np.array([-100, 0, 100]), np.array([-100, 0, 100])]
 dof_fitter = data_mimic.DoFFitter(n_obs=100000,

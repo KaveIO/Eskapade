@@ -5,18 +5,7 @@ Class: KDEPreparation
 Created: 2018-07-18
 
 Description:
-    Algorithm to ...(fill in one-liner here)
-
-    TODO: write good summary with explanation of choices made
-
-    Data flow:
-
-    1. change column order (unordered categorical, ordered categorical, continuous) on df_to_resample -> data
-    2. smooth_peaks() on data -> data_smoothed
-    3. remove_nans() on data_smoothed -> data_no_nans
-    4. select only continuous columns from data_no_nans -> data_continuous
-        + 4b append_extremes() on data_continuous -> data_extremes (contains two data points extra, the extremes)
-        + 4c transform_to_normal() on data_extremes -> data_normalized. Extremes are deleted from data_normalized.
+    Algorithm to prepare a pandas dataframe for kernel density estimation.
 
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
@@ -26,7 +15,6 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-import numpy as np
 import pandas as pd
 
 from eskapade import process_manager, DataStore, Link, StatusCode
@@ -35,26 +23,76 @@ from eskapade.data_mimic.data_mimic_util import find_peaks, smooth_peaks, remove
 
 
 class KDEPreparation(Link):
+    """
+    Prepares a pandas dataframe for kernel density estimation:
+    - peaks are smoothed, i.e., changed to a gaussian distribution with a relative small standard deviation
+    - rows including nan's are removed
+    - continuous columns are transformed to a normal distribution
 
-    """Defines the content of link."""
+    The continuous columns are transformed to a normal distribution because we want to make use of the
+    (multi-dimensional) normal rule of thumb for kernel density estimation. The implementation of statsmodels using
+    least squares or maximum likelihood cross validation is too slow for a data set of practical size.
+    We are working on an implementation for least squares cross validation that is significant faster then the current
+    implementation in statsmodels for categorical observables.
+
+    Extremes are added before the transformation to a normal distribution and removed afterwards. This is done
+    because the extremes make sure faulty edge effects are excluded in the transformation.
+
+    Data flow:
+    1. change column order (unordered categorical, ordered categorical, continuous) on df_to_resample -> data
+    2. smooth_peaks() on data -> data_smoothed
+    3. remove_nans() on data_smoothed -> data_no_nans
+    4. select only continuous columns from data_no_nans -> data_continuous
+        + 4b append_extremes() on data_continuous -> data_extremes (contains two data points extra, the extremes)
+        + 4c transform_to_normal() on data_extremes -> data_normalized. Extremes are deleted from data_normalized.
+    """
 
     def __init__(self, **kwargs):
         """Initialize an instance.
 
         :param str name: name of link
         :param str read_key: key of input data to read from data store
-        :param str store_key: key of output data to store in data store
+        :param str data_store_key: key of output data to store in data store
+        :param str data_smoothed_store_key: key of data_smoothed to store in data store
+        :param str data_no_nans_store_key: key of data_no_nans to store in data store
+        :param str maps_store_key: key of strings-to-integer maps (dicts) per string column to store in data store
+        :param str qts_store_key: key of a list of trained sklearn.preprocessing.QuantileTransformation instances per
+                                  continuous columns to store in data store
+        :param str new_column_order_store_key: key of the new column order to store in data store
+        :param str ids_store_key: key of the original indices to store in data store
+        :param list unordered_categorical_columns: the column names of the unordered categorical columns of the input
+                                                   dataframe
+        :param list ordered_categorical_columns: the column names of the ordered categorical columns of the input
+                                                 dataframe
+        :param list continuous_columns: the column names of the continuous columns of the input dataframe
+        :param list string_columns: the column names of the string columns of the input dataframe
+        :param int count: parameter used for finding peaks. See eskapade.data_mimic.data_mimic_util.find_peaks
+        :param float extremes_fraction: parameter to calculate the extremes. See
+                                        eskapade.data_mimic.data_mimic_util.make_extremes
+        :param float smoothing_fraction: parameter to calculate the standard deviation used for peak smoothing. See
+                                         eskapade.data_mimic.data_mimic_util.smooth_peaks
         """
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'KDEPreparation'))
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, read_key=None, data_store_key=None, data_smoothed_store_key=None,
-                             data_no_nans_store_key=None, data_normalized_store_key=None, maps_store_key=None,
-                             qts_store_key=None, new_column_order_store_key=None, ids_store_key=None,
-                             unordered_categorical_columns=None, ordered_categorical_columns=None,
-                             continuous_columns=None, string_columns=None, count=1, extremes_fraction=0.15,
+        self._process_kwargs(kwargs,
+                             read_key=None,
+                             data_store_key=None,
+                             data_smoothed_store_key=None,
+                             data_no_nans_store_key=None,
+                             data_normalized_store_key=None,
+                             maps_store_key=None,
+                             qts_store_key=None,
+                             new_column_order_store_key=None,
+                             ids_store_key=None,
+                             unordered_categorical_columns=None,
+                             ordered_categorical_columns=None,
+                             continuous_columns=None,
+                             string_columns=None,
+                             count=1,
+                             extremes_fraction=0.15,
                              smoothing_fraction=0.0002)
 
         # check residual kwargs; exit if any present
@@ -76,13 +114,12 @@ class KDEPreparation(Link):
         :returns: status code of execution
         :rtype: StatusCode
         """
-        # --- your algorithm code goes here
         self.logger.debug('Now executing link: {link}.', link=self.name)
 
         ds = process_manager.service(DataStore)
 
         df_to_resample = ds[self.read_key]
-        ds[self.ids_store_key] = df_to_resample.index.values
+        ds[self.ids_store_key] = df_to_resample.index.values  # save for later use
 
         # map the string columns
         maps = {}
@@ -118,6 +155,7 @@ class KDEPreparation(Link):
         ds[self.data_smoothed_store_key] = data_smoothed
         ds[self.data_no_nans_store_key] = data_no_nans
         ds[self.data_normalized_store_key] = data_normalized
+        # save for later use
         ds['unordered_categorical_i'] = unordered_categorical_i
         ds['ordered_categorical_i'] = ordered_categorical_i
         ds['continuous_i'] = continuous_i
