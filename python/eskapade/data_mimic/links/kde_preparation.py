@@ -118,7 +118,8 @@ class KDEPreparation(Link):
 
         ds = process_manager.service(DataStore)
 
-        df_to_resample = ds[self.read_key]
+        # -- sg: added copy, or it would replace original data in datastore
+        df_to_resample = ds[self.read_key].copy()
         ds[self.ids_store_key] = df_to_resample.index.values  # save for later use
 
         # map the string columns
