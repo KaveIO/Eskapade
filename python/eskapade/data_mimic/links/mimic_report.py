@@ -32,8 +32,15 @@ class MimicReport(Link):
         """Initialize an instance.
 
         :param str name: name of link
-        :param str read_key: key of input data to read from data store
+        :param str read_key: key of original data to read from data store
+        :param str resample_read_key: key of the resampled data to read from the data store
         :param str store_key: key of output data to store in data store
+        :param str new_column_order_read_key: key of the column order to read from the data store
+        :param str results_path: where to save the report
+        :param str chi2_read_key: key of the saved chi-square value to read from the data store
+        :param str p_value_read_key: key of the saved p-value to read from the data store
+        :param str maps: key of the saved maps to read from the data store
+
         """
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'mimic_report'))
@@ -44,11 +51,12 @@ class MimicReport(Link):
                              read_key=None,
                              resample_read_key=None,
                              store_key=None,
-                             plot_as_histograms=None,
                              new_column_order_read_key=None,
                              results_path='',
                              chi2_read_key=None,
                              p_value_read_key=None,
+                             maps_read_key=None,
+                             key_data_normalized=None,
                              )
 
         # check residual kwargs; exit if any present
@@ -94,44 +102,39 @@ class MimicReport(Link):
         # --- your algorithm code goes here
         self.logger.debug('Now executing link: {link}.', link=self.name)
 
+        maps = ds[self.maps_read_key]
+
         # Make sure we're dealing with an array not a dataframe
         try:
             assert type(ds[self.read_key]) == np.ndarray
-        except AssertionError as e:
-            e.args += (type(ds[self.read_key]), 'Wrong type, must be np.ndarray')
-            raise
+            orig_data = ds[self.read_key]
+            resa_data = ds[self.resample_read_key]
+        except AssertionError:
+            orig_df = ds[self.read_key].copy()
+            resa_df = ds[self.resample_read_key].copy()
 
-        # -- plot the first page
+            orig_df = orig_df.dropna()
+            resa_df = resa_df.dropna()
+            # -- make sure the order is the same
+            orig_df = orig_df[ds[self.new_column_order_read_key]]
+            resa_df = resa_df[ds[self.new_column_order_read_key]]
 
-        title = "PairPlot of Original and Resampled data"
-        fname = 'PairPlot.png'
-        fpath = os.path.join(self.results_path, fname)
-
-        plt.plot_pair_grid(data=ds[self.read_key][:, ds['continuous_i']],
-                           data2=ds[self.resample_read_key][:, ds['continuous_i']],
-                           column_names=np.array(ds[self.new_column_order_read_key])[ds['continuous_i']],
-                           fpath=fpath,
-                           title=title)
-
-        stats = [('Entries', len(ds[self.read_key])),
-                 ("Chi2", ds[self.chi2_read_key]),
-                 ("P value", ds[self.p_value_read_key]), ]
-        stats_table = tabulate.tabulate(stats, tablefmt='latex')
-
-        self.pages.append(
-            self.page_template.replace("VAR_LABEL", title)
-                              .replace('VAR_STATS_TABLE', stats_table)
-                              .replace("VAR_HISTOGRAM_PATH", fpath))
+            orig_data = orig_df.values
+            resa_data = resa_df.values
 
         # -- plot the histograms
-        for thing in range(ds[self.read_key].shape[1]):
 
-            data = ds[self.read_key][:, thing]
-            data_r = ds[self.resample_read_key][:, thing]
+        for thing in range(orig_data.shape[1]):
+
+            data = orig_data[:, thing]
+            data_r = resa_data[:, thing]
 
             # -- remove nans
-            data = data[~np.isnan(data)]
-            data_r = data_r[~np.isnan(data_r)]
+            try:
+                data = data[~np.isnan(data)]
+                data_r = data_r[~np.isnan(data_r)]
+            except TypeError:
+                pass
 
             # --- save plot
             if thing in ds['continuous_i']:
@@ -153,29 +156,77 @@ class MimicReport(Link):
             elif (thing in ds['unordered_categorical_i']) | (thing in ds['ordered_categorical_i']):
 
                 bin_edges, bin_counts = np.unique(data, return_counts=True)
-                bin_edges = np.append(bin_edges, max(bin_edges) + 1)
-                hist_original = (bin_counts, bin_edges)
+                bin_edges_r, bin_counts_r = np.unique(data_r, return_counts=True)
 
-                bin_edges, bin_counts = np.unique(data_r, return_counts=True)
-                bin_edges = np.append(bin_edges, max(bin_edges) + 1)
-                hist_resampled = (bin_counts, bin_edges)
+                if ds[self.new_column_order_read_key][thing] in maps.keys():
+                    is_num = False
+                    xlim = None
+                else:
+                    is_num = True
+                    bin_edges = np.append(bin_edges, max(bin_edges) + 1)
+                    bin_edges_r = np.append(bin_edges_r, max(bin_edges_r) + 1)
+                    xlim = (bin_edges_r[0] - 1, bin_edges_r[-1])
+
+                hist_original = (bin_counts, bin_edges)
+                hist_resampled = (bin_counts_r, bin_edges_r)
+
                 width = 0.9
-                xlim = (bin_edges[0] - 1, bin_edges[-1])
 
                 # chi, p = chisquare(hist_resampled[0].flatten(), hist_original[0].flatten(), ddoff=)
+            try:
+                stats = [('Entries', len(data), len(data_r)),
+                         ('bins', len(hist_original[0]), len(hist_resampled[0])),
+                         ('avg', np.mean(data), np.mean(data_r)),
+                         ('max', np.max(data), np.max(data_r)),
+                         ('min', np.min(data), np.min(data_r)), ]
 
-            stats = [('Entries', len(data), len(data_r)),
-                     ('bins', len(hist_original[0]), len(hist_resampled[0])),
-                     ('avg', np.average(data), np.average(data_r)),
-                     ('max', np.max(data), np.max(data_r)),
-                     ('min', np.min(data), np.min(data_r)), ]
+            except (TypeError, AttributeError):
+                stats = [('Entries', len(data), len(data_r)),
+                         ('bins', len(hist_original[0]), len(hist_resampled[0])),
+                         ('max', f'{bin_edges[np.argmax(bin_counts)]}: {np.max(bin_counts)}',
+                          f'{bin_edges_r[np.argmax(bin_counts_r)]}: {np.min(bin_counts_r)}'),
+                         ('min', f'{bin_edges[np.argmin(bin_counts)]}: {np.max(bin_counts)}',
+                          f'{bin_edges_r[np.argmin(bin_counts_r)]}: {np.min(bin_counts_r)}'), ]
 
             stats_table = tabulate.tabulate(stats, ['Original', 'Resampled'], tablefmt='latex')
+
             plt.plot_overlay_histogram([hist_original, hist_resampled], hist_names=['Original', 'Resampled'],
                                        x_label=ds[self.new_column_order_read_key][thing], pdf_file_name=fpath,
-                                       width_in=width, xlim=xlim)
+                                       width_in=width, xlim=xlim, is_num=is_num)
 
             # -- add plot to page and page to pages
+            self.pages.append(
+                self.page_template.replace("VAR_LABEL", title)
+                                  .replace('VAR_STATS_TABLE', stats_table)
+                                  .replace('VAR_HISTOGRAM_PATH', fpath))
+
+        # -- plot the normal distr for the numerical data
+
+        for i, key in enumerate(ds['continuous_i']):
+
+            title = "Normalized data for varibale {}".format(ds[self.new_column_order_read_key][key])
+            fname = f'Normalized_{ds[self.new_column_order_read_key][key]}_hist.pdf'
+            fpath = os.path.join(self.results_path, fname)
+
+
+            data = ds[self.key_data_normalized][:, i].copy()
+            normal = np.random.normal(size=data.shape)
+
+            hist = np.histogram(data, bins='auto')
+            hist_normal = np.histogram(normal, bins=len(hist[0]))
+
+            plt.plot_overlay_histogram(hists=[hist, hist_normal],
+                                       hist_names=['Normalized data', 'Standard Normal distribution'],
+                                       x_label=str(ds[self.new_column_order_read_key][key]),
+                                       pdf_file_name=fpath,
+                                       is_num=True)
+            stats = [('Entries', len(data)),
+                     ('bins', len(hist[0])),
+                     ('avg', np.mean(data)),
+                     ('max', np.max(data)),
+                     ('min', np.min(data)), ]
+            stats_table = tabulate.tabulate(stats, tablefmt='latex')
+
             self.pages.append(
                 self.page_template.replace("VAR_LABEL", title)
                                   .replace('VAR_STATS_TABLE', stats_table)

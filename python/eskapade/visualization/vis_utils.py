@@ -469,7 +469,7 @@ def plot_overlay_histogram(hists, x_label, y_label=None, hist_names=[],
 
             # plot histogram
             tick_pos = np.arange(len(labels)) + 0.5
-            plt.bar(tick_pos - 0.4, values, width=0.8,
+            plt.bar(tick_pos, values, width=0.8,
                     alpha=alpha, label=hist_names[i])
 
             # set x-axis properties
