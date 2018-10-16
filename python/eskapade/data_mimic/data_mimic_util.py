@@ -294,7 +294,7 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
                                 - c : continuous
                                 - u : unordered (discrete)
                                 - o : ordered (discrete)
-                                The string should contain a type specifier for each variable, for example
+                                The string should contain a type specified for each variable, for example
                                 ``var_type='ccuo'``.
     :param list c_array: list of np.arrays containing all possible categories per uordered categorical dimension
     :return: the resampled data and the indices of the rows of the input data used to generate the resampled row.
@@ -326,11 +326,10 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
                     other_categories = categories[categories != resample[i, j]]
                     resample[i, j] = np.random.choice(other_categories)
             elif variable_types_array[j] == 'o':
-                # todo: try the Wang-Ryzin kernel
-                d = np.random.geometric(1 - bw[j]) - 1
-                if np.random.rand() < .5:
-                    d = -d
-                resample[i, j] += d
+                # --  points at which the pdf should be evaluated
+                z = np.unique(data[:, j])
+                p = wr_kernel(s=bw[j], z=z, Zi=resample[i, j])
+                resample[i, j] = np.random.choice(a=z, p=p)
 
     return resample, indices
 
@@ -357,3 +356,52 @@ def scale_and_invert_normal_transformation(resample_normalized_unscaled, continu
         resample[i_not_nan, d] = qt.inverse_transform(preprocessing.scale(resample[i_not_nan, d]))
         i += 1
     return resample
+
+
+def wr_kernel(s, z, Zi):
+    r"""Implementation of the wang-ryzin kernel as implemented by statsmodels.
+    Adapted so it is defined for finite intervals ex. {1...c}.
+
+    The Wang-Ryzin kernel, used for ordered discrete random variables.
+
+    Parameters
+    ----------
+    s : scalar or 1-D ndarray, shape (K,)
+        The bandwidth(s) used to estimate the value of the kernel function
+    Zi : ndarray of ints, shape (nobs, K)
+        The value of observable(s)
+    z : scalar or 1-D ndarray of shape (K,)
+        The value at which the kernel density is being estimated. For finite
+        intervals, should be the possible values of the original dataset
+
+    Returns
+    -------
+    kernel_value : ndarray, shape (nobs, K)
+        The value of the kernel function at each training point for each var.
+
+    Notes
+    -----
+    See p. 19 in [1]_ for details.  The value of the kernel L if
+    :math:`X_{i}=x` is :math:`1-\lambda`, otherwise it is
+    :math:`\frac{1-\lambda}{2}\lambda^{|X_{i}-x|}`, where :math:`\lambda` is
+    the bandwidth.
+
+    References
+    ----------
+    .. [*] Racine, Jeff. "Nonparametric Econometrics: A Primer," Foundation
+           and Trends in Econometrics: Vol 3: No 1, pp1-88., 2008.
+           http://dx.doi.org/10.1561/0800000009
+    .. [*] M.-C. Wang and J. van Ryzin, "A class of smooth estimators for
+           discrete distributions", Biometrika, vol. 68, pp. 301-309, 1981.
+    """
+    Zi = Zi.reshape(Zi.size)  # seems needed in case Zi is scalar
+
+    kernel_value = 0.5 * (1 - s) * (s ** abs(Zi - z))
+
+    # --  if Zi == z
+    idx = Zi == z
+    kernel_value[idx] = (idx * (1 - s))[idx]
+
+    corr_factor = kernel_value.sum()
+
+    return kernel_value / corr_factor
