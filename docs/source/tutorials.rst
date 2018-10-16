@@ -657,7 +657,23 @@ input dataframe:
 
   $ eskapade_run $TUTDIR/esk501_fix_pandas_dataframe.py
 
+Example esk701: Mimic dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Macro that illustrates how to resample a dataset using kernel density estimation. The macro can handle contiunous data, and both ordered and unordered catagorical data. 
+
+.. code-block:: bash
+  
+  $ eskapade_run $TUTDIR/esk701_mimic_data.py
+
+Example esk702: DoF fitter
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macro to run a DoF fitter
+
+.. code-block:: bash
+
+  $eskapade_run $TUTDIR/esk702_dof_fitter.py
 
 
 .. include:: coding.rst
