@@ -75,10 +75,10 @@ class DataMimicTutorialMacrosTest(TutorialMacrosTest):
                          ['string', 'string', 'floating', 'floating',
                           'floating', 'floating', 'floating', 'integer'])
 
-        self.assertEqual([len(np.unique(ds['df'][x])) for x in ds['df'].columns],
-                         [97056, 100000, 100000, 4, 2, 1981, 5])
-        self.assertEqual([len(np.unique(ds['df_resample'][x])) for x in ds['df_resample'].columns],
-                         [4, 2, 1925, 32, 100000, 100000, 100000, 63219])
+        self.assertEqual([len(np.unique(ds['df'].dropna()[x])) for x in ds['df'].columns[-4:]],
+                         [4, 2, 3, 5])
+        self.assertEqual([len(np.unique(ds['df_resample'].dropna()[x])) for x in ds['df_resample'].columns[:4]],
+                         [4, 2, 3, 5])
 
         self.assertTrue(np.array([x in ds['new_column_order'] for x in ds['df'].columns]).all())
         self.assertTrue(np.array([x in ds['new_column_order'] for x in ds['df_resample'].columns[:-1]]).all())
