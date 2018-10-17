@@ -144,4 +144,17 @@ evaluater = data_mimic.ResampleEvaluation(data_read_key='data',
 evaluater.logger.log_level = LogLevel.DEBUG
 ch.add(evaluater)
 
+ch = Chain('report')
+
+report = data_mimic.MimicReport(read_key='df',
+                                resample_read_key='df_resample',
+                                new_column_order_read_key='new_column_order',
+                                chi2_read_key='chi2',
+                                p_value_read_key='p_value',
+                                maps_read_key='maps',
+                                key_data_normalized='data_normalized'
+                                )
+report.logger.log_level = LogLevel.DEBUG
+ch.add(report)
+
 logger.debug('Done parsing configuration file esk701_mimic_data')

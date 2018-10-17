@@ -116,12 +116,16 @@ class Resampler(Link):
                                             ordered_categorical_i, continuous_i)
 
         c_array = []  # list containg all possible categories per u dimension
-        for d in unordered_categorical_i:
-            c_array.append(np.unique(data[:, d]))
+        categories = unordered_categorical_i.copy()
+        categories.extend(ordered_categorical_i.copy())
+        for d in categories:
+            c_array.append(np.unique(data[:, d][~np.isnan(data[:, d])]))
         c_array = np.array(c_array)
         var_type = 'u' * len(unordered_categorical_i) + 'o' * len(ordered_categorical_i) + \
                    'c' * len(continuous_i)
         n_resample = len(data_to_resample)
+        ds['c_array'] = c_array
+
         resample_normalized_unscaled, indices = kde_resample(n_resample, data_to_resample, band_widths, var_type,
                                                              c_array)
 

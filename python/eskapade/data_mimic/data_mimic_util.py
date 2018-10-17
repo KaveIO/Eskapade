@@ -305,6 +305,8 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
     data = data.reshape(n_obs, -1)
     n_dim = data.shape[1]
 
+    # get z for cat
+
     # convert variable types
     variable_types_array = np.array(list(variable_types))
 
@@ -318,7 +320,7 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
         for j in range(n_dim):
             if np.isnan(resample[i, j]):
                 pass
-            if variable_types_array[j] == 'c':
+            elif variable_types_array[j] == 'c':
                 resample[i, j] = np.random.normal(loc=resample[i, j], scale=bw[j])
             elif variable_types_array[j] == 'u':
                 if np.random.rand() < bw[j]:
@@ -327,8 +329,13 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
                     resample[i, j] = np.random.choice(other_categories)
             elif variable_types_array[j] == 'o':
                 # --  points at which the pdf should be evaluated
-                z = np.unique(data[:, j])
+                z = c_array[j]
                 p = wr_kernel(s=bw[j], z=z, Zi=resample[i, j])
+                try:
+                    assert p.sum() == 1.0
+                except AssertionError as e:
+                    print(f"p must sum to 1! {e.args}")
+                    raise
                 resample[i, j] = np.random.choice(a=z, p=p)
 
     return resample, indices

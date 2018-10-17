@@ -140,7 +140,7 @@ class MimicReport(Link):
             if thing in ds['continuous_i']:
                 str_title = 'Continuous variable'
             elif thing in ds['unordered_categorical_i']:
-                str_title = 'Unordered Catagorical variable'
+                str_title = 'Unordered Categorical variable'
             elif thing in ds['ordered_categorical_i']:
                 str_title = 'Ordered Categorical variable'
 
@@ -149,8 +149,12 @@ class MimicReport(Link):
             fpath = os.path.join(self.results_path, fname)
 
             if thing in ds['continuous_i']:
-                hist_original = np.histogram(data, bins='auto')
-                hist_resampled = np.histogram(data_r, bins=len(hist_original[0]))
+                hrange = (np.round(np.min(data) + np.min(data) * .2), np.round(np.max(data) + np.max(data) * .2))
+                # hrange[0] += hrange[0] * .2
+                # hrange[1] += hrange[1] * .2
+
+                hist_original = np.histogram(data, range=hrange, bins='auto')
+                hist_resampled = np.histogram(data_r, range=hrange, bins=len(hist_original[0]))
                 width = None
                 xlim = None
             elif (thing in ds['unordered_categorical_i']) | (thing in ds['ordered_categorical_i']):
@@ -212,8 +216,11 @@ class MimicReport(Link):
             data = ds[self.key_data_normalized][:, i].copy()
             normal = np.random.normal(size=data.shape)
 
-            hist = np.histogram(data, bins='auto')
-            hist_normal = np.histogram(normal, bins=len(hist[0]))
+            hrange = (np.round(np.min(data) + np.min(data) * .2), np.round(np.max(data) + np.max(data) * .2))
+            # hrange[0] = hrange[0] + hrange[0] * .2
+            # hrange[1] = hrange[1] + hrange[1] * .2
+            hist = np.histogram(data, range=hrange, bins='auto')
+            hist_normal = np.histogram(normal, range=hrange, bins=len(hist[0]))
 
             plt.plot_overlay_histogram(hists=[hist, hist_normal],
                                        hist_names=['Normalized data', 'Standard Normal distribution'],

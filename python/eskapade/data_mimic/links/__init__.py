@@ -5,6 +5,7 @@ from eskapade.data_mimic.links.resampler import Resampler
 from eskapade.data_mimic.links.resample_evaluation import ResampleEvaluation
 from eskapade.data_mimic.links.dof_fitter import DoFFitter
 from eskapade.data_mimic.links.mimic_report import MimicReport
+from eskapade.data_mimic.links.mimic_html_report import MimicHtmlReport
 
 __all__ = ['KDEPreparation', 'KernelDensityEstimation', 'MixedVariablesSimulation', 'Resampler',
-           'ResampleEvaluation', 'DoFFitter', 'MimicReport']
+           'ResampleEvaluation', 'DoFFitter', 'MimicReport', 'MimicHtmlReport']
