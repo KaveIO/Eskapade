@@ -70,11 +70,15 @@ def numpy_reader(path, restore_index, file_type):
         for i, col in enumerate(npy_file['columns']):
             df.loc[:, col] = df.loc[:, col].astype(npy_file['dtypes'][i], copy=False)
 
-        if restore_index is True and ('index' in npy_file.files):
+        if (restore_index is True) and ('index' in npy_file.files):
             df.index = npy_file['index']
             logger.debug('Restored index')
+        elif 'index' in npy_file.files:
+            df['restored_index'] = npy_file['index']
+        else:
+            pass
 
-    elif f_ext == 'npy':
+    else:
         logger.debug('Reading npy file {}'.format(path))
         values, col_dtypes, _restore_index = npy_file
         df = pd.DataFrame(data=values, columns=col_dtypes[:, 0])
@@ -83,9 +87,16 @@ def numpy_reader(path, restore_index, file_type):
         for row in col_dtypes:
             df.loc[:, row[0]] = df.loc[:, row[0]].astype(row[1], copy=False)
 
-        if (_restore_index[0] is True) and (restore_index is True):
-            df.set_index(df.columns[0], drop=True, inplace=True)
+        # This bool is needed as `np.bool_(1) is True` will evaluate to False
+        if (bool(_restore_index[0]) is True) and (restore_index is True):
+            df.set_index('restored_index', drop=True, inplace=True)
+            df.index.name = 'index'
             logger.debug('Restored index')
+        elif (bool(_restore_index[0]) is False) and (restore_index is True):
+            logger.info('No index to restore')
+        else:
+            pass
+
     return df
 
 
@@ -104,16 +115,20 @@ def feather_reader(path, restore_index):
     logger.debug('Reading feather file {}'.format(path))
     df = feather.read_dataframe(path)
 
-    if ('_dtypes' in df.columns.values) and (restore_index is True):
-        dtypes = df['_dtypes'].values
+    if ('_dtypes' in df.columns.values):
+        dtypes = df.loc[df['_dtypes'] != '0', '_dtypes'].values
         for i, dtype in enumerate(dtypes):
             df.iloc[:, i] = df.iloc[:, i].astype(dtype, copy=False)
         # clean up the temporary datatype column
         df.drop(columns='_dtypes', inplace=True)
 
     if restore_index:
-        df.set_index(df.columns.values[0], drop=True, inplace=True)
-        logger.debug('Restored index')
+        try:
+            df.set_index('restored_index', drop=True, inplace=True)
+            df.index.name = 'index'
+            logger.debug('Restored index')
+        except KeyError:
+            logger.info('No index to restore')
 
     return df
 

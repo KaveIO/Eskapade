@@ -26,23 +26,6 @@ from eskapade.core import persistence
 from eskapade import process_manager, DataStore, Link, StatusCode
 
 
-def feather_writer(df, path, store_index):
-    """Write df to disk in feather format; preserving the metadata
-
-    :param DataFrame df: pandas Dataframe to write out
-    :param str path: target file location
-    :param bool store_index: store index in DataFrame
-    """
-    import feather
-    # if the index is non-numeric we overwrite the default and store
-    store_index = store_index or (df.index.dtype not in (np.int_, int))
-    if store_index:
-        df.reset_index(inplace=True)
-    df['_dtypes'] = df.dtypes
-    logger.debug('Using Feather writer')
-    feather.write_dataframe(df, path)
-
-
 def numpy_writer(df, path, store_index):
     """Write df to disk in numpy format; preserving the metadata
 
@@ -70,9 +53,46 @@ def numpy_writer(df, path, store_index):
     else:
         logger.debug('Saving using numpy as npy')
         if store_index:
+            df.index.name = 'restored_index'
             df.reset_index(inplace=True)
         col_dtypes = np.hstack((df.columns.values[:, None], df.dtypes.values[:, None]))
         np.save(path, np.array((df.values, col_dtypes, np.array([store_index]))))
+
+        if store_index:
+            # The above reset_index can propogate back, this remedies that
+            df.set_index('restored_index', drop=True, inplace=True)
+            df.index.name = 'index'
+
+
+def feather_writer(df, path, store_index):
+    """Write df to disk in feather format; preserving the metadata
+
+    :param DataFrame df: pandas Dataframe to write out
+    :param str path: target file location
+    :param bool store_index: store index in DataFrame, default is True
+    """
+    import feather
+    if (store_index is False) and (df.index.dtype not in (np.int_, int)):
+        logger.info('The non-numerical index will not be stored')
+
+    if store_index:
+        df.index.name = 'restored_index'
+        df.reset_index(inplace=True)
+
+    # The underlying Apache framework doesn't handle numpy dtypes
+    # we convert to strings and create an array of the right shape
+    dtypes_arr = np.zeros(shape=df.shape[0], dtype=np.dtype)
+    dtypes_arr[:df.shape[1]] = df.dtypes.values
+    df['_dtypes'] = dtypes_arr.astype(str)
+
+    logger.debug('Using Feather writer')
+    feather.write_dataframe(df, path)
+
+    # The above reset_index and _dtypes column can propogate back, this remedies that
+    if store_index:
+        df.set_index('restored_index', drop=True, inplace=True)
+        df.index.name = 'index'
+    df.drop(columns='_dtypes', inplace=True)
 
 
 all_writers = {'csv': pd.DataFrame.to_csv,
@@ -183,7 +203,7 @@ class WriteFromDf(Link):
             'key(s) is not a pandas DataFrame.'
 
         # Kwarg for numpy and feather writers
-        self.store_index = self.kwargs.pop('store_index', False)
+        self.store_index = self.kwargs.pop('store_index', True)
 
         # collect writer and store the dataframes
         for k, path in self.path_map.items():
