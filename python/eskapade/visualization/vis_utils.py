@@ -435,8 +435,8 @@ def plot_overlay_histogram(hists, x_label, y_label=None, hist_names=[],
             bin_edges = hist_bins
             bin_values = hist_values
             assert len(bin_edges) == len(bin_values) + 1, \
-                'bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}.'\
-                .format(len(bin_edges), len(bin_values))
+                'bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}. {}'\
+                .format(len(bin_edges), len(bin_values), x_label)
 
             if is_ts:
                 # difference in seconds
@@ -465,7 +465,7 @@ def plot_overlay_histogram(hists, x_label, y_label=None, hist_names=[],
             labels = hist_bins
             values = hist_values
             assert len(labels) == len(values), \
-                'labels and values have different array lengths: {:d} vs {:d}.'.format(len(labels), len(values))
+                'labels and values have different array lengths: {:d} vs {:d}. {}'.format(len(labels), len(values), x_label)
 
             # plot histogram
             tick_pos = np.arange(len(labels)) + 0.5

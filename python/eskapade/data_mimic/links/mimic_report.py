@@ -157,7 +157,9 @@ class MimicReport(Link):
                 hist_resampled = np.histogram(data_r, range=hrange, bins=len(hist_original[0]))
                 width = None
                 xlim = None
-            elif (thing in ds['unordered_categorical_i']) | (thing in ds['ordered_categorical_i']):
+                is_num = True
+            # elif (thing in ds['unordered_categorical_i']) | (thing in ds['ordered_categorical_i']):
+            else:
 
                 bin_edges, bin_counts = np.unique(data, return_counts=True)
                 bin_edges_r, bin_counts_r = np.unique(data_r, return_counts=True)

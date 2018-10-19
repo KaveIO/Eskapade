@@ -332,9 +332,9 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
                 z = c_array[j]
                 p = wr_kernel(s=bw[j], z=z, Zi=resample[i, j])
                 try:
-                    assert p.sum() == 1.0
+                    assert p.sum().round(3) == 1.0
                 except AssertionError as e:
-                    print(f"p must sum to 1! {e.args}")
+                    print(f"p must sum to 1!! {p.sum()}")
                     raise
                 resample[i, j] = np.random.choice(a=z, p=p)
 
