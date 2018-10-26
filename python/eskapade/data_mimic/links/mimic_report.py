@@ -18,8 +18,10 @@ LICENSE.
 from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode, resources
 from eskapade.core import persistence
 from eskapade.visualization import vis_utils as plt
+from eskapade.data_mimic.dm_vis_util import plot_heatmap
 
 import numpy as np
+import pandas as pd
 import os
 import tabulate
 
@@ -57,6 +59,7 @@ class MimicReport(Link):
                              p_value_read_key=None,
                              maps_read_key=None,
                              key_data_normalized=None,
+                             distance_read_key=None
                              )
 
         # check residual kwargs; exit if any present
@@ -81,6 +84,8 @@ class MimicReport(Link):
             self.report_template = tmpl_file.read()
         with open(resources.template('df_summary_report_page.tex')) as page_tmp_file:
             self.page_template = page_tmp_file.read()
+        with open(resources.template('df_summary_table_page.tex')) as page_tmp_file:
+            self.page_table_template = page_tmp_file.read()
 
         # -- Process the results path
         self._process_results_path()
@@ -214,7 +219,6 @@ class MimicReport(Link):
             fname = f'Normalized_{ds[self.new_column_order_read_key][key]}_hist.pdf'
             fpath = os.path.join(self.results_path, fname)
 
-
             data = ds[self.key_data_normalized][:, i].copy()
             normal = np.random.normal(size=data.shape)
 
@@ -240,6 +244,75 @@ class MimicReport(Link):
                 self.page_template.replace("VAR_LABEL", title)
                                   .replace('VAR_STATS_TABLE', stats_table)
                                   .replace('VAR_HISTOGRAM_PATH', fpath))
+
+        # -- plot the correlation heatmaps
+
+        # -- reconstruct as dataframe
+        title = "Correlation heatmaps"
+        fname = f'Heatmaps.pdf'
+        fpath = os.path.join(self.results_path, fname)
+
+        o_cont = pd.DataFrame(orig_data[:, ds['continuous_i']],
+                              columns=np.array(ds['new_column_order'])[ds['continuous_i']],
+                              dtype='float')
+        df_o = o_cont.merge(pd.DataFrame(orig_data[:, ds['ordered_categorical_i'] + ds['unordered_categorical_i']],
+                            columns=np.array(ds['new_column_order'])[ds['ordered_categorical_i'] +
+                                                                     ds['unordered_categorical_i']]),
+                            left_index=True, right_index=True)
+
+        r_cont = pd.DataFrame(resa_data[:, ds['continuous_i']],
+                              columns=np.array(ds['new_column_order'])[ds['continuous_i']],
+                              dtype='float')
+        df_r = r_cont.merge(pd.DataFrame(resa_data[:, ds['ordered_categorical_i'] + ds['unordered_categorical_i']],
+                            columns=np.array(ds['new_column_order'])[ds['ordered_categorical_i'] +
+                                                                     ds['unordered_categorical_i']]),
+                            left_index=True, right_index=True)
+
+        plot_heatmap(df_o, df_r, pdf_file_name=fpath)
+
+        stats_table = ''
+
+        self.pages.append(
+            self.page_template.replace("VAR_LABEL", title)
+                              .replace('VAR_STATS_TABLE', stats_table)
+                              .replace('VAR_HISTOGRAM_PATH', fpath))
+
+        # --  metrics
+        A = pd.DataFrame([ds['chis'][x] for x in ds['chis'].keys() if x is not 'total'])
+        stats_table = ''
+
+        for col in A.columns:
+
+            d = pd.DataFrame([[A[col][i]['chi'], A[col][i]['p-value']] for i in A[col].index],
+                             columns=['Chi', 'p-value'], index=A.columns).T
+            d['param'] = col.capitalize()
+
+            try:
+                fin_df = fin_df.append(d)
+            except NameError:
+                fin_df = d
+
+            clms = d.columns.values
+
+        stats_table = tabulate.tabulate(fin_df.round(5), headers=clms, tablefmt='latex')
+
+        self.pages.append(
+            self.page_table_template.replace("VAR_LABEL", "Chi-square values")
+                                    .replace('VAR_STATS_TABLE', stats_table))
+
+        A = pd.DataFrame.from_dict(ds['kss'])
+        stats_table = tabulate.tabulate(A.round(5), headers=A.columns, tablefmt='latex')
+
+        self.pages.append(
+            self.page_table_template.replace("VAR_LABEL", "KS values")
+                                    .replace('VAR_STATS_TABLE', stats_table))
+
+        stats_table = tabulate.tabulate(pd.DataFrame(ds[self.distance_read_key]),
+                                        headers=['Description', 'Values'], tablefmt='latex')
+
+        self.pages.append(
+            self.page_table_template.replace("VAR_LABEL", "Distance metric. Max distance: 1")
+                                    .replace('VAR_STATS_TABLE', stats_table))
 
         return StatusCode.Success
 

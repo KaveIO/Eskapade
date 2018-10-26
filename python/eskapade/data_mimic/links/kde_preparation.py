@@ -93,7 +93,8 @@ class KDEPreparation(Link):
                              string_columns=None,
                              count=1,
                              extremes_fraction=0.15,
-                             smoothing_fraction=0.0002)
+                             smoothing_fraction=0.0002,
+                             input_maps=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -122,13 +123,22 @@ class KDEPreparation(Link):
         df_to_resample = ds[self.read_key].copy()
         ds[self.ids_store_key] = df_to_resample.index.values  # save for later use
 
+        # TODO: optional maps
         # map the string columns
-        maps = {}
-        for c in self.string_columns:
-            m = pd.Series(range(0, len(df_to_resample[c].dropna().unique())),
-                          index=df_to_resample[c].dropna().unique())
-            maps[c] = m
-            df_to_resample[c] = df_to_resample[c].map(m)
+        if not self.input_maps:
+            maps = {}
+            for c in self.string_columns:
+                m = pd.Series(range(0, len(df_to_resample[c].dropna().unique())),
+                              index=df_to_resample[c].dropna().unique())
+                maps[c] = m
+                df_to_resample[c] = df_to_resample[c].map(m)
+        else:
+            maps = self.input_maps
+            for c in self.string_columns:
+                m = maps[c]
+                df_to_resample[c] = df_to_resample[c].map(m)
+
+        assert len(maps.keys()) == len(self.string_columns), "Wrong number of maps!"
 
         # re order columns and save new column order for later use
         new_column_order = self.unordered_categorical_columns + self.ordered_categorical_columns + \

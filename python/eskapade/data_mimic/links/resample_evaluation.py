@@ -15,9 +15,12 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 import numpy as np
+import pandas as pd
 import scipy
 
 from eskapade import process_manager, DataStore, Link, StatusCode
+
+from sklearn.metrics.pairwise import cosine_distances
 
 
 class ResampleEvaluation(Link):
@@ -58,7 +61,11 @@ class ResampleEvaluation(Link):
                              n_bins=None,
                              chi2_store_key=None,
                              p_value_store_key=None,
-                             dof_read_key=None)
+                             dof_read_key=None,
+                             new_column_order_read_key=None,
+                             ks_store_key=None,
+                             chis_store_key=None,
+                             distance_store_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -101,13 +108,62 @@ class ResampleEvaluation(Link):
             self.logger.info('Using DoF from DataStore')
             dof = ds[self.dof_read_key]
         ddof = self.n_bins - 1 - dof  # see the docs for ddof from scipy.stats.chisquare
-        chi2, p_value = scipy.stats.chisquare(resample_binned[0].flatten(), data_binned[0].flatten(), ddof=ddof)
+        # -- with higher dimensions, binning will most likely result in empty bins, so we need to exclude them.
+        # -- This happens especially when we have correlated data. See docs.
+
+        # --  Chi2 per param:
+        chis = {}
+        kss = {}
+        # ad = {}
+        for i, param in enumerate(ds[self.new_column_order_read_key]):
+            orig = np.histogram(ds[self.data_read_key][:, i])
+            resa = np.histogram(ds[self.resample_read_key][:, i])
+
+            chi2, p_value = scipy.stats.chisquare(resa[0][orig[0] > 0],
+                                                  orig[0][orig[0] > 0], ddof=ddof)
+            chis[param] = {param: {'chi': chi2, 'p-value': p_value}}
+
+            ks, p_value = scipy.stats.ks_2samp(ds[self.data_read_key][:, i],
+                                               ds[self.resample_read_key][:, i])
+            kss[param] = {'ks': ks, 'p-value': p_value}
+
+        # -- first order correlations:
+        for i, param1 in enumerate(ds[self.new_column_order_read_key]):
+            for j, param2 in enumerate(ds[self.new_column_order_read_key]):
+                if param1 != param2:
+                    orig = np.histogram2d(ds[self.data_read_key][:, i], ds[self.data_read_key][:, j])
+                    resa = np.histogram2d(ds[self.resample_read_key][:, i], ds[self.resample_read_key][:, j])
+
+                    chi2, p_value = scipy.stats.chisquare(resa[0][orig[0] > 0],
+                                                          orig[0][orig[0] > 0], ddof=ddof)
+
+                    chis[param1][param2] = {'chi': chi2, 'p-value': p_value}
+
+        chi2, p_value = scipy.stats.chisquare(resample_binned[0][data_binned[0] > 0].flatten(),
+                                              data_binned[0][data_binned[0] > 0].flatten(), ddof=ddof)
+        chis['total'] = {'total':{'chi': chi2, 'p-value': p_value}}
+
+        distance = []
+        o = ds[self.data_read_key]
+        o = o / o.max(0)
+        r = ds[self.resample_read_key]
+        r = r / r.max(0)
+        for n in range(ds[self.data_read_key].shape[0]):
+            distance.append(cosine_distances(np.vstack((o[n, :], r[n, :])))[1, 0])
+        distance = np.array(distance)
+        dis = pd.Series(distance).describe()
+        dis = dis.append(pd.Series(distance.sum(), index=['sum']))
 
         self.logger.info('CHI2: {}'.format(chi2))
         self.logger.info('P value: {}'.format(p_value))
 
         ds[self.chi2_store_key] = chi2
         ds[self.p_value_store_key] = p_value
+
+        ds[self.chis_store_key] = chis
+        ds[self.ks_store_key] = kss
+
+        ds[self.distance_store_key] = dis
 
         return StatusCode.Success
 
