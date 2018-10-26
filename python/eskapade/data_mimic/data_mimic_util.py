@@ -412,3 +412,101 @@ def wr_kernel(s, z, Zi):
     corr_factor = kernel_value.sum()
 
     return kernel_value / corr_factor
+
+
+def aitchison_aitken_kernel(l, c):
+    """
+    Calculates the values of the Aitchison-Aitken kernel
+    """
+    kernel_values = np.array([[l / (c - 1)], [1 - l]])
+
+    return kernel_values
+
+
+def aitchison_aitken_convolution(l, c):
+    """
+    Calculates the values of the Aitchison-Aitken convolutions
+    """
+    l_1 = 1 - l
+    l_0 = l / (c - 1)
+
+    ll_00 = np.multiply(l_0, l_0)
+    ll_10 = np.multiply(l_1, l_0)
+    ll_11 = np.multiply(l_1, l_1)
+
+    convolution_values = np.array([[((c - 2) * ll_00) + (2 * ll_10)], [((c - 1) * ll_00) + ll_11]])
+
+    return convolution_values
+
+
+def unorderd_mesh_kernel_values(l, c, n_dim):
+    """
+    Calculates all values of Aitchison-Aitken kernel for all possible delta vector combinations
+    """
+    # for each distance value per dimension calculate the kernel value
+    kernel_values = aitchison_aitken_kernel(l, c)
+
+    # place the calculated values back w.r.t. the distances array
+    kernel_values_mesh = construct_meshgrid(
+        np.split(np.ndarray.flatten(kernel_values).reshape(n_dim, 2, order='F'), n_dim))
+
+    # take the product over all dimensions for each distances combination
+    product_kernel_values = np.prod(kernel_values_mesh, axis=1)
+
+    return product_kernel_values
+
+
+def unorderd_mesh_convolution_values(l, c, n_dim):
+    """
+    Calculates all values of Aitchison-Aitken convolution for all possible delta vector combinations
+    """
+    # for each distance value per dimension calculate the kernel value
+    convolution_values = aitchison_aitken_convolution(l, c)
+
+    # place the calculated values back w.r.t. the distances array
+    convolution_values_mesh = construct_meshgrid(
+        np.split(np.ndarray.flatten(convolution_values).reshape(n_dim, 2, order='F'), n_dim))
+
+    # take the product over all dimensions for each distances combination
+    product_convolution_values = np.prod(convolution_values_mesh, axis=1)
+
+    return product_convolution_values
+
+
+def unordered_mesh_eval(l, c, n_obs, n_dim, delta_frequencies, cv_delta_frequencies):
+    """
+    Calculates the cross validation score for Patrick's categorical optimisation
+    """
+    convolution_values = unorderd_mesh_convolution_values(l, c, n_dim)
+    kernel_values = unorderd_mesh_kernel_values(l, c, n_dim)
+
+    convolution_term = np.inner(convolution_values, delta_frequencies)
+    kernel_term = np.inner(kernel_values, cv_delta_frequencies)
+
+    cv = convolution_term / (n_obs ** 2) - (2 * kernel_term) / (n_obs * (n_obs - 1))
+
+    return cv
+
+def kde_only_unordered_categorical(data):
+    """
+    Given the a dataset consisting of only categorical variables;
+    returns the optimal combinations of dimensional bandwidths
+    uses the method from Patrick's thesis
+
+    References
+    ----------
+    .. [*] van Bokhorst, P.S. "Data Set Resampling with Multivariate Mixed Variable Kernel Density Estimation"
+    """
+    # determine data settings
+    n_obs = data.shape[0]
+    data = data.reshape(n_obs, -1)  # if data is one-dimensional
+    n_dim = data.shape[1]
+    c = np.amax(data, axis=0) + 1
+
+    delta_frequencies, cv_delta_frequencies = calculate_delta_frequencies(data, n_obs, n_dim)
+
+    opt = scipy.optimize.differential_evolution(unordered_mesh_eval,
+                                                bounds=[(0, (c[j] - 1) / c[j]) for j in range(n_dim)],
+                                                args=(c, n_obs, n_dim, delta_frequencies, cv_delta_frequencies),
+                                                tol=1e-10)
+    return opt.x

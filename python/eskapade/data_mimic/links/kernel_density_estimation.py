@@ -19,6 +19,8 @@ LICENSE.
 import numpy as np
 from statsmodels.nonparametric.kernel_density import KDEMultivariate
 
+from eskapade.data_mimic.data_mimic_util import kde_only_unordered_categorical
+
 from eskapade import process_manager, DataStore, Link, StatusCode
 
 
@@ -93,8 +95,14 @@ class KernelDensityEstimation(Link):
 
         # NB: statsmodels uses normal reference for unordered categorical variables as well!
         # NB: the bandwiths are determined on the normalized continuous data and on the original categorical data
-        kde = KDEMultivariate(d, var_type=var_type, bw='normal_reference')
-        ds[self.store_key] = kde.bw
+
+        if (len(continuous_i) == 0) & (len(ordered_categorical_i)==0):
+            kde_weights = kde_only_unordered_categorical(d)
+            ds[self.store_key] = kde_weights
+        else:
+            kde = KDEMultivariate(d, var_type=var_type, bw='normal_reference')
+            ds[self.store_key] = kde.bw
+
 
         return StatusCode.Success
 
