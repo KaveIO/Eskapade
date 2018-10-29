@@ -179,6 +179,7 @@ class KDEPreparation(Link):
         else:
             ds[self.data_smoothed_store_key] = data
             data_no_nans = remove_nans(data)
+            print(data_no_nans)
             ds[self.data_no_nans_store_key] = data_no_nans
             ds[self.data_normalized_store_key] = []
             ds[self.qts_store_key] = []

@@ -144,8 +144,6 @@ def generate_data(n_obs = None, p_unordered = None, p_ordered = None, means_stds
     df3 = pd.DataFrame(ordered_categorical_data, columns=columns3)
     df = pd.concat([df1, df2, df3], axis=1)
 
-    print(df)
-
     return df
 
 

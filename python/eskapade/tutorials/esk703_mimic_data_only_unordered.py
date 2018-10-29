@@ -82,13 +82,10 @@ ch.logger.log_level = LogLevel.DEBUG
 sim_data = data_mimic.MixedVariablesSimulation(store_key='df',
                                                n_obs=100000,
                                                p_unordered=np.array([[0.2, 0.2, 0.3, 0.3], [0.3, 0.7]]),
-                                               p_ordered=np.array([[0.1, 0.2, 0.7], [0.15, 0.4, 0.05, 0.3, 0.1]]),
-                                               means_stds=np.array([[8, 8, 3], [2, 5, 2]]),
                                                heaping_values=[35.1],
-                                               heaping_columns=['a'],
                                                heaping_sizes=[3000],
                                                nan_sizes=[2000, 2000],
-                                               nan_columns=['b', 'f'])
+                                               nan_columns=[])
 sim_data.logger.log_level = LogLevel.DEBUG
 ch.add(sim_data)
 
@@ -101,10 +98,8 @@ pre_data = data_mimic.KDEPreparation(read_key='df',
                                      qts_store_key='qts',
                                      new_column_order_store_key='new_column_order',
                                      ids_store_key='ids',
-                                     unordered_categorical_columns=['d', 'e'],
-                                     ordered_categorical_columns=['f', 'g'],
-                                     continuous_columns=['a', 'b', 'c'],
-                                     string_columns=['d', 'e'],
+                                     unordered_categorical_columns=['a', 'b'],
+                                     string_columns=['a', 'b'],
                                      count=1,
                                      extremes_fraction=0.15,
                                      smoothing_fraction=0.0002)
@@ -134,8 +129,9 @@ ch.add(resampler)
 # Usually, DoF = number of bins - number of model parameters. However, in this case, DoF is equal to 2 * the
 # number of bins - number of model parameters. Two times the number of bins the reference (data_to_resample) has a
 # DoF per bin as well.
-bins = [np.array([-10, 1.5, 10]), np.array([-10, 0.5, 10]), np.array([-10, 0.5, 10]), np.array([-10, 1.5, 10]),
-        np.array([-100, 0, 100]), np.array([-100, 0, 100]), np.array([-100, 0, 100])]
+ch=Chain('temp')
+
+bins = [np.array([-10, 1.5, 10]), np.array([-10, 0.5, 10])]
 evaluater = data_mimic.ResampleEvaluation(data_read_key='data',
                                           resample_read_key='data_resample',
                                           bins=bins,
@@ -146,8 +142,7 @@ evaluater = data_mimic.ResampleEvaluation(data_read_key='data',
                                           ks_store_key='kss',
                                           chis_store_key='chis',
                                           distance_store_key='distance',
-                                          df_resample_read_key='df_resample',
-                                          corr_store_key='correlations')
+                                          df_resample_read_key='df_resample')
 evaluater.logger.log_level = LogLevel.DEBUG
 ch.add(evaluater)
 
@@ -160,8 +155,7 @@ report = data_mimic.MimicReport(read_key='df',
                                 p_value_read_key='p_value',
                                 maps_read_key='maps',
                                 key_data_normalized='data_normalized',
-                                distance_read_key='distance',
-                                corr_read_key='correlations'
+                                distance_read_key='distance'
                                 )
 report.logger.log_level = LogLevel.DEBUG
 ch.add(report)
