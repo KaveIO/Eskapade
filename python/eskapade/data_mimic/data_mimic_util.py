@@ -2,6 +2,7 @@ import numpy as np
 from sklearn import preprocessing
 import string
 import pandas as pd
+import scipy
 
 
 def generate_unordered_categorical_random_data(n_obs, p, dtype=np.str):
@@ -68,10 +69,12 @@ def generate_continuous_random_data(n_obs, means_stds):
     """
     means = means_stds[0]
     stds = means_stds[1]
+
+
     try:
         assert len(means) == len(stds)
     except AssertionError:
-        print('lenth of means is not equal to lenth of standard deviations')
+        print('length of means is not equal to lenth of standard deviations')
     n_dim = len(means)
 
     data = np.empty((n_obs, n_dim), dtype=np.float)
@@ -83,7 +86,7 @@ def generate_continuous_random_data(n_obs, means_stds):
     return data
 
 
-def generate_data(n_obs, p_unordered, p_ordered, means_stds, dtype_unordered_categorical_data=np.str):
+def generate_data(n_obs = None, p_unordered = None, p_ordered = None, means_stds = None, dtype_unordered_categorical_data=np.str):
     """
     Generates unordered categorical, ordered categorical and continuous random data.
     See the docs of the functions generate_unordered_categorical_random_data, generate_ordered_categorical_random_data
@@ -100,11 +103,33 @@ def generate_data(n_obs, p_unordered, p_ordered, means_stds, dtype_unordered_cat
     :return: The generated data
     :rtype: pd.DataFrame
     """
-    unordered_categorical_data = generate_unordered_categorical_random_data(n_obs,
+    # Input checking
+    assert n_obs is not None and n_obs != 0, 'n_obs is 0 or None'
+
+    assert p_unordered is not None or p_ordered is not None or means_stds is not None, \
+        'p_unordered is None, p_ordered is None and means_stds is None. Please set one of these values'
+
+    if p_unordered is not None:
+        unordered_categorical_data = generate_unordered_categorical_random_data(n_obs,
                                                                             p_unordered,
                                                                             dtype=dtype_unordered_categorical_data)
-    ordered_categorical_data = generate_ordered_categorical_random_data(n_obs, p_ordered)
-    continuous_data = generate_continuous_random_data(n_obs, means_stds)
+    else:
+        unordered_categorical_data = np.array([[]])
+
+
+
+    if p_ordered is not None:
+        ordered_categorical_data = generate_ordered_categorical_random_data(n_obs, p_ordered)
+    else:
+        ordered_categorical_data = np.array([[]])
+
+
+
+    if means_stds is not None:
+        continuous_data = generate_continuous_random_data(n_obs, means_stds)
+    else:
+        continuous_data = np.array([[]])
+
 
     alphabet = np.array(list(string.ascii_lowercase))
     columns1 = list(alphabet[0:continuous_data.shape[1]])
@@ -118,6 +143,8 @@ def generate_data(n_obs, p_unordered, p_ordered, means_stds, dtype_unordered_cat
     df2 = pd.DataFrame(unordered_categorical_data, columns=columns2)
     df3 = pd.DataFrame(ordered_categorical_data, columns=columns3)
     df = pd.concat([df1, df2, df3], axis=1)
+
+    print(df)
 
     return df
 
@@ -261,18 +288,25 @@ def insert_back_nans(data_normalized, data, unordered_categorical_i, ordered_cat
     data_continuous_nans = data[:, continuous_i].copy()
     data_to_resample = []
     l = len(data)
-    for d in range(0, data_normalized.shape[1]):
-        i_nan = np.argwhere(np.isnan(data_continuous_nans[:, d]))
-        i_not_nan = np.argwhere(~np.isnan(data_continuous_nans[:, d]))
-        a = np.zeros(l)
-        a.put(i_not_nan, data_normalized[:, d])
-        a.put(i_nan, np.nan)
-        data_to_resample.append(a)
 
-    data_to_resample = np.stack(data_to_resample, axis=-1)
-    data_to_resample = np.concatenate((data[:, unordered_categorical_i],
+    if data_normalized != []:
+        for d in range(0, data_normalized.shape[1]):
+            i_nan = np.argwhere(np.isnan(data_continuous_nans[:, d]))
+            i_not_nan = np.argwhere(~np.isnan(data_continuous_nans[:, d]))
+            a = np.zeros(l)
+            a.put(i_not_nan, data_normalized[:, d])
+            a.put(i_nan, np.nan)
+            data_to_resample.append(a)
+
+        data_to_resample = np.stack(data_to_resample, axis=-1)
+        data_to_resample = np.concatenate((data[:, unordered_categorical_i],
                                        data[:, ordered_categorical_i], data_to_resample), axis=1)
+    else:
+        data_to_resample = np.concatenate((data[:, unordered_categorical_i],
+                                           data[:, ordered_categorical_i]), axis=1)
+
     return data_to_resample
+
 
 
 def kde_resample(n_resample, data, bw, variable_types, c_array):
@@ -365,7 +399,7 @@ def scale_and_invert_normal_transformation(resample_normalized_unscaled, continu
     return resample
 
 
-def wr_kernel(s, z, Zi):
+def wr_kernel(s, z, zi):
     r"""Implementation of the wang-ryzin kernel as implemented by statsmodels.
     Adapted so it is defined for finite intervals ex. {1...c}.
 
@@ -401,12 +435,12 @@ def wr_kernel(s, z, Zi):
     .. [*] M.-C. Wang and J. van Ryzin, "A class of smooth estimators for
            discrete distributions", Biometrika, vol. 68, pp. 301-309, 1981.
     """
-    Zi = Zi.reshape(Zi.size)  # seems needed in case Zi is scalar
+    zi = zi.reshape(zi.size)  # seems needed in case Zi is scalar
 
     kernel_value = 0.5 * (1 - s) * (s ** abs(Zi - z))
 
     # --  if Zi == z
-    idx = Zi == z
+    idx = zi == z
     kernel_value[idx] = (idx * (1 - s))[idx]
 
     corr_factor = kernel_value.sum()
@@ -486,6 +520,62 @@ def unordered_mesh_eval(l, c, n_obs, n_dim, delta_frequencies, cv_delta_frequenc
     cv = convolution_term / (n_obs ** 2) - (2 * kernel_term) / (n_obs * (n_obs - 1))
 
     return cv
+
+def hash_combinations(hash_function, combinations):
+    """
+    Hash function
+    """
+    return np.inner(combinations, hash_function)
+
+def construct_meshgrid(array):
+    """
+    Gives the total enumeration of all possible values, where the values per dimension j are given in array[j]
+    """
+    dimensions = np.array(array).shape[0]
+    meshgrid_parameter_str = ''
+    for j in range(dimensions):
+        meshgrid_parameter_str += 'array[{}], '.format(j)
+
+    meshgrid = eval('np.array(np.meshgrid(' + meshgrid_parameter_str + 'indexing=\'ij\')).reshape(dimensions,-1).T')
+
+    return meshgrid
+
+def calculate_delta_frequencies(data, n_obs, n_dim):
+    """
+    Calculates how often each difference delta=1 : X_{i_1} == X_{i_2} delta=0 : X_{i_1} != X_{i_2}
+    appears in the comparison of all observations with each other {X_{i_1}}_{i_1=1}^n, {X_{i_2}}_{i_2=1}^n,
+    """
+    # observed frequencies
+    observerd_combinations, observed_frequencies = np.unique(data, axis=0, return_counts=True)
+
+    # get all the indices of the pairs of data combinations to compare
+    combinations_index_range = np.arange(observed_frequencies.size)
+    combinations_index_comparison_meshgrid = construct_meshgrid(np.array([combinations_index_range,
+                                                                          combinations_index_range])).astype(np.uint64)
+
+    # per pair of data combinations get the delta vector
+    comparisons_deltas = np.equal(observerd_combinations[combinations_index_comparison_meshgrid[:, 0], :],
+                                  observerd_combinations[combinations_index_comparison_meshgrid[:, 1], :]).astype(
+        np.uint8)
+
+    # hash the delta combinations;
+    delta_combination_hash = hash_combinations(np.power(2, np.arange(n_dim - 1, -1, -1)), comparisons_deltas)
+
+    # per pair of category combinations get the frequency
+    combination_product_frequencies = np.multiply(observed_frequencies[combinations_index_comparison_meshgrid[:, 0]],
+                                                  observed_frequencies[combinations_index_comparison_meshgrid[:, 1]])
+
+    delta_hash = np.arange(2 ** n_dim).astype(np.int)
+    delta_frequencies = np.zeros(2 ** n_dim, dtype=np.uint64)
+
+    np.add.at(delta_frequencies, delta_combination_hash, combination_product_frequencies)
+
+    cv_delta_frequencies = np.array(delta_frequencies, copy=True)
+    cv_delta_frequencies[
+        hash_combinations(np.power(2, np.arange(n_dim - 1, -1, -1)), np.ones(n_dim)).astype(int)] -= n_obs
+
+    return delta_frequencies, cv_delta_frequencies
+
 
 def kde_only_unordered_categorical(data):
     """

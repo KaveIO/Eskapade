@@ -86,7 +86,25 @@ class KernelDensityEstimation(Link):
         data_no_nans = ds[self.data_no_nans_read_key]
         data_normalized = ds[self.data_normalized_read_key]
 
+
         # Concatenate normalized data with original categorical data
+        print(data_no_nans[:, unordered_categorical_i])
+        print(data_no_nans[:, ordered_categorical_i])
+        print(data_no_nans[:, data_normalized])
+        # if one of unordered_categorical_i, ordered_categorical_i, data_normalized is empty, then concatenating will
+        # not work (see next line). We thus make them of the correct lenght
+        data_unordered_categorical = data_no_nans[:, unordered_categorical_i]
+        data_ordered_categorical = data_no_nans[:, ordered_categorical_i]
+
+        n_obs = len(data_no_nans)
+
+        if data_unordered_categorical == []:
+            data_unordered_categorical = np.empty(shape=(n_obs,0))
+        if data_ordered_categorical == []:
+            data_ordered_categorical = np.empty(shape=(n_obs,0))
+        if data_normalized == []:
+            data_normalized = np.empty(shape=(n_obs,0))
+
         d = np.concatenate((data_no_nans[:, unordered_categorical_i],
                             data_no_nans[:, ordered_categorical_i], data_normalized), axis=1)
 

@@ -125,6 +125,7 @@ class KDEPreparation(Link):
 
         # TODO: optional maps
         # map the string columns
+
         if not self.input_maps:
             maps = {}
             for c in self.string_columns:
@@ -140,7 +141,17 @@ class KDEPreparation(Link):
 
         assert len(maps.keys()) == len(self.string_columns), "Wrong number of maps!"
 
+
+        # unused columns are now None, this is not going to work when adding lists. We make them lists instead of
+        # extensive if/else usage.
         # re order columns and save new column order for later use
+        if self.unordered_categorical_columns is None:
+            self.unordered_categorical_columns = []
+        if self.ordered_categorical_columns is None:
+            self.ordered_categorical_columns = []
+        if self.continuous_columns is None:
+            self.continuous_columns = []
+
         new_column_order = self.unordered_categorical_columns + self.ordered_categorical_columns + \
                            self.continuous_columns
         data = df_to_resample[new_column_order].values.copy()
@@ -148,24 +159,35 @@ class KDEPreparation(Link):
         ordered_categorical_i = [new_column_order.index(c) for c in self.ordered_categorical_columns]
         continuous_i = [new_column_order.index(c) for c in self.continuous_columns]
 
-        peaks = find_peaks(data, continuous_i, count=self.count)
-        data_smoothed = smooth_peaks(data, peaks, smoothing_fraction=self.smoothing_fraction)
-        # remove nans
-        data_no_nans = remove_nans(data_smoothed)
-        # select continuous columns
-        data_continuous = data_no_nans[:, continuous_i].copy()
-        # append extremes
-        data_extremes, imin, imax = append_extremes(data_continuous, self.extremes_fraction)
-        # transform to normal distribution
-        data_normalized, qts = transform_to_normal(data_extremes, imin, imax)
+        # if continious data is not present, we do not need smoothing:
+        if self.continuous_columns != []:
+            peaks = find_peaks(data, continuous_i, count=self.count)
+            data_smoothed = smooth_peaks(data, peaks, smoothing_fraction=self.smoothing_fraction)
+            # remove nans
+            data_no_nans = remove_nans(data_smoothed)
+            # select continuous columns
+            data_continuous = data_no_nans[:, continuous_i].copy()
+            # append extremes
+            data_extremes, imin, imax = append_extremes(data_continuous, self.extremes_fraction)
+            # transform to normal distribution
+            data_normalized, qts = transform_to_normal(data_extremes, imin, imax)
+
+            ds[self.data_smoothed_store_key] = data_smoothed
+            ds[self.data_no_nans_store_key] = data_no_nans
+            ds[self.data_normalized_store_key] = data_normalized
+            ds[self.qts_store_key] = qts
+        else:
+            ds[self.data_smoothed_store_key] = data
+            data_no_nans = remove_nans(data)
+            ds[self.data_no_nans_store_key] = data_no_nans
+            ds[self.data_normalized_store_key] = []
+            ds[self.qts_store_key] = []
+
 
         ds[self.maps_store_key] = maps
         ds[self.new_column_order_store_key] = new_column_order
-        ds[self.qts_store_key] = qts
         ds[self.data_store_key] = data
-        ds[self.data_smoothed_store_key] = data_smoothed
-        ds[self.data_no_nans_store_key] = data_no_nans
-        ds[self.data_normalized_store_key] = data_normalized
+
         # save for later use
         ds['unordered_categorical_i'] = unordered_categorical_i
         ds['ordered_categorical_i'] = ordered_categorical_i
