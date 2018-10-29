@@ -51,7 +51,6 @@ LICENSE.
 """
 
 # todo:
-# - add mirroring in resampling
 # - use faster implementation of least squares cross validation
 # - add binning and/or taylor expansion option for continuous columns
 # - add business rules
@@ -60,6 +59,7 @@ LICENSE.
 import numpy as np
 
 from eskapade import ConfigObject, Chain
+from eskapade import analysis
 from eskapade import data_mimic
 from eskapade import process_manager
 from eskapade.logger import Logger, LogLevel
@@ -91,6 +91,13 @@ sim_data = data_mimic.MixedVariablesSimulation(store_key='df',
                                                nan_columns=['b', 'f'])
 sim_data.logger.log_level = LogLevel.DEBUG
 ch.add(sim_data)
+
+def business_rule(x):
+    return x + 1
+add_business_rule = analysis.ApplyFuncToDf(read_key='df',
+                                           apply_funcs=[{'colin': 'g', 'colout': 'h', 'func': business_rule}])
+add_business_rule.logger.log_level = LogLevel.DEBUG
+ch.add(add_business_rule)
 
 pre_data = data_mimic.KDEPreparation(read_key='df',
                                      data_store_key='data',
@@ -131,6 +138,15 @@ resampler = data_mimic.Resampler(data_normalized_read_key='data_normalized',
 resampler.logger.log_level = LogLevel.DEBUG
 ch.add(resampler)
 
+
+def business_rule(x):
+    return x + 1
+add_business_rule = analysis.ApplyFuncToDf(read_key='df_resample',
+                                           apply_funcs=[{'colin': 'g', 'colout': 'h', 'func': business_rule}])
+add_business_rule.logger.log_level = LogLevel.DEBUG
+ch.add(add_business_rule)
+
+# todo add business rule columns to evaluation and report
 # Usually, DoF = number of bins - number of model parameters. However, in this case, DoF is equal to 2 * the
 # number of bins - number of model parameters. Two times the number of bins the reference (data_to_resample) has a
 # DoF per bin as well.
