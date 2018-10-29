@@ -107,15 +107,27 @@ def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
         plt.show()
 
 
-def plot_heatmap(df1, df2, vmin=-1, vmax=1, titles=['Original', 'Resampled'], color_map='RdYlGn',
-                 pdf_file_name=None, top=20, x_label='', y_label='', matrix_numbers=None, print_both_numbers=True):
+def plot_heatmaps(corr, x_labels, y_labels=None, vmin=-1, vmax=1, titles=['Original', 'Resampled'], color_map='RdYlGn',
+                  pdf_file_name=None, top=20, x_label='', y_label='', matrix_numbers=None, print_both_numbers=True):
 
+    """Create and plot two heatmaps with one colorbar.
+
+    :param list corr: input correlation matrices in a list [corr1, corr2]
+    :param list x_labels: Labels for histogram x-axis bins
+    :param list y_labels: Labels for histogram y-axis bins. If none, equal to x_labels
+    :param str pdf_file_name: if set, will store the plot in a pdf file
+    :param list titles: title of the plots
+    :param float vmin: minimum value of color legend (default is -1)
+    :param float vmax: maximum value of color legend (default is +1)
+    :param str x_label: Label for histogram x-axis
+    :param str y_label: Label for histogram y-axis
+    :param str color_map: color map passed to matplotlib pcolormesh. (default is 'RdYlGn')
+    :param int top: only print the top 20 characters of x-labels and y-labels. (default is 20)
+    :param matrix_numbers: input matrix used for plotting numbers. (default it matrix_colors)
+    """
     import matplotlib.pyplot as plt
     from matplotlib.backends.backend_pdf import PdfPages
     from matplotlib import colors
-
-    assert type(df1) == pd.DataFrame, f"Input needs to be a pandas DataFrame, is {type(df1)}"
-    assert type(df2) == pd.DataFrame, f"Input needs to be a pandas DataFrame, is {type(df2)}"
 
     norm = colors.Normalize(vmin=vmin, vmax=vmax)
 
@@ -128,14 +140,8 @@ def plot_heatmap(df1, df2, vmin=-1, vmax=1, titles=['Original', 'Resampled'], co
             lab = lab[:17] + '...'
         return lab
 
-    if len(df1.columns) > len(df2.columns):
-        df1 = df1[df2.columns]
-    else:
-        df2 = df2[df1.columns]
-
-    corr = [df1.corr().values, df2.corr().values]
-    y_labels = df1.corr().columns
-    x_labels = df1.corr().columns
+    if y_labels is None:
+        y_labels = x_labels
 
     plt.rcParams['figure.figsize'] = (12, 5)
     fig, axn = plt.subplots(1, 2, sharex=True, sharey=True)
@@ -162,7 +168,8 @@ def plot_heatmap(df1, df2, vmin=-1, vmax=1, titles=['Original', 'Resampled'], co
         if y_label:
             ax.set_ylabel(y_label, fontsize=12 * fontsize_factor)
 
-        if n==1:
+        if n == 1:
+            # only set the last plots colorbar
             fig.colorbar(img, cax=cbar_ax)
 
         # annotate with correlation values
@@ -190,11 +197,6 @@ def plot_heatmap(df1, df2, vmin=-1, vmax=1, titles=['Original', 'Resampled'], co
                     color = 'w' if white_cond else 'k'
                     ax.annotate(label, xy=(i + 0.5, j + y_offset), color=color, horizontalalignment='center',
                                 verticalalignment='center', fontsize=10 * fontsize_factor)
-        # sns.heatmap(corr[i], ax=ax,
-        #             cbar=i == 0,
-        #             cbar_ax=None if i else cbar_ax,
-        #             annot=True)
-        # ax.set_title(titles[i])
 
     # store plot
     if pdf_file_name:

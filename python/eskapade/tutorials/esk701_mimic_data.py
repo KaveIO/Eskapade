@@ -145,7 +145,8 @@ evaluater = data_mimic.ResampleEvaluation(data_read_key='data',
                                           ks_store_key='kss',
                                           chis_store_key='chis',
                                           distance_store_key='distance',
-                                          df_resample_read_key='df_resample')
+                                          df_resample_read_key='df_resample',
+                                          corr_store_key='correlations')
 evaluater.logger.log_level = LogLevel.DEBUG
 ch.add(evaluater)
 
@@ -158,7 +159,8 @@ report = data_mimic.MimicReport(read_key='df',
                                 p_value_read_key='p_value',
                                 maps_read_key='maps',
                                 key_data_normalized='data_normalized',
-                                distance_read_key='distance'
+                                distance_read_key='distance',
+                                corr_read_key='correlations'
                                 )
 report.logger.log_level = LogLevel.DEBUG
 ch.add(report)
