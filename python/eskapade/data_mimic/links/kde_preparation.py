@@ -15,9 +15,11 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
+import numpy as np
 import pandas as pd
 
 from eskapade import process_manager, DataStore, Link, StatusCode
+from eskapade.analysis.correlation import calculate_correlations
 from eskapade.data_mimic.data_mimic_util import find_peaks, smooth_peaks, remove_nans, append_extremes, \
                                                 transform_to_normal
 
@@ -79,6 +81,7 @@ class KDEPreparation(Link):
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
         self._process_kwargs(kwargs,
                              read_key=None,
+                             correlation_method='pearson',
                              data_store_key=None,
                              data_smoothed_store_key=None,
                              data_no_nans_store_key=None,
@@ -122,6 +125,19 @@ class KDEPreparation(Link):
         # -- sg: added copy, or it would replace original data in datastore
         df_to_resample = ds[self.read_key].copy()
         ds[self.ids_store_key] = df_to_resample.index.values  # save for later use
+
+        # check for high (>.95) correlations
+        cors, cols = calculate_correlations(df_to_resample[self.unordered_categorical_columns +
+                                                           self.ordered_categorical_columns + \
+                                                           self.continuous_columns], method=self.correlation_method)
+        mask = np.ones(cors.shape, dtype='bool')
+        mask[np.triu_indices(cors.shape[0], m=cors.shape[1])] = False
+        cors = cors.mask(~mask).stack().reset_index()
+        cors.columns = ['x', 'y', 'cor']
+        for i, row in cors[cors['cor'] > 0.95].iterrows():
+            self.logger.warning('The {} correlation between {} and {} is {}. Maybe you want to discard one of these '
+                                'columns in the resampling step and construct it afterwards from the resampled data.'
+                .format(self.correlation_method, row.x, row.y, row.cor))
 
         # TODO: optional maps
         # map the string columns
