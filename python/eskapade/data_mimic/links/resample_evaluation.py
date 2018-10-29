@@ -134,7 +134,7 @@ class ResampleEvaluation(Link):
 
             ks, p_value = scipy.stats.ks_2samp(ds[self.data_read_key][:, i],
                                                ds[self.resample_read_key][:, i])
-            kss[param] = {'ks': ks, 'p-value': p_value, 'bins': len(self.bins[i])}
+            kss[param] = {'ks': ks, 'p-value': p_value}
 
         # -- first order correlations:
         for i, param1 in enumerate(ds[self.new_column_order_read_key]):
