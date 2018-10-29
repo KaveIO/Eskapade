@@ -23,6 +23,7 @@ from eskapade.data_mimic.dm_vis_util import plot_heatmap
 import numpy as np
 import pandas as pd
 import os
+import re
 import tabulate
 
 
@@ -154,7 +155,8 @@ class MimicReport(Link):
             fpath = os.path.join(self.results_path, fname)
 
             if thing in ds['continuous_i']:
-                hrange = (np.round(np.min(data) + np.min(data) * .2), np.round(np.max(data) + np.max(data) * .2))
+                # hrange = (np.round(np.min(data) + np.min(data) * .2), np.round(np.max(data) + np.max(data) * .2))
+                hrange = (np.percentile(data, 1), np.percentile(data, 99))
                 # hrange[0] += hrange[0] * .2
                 # hrange[1] += hrange[1] * .2
 
@@ -199,7 +201,14 @@ class MimicReport(Link):
                          ('min', f'{bin_edges[np.argmin(bin_counts)]}: {np.max(bin_counts)}',
                           f'{bin_edges_r[np.argmin(bin_counts_r)]}: {np.min(bin_counts_r)}'), ]
 
-            stats_table = tabulate.tabulate(stats, ['Original', 'Resampled'], tablefmt='latex')
+            col_name = ds[self.new_column_order_read_key][thing]
+            stats2 = [(k, v['chi'], v['p-value'], v['bins']) for k, v in ds['chis'][col_name].items()]
+
+            stats_table = tabulate.tabulate(stats2, ['Chi2', 'p-value', 'dof'], tablefmt='latex') + 'MARKER' + \
+                tabulate.tabulate(stats, ['Original', 'Resampled'], tablefmt='latex')
+            M = re.findall('\\\end\S+MARKER\S+\}', stats_table)
+            for m in M:
+                stats_table = stats_table.replace(m, '')
 
             plt.plot_overlay_histogram([hist_original, hist_resampled], hist_names=['Original', 'Resampled'],
                                        x_label=ds[self.new_column_order_read_key][thing], pdf_file_name=fpath,
@@ -215,7 +224,7 @@ class MimicReport(Link):
 
         for i, key in enumerate(ds['continuous_i']):
 
-            title = "Normalized data for varibale {}".format(ds[self.new_column_order_read_key][key])
+            title = "Normalized data for variable '{}'".format(ds[self.new_column_order_read_key][key])
             fname = f'Normalized_{ds[self.new_column_order_read_key][key]}_hist.pdf'
             fpath = os.path.join(self.results_path, fname)
 
@@ -223,8 +232,7 @@ class MimicReport(Link):
             normal = np.random.normal(size=data.shape)
 
             hrange = (np.round(np.min(data) + np.min(data) * .2), np.round(np.max(data) + np.max(data) * .2))
-            # hrange[0] = hrange[0] + hrange[0] * .2
-            # hrange[1] = hrange[1] + hrange[1] * .2
+
             hist = np.histogram(data, range=hrange, bins='auto')
             hist_normal = np.histogram(normal, range=hrange, bins=len(hist[0]))
 
@@ -277,41 +285,22 @@ class MimicReport(Link):
                               .replace('VAR_STATS_TABLE', stats_table)
                               .replace('VAR_HISTOGRAM_PATH', fpath))
 
-        # --  metrics
-        A = pd.DataFrame([ds['chis'][x] for x in ds['chis'].keys() if x is not 'total'])
-        stats_table = ''
-
-        for col in A.columns:
-
-            d = pd.DataFrame([[A[col][i]['chi'], A[col][i]['p-value']] for i in A[col].index],
-                             columns=['Chi', 'p-value'], index=A.columns).T
-            d['param'] = col.capitalize()
-
-            try:
-                fin_df = fin_df.append(d)
-            except NameError:
-                fin_df = d
-
-            clms = d.columns.values
-
-        stats_table = tabulate.tabulate(fin_df.round(5), headers=clms, tablefmt='latex')
-
-        self.pages.append(
-            self.page_table_template.replace("VAR_LABEL", "Chi-square values")
-                                    .replace('VAR_STATS_TABLE', stats_table))
-
         A = pd.DataFrame.from_dict(ds['kss'])
-        stats_table = tabulate.tabulate(A.round(5), headers=A.columns, tablefmt='latex')
+        clms = ['KS']
+        clms.extend(A.columns)
+        stats_table = tabulate.tabulate(A.round(5), headers=clms, tablefmt='latex')
+
+        stats_table2 = tabulate.tabulate(pd.DataFrame(ds[self.distance_read_key]),
+                                         headers=['Distance', 'Values'], tablefmt='latex')
+
+        stats_table = stats_table + 'MARKER' + stats_table2
+        # stats_table = stats_table.replace('\\end{tabular}MARKER\\begin{tabular}{lr}', '')
+        M = re.findall('\\\end\S+MARKER\S+r\}', stats_table)
+        for m in M:
+            stats_table = stats_table.replace(m, '')
 
         self.pages.append(
-            self.page_table_template.replace("VAR_LABEL", "KS values")
-                                    .replace('VAR_STATS_TABLE', stats_table))
-
-        stats_table = tabulate.tabulate(pd.DataFrame(ds[self.distance_read_key]),
-                                        headers=['Description', 'Values'], tablefmt='latex')
-
-        self.pages.append(
-            self.page_table_template.replace("VAR_LABEL", "Distance metric. Max distance: 1")
+            self.page_table_template.replace("VAR_LABEL", "Comparisson Metrics")
                                     .replace('VAR_STATS_TABLE', stats_table))
 
         return StatusCode.Success

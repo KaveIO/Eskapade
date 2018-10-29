@@ -2,6 +2,7 @@ import numpy as np
 from sklearn import preprocessing
 import string
 import pandas as pd
+import scipy
 
 
 def generate_unordered_categorical_random_data(n_obs, p, dtype=np.str):
@@ -412,3 +413,33 @@ def wr_kernel(s, z, Zi):
     corr_factor = kernel_value.sum()
 
     return kernel_value / corr_factor
+
+
+def scaled_chi(O, E, k=None):
+    """
+    Function to calculate a weighted chi square for two
+    binned distributions, O (observerd) and E (expected).
+    Based on https://www.itl.nist.gov/div898/software/dataplot/refman1/auxillar/chi2samp.htm
+
+    O : array
+        Observed frequencies
+    E : array
+        Expected frequencies
+    k : int
+        bins == dof
+        """
+    assert len(O) == len(E), f"Both samples need to have the same amount of bins! {len(O), len(E)}"
+    if k is None:
+        k = len(O)
+    # calc scaling constants:
+    Ko = np.sqrt(np.sum(E) / np.sum(O))
+    Ke = np.sqrt(np.sum(O) / np.sum(E))
+
+    if Ko == Ke == 1:
+        dof = k - 1
+    else:
+        dof = k
+
+    chi = np.sum(((Ko * O - Ke * E)**2) / (E + O))
+    p = 1 - scipy.stats.chi2.cdf(chi, dof)
+    return chi, p
