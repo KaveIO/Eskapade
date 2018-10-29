@@ -293,8 +293,9 @@ class MimicReport(Link):
         stats_table2 = tabulate.tabulate(pd.DataFrame(ds[self.distance_read_key]),
                                          headers=['Distance', 'Values'], tablefmt='latex')
 
+        # -- merging the two tables and adding a marker
         stats_table = stats_table + 'MARKER' + stats_table2
-        # stats_table = stats_table.replace('\\end{tabular}MARKER\\begin{tabular}{lr}', '')
+        # -- replacing the marker to correct the latex input for the pdf page
         M = re.findall('\\\end\S+MARKER\S+r\}', stats_table)
         for m in M:
             stats_table = stats_table.replace(m, '')
