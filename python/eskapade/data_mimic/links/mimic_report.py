@@ -19,6 +19,7 @@ from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode,
 from eskapade.core import persistence
 from eskapade.visualization import vis_utils as plt
 from eskapade.data_mimic.dm_vis_util import plot_heatmaps
+from eskapade.analysis import correlation
 
 import numpy as np
 import pandas as pd
@@ -60,7 +61,8 @@ class MimicReport(Link):
                              p_value_read_key=None,
                              maps_read_key=None,
                              key_data_normalized=None,
-                             distance_read_key=None
+                             distance_read_key=None,
+                             corr_read_key=None
                              )
 
         # check residual kwargs; exit if any present
@@ -260,27 +262,27 @@ class MimicReport(Link):
         fname = f'Heatmaps.pdf'
         fpath = os.path.join(self.results_path, fname)
 
-        o_cont = pd.DataFrame(orig_data[:, ds['continuous_i']],
-                              columns=np.array(ds['new_column_order'])[ds['continuous_i']],
-                              dtype='float')
-        df_o = o_cont.merge(pd.DataFrame(orig_data[:, ds['ordered_categorical_i'] + ds['unordered_categorical_i']],
-                            columns=np.array(ds['new_column_order'])[ds['ordered_categorical_i'] +
-                                                                     ds['unordered_categorical_i']]),
-                            left_index=True, right_index=True)
+        # o_cont = pd.DataFrame(orig_data[:, ds['continuous_i']],
+        #                       columns=np.array(ds['new_column_order'])[ds['continuous_i']],
+        #                       dtype='float')
+        # df_o = o_cont.merge(pd.DataFrame(orig_data[:, ds['ordered_categorical_i'] + ds['unordered_categorical_i']],
+        #                     columns=np.array(ds['new_column_order'])[ds['ordered_categorical_i'] +
+        #                                                              ds['unordered_categorical_i']]),
+        #                     left_index=True, right_index=True)
 
-        r_cont = pd.DataFrame(resa_data[:, ds['continuous_i']],
-                              columns=np.array(ds['new_column_order'])[ds['continuous_i']],
-                              dtype='float')
-        df_r = r_cont.merge(pd.DataFrame(resa_data[:, ds['ordered_categorical_i'] + ds['unordered_categorical_i']],
-                            columns=np.array(ds['new_column_order'])[ds['ordered_categorical_i'] +
-                                                                     ds['unordered_categorical_i']]),
-                            left_index=True, right_index=True)
+        # r_cont = pd.DataFrame(resa_data[:, ds['continuous_i']],
+        #                       columns=np.array(ds['new_column_order'])[ds['continuous_i']],
+        #                       dtype='float')
+        # df_r = r_cont.merge(pd.DataFrame(resa_data[:, ds['ordered_categorical_i'] + ds['unordered_categorical_i']],
+        #                     columns=np.array(ds['new_column_order'])[ds['ordered_categorical_i'] +
+        #                                                              ds['unordered_categorical_i']]),
+        #                     left_index=True, right_index=True)
 
-        corr_o = df_o.corr().values
-        corr_r = df_r.corr().values
-        print(corr_o.shape)
+        correlations = [x[0].values for x in ds[self.corr_read_key]]
+        labels = ds[self.corr_read_key][0][1]
+        xlabels = np.array(ds[self.new_column_order_read_key])[labels]
 
-        plot_heatmaps([corr_o, corr_r], x_labels=df_o.corr().columns, pdf_file_name=fpath)
+        plot_heatmaps(correlations, x_labels=xlabels, pdf_file_name=fpath)
 
         stats_table = ''
 
@@ -306,7 +308,7 @@ class MimicReport(Link):
             stats_table = stats_table.replace(m, '')
 
         self.pages.append(
-            self.page_table_template.replace("VAR_LABEL", "Comparisson Metrics")
+            self.page_table_template.replace("VAR_LABEL", "Comparison Metrics")
                                     .replace('VAR_STATS_TABLE', stats_table))
 
         return StatusCode.Success
