@@ -43,6 +43,15 @@ Tools to assess and improve data quality
 * tutorials: esk5*
 
 
+data_mimic
+----------
+
+Tools to simulate data based on an input data set.
+
+* dependencies: core, core_ops, analysis, visualization
+* tutorials: esk7*
+
+
 spark_analysis
 --------------
 

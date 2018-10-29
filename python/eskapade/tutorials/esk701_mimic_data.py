@@ -51,7 +51,6 @@ LICENSE.
 """
 
 # todo:
-# - add mirroring in resampling
 # - use faster implementation of least squares cross validation
 # - add binning and/or taylor expansion option for continuous columns
 # - add business rules

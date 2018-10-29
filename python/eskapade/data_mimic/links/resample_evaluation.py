@@ -20,6 +20,7 @@ import scipy
 
 from eskapade import process_manager, DataStore, Link, StatusCode
 from eskapade.data_mimic import data_mimic_util as util
+from eskapade.analysis import correlation
 
 from scipy.spatial.distance import cosine
 
@@ -67,7 +68,8 @@ class ResampleEvaluation(Link):
                              ks_store_key=None,
                              chis_store_key=None,
                              distance_store_key=None,
-                             df_resample_read_key=None)
+                             df_resample_read_key=None,
+                             corr_store_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -93,8 +95,8 @@ class ResampleEvaluation(Link):
 
         ds = process_manager.service(DataStore)
 
-        data = ds[self.data_read_key]
-        resample = ds[self.resample_read_key]
+        data = ds[self.data_read_key].copy()
+        resample = ds[self.resample_read_key].copy()
 
         resample_binned = np.histogramdd(resample, bins=self.bins)
         data_binned = np.histogramdd(data, bins=self.bins)
@@ -169,6 +171,10 @@ class ResampleEvaluation(Link):
         dis = pd.Series(distance).describe()
         dis = dis.append(pd.Series(distance.sum(), index=['sum']))
 
+        correlations = []
+        correlations.append(correlation.calculate_correlations(pd.DataFrame(data), method='pearson'))
+        correlations.append(correlation.calculate_correlations(pd.DataFrame(resample), method='pearson'))
+
         self.logger.info('CHI2: {}'.format(chi2))
         self.logger.info('P value: {}'.format(p_value))
 
@@ -179,6 +185,7 @@ class ResampleEvaluation(Link):
         ds[self.ks_store_key] = kss
 
         ds[self.distance_store_key] = dis
+        ds[self.corr_store_key] = correlations
 
         return StatusCode.Success
 
