@@ -390,6 +390,8 @@ def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
         plt.savefig(pdf_file, format='pdf', bbox_inches='tight', pad_inches=0)
         plt.close()
         pdf_file.close()
+    else:
+        plt.show()
 
 
 def plot_overlay_histogram(hists, x_label, y_label=None, hist_names=[],

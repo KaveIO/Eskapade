@@ -150,7 +150,8 @@ evaluater = data_mimic.ResampleEvaluation(data_read_key='data',
                                           new_column_order_read_key='new_column_order',
                                           ks_store_key='kss',
                                           chis_store_key='chis',
-                                          distance_store_key='distance')
+                                          distance_store_key='distance',
+                                          df_resample_read_key='df_resample')
 evaluater.logger.log_level = LogLevel.DEBUG
 ch.add(evaluater)
 
