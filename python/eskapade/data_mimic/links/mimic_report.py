@@ -18,7 +18,7 @@ LICENSE.
 from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode, resources
 from eskapade.core import persistence
 from eskapade.visualization import vis_utils as plt
-from eskapade.data_mimic.dm_vis_util import plot_heatmap
+from eskapade.data_mimic.dm_vis_util import plot_heatmaps
 
 import numpy as np
 import pandas as pd
@@ -276,7 +276,11 @@ class MimicReport(Link):
                                                                      ds['unordered_categorical_i']]),
                             left_index=True, right_index=True)
 
-        plot_heatmap(df_o, df_r, pdf_file_name=fpath)
+        corr_o = df_o.corr().values
+        corr_r = df_r.corr().values
+        print(corr_o.shape)
+
+        plot_heatmaps([corr_o, corr_r], x_labels=df_o.corr().columns, pdf_file_name=fpath)
 
         stats_table = ''
 
@@ -295,7 +299,8 @@ class MimicReport(Link):
 
         # -- merging the two tables and adding a marker
         stats_table = stats_table + 'MARKER' + stats_table2
-        # -- replacing the marker to correct the latex input for the pdf page
+        # -- Using regex to find where the two tables meet and make sure they are stuck together
+        # -- otherwise you get funky output
         M = re.findall('\\\end\S+MARKER\S+r\}', stats_table)
         for m in M:
             stats_table = stats_table.replace(m, '')
