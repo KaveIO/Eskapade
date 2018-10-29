@@ -294,7 +294,7 @@ class MimicReport(Link):
         A = pd.DataFrame.from_dict(ds['kss'])
         clms = ['KS']
         clms.extend(A.columns)
-        stats_table = tabulate.tabulate(A.round(5), headers=clms, tablefmt='latex')
+        stats_table = tabulate.tabulate(A, headers=clms, tablefmt='latex')
 
         stats_table2 = tabulate.tabulate(pd.DataFrame(ds[self.distance_read_key]),
                                          headers=['Distance', 'Values'], tablefmt='latex')
