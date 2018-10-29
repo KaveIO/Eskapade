@@ -208,7 +208,7 @@ class MimicReport(Link):
 
             stats_table = tabulate.tabulate(stats2, ['Chi2', 'p-value', 'dof'], tablefmt='latex') + 'MARKER' + \
                 tabulate.tabulate(stats, ['Original', 'Resampled'], tablefmt='latex')
-            M = re.findall('\\\end\S+MARKER\S+\}', stats_table)
+            M = re.findall(r'\\end\S+MARKER\S+\}', stats_table)
             for m in M:
                 stats_table = stats_table.replace(m, '')
 
@@ -303,7 +303,7 @@ class MimicReport(Link):
         stats_table = stats_table + 'MARKER' + stats_table2
         # -- Using regex to find where the two tables meet and make sure they are stuck together
         # -- otherwise you get funky output
-        M = re.findall('\\\end\S+MARKER\S+r\}', stats_table)
+        M = re.findall(r'\\end\S+MARKER\S+\}', stats_table)
         for m in M:
             stats_table = stats_table.replace(m, '')
 
