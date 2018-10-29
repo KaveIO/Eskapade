@@ -90,9 +90,9 @@ class KDEPreparation(Link):
                              qts_store_key=None,
                              new_column_order_store_key=None,
                              ids_store_key=None,
-                             unordered_categorical_columns=None,
-                             ordered_categorical_columns=None,
-                             continuous_columns=None,
+                             unordered_categorical_columns=[],
+                             ordered_categorical_columns=[],
+                             continuous_columns=[],
                              string_columns=None,
                              count=1,
                              extremes_fraction=0.15,
@@ -195,8 +195,7 @@ class KDEPreparation(Link):
         else:
             ds[self.data_smoothed_store_key] = data
             data_no_nans = remove_nans(data)
-            print(data_no_nans)
-            ds[self.data_no_nans_store_key] = data_no_nans
+            ds[self.data_no_nans_store_key] = np.array(data_no_nans)
             ds[self.data_normalized_store_key] = []
             ds[self.qts_store_key] = []
 

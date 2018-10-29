@@ -95,15 +95,21 @@ class KernelDensityEstimation(Link):
 
         n_obs = len(data_no_nans)
 
-        if data_unordered_categorical == []:
+        print(n_obs)
+
+        if data_unordered_categorical == np.array([]):
             data_unordered_categorical = np.empty(shape=(n_obs,0))
-        if data_ordered_categorical == []:
+        if data_ordered_categorical == np.array([]):
             data_ordered_categorical = np.empty(shape=(n_obs,0))
         if data_normalized == []:
             data_normalized = np.empty(shape=(n_obs,0))
 
-        d = np.concatenate((data_no_nans[:, unordered_categorical_i],
-                            data_no_nans[:, ordered_categorical_i], data_normalized), axis=1)
+        print(type(data_normalized))
+        print((data_unordered_categorical.shape,
+                            data_ordered_categorical.shape, data_normalized.shape))
+
+        d = np.concatenate((data_unordered_categorical,
+                            data_ordered_categorical, data_normalized), axis=1)
 
         var_type = 'u' * len(unordered_categorical_i) + 'o' * len(ordered_categorical_i) + \
                    'c' * len(continuous_i)

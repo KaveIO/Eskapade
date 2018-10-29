@@ -362,7 +362,7 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
             elif variable_types_array[j] == 'o':
                 # --  points at which the pdf should be evaluated
                 z = c_array[j]
-                p = wr_kernel(s=bw[j], z=z, Zi=resample[i, j])
+                p = wr_kernel(s=bw[j], z=z, zi=resample[i, j])
                 try:
                     assert p.sum().round(3) == 1.0
                 except AssertionError as e:
@@ -435,7 +435,7 @@ def wr_kernel(s, z, zi):
     """
     zi = zi.reshape(zi.size)  # seems needed in case Zi is scalar
 
-    kernel_value = 0.5 * (1 - s) * (s ** abs(Zi - z))
+    kernel_value = 0.5 * (1 - s) * (s ** abs(zi - z))
 
     # --  if Zi == z
     idx = zi == z
