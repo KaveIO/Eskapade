@@ -99,9 +99,9 @@ class KernelDensityEstimation(Link):
         print((data_unordered_categorical.shape,
                             data_ordered_categorical.shape, data_normalized.shape))
 
-        if data_unordered_categorical == np.array([]):
+        if data_unordered_categorical.size == 0:
             data_unordered_categorical = np.empty(shape=(n_obs,0))
-        if data_ordered_categorical == np.array([]):
+        if data_ordered_categorical.size == 0:
             data_ordered_categorical = np.empty(shape=(n_obs,0))
         if data_normalized.size == 0:
             data_normalized = np.empty(shape=(n_obs,0))
