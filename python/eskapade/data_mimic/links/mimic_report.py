@@ -186,7 +186,6 @@ class MimicReport(Link):
 
                 width = 0.9
 
-                # chi, p = chisquare(hist_resampled[0].flatten(), hist_original[0].flatten(), ddoff=)
             try:
                 stats = [('Entries', len(data), len(data_r)),
                          ('bins', len(hist_original[0]), len(hist_resampled[0])),
