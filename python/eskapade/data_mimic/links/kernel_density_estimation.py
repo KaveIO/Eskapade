@@ -19,6 +19,8 @@ LICENSE.
 import numpy as np
 from statsmodels.nonparametric.kernel_density import KDEMultivariate
 
+from eskapade.data_mimic.data_mimic_util import kde_only_unordered_categorical
+
 from eskapade import process_manager, DataStore, Link, StatusCode
 
 
@@ -84,17 +86,44 @@ class KernelDensityEstimation(Link):
         data_no_nans = ds[self.data_no_nans_read_key]
         data_normalized = ds[self.data_normalized_read_key]
 
+
         # Concatenate normalized data with original categorical data
-        d = np.concatenate((data_no_nans[:, unordered_categorical_i],
-                            data_no_nans[:, ordered_categorical_i], data_normalized), axis=1)
+        # if one of unordered_categorical_i, ordered_categorical_i, data_normalized is empty, then concatenating will
+        # not work (see next line). We thus make them of the correct lenght
+        data_unordered_categorical = data_no_nans[:, unordered_categorical_i]
+        data_ordered_categorical = data_no_nans[:, ordered_categorical_i]
+
+        n_obs = len(data_no_nans)
+
+        print(n_obs)
+
+        if data_unordered_categorical == np.array([]):
+            data_unordered_categorical = np.empty(shape=(n_obs,0))
+        if data_ordered_categorical == np.array([]):
+            data_ordered_categorical = np.empty(shape=(n_obs,0))
+        if data_normalized == []:
+            data_normalized = np.empty(shape=(n_obs,0))
+
+        print(type(data_normalized))
+        print((data_unordered_categorical.shape,
+                            data_ordered_categorical.shape, data_normalized.shape))
+
+        d = np.concatenate((data_unordered_categorical,
+                            data_ordered_categorical, data_normalized), axis=1)
 
         var_type = 'u' * len(unordered_categorical_i) + 'o' * len(ordered_categorical_i) + \
                    'c' * len(continuous_i)
 
         # NB: statsmodels uses normal reference for unordered categorical variables as well!
         # NB: the bandwiths are determined on the normalized continuous data and on the original categorical data
-        kde = KDEMultivariate(d, var_type=var_type, bw='normal_reference')
-        ds[self.store_key] = kde.bw
+
+        if (len(continuous_i) == 0) & (len(ordered_categorical_i)==0):
+            kde_weights = kde_only_unordered_categorical(d)
+            ds[self.store_key] = kde_weights
+        else:
+            kde = KDEMultivariate(d, var_type=var_type, bw='normal_reference')
+            ds[self.store_key] = kde.bw
+
 
         return StatusCode.Success
 

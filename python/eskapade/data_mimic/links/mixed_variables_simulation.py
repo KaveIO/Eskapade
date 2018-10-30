@@ -98,16 +98,18 @@ class MixedVariablesSimulation(Link):
         df = generate_data(self.n_obs, self.p_unordered, self.p_ordered, self.means_stds)
 
         # simulate heaping
-        for i, heaping_column in enumerate(self.heaping_columns):
-            heaping_size = self.heaping_sizes[i]
-            heaping_value = self.heaping_values[i]
-            df.loc[np.random.randint(0, self.n_obs, size=heaping_size), heaping_column] = \
-                np.ones(3000) * heaping_value
+        if self.heaping_columns is not None:
+            for i, heaping_column in enumerate(self.heaping_columns):
+                heaping_size = self.heaping_sizes[i]
+                heaping_value = self.heaping_values[i]
+                df.loc[np.random.randint(0, self.n_obs, size=heaping_size), heaping_column] = \
+                    np.ones(3000) * heaping_value
 
         # simulate nans
-        for i, nan_column in enumerate(self.nan_columns):
-            nan_size = self.nan_sizes[i]
-            df.loc[np.random.randint(0, self.n_obs, size=nan_size), nan_column] = np.ones(nan_size) * np.nan
+        if self.nan_columns is not None:
+            for i, nan_column in enumerate(self.nan_columns):
+                nan_size = self.nan_sizes[i]
+                df.loc[np.random.randint(0, self.n_obs, size=nan_size), nan_column] = np.ones(nan_size) * np.nan
 
         ds[self.store_key] = df
 
