@@ -148,15 +148,11 @@ add_business_rule.logger.log_level = LogLevel.DEBUG
 ch.add(add_business_rule)
 
 # todo add business rule columns to evaluation and report
-# Usually, DoF = number of bins - number of model parameters. However, in this case, DoF is equal to 2 * the
-# number of bins - number of model parameters. Two times the number of bins the reference (data_to_resample) has a
-# DoF per bin as well.
 bins = [np.array([-10, 1.5, 10]), np.array([-10, 0.5, 10]), np.array([-10, 0.5, 10]), np.array([-10, 1.5, 10]),
         np.array([-100, 0, 100]), np.array([-100, 0, 100]), np.array([-100, 0, 100])]
 evaluater = data_mimic.ResampleEvaluation(data_read_key='data',
                                           resample_read_key='data_resample',
                                           bins=bins,
-                                          n_bins=2**7,
                                           chi2_store_key='chi2',
                                           p_value_store_key='p_value',
                                           new_column_order_read_key='new_column_order',
@@ -173,9 +169,13 @@ ch = Chain('report')
 report = data_mimic.MimicReport(read_key='df',
                                 resample_read_key='df_resample',
                                 new_column_order_read_key='new_column_order',
+                                unordered_categorical_columns=['d', 'e'],
+                                ordered_categorical_columns=['f', 'g'],
+                                continuous_columns=['a', 'b', 'c'],
+                                string_columns=['d', 'e'],
+                                business_rules_columns=['h'],
                                 chi2_read_key='chi2',
                                 p_value_read_key='p_value',
-                                maps_read_key='maps',
                                 key_data_normalized='data_normalized',
                                 distance_read_key='distance',
                                 corr_read_key='correlations'

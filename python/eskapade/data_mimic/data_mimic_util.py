@@ -284,7 +284,6 @@ def insert_back_nans(data_normalized, data, unordered_categorical_i, ordered_cat
     data_continuous_nans = data[:, continuous_i].copy()
     data_to_resample = []
     l = len(data)
-    print(data_normalized)
     if not data_normalized.size:
         data_to_resample = np.concatenate((data[:, unordered_categorical_i],
                                            data[:, ordered_categorical_i]), axis=1)

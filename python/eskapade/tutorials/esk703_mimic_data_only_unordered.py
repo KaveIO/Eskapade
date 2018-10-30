@@ -106,7 +106,6 @@ bins = [np.array([-10, 1.5, 10]), np.array([-10, 0.5, 10])]
 evaluater = data_mimic.ResampleEvaluation(data_read_key='data',
                                           resample_read_key='data_resample',
                                           bins=bins,
-                                          n_bins=2**7,
                                           chi2_store_key='chi2',
                                           p_value_store_key='p_value',
                                           new_column_order_read_key='new_column_order',
@@ -122,9 +121,13 @@ ch = Chain('report')
 report = data_mimic.MimicReport(read_key='df',
                                 resample_read_key='df_resample',
                                 new_column_order_read_key='new_column_order',
+                                unordered_categorical_columns=['a', 'b'],
+                                ordered_categorical_columns=[],
+                                continuous_columns=[],
+                                string_columns=['a', 'b'],
+                                business_rules_columns=[],
                                 chi2_read_key='chi2',
                                 p_value_read_key='p_value',
-                                maps_read_key='maps',
                                 key_data_normalized='data_normalized',
                                 distance_read_key='distance'
                                 )
