@@ -262,17 +262,23 @@ def insert_back_nans(data_normalized, data, unordered_categorical_i, ordered_cat
     data_continuous_nans = data[:, continuous_i].copy()
     data_to_resample = []
     l = len(data)
-    for d in range(0, data_normalized.shape[1]):
-        i_nan = np.argwhere(np.isnan(data_continuous_nans[:, d]))
-        i_not_nan = np.argwhere(~np.isnan(data_continuous_nans[:, d]))
-        a = np.zeros(l)
-        a.put(i_not_nan, data_normalized[:, d])
-        a.put(i_nan, np.nan)
-        data_to_resample.append(a)
+    print(data_normalized)
+    if not data_normalized.size:
+        data_to_resample = np.concatenate((data[:, unordered_categorical_i],
+                                           data[:, ordered_categorical_i]), axis=1)
+    else:
+        for d in range(0, data_normalized.shape[1]):
+            i_nan = np.argwhere(np.isnan(data_continuous_nans[:, d]))
+            i_not_nan = np.argwhere(~np.isnan(data_continuous_nans[:, d]))
+            a = np.zeros(l)
+            a.put(i_not_nan, data_normalized[:, d])
+            a.put(i_nan, np.nan)
+            data_to_resample.append(a)
 
-    data_to_resample = np.stack(data_to_resample, axis=-1)
-    data_to_resample = np.concatenate((data[:, unordered_categorical_i],
-                                       data[:, ordered_categorical_i], data_to_resample), axis=1)
+        data_to_resample = np.stack(data_to_resample, axis=-1)
+        data_to_resample = np.concatenate((data[:, unordered_categorical_i],
+                                          data[:, ordered_categorical_i], data_to_resample), axis=1)
+
     return data_to_resample
 
 
@@ -334,7 +340,7 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
                 p = wr_kernel(s=bw[j], z=z, Zi=resample[i, j])
                 try:
                     assert p.sum().round(3) == 1.0
-                except AssertionError as e:
+                except AssertionError:
                     print(f"p must sum to 1!! {p.sum()}")
                     raise
                 resample[i, j] = np.random.choice(a=z, p=p)
@@ -376,7 +382,7 @@ def wr_kernel(s, z, Zi):
     ----------
     s : scalar or 1-D ndarray, shape (K,)
         The bandwidth(s) used to estimate the value of the kernel function
-    Zi : ndarray of ints, shape (nobs, K)
+    zi : ndarray of ints, shape (nobs, K)
         The value of observable(s)
     z : scalar or 1-D ndarray of shape (K,)
         The value at which the kernel density is being estimated. For finite
@@ -453,8 +459,8 @@ def unorderd_mesh_kernel_values(l, c, n_dim):
     Calculates all values of Aitchison-Aitken kernel for all possible delta vector combinations
     :param l: lambda, the bandwith to be evaluated against
     :param c: integer, the category
-    :param n_dim: 
-    :return: the value of the kernel evaluated at
+    :param n_dim: integer, number of rows
+    :return: the value of the kernel evaluated at the entire vector, i.e. the product of the seperate kernels
     :rtype: np.ndarray
     """
     # for each distance value per dimension calculate the kernel value
@@ -473,6 +479,11 @@ def unorderd_mesh_kernel_values(l, c, n_dim):
 def unorderd_mesh_convolution_values(l, c, n_dim):
     """
     Calculates all values of Aitchison-Aitken convolution for all possible delta vector combinations
+    :param l: lambda, the bandwith to be evaluated against
+    :param c: integer, the category
+    :param n_dim: integer, number of rows
+    :return: the value of the kernel evaluated at the entire vector, i.e. the product of the seperate kernels
+    :rtype: np.ndarray
     """
     # for each distance value per dimension calculate the kernel value
     convolution_values = aitchison_aitken_convolution(l, c)
@@ -489,7 +500,16 @@ def unorderd_mesh_convolution_values(l, c, n_dim):
 
 def unordered_mesh_eval(l, c, n_obs, n_dim, delta_frequencies, cv_delta_frequencies):
     """
-    Calculates the cross validation score for Patrick's categorical optimisation
+    Calculates the cross validation score for categorical optimization
+
+    :param l: lambda, the bandwith to be evaluated against
+    :param c: integer, the category
+    :param n_dim: integer, number of features
+    :param n_obs: integer, number of observations
+    :param delta_frequencies: frequency of the occurence of each unique (feature) vector
+    :param cv_delta_frequencies: frequency of the occurence of each unique (feature) vector
+    :return: the cv score
+    :rtype: np.ndarray
     """
     convolution_values = unorderd_mesh_convolution_values(l, c, n_dim)
     kernel_values = unorderd_mesh_kernel_values(l, c, n_dim)
@@ -504,12 +524,19 @@ def unordered_mesh_eval(l, c, n_obs, n_dim, delta_frequencies, cv_delta_frequenc
 def hash_combinations(hash_function, combinations):
     """
     Hash function
+    :param combinations: combinations on which to apply the hash function
+    :param hash_function: the result of the hashfunction
+    :return: the inner product of the hash_function and the combinations
+    :rtype: np.ndarray
     """
     return np.inner(combinations, hash_function)
 
 def construct_meshgrid(array):
     """
     Gives the total enumeration of all possible values, where the values per dimension j are given in array[j]
+    :param array: combinations on which to apply the hash function
+    :return: meshgrid, on which to evaluate the cv
+    :rtype: np.ndarray
     """
     dimensions = np.array(array).shape[0]
     meshgrid_parameter_str = ''
@@ -524,6 +551,11 @@ def calculate_delta_frequencies(data, n_obs, n_dim):
     """
     Calculates how often each difference delta=1 : X_{i_1} == X_{i_2} delta=0 : X_{i_1} != X_{i_2}
     appears in the comparison of all observations with each other {X_{i_1}}_{i_1=1}^n, {X_{i_2}}_{i_2=1}^n,
+    :param data: np.array, data
+    :param n_obs: int number of observations
+    :param n_dim: int, number of dimensions
+    :return: the frequency of each delta vector
+    :rtype: np.ndarray
     """
     # observed frequencies
     observerd_combinations, observed_frequencies = np.unique(data, axis=0, return_counts=True)
@@ -545,7 +577,6 @@ def calculate_delta_frequencies(data, n_obs, n_dim):
     combination_product_frequencies = np.multiply(observed_frequencies[combinations_index_comparison_meshgrid[:, 0]],
                                                   observed_frequencies[combinations_index_comparison_meshgrid[:, 1]])
 
-    delta_hash = np.arange(2 ** n_dim).astype(np.int)
     delta_frequencies = np.zeros(2 ** n_dim, dtype=np.uint64)
 
     np.add.at(delta_frequencies, delta_combination_hash, combination_product_frequencies)
@@ -561,6 +592,10 @@ def kde_only_unordered_categorical(data):
     """
     Given the a dataset consisting of only categorical variables;
     returns the optimal combinations of dimensional bandwidths.
+
+    :param data: np.array, data
+    :return: the optimal bandwiths
+    :rtype: np.ndarray
 
     References
     ----------
@@ -580,31 +615,32 @@ def kde_only_unordered_categorical(data):
                                                 tol=1e-10)
     return opt.x
 
-def scaled_chi(O, E, k=None):
+
+def scaled_chi(o, e, k=None):
     """
     Function to calculate a weighted chi square for two
-    binned distributions, O (observerd) and E (expected).
+    binned distributions, o (observerd) and e (expected).
     Based on https://www.itl.nist.gov/div898/software/dataplot/refman1/auxillar/chi2samp.htm
 
-    O : array
+    o : array
         Observed frequencies
-    E : array
+    e : array
         Expected frequencies
     k : int
         bins == dof
         """
-    assert len(O) == len(E), f"Both samples need to have the same amount of bins! {len(O), len(E)}"
+    assert len(o) == len(e), f"Both samples need to have the same amount of bins! {len(o), len(e)}"
     if k is None:
-        k = len(O)
+        k = len(o)
     # calc scaling constants:
-    Ko = np.sqrt(np.sum(E) / np.sum(O))
-    Ke = np.sqrt(np.sum(O) / np.sum(E))
+    ko = np.sqrt(np.sum(e) / np.sum(o))
+    ke = np.sqrt(np.sum(o) / np.sum(e))
 
-    if Ko == Ke == 1:
+    if ko == ke == 1:
         dof = k - 1
     else:
         dof = k
 
-    chi = np.sum(((Ko * O - Ke * E)**2) / (E + O))
+    chi = np.sum(((ko * o - ke * e)**2) / (e + o))
     p = 1 - scipy.stats.chi2.cdf(chi, dof)
     return chi, p

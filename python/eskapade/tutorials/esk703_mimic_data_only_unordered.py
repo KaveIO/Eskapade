@@ -5,42 +5,18 @@ Macro: esk201_readdata
 Created: 2018/09/04
 
 Description:
-    This macro illustrates how to resample an existing data set, containing mixed data types, using kernel density
-    estimation (KDE) and a direct resampling technique. First, a data set is simulated containing mixed data types.
-    This data sets represents a general input data set. Then the dataframe KDE is applied on a processed dataframe
-    resulting in kernel bandwiths per dimension. These bandwiths are used to resample a new data set using the
-    existing input data set.
+    This macro illustrates how to resample an existing data set, containing only unordered catagorical data,
+    using kernel density estimation (KDE) and a direct resampling technique. First, a data set is simulated
+    containing only unordered catagorical variables. This data sets represents a general input data set.
+    Then the dataframe KDE is applied on a processed dataframe resulting in kernel bandwiths per dimension.
+    These bandwiths are used to resample a new data set using the existing input data set.
 
-    For now, only the normal rule of thumb is implemented using the statsmodels implementation because the
-    implementation of statsmodels using least squares or maximum likelihood cross validation is too slow for a data
-    set of practical size. We are working on an implementation for least squares cross validation that is significant
-    faster then the current implementation in statsmodels for categorical observables.
-
-    In the resampling step it is chosen to use direct resampling, i.e., using an existing data point to define a kernel
-    around it and sample a new data point from that kernel. Direct resampling is chosen because it is a
-    straightforward technique.
-    Another technique would be to define or describe (binned) the entire multidimensional distribution (the sum of
-    the kernels of all original data points) and sample from that distribution. This is, however, not straightforward
-    to do because such a distribution could take up a lot of memory. Maybe it is possible to define such a
-    distribution sparsely.
+    In the resampling step direct resampling is used, i.e., using an existing data point to define a kernel
+    around it and sample a new data point from that kernel.
 
     Data flow description:
-    1. change column order (unordered categorical, ordered categorical, continuous) on df_to_resample -> data
-    2. smooth_peaks() on data -> data_smoothed
-    3. remove_nans() on data_smoothed -> data_no_nans
-    4. select only continuous columns from data_no_nans -> data_continuous
-        + 4b append_extremes() on data_continuous -> data_extremes (contains two data points extra, the extremes)
-        + 4c transform_to_normal() on data_extremes -> data_normalized. Extremes are deleted from data_normalized.
-    5. concatenation of data_no_nans (unordered categorical and ordered categorical) and data_normalized (only
-       continuous) -> d
-        + 5b KDEMultivariate() on d -> bw (bandwiths)
-    6. insert_back_nans() on data_smoothed, data_normalized and data -> data_to_resample. Data_smoothed is used to
-       determine the original index of the nans for the continuous columns. Data_normalized is used to insert the
-       non-nans for the continuous columns. We want to use data_normalized because we want to resample in the
-       transformed space because the bandwiths are determined in the transformed space. Data is used to insert to
-       the nans and non-nans for the categorical column.
-    7. kde_resample() on data_to_resample -> resample_normalized_unscaled
-    8. scale_and_invert_normal_transformation() on resample_normalized_unscaled -> resample
+    1. KDEMultivariate() on ddata -> bw (bandwiths)
+    2. kde_resample() on data_to_resample -> resample_data
 
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
@@ -51,9 +27,6 @@ LICENSE.
 """
 
 # todo:
-# - add mirroring in resampling
-# - use faster implementation of least squares cross validation
-# - add binning and/or taylor expansion option for continuous columns
 # - add business rules
 # - save (sparse binned) PDF to resample (not direct resampling)
 
@@ -66,12 +39,12 @@ from eskapade.logger import Logger, LogLevel
 
 
 logger = Logger()
-logger.debug('Now parsing configuration file esk701_mimic_data')
+logger.debug('Now parsing configuration file esk703_mimic_data')
 
 #########################################################################################
 # --- minimal analysis information
 settings = process_manager.service(ConfigObject)
-settings['analysisName'] = 'esk701_mimic_data'
+settings['analysisName'] = 'esk703_mimic_data'
 settings['version'] = 0
 
 np.random.seed(42)
@@ -81,11 +54,8 @@ ch.logger.log_level = LogLevel.DEBUG
 
 sim_data = data_mimic.MixedVariablesSimulation(store_key='df',
                                                n_obs=100000,
-                                               p_unordered=np.array([[0.2, 0.2, 0.3, 0.3], [0.3, 0.7]]),
-                                               heaping_values=[35.1],
-                                               heaping_sizes=[3000],
-                                               nan_sizes=[2000, 2000],
-                                               nan_columns=[])
+                                               p_unordered=np.array([[0.2, 0.2, 0.3, 0.3], [0.3, 0.7]]))
+
 sim_data.logger.log_level = LogLevel.DEBUG
 ch.add(sim_data)
 
@@ -103,6 +73,7 @@ pre_data = data_mimic.KDEPreparation(read_key='df',
                                      count=1,
                                      extremes_fraction=0.15,
                                      smoothing_fraction=0.0002)
+
 pre_data.logger.log_level = LogLevel.DEBUG
 ch.add(pre_data)
 
@@ -160,4 +131,4 @@ report = data_mimic.MimicReport(read_key='df',
 report.logger.log_level = LogLevel.DEBUG
 ch.add(report)
 
-logger.debug('Done parsing configuration file esk701_mimic_data')
+logger.debug('Done parsing configuration file esk703_mimic_data')

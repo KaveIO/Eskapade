@@ -176,7 +176,7 @@ class KDEPreparation(Link):
         continuous_i = [new_column_order.index(c) for c in self.continuous_columns]
 
         # if continious data is not present, we do not need smoothing:
-        if self.continuous_columns != []:
+        if self.continuous_columns:
             peaks = find_peaks(data, continuous_i, count=self.count)
             data_smoothed = smooth_peaks(data, peaks, smoothing_fraction=self.smoothing_fraction)
             # remove nans
@@ -196,7 +196,7 @@ class KDEPreparation(Link):
             ds[self.data_smoothed_store_key] = data
             data_no_nans = remove_nans(data)
             ds[self.data_no_nans_store_key] = np.array(data_no_nans)
-            ds[self.data_normalized_store_key] = []
+            ds[self.data_normalized_store_key] = np.array([])
             ds[self.qts_store_key] = []
 
 

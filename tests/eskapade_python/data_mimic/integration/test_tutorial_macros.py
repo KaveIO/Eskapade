@@ -53,7 +53,7 @@ class DataMimicTutorialMacrosTest(TutorialMacrosTest):
         self.assertIsInstance(ds['chi2'], np.float64)
         self.assertIsInstance(ds['p_value'], np.float64)
 
-        self.assertEqual(ds['df'].shape[1], 7)
+        self.assertEqual(ds['df'].shape[1], 8)
         self.assertEqual(ds['data'].shape[1], 7)
         self.assertEqual(ds['data_smoothed'].shape[1], 7)
         self.assertEqual(ds['data_no_nans'].shape[1], 7)
@@ -63,7 +63,7 @@ class DataMimicTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(len(ds['continuous_i']), 3)
         self.assertEqual(ds['bw'].shape[0], 7)
         self.assertEqual(ds['data_resample'].shape[1], 7)
-        self.assertEqual(ds['df_resample'].shape[1], 8)
+        self.assertEqual(ds['df_resample'].shape[1], 9)
 
         # check if the generated data indeed contains and strings
         self.assertTrue((ds['df'].isnull().sum() > 0).any())
@@ -117,7 +117,7 @@ class DataMimicTutorialMacrosTest(TutorialMacrosTest):
         self.assertIsInstance(ds['data'], np.ndarray)
         self.assertIsInstance(ds['data_smoothed'], np.ndarray)
         self.assertIsInstance(ds['data_no_nans'], np.ndarray)
-        self.assertIsInstance(ds['data_normalized'], list)
+        self.assertIsInstance(ds['data_normalized'], np.ndarray)
         self.assertIsInstance(ds['unordered_categorical_i'], list)
         self.assertIsInstance(ds['ordered_categorical_i'], list)
         self.assertIsInstance(ds['continuous_i'], list)
