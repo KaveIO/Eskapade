@@ -286,8 +286,11 @@ def insert_back_nans(data_normalized, data, unordered_categorical_i, ordered_cat
     data_continuous_nans = data[:, continuous_i].copy()
     data_to_resample = []
     l = len(data)
-
-    if not data_normalized:
+    print(data_normalized)
+    if not data_normalized.size:
+        data_to_resample = np.concatenate((data[:, unordered_categorical_i],
+                                           data[:, ordered_categorical_i]), axis=1)
+    else:
         for d in range(0, data_normalized.shape[1]):
             i_nan = np.argwhere(np.isnan(data_continuous_nans[:, d]))
             i_not_nan = np.argwhere(~np.isnan(data_continuous_nans[:, d]))
@@ -299,9 +302,6 @@ def insert_back_nans(data_normalized, data, unordered_categorical_i, ordered_cat
         data_to_resample = np.stack(data_to_resample, axis=-1)
         data_to_resample = np.concatenate((data[:, unordered_categorical_i],
                                        data[:, ordered_categorical_i], data_to_resample), axis=1)
-    else:
-        data_to_resample = np.concatenate((data[:, unordered_categorical_i],
-                                           data[:, ordered_categorical_i]), axis=1)
 
     return data_to_resample
 
@@ -654,9 +654,9 @@ def scaled_chi(o, e, k=None):
     k : int
         bins == dof
         """
-    assert len(O) == len(E), f"Both samples need to have the same amount of bins! {len(O), len(E)}"
+    assert len(o) == len(e), f"Both samples need to have the same amount of bins! {len(o), len(e)}"
     if k is None:
-        k = len(O)
+        k = len(o)
     # calc scaling constants:
     ko = np.sqrt(np.sum(e) / np.sum(o))
     ke = np.sqrt(np.sum(o) / np.sum(e))
@@ -666,7 +666,7 @@ def scaled_chi(o, e, k=None):
     else:
         dof = k
 
-    chi = np.sum(((ko * O - ke * e)**2) / (e + O))
+    chi = np.sum(((ko * o - ke * e)**2) / (e + o))
     p = 1 - scipy.stats.chi2.cdf(chi, dof)
     return chi, p
 
