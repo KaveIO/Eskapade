@@ -69,18 +69,15 @@ class DataMimicTutorialMacrosTest(TutorialMacrosTest):
         self.assertTrue((ds['df'].isnull().sum() > 0).any())
         self.assertEqual([pd.api.types.infer_dtype(ds['df'][x]) for x in ds['df'].columns],
                          ['floating', 'floating', 'floating',
-                          'string', 'string', 'floating', 'integer'])
+                          'string', 'string', 'floating', 'integer', 'integer'])
         self.assertEqual([pd.api.types.infer_dtype(ds['df_resample'][x]) for x in ds['df_resample'].columns],
                          ['string', 'string', 'floating', 'floating',
-                          'floating', 'floating', 'floating', 'integer'])
+                          'floating', 'floating', 'floating', 'integer', 'floating'])
 
-        self.assertEqual([len(np.unique(ds['df'].dropna()[x])) for x in ds['df'].columns[-4:]],
-                         [4, 2, 3, 5])
-        self.assertEqual([len(np.unique(ds['df_resample'].dropna()[x])) for x in ds['df_resample'].columns[:4]],
-                         [4, 2, 3, 5])
-
-        self.assertTrue(np.array([x in ds['new_column_order'] for x in ds['df'].columns]).all())
-        self.assertTrue(np.array([x in ds['new_column_order'] for x in ds['df_resample'].columns[:-1]]).all())
+        self.assertEqual([len(np.unique(ds['df'].dropna()[x])) for x in ['d', 'e', 'f', 'g', 'h']],
+                         [4, 2, 3, 5, 5])
+        self.assertEqual([len(np.unique(ds['df_resample'].dropna()[x])) for x in ['d', 'e', 'f', 'g', 'h']],
+                         [4, 2, 3, 5, 5])
 
     def test_esk703_only_ordered(self):
 
