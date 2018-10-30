@@ -24,7 +24,7 @@ The macro is build up in the following way:
 
 We'll go through each of the links and explain the workings, choices made and available options so to help facitilitate the use after a client engagement.
 
-To run the macro for a client engamgent you need to edit the first link to read in the data:
+To run the macro for a client engamgent you need to change out the first link, which simulates fake data, to the ReadToDf link in order to read in the data:
 
 .. code-block:: python
     
@@ -44,9 +44,12 @@ To run the macro for a client engamgent you need to edit the first link to read 
                                reader=settings['reader'])
     ch.add(reader)
 
-For ordered variables it is important that you provide that ``settings['maps'])`` variable. It contains a dictonary mapping the string values of the variable to a numeric value that matches the order from low to high. For example, a variable ordered containing 'low', 'medium' and 'high' values should be mapped to 0, 1 and 3. If the mapping is not included the macros will assing numeric values but in order of first appearance, thus not guaranteeing the implied order of the strings. (aka: the macro doesnt know 'low' is the lowest, or 'V1' is the lowest value in your catagory.)
+For ordered variables that are strings, it is important that you provide the ``settings['maps'])`` variable. It contains a dictonary mapping the string values of the variable to a numeric value that matches the order from low to high. For example, a variable ordered containing 'low', 'medium' and 'high' values should be mapped to 0, 1 and 3. If the mapping is not included the macros will assing numeric values but in order of first appearance, thus not guaranteeing the implied order of the strings. (aka: the macro doesnt know 'low' is the lowest, or 'V1' is the lowest value in your catagory.)
 
-Addionally, you need to provide the macro with the data type contained in each column, ordered-, and unordered catagorical, or continuous. Finally also provide the columns which contain strings, so the macro will transfer them to numerical values. In case of ordered catagorical values this will happen using the ``maps`` you mentioned above, in the other cases it will automatically provide a map and add it to the datastore.
+.. warning::
+  When providing the map for ordered catagorical variables, you also need to add them for the unordered catagorical variables which are strings. The macro will either create maps for all string variables, or will use the provided ``maps`` input.
+
+Addionally, you need to provide the macro with the data type contained in each column, ordered-, and unordered catagorical, or continuous. Finally also provide the columns which contain strings, so the macro will transfer them to numerical values. In case of ordered catagorical values this will happen using the ``maps`` you mentioned above. If it is not provided, the macro will automatically create a map and add it to the datastore. The automatically created map does not take any implicit order of catagories into account.
 
 .. code-block:: python
 
@@ -55,12 +58,10 @@ Addionally, you need to provide the macro with the data type contained in each c
     settings['continuous_columns'] = ['e','f','g']
     settings['string_columns'] = ['a','c']
 
-The rest of the macro can be run as is as far as functionallity goes. There are a few parameters that can be tweaked to optimize the results:
+The rest of the macro can be run as is as far as functionality goes. There are a few parameters that can be tweaked to optimize the results:
 
  - ``ds['bw']`` in ``Resampler`` is a list of bandwidths estimated by the kde corresponding to the columns of the data as stored in ``ds``.
  - ``bins`` in ``ResampleEvaluation`` controls the bins used to bin the data for chi square evaluation. For more details on the impact of choosing these bins please refer to Chi-square_
-
-
 
 
 Mixed Variables Simulation
@@ -69,7 +70,6 @@ Mixed Variables Simulation
 The first link exists to create some fake data to run the tutorial macro on. Naturally, if you want to run the data_mimic to resimulate a specific dataset, this link is not necessary.
 
 The link takes some parameters as input that will determine how the data is generated, such as the number of observations, the probabilities associated with each category per dimension, and the mean stds for the coninuous data.
-
 
 KDE Preperation
 ^^^^^^^^^^^^^^^
@@ -92,21 +92,20 @@ The result is a bandwidth *bw* for each varibale, which are saved in a list in t
 
 Resampler
 ^^^^^^^^^
-Resample the data based on the data type and estimated bandwith.
 
-Currently the resampler loops over each datapoint and variable ``j`` and resamples by:
+Currently the resampler loops over each datapoint and variable `j` and resamples by:
   - Resamples a new point from a normal distribution centered at the original datapoint, with ``std=bw[j]``, for continuous varibales.
   - Resamples randomly from all catagories != current catagory if ``bw[j] > np.random.rand()`` for unordered catagorical variables.
   - Resamples using a Wang-Ryzin kernel defined at the datapoint using bandwith ``bw[j]`` for ordered catagorical variables. 
 
 ResampleEvaluation
 ^^^^^^^^^^^^^^^^^^
-Evaluates the distribution similarities based on Chi-square, Kolmogorov-Smirnov and the Cosine distance. The formulas and applicatins of these metrics to the datset are explained below.
+Evaluates the distribution similarities based on Chi-square, Kolmogorov-Smirnov and the Cosine distance. The formulas and applications of these metrics to the datset are explained below.
 
 Chi-square
 ==========
 
-When applying the two sample chi-square test we are testing wether to datasets come from a common distribution.
+When applying the two sample chi-square test we are testing whether two datasets come from a common distribution.
 
 - :math:`H_0`: The two sets come from a common distribution
 - :math:`H_1`: :math:`H_0` is false, the sets come from different distributions
@@ -129,7 +128,8 @@ In case the datasets are not of equal sample size, we can still use the Chi-squa
 .. math::
   \chi^2 = \sum_{i=1}^{k}{\frac{(R - E)^2}{E}}
 
-  .. image:: ../images/chi-plot.png
+.. image:: 
+  ../images/chi-plot.png
 
 Kolmogorov-Smirnov
 ==================
@@ -137,7 +137,7 @@ Kolmogorov-Smirnov
 The Kolmogorov–Smirnov test may also be used to test whether two underlying one-dimensional probability distributions differ. In this case, we apply the KS test to each variable and save the results.
 
 .. note::
-  The KS test assumes the distribution is continious. Altough the test is run for all variables, we should keep this in mind when looking at the results for the catagorical variables. 
+  The KS test assumes the distribution is continious. Although the test is run for all variables, we should keep this in mind when looking at the results for the catagorical variables. 
 
 If the K-S statistic is small or the p-value is high, then we cannot reject the null-hypothesis that the distributions of the two samples are the same. Aka: They are sufficiently similar to say they are from the same distrubution.
 
@@ -149,7 +149,7 @@ If the K-S statistic is small or the p-value is high, then we cannot reject the 
 Cosine-distance
 ===============
 
-We also tried to define a distance from the original dataset to the resampled one. A way to do this is using the cosine distance, which will return the distance between to vectors between 0 and 1, where 0 is the closest and 1 is the furthest away a two vectors can.
+We also tried to define a distance from the original dataset to the resampled one. We employ the cosine distance applied to each point and its resampled point, represented as a vector. The distance will be 0 when on top of each other, and the max distance is. 
 
 We define a vector as the combination of all variables for one datapoint (or row in your dataset).
   - All continuous values are represented as is
@@ -158,7 +158,6 @@ We define a vector as the combination of all variables for one datapoint (or row
 
 Then, the cosine distance is calculated for each point and it's corresponding resample.
 
-
 .. math::
   \cos(\theta) = \frac{A\cdot B}{\|A\|\|B\|}
 
@@ -166,13 +165,13 @@ Mimic Report
 ^^^^^^^^^^^^
 The mimic report link will create a standard eskapade style pdf report. The report includes per variable:
  - A stacked histogram plot showing before and after the resampling
- - A stacked histogram plot of the copula space and a normal distribution
+ - A stacked histogram plot of the data per variable in the copula space and a normal distribution
  - A correlation matrix of numeric values before and after resimulation
 
 Each variable page also contains the chi-square values comparing before and afer the resampling (also see Chi-square_). For each variable, there is a table containing several values. The values correspond the chisquare calculation done on a 1D histogram of the variable itself, and done on 2D histograms of two variables as listed in the table.
 
 **Example:**
-On the page of variable 'd'
+On the page of variable *d*
 
 +--+--------+---------+----+
 |  | Chi2   |p-value  |dof |
@@ -192,7 +191,7 @@ On the page of variable 'd'
 |c |1.43721 |0.696837 |3   |
 +--+--------+---------+----+
 
-The value 1.22 corresponds to the calculation variable 'd' before and after the resampling. The value of 1034.82 corresponds to the calculations done on a 2D histogram of variables 'd' and 'e', before and after the resampling.
+The value 1.22 corresponds to the calculation variable *d* before and after the resampling. The value of 1034.82 corresponds to the calculations done on a 2D histogram of variables *d* and *e*, before and after the resampling.
 
 Finally, two other metrics, the Kolmogorov-Smirnov and the cosine distance, are also calculated and shown in the report. You can find these on the last page.
 
