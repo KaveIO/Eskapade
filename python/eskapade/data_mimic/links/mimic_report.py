@@ -5,7 +5,7 @@ Class: mimic_report
 Created: 2018-10-04
 
 Description:
-    Algorithm to ...(fill in one-liner here)
+    Algorithm to create a report based on the data-mimic output.
 
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
@@ -19,7 +19,6 @@ from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode,
 from eskapade.core import persistence
 from eskapade.visualization import vis_utils as plt
 from eskapade.data_mimic.dm_vis_util import plot_heatmaps
-from eskapade.analysis import correlation
 
 import numpy as np
 import pandas as pd
@@ -30,10 +29,10 @@ import tabulate
 
 class MimicReport(Link):
 
-    """Defines the content of link."""
+    """The link will take the output makde by the data mimic macro and create a report."""
 
     def __init__(self, **kwargs):
-        """Initialize an instance.
+        """Create a report to validate the resampled data.
 
         :param str name: name of link
         :param str read_key: key of original data to read from data store
@@ -43,7 +42,10 @@ class MimicReport(Link):
         :param str results_path: where to save the report
         :param str chi2_read_key: key of the saved chi-square value to read from the data store
         :param str p_value_read_key: key of the saved p-value to read from the data store
-        :param str maps: key of the saved maps to read from the data store
+        :param str maps_read_key: key of the saved maps to read from the data store
+        :param str key_data_normalized: key of the saved normalized data in the data store
+        :param str distance_read_key: key of the saved cosine distance calculations in the data store
+        :param str corr_read_key: key of the saved correlations in the data store
 
         """
         # initialize Link, pass name from kwargs
@@ -157,17 +159,14 @@ class MimicReport(Link):
             fpath = os.path.join(self.results_path, fname)
 
             if thing in ds['continuous_i']:
-                # hrange = (np.round(np.min(data) + np.min(data) * .2), np.round(np.max(data) + np.max(data) * .2))
+
                 hrange = (np.percentile(data, 1), np.percentile(data, 99))
-                # hrange[0] += hrange[0] * .2
-                # hrange[1] += hrange[1] * .2
 
                 hist_original = np.histogram(data, range=hrange, bins='auto')
                 hist_resampled = np.histogram(data_r, range=hrange, bins=len(hist_original[0]))
                 width = None
                 xlim = None
                 is_num = True
-            # elif (thing in ds['unordered_categorical_i']) | (thing in ds['ordered_categorical_i']):
             else:
 
                 bin_edges, bin_counts = np.unique(data, return_counts=True)
@@ -256,27 +255,9 @@ class MimicReport(Link):
                                   .replace('VAR_HISTOGRAM_PATH', fpath))
 
         # -- plot the correlation heatmaps
-
-        # -- reconstruct as dataframe
         title = "Correlation heatmaps"
         fname = f'Heatmaps.pdf'
         fpath = os.path.join(self.results_path, fname)
-
-        # o_cont = pd.DataFrame(orig_data[:, ds['continuous_i']],
-        #                       columns=np.array(ds['new_column_order'])[ds['continuous_i']],
-        #                       dtype='float')
-        # df_o = o_cont.merge(pd.DataFrame(orig_data[:, ds['ordered_categorical_i'] + ds['unordered_categorical_i']],
-        #                     columns=np.array(ds['new_column_order'])[ds['ordered_categorical_i'] +
-        #                                                              ds['unordered_categorical_i']]),
-        #                     left_index=True, right_index=True)
-
-        # r_cont = pd.DataFrame(resa_data[:, ds['continuous_i']],
-        #                       columns=np.array(ds['new_column_order'])[ds['continuous_i']],
-        #                       dtype='float')
-        # df_r = r_cont.merge(pd.DataFrame(resa_data[:, ds['ordered_categorical_i'] + ds['unordered_categorical_i']],
-        #                     columns=np.array(ds['new_column_order'])[ds['ordered_categorical_i'] +
-        #                                                              ds['unordered_categorical_i']]),
-        #                     left_index=True, right_index=True)
 
         correlations = [x[0].values for x in ds[self.corr_read_key]]
         labels = ds[self.corr_read_key][0][1]

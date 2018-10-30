@@ -50,6 +50,12 @@ class ResampleEvaluation(Link):
         :param str chi2_store_key: key of chiˆ2 value to store in data store
         :param str p_value_store_key: key of p-value to store in data store
         :param str dof_read_key: key of DoF to read from data store. If None, DoF is set to 2 * n_bins
+        :param str new_column_order_read_key: key of the column order of the data as saved in the datastore
+        :param str ks_store_key: key to save the KS-metric in the data store
+        :param str chis_store_key: key to save the chi-square calculations in the data store
+        :param str distance_store_key: key to save the cosine distance calculations in the data store
+        :param str df_resample_read_key: key of the saved resampled data in the data store
+        :param str corr_store_key: key to save the correlations in the data store
         """
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'ResampleEvaluation'))
