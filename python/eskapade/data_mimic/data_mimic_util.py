@@ -415,6 +415,171 @@ def wr_kernel(s, z, Zi):
     return kernel_value / corr_factor
 
 
+def aitchison_aitken_kernel(l, c):
+    """
+    Calculates the values of the Aitchison-Aitken kernel
+    :param l: lambda, the bandwith to be evaluated against
+    :param c: integer, the category
+    :return: the value of the kernel evaluated at
+    :rtype: np.ndarray
+    """
+    kernel_values = np.array([[l / (c - 1)], [1 - l]])
+
+    return kernel_values
+
+
+def aitchison_aitken_convolution(l, c):
+    """
+    Calculates the values of the Aitchison-Aitken convolutions
+    :param l: lambda, the bandwith to be evaluated against
+    :param c: integer, the category
+    :return: the value of the kernel convolution at c for bandwith l
+    :rtype: np.ndarray
+    """
+    l_1 = 1 - l
+    l_0 = l / (c - 1)
+
+    ll_00 = np.multiply(l_0, l_0)
+    ll_10 = np.multiply(l_1, l_0)
+    ll_11 = np.multiply(l_1, l_1)
+
+    convolution_values = np.array([[((c - 2) * ll_00) + (2 * ll_10)], [((c - 1) * ll_00) + ll_11]])
+
+    return convolution_values
+
+
+def unorderd_mesh_kernel_values(l, c, n_dim):
+    """
+    Calculates all values of Aitchison-Aitken kernel for all possible delta vector combinations
+    :param l: lambda, the bandwith to be evaluated against
+    :param c: integer, the category
+    :param n_dim: 
+    :return: the value of the kernel evaluated at
+    :rtype: np.ndarray
+    """
+    # for each distance value per dimension calculate the kernel value
+    kernel_values = aitchison_aitken_kernel(l, c)
+
+    # place the calculated values back w.r.t. the distances array
+    kernel_values_mesh = construct_meshgrid(
+        np.split(np.ndarray.flatten(kernel_values).reshape(n_dim, 2, order='F'), n_dim))
+
+    # take the product over all dimensions for each distances combination
+    product_kernel_values = np.prod(kernel_values_mesh, axis=1)
+
+    return product_kernel_values
+
+
+def unorderd_mesh_convolution_values(l, c, n_dim):
+    """
+    Calculates all values of Aitchison-Aitken convolution for all possible delta vector combinations
+    """
+    # for each distance value per dimension calculate the kernel value
+    convolution_values = aitchison_aitken_convolution(l, c)
+
+    # place the calculated values back w.r.t. the distances array
+    convolution_values_mesh = construct_meshgrid(
+        np.split(np.ndarray.flatten(convolution_values).reshape(n_dim, 2, order='F'), n_dim))
+
+    # take the product over all dimensions for each distances combination
+    product_convolution_values = np.prod(convolution_values_mesh, axis=1)
+
+    return product_convolution_values
+
+
+def unordered_mesh_eval(l, c, n_obs, n_dim, delta_frequencies, cv_delta_frequencies):
+    """
+    Calculates the cross validation score for Patrick's categorical optimisation
+    """
+    convolution_values = unorderd_mesh_convolution_values(l, c, n_dim)
+    kernel_values = unorderd_mesh_kernel_values(l, c, n_dim)
+
+    convolution_term = np.inner(convolution_values, delta_frequencies)
+    kernel_term = np.inner(kernel_values, cv_delta_frequencies)
+
+    cv = convolution_term / (n_obs ** 2) - (2 * kernel_term) / (n_obs * (n_obs - 1))
+
+    return cv
+
+def hash_combinations(hash_function, combinations):
+    """
+    Hash function
+    """
+    return np.inner(combinations, hash_function)
+
+def construct_meshgrid(array):
+    """
+    Gives the total enumeration of all possible values, where the values per dimension j are given in array[j]
+    """
+    dimensions = np.array(array).shape[0]
+    meshgrid_parameter_str = ''
+    for j in range(dimensions):
+        meshgrid_parameter_str += 'array[{}], '.format(j)
+
+    meshgrid = eval('np.array(np.meshgrid(' + meshgrid_parameter_str + 'indexing=\'ij\')).reshape(dimensions,-1).T')
+
+    return meshgrid
+
+def calculate_delta_frequencies(data, n_obs, n_dim):
+    """
+    Calculates how often each difference delta=1 : X_{i_1} == X_{i_2} delta=0 : X_{i_1} != X_{i_2}
+    appears in the comparison of all observations with each other {X_{i_1}}_{i_1=1}^n, {X_{i_2}}_{i_2=1}^n,
+    """
+    # observed frequencies
+    observerd_combinations, observed_frequencies = np.unique(data, axis=0, return_counts=True)
+
+    # get all the indices of the pairs of data combinations to compare
+    combinations_index_range = np.arange(observed_frequencies.size)
+    combinations_index_comparison_meshgrid = construct_meshgrid(np.array([combinations_index_range,
+                                                                          combinations_index_range])).astype(np.uint64)
+
+    # per pair of data combinations get the delta vector
+    comparisons_deltas = np.equal(observerd_combinations[combinations_index_comparison_meshgrid[:, 0], :],
+                                  observerd_combinations[combinations_index_comparison_meshgrid[:, 1], :]).astype(
+        np.uint8)
+
+    # hash the delta combinations;
+    delta_combination_hash = hash_combinations(np.power(2, np.arange(n_dim - 1, -1, -1)), comparisons_deltas)
+
+    # per pair of category combinations get the frequency
+    combination_product_frequencies = np.multiply(observed_frequencies[combinations_index_comparison_meshgrid[:, 0]],
+                                                  observed_frequencies[combinations_index_comparison_meshgrid[:, 1]])
+
+    delta_hash = np.arange(2 ** n_dim).astype(np.int)
+    delta_frequencies = np.zeros(2 ** n_dim, dtype=np.uint64)
+
+    np.add.at(delta_frequencies, delta_combination_hash, combination_product_frequencies)
+
+    cv_delta_frequencies = np.array(delta_frequencies, copy=True)
+    cv_delta_frequencies[
+        hash_combinations(np.power(2, np.arange(n_dim - 1, -1, -1)), np.ones(n_dim)).astype(int)] -= n_obs
+
+    return delta_frequencies, cv_delta_frequencies
+
+
+def kde_only_unordered_categorical(data):
+    """
+    Given the a dataset consisting of only categorical variables;
+    returns the optimal combinations of dimensional bandwidths.
+
+    References
+    ----------
+    .. [*] van Bokhorst, P.S. "Data Set Resampling with Multivariate Mixed Variable Kernel Density Estimation"
+    """
+    # determine data settings
+    n_obs = data.shape[0]
+    data = data.reshape(n_obs, -1)  # if data is one-dimensional
+    n_dim = data.shape[1]
+    c = np.amax(data, axis=0) + 1
+
+    delta_frequencies, cv_delta_frequencies = calculate_delta_frequencies(data, n_obs, n_dim)
+
+    opt = scipy.optimize.differential_evolution(unordered_mesh_eval,
+                                                bounds=[(0, (c[j] - 1) / c[j]) for j in range(n_dim)],
+                                                args=(c, n_obs, n_dim, delta_frequencies, cv_delta_frequencies),
+                                                tol=1e-10)
+    return opt.x
+
 def scaled_chi(O, E, k=None):
     """
     Function to calculate a weighted chi square for two
