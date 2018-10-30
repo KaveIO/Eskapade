@@ -22,7 +22,8 @@ Description:
     Another technique would be to define or describe (binned) the entire multidimensional distribution (the sum of
     the kernels of all original data points) and sample from that distribution. This is, however, not straightforward
     to do because such a distribution could take up a lot of memory. Maybe it is possible to define such a
-    distribution sparsely.
+    distribution sparsely. [YW] and if done correctly would be equivelent to the the first technique. In high dimensional
+    spaces the problem is usually actually drawing a (non-rejected) sample. So I do not really understand this.
 
     Data flow description:
     1. change column order (unordered categorical, ordered categorical, continuous) on df_to_resample -> data
