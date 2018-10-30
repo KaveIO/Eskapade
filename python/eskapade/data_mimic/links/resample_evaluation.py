@@ -25,6 +25,8 @@ from eskapade.analysis import correlation
 from scipy.spatial.distance import cosine
 
 
+# todo for 1 dimensional chi2s: bin per category
+# todo use dof from macro
 class ResampleEvaluation(Link):
     """
     Evaluates the statistical simularity between 2 (multi-dimensional) data sets using a chiˆ2 test. The 2 data sets
