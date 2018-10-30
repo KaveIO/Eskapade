@@ -449,6 +449,10 @@ def wr_kernel(s, z, zi):
 def aitchison_aitken_kernel(l, c):
     """
     Calculates the values of the Aitchison-Aitken kernel
+    :param l: lambda, the bandwith to be evaluated against
+    :param c: integer, the category
+    :return: the value of the kernel evaluated at
+    :rtype: np.ndarray
     """
     kernel_values = np.array([[l / (c - 1)], [1 - l]])
 
@@ -458,6 +462,10 @@ def aitchison_aitken_kernel(l, c):
 def aitchison_aitken_convolution(l, c):
     """
     Calculates the values of the Aitchison-Aitken convolutions
+    :param l: lambda, the bandwith to be evaluated against
+    :param c: integer, the category
+    :return: the value of the kernel convolution at c for bandwith l
+    :rtype: np.ndarray
     """
     l_1 = 1 - l
     l_0 = l / (c - 1)
@@ -474,6 +482,11 @@ def aitchison_aitken_convolution(l, c):
 def unorderd_mesh_kernel_values(l, c, n_dim):
     """
     Calculates all values of Aitchison-Aitken kernel for all possible delta vector combinations
+    :param l: lambda, the bandwith to be evaluated against
+    :param c: integer, the category
+    :param n_dim: 
+    :return: the value of the kernel evaluated at
+    :rtype: np.ndarray
     """
     # for each distance value per dimension calculate the kernel value
     kernel_values = aitchison_aitken_kernel(l, c)
@@ -578,8 +591,7 @@ def calculate_delta_frequencies(data, n_obs, n_dim):
 def kde_only_unordered_categorical(data):
     """
     Given the a dataset consisting of only categorical variables;
-    returns the optimal combinations of dimensional bandwidths
-    uses the method from Patrick's thesis
+    returns the optimal combinations of dimensional bandwidths.
 
     References
     ----------
