@@ -69,12 +69,10 @@ def generate_continuous_random_data(n_obs, means_stds):
     """
     means = means_stds[0]
     stds = means_stds[1]
-
-
     try:
         assert len(means) == len(stds)
     except AssertionError:
-        print('length of means is not equal to lenth of standard deviations')
+        print('lenth of means is not equal to lenth of standard deviations')
     n_dim = len(means)
 
     data = np.empty((n_obs, n_dim), dtype=np.float)
@@ -86,7 +84,7 @@ def generate_continuous_random_data(n_obs, means_stds):
     return data
 
 
-def generate_data(n_obs = None, p_unordered = None, p_ordered = None, means_stds = None, dtype_unordered_categorical_data=np.str):
+def generate_data(n_obs, p_unordered, p_ordered, means_stds, dtype_unordered_categorical_data=np.str):
     """
     Generates unordered categorical, ordered categorical and continuous random data.
     See the docs of the functions generate_unordered_categorical_random_data, generate_ordered_categorical_random_data
@@ -103,33 +101,11 @@ def generate_data(n_obs = None, p_unordered = None, p_ordered = None, means_stds
     :return: The generated data
     :rtype: pd.DataFrame
     """
-    # Input checking
-    assert n_obs is not None and n_obs != 0, 'n_obs is 0 or None'
-
-    assert p_unordered is not None or p_ordered is not None or means_stds is not None, \
-        'p_unordered is None, p_ordered is None and means_stds is None. Please set one of these values'
-
-    if p_unordered is not None:
-        unordered_categorical_data = generate_unordered_categorical_random_data(n_obs,
+    unordered_categorical_data = generate_unordered_categorical_random_data(n_obs,
                                                                             p_unordered,
                                                                             dtype=dtype_unordered_categorical_data)
-    else:
-        unordered_categorical_data = np.array([[]])
-
-
-
-    if p_ordered is not None:
-        ordered_categorical_data = generate_ordered_categorical_random_data(n_obs, p_ordered)
-    else:
-        ordered_categorical_data = np.array([[]])
-
-
-
-    if means_stds is not None:
-        continuous_data = generate_continuous_random_data(n_obs, means_stds)
-    else:
-        continuous_data = np.array([[]])
-
+    ordered_categorical_data = generate_ordered_categorical_random_data(n_obs, p_ordered)
+    continuous_data = generate_continuous_random_data(n_obs, means_stds)
 
     alphabet = np.array(list(string.ascii_lowercase))
     columns1 = list(alphabet[0:continuous_data.shape[1]])
@@ -301,10 +277,9 @@ def insert_back_nans(data_normalized, data, unordered_categorical_i, ordered_cat
 
         data_to_resample = np.stack(data_to_resample, axis=-1)
         data_to_resample = np.concatenate((data[:, unordered_categorical_i],
-                                       data[:, ordered_categorical_i], data_to_resample), axis=1)
+                                          data[:, ordered_categorical_i], data_to_resample), axis=1)
 
     return data_to_resample
-
 
 
 def kde_resample(n_resample, data, bw, variable_types, c_array):
@@ -362,7 +337,7 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
             elif variable_types_array[j] == 'o':
                 # --  points at which the pdf should be evaluated
                 z = c_array[j]
-                p = wr_kernel(s=bw[j], z=z, zi=resample[i, j])
+                p = wr_kernel(s=bw[j], z=z, Zi=resample[i, j])
                 try:
                     assert p.sum().round(3) == 1.0
                 except AssertionError:
@@ -397,7 +372,7 @@ def scale_and_invert_normal_transformation(resample_normalized_unscaled, continu
     return resample
 
 
-def wr_kernel(s, z, zi):
+def wr_kernel(s, z, Zi):
     r"""Implementation of the wang-ryzin kernel as implemented by statsmodels.
     Adapted so it is defined for finite intervals ex. {1...c}.
 
@@ -433,12 +408,12 @@ def wr_kernel(s, z, zi):
     .. [*] M.-C. Wang and J. van Ryzin, "A class of smooth estimators for
            discrete distributions", Biometrika, vol. 68, pp. 301-309, 1981.
     """
-    zi = zi.reshape(zi.size)  # seems needed in case Zi is scalar
+    Zi = Zi.reshape(Zi.size)  # seems needed in case Zi is scalar
 
-    kernel_value = 0.5 * (1 - s) * (s ** abs(zi - z))
+    kernel_value = 0.5 * (1 - s) * (s ** abs(Zi - z))
 
     # --  if Zi == z
-    idx = zi == z
+    idx = Zi == z
     kernel_value[idx] = (idx * (1 - s))[idx]
 
     corr_factor = kernel_value.sum()
@@ -669,4 +644,3 @@ def scaled_chi(o, e, k=None):
     chi = np.sum(((ko * o - ke * e)**2) / (e + o))
     p = 1 - scipy.stats.chi2.cdf(chi, dof)
     return chi, p
-
