@@ -18,7 +18,7 @@ LICENSE.
 from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode, resources
 from eskapade.core import persistence
 from eskapade.visualization import vis_utils as plt
-from eskapade.data_mimic.dm_vis_util import plot_heatmaps
+from eskapade.data_mimic import dm_vis_util
 
 import numpy as np
 import pandas as pd
@@ -262,7 +262,7 @@ class MimicReport(Link):
         labels = ds[self.corr_read_key][0][1]
         xlabels = np.array(ds[self.new_column_order_read_key])[labels]
 
-        plot_heatmaps(correlations, x_labels=xlabels, pdf_file_name=fpath)
+        dm_vis_util.plot_heatmaps(correlations, x_labels=xlabels, pdf_file_name=fpath)
 
         stats_table = ''
 
