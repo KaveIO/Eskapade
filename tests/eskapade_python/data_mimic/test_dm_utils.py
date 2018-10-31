@@ -18,25 +18,28 @@ from eskapade import data_mimic
 class TestMimicReport(unittest.TestCase):
 
     def setUp(self):
+        np.random.seed(42)
+
         from eskapade import process_manager, DataStore
         self.ds = process_manager.service(DataStore)
 
         # -- make fake data
+        self.ds['new_column_order'] = ['a', 'b', 'c', 'd']
+        self.ds['read_key'] = pd.DataFrame(np.hstack((np.random.normal(0, 1, (100, 1)),
+                                                      np.random.normal(0, 1, (100, 1)),
+                                                      np.random.normal(0, 1, (100, 1)),
+                                                      np.random.randint(0, 4, (100, 1)))),
+                                           columns=self.ds['new_column_order'])
 
-        self.ds['read_key'] = np.vstack((np.random.normal(0, 1, (100, 1)),
-                                         np.random.normal(0, 1, (100, 1)),
-                                         np.random.normal(0, 1, (100, 1)),
-                                         np.random.randint(0, 4, (100, 1))))
-        self.ds['resample_read_key'] = np.vstack((np.random.normal(0, 1, (100, 1)),
-                                                  np.random.normal(0, 1, (100, 1)),
-                                                  np.random.normal(0, 1, (100, 1)),
-                                                  np.random.randint(0, 4, (100, 1))))
+        self.ds['resample_read_key'] = pd.DataFrame(np.hstack((np.random.normal(0, 1, (100, 1)),
+                                                               np.random.normal(0, 1, (100, 1)),
+                                                               np.random.normal(0, 1, (100, 1)),
+                                                               np.random.randint(0, 4, (100, 1)))),
+                                                    columns=self.ds['new_column_order'])
 
-        self.ds['new_column_order_read_key'] = ['a', 'b', 'c', 'd']
         self.ds['results_path'] = 1
         self.ds['chi2_read_key'] = 22
         self.ds['p_value_read_key'] = ''
-        self.ds['maps_read_key'] = {'d': pd.Series(index=[0, 1, 2, 3], data=['a', 'b', 'c', 'd'])}
         self.ds['key_data_normalized'] = np.random.normal(0, 1, (100, 3))
         self.ds['corr_read_key'] = [pd.DataFrame(np.random.randint(0, 2, (3, 3))),
                                     pd.DataFrame(np.random.randint(0, 2, (3, 3)))]
@@ -44,6 +47,8 @@ class TestMimicReport(unittest.TestCase):
         self.ds['continuous_i'] = [0, 1, 2]
         self.ds['ordered_categorical_i'] = [3]
         self.ds['unordered_categorical_i'] = []
+
+
         self.ds['chis'] = {'a': {'a': {'chi': 0, 'p-value': 1, 'bins': 100}},
                            'b': {'a': {'chi': 0, 'p-value': 1, 'bins': 100}},
                            'c': {'a': {'chi': 0, 'p-value': 1, 'bins': 100}},
@@ -66,21 +71,23 @@ class TestMimicReport(unittest.TestCase):
             read_key='read_key',
             resample_read_key='resample_read_key',
             store_key='store_key',
-            new_column_order_read_key='new_column_order_read_key',
+            new_column_order_read_key='new_column_order',
             results_path='results_path',
             chi2_read_key='chi2_read_key',
             p_value_read_key='p_value_read_key',
-            maps_read_key='maps_read_key',
             key_data_normalized='key_data_normalized',
             distance_read_key='distance_read_key',
-            corr_read_key='corr_read_key')
+            corr_read_key='corr_read_key',
+            continuous_columns=['a', 'b', 'c'],
+            ordered_categorical_columns=['d'],
+            unordered_categorical_columns=[])
         link.initialize()
         link.execute()
 
         # should be called once
         assert mock_heatmaps.call_count == 1
         # should be called as many times as there are columns
-        assert mock_overlay_hist.call_count == len(self.ds['continuous_i']) + \
+        assert mock_overlay_hist.call_count == 2*len(self.ds['continuous_i']) + \
             len(self.ds['ordered_categorical_i']) + \
             len(self.ds['unordered_categorical_i'])
 
@@ -103,7 +110,6 @@ class TestResampleEvaluation(unittest.TestCase):
 
         self.ds['bins'] = [np.array([0, 0.2, 0.6, 1]), np.array([0, 0.2, 0.6, 1]), np.array([0, 0.2, 0.6, 1]),
                            np.array([0, 0.2, 0.6, 1])]
-        self.ds['n_bins'] = 2,
         self.ds['new_column_order'] = ['a', 'b', 'c', 'd']
         self.ds['df_resample'] = pd.DataFrame(self.ds['data_resample'],
                                               columns=self.ds['new_column_order'])
@@ -125,7 +131,6 @@ class TestResampleEvaluation(unittest.TestCase):
         evaluater = data_mimic.ResampleEvaluation(data_read_key='data',
                                                   resample_read_key='data_resample',
                                                   bins=self.ds['bins'],
-                                                  n_bins=2**7,
                                                   chi2_store_key='chi2',
                                                   p_value_store_key='p_value',
                                                   new_column_order_read_key='new_column_order',
@@ -156,6 +161,14 @@ class TestResampleEvaluation(unittest.TestCase):
         self.assertIsNotNone(self.ds['distance'])
         self.assertIsNotNone(self.ds['correlations'])
 
-    # def test_scaled_chi(self):
+    def test_scaled_chi(self):
 
-        
+        from eskapade.data_mimic.data_mimic_util import scaled_chi
+
+        np.random.seed(42)
+        A = np.random.randint(0, 50, (3, 3))
+        B = np.random.randint(0, 50, (3, 3))
+
+        out = scaled_chi(A, B)
+
+        self.assertEqual(out, (94.25618041980256, 0.0))

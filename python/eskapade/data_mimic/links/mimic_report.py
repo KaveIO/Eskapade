@@ -115,7 +115,7 @@ class MimicReport(Link):
         # --- your algorithm code goes here
         self.logger.debug('Now executing link: {link}.', link=self.name)
 
-        orig_df= ds[self.read_key]
+        orig_df = ds[self.read_key]
         resa_df = ds[self.resample_read_key]
 
         # -- plot the histograms
