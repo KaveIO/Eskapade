@@ -149,5 +149,13 @@ class TestResampleEvaluation(unittest.TestCase):
 
         self.assertEqual(self.ds['correlations'], [1, 1])
 
+        self.assertIsNotNone(self.ds['chi2'])
+        self.assertIsNotNone(self.ds['p_value'])
+        self.assertIsNotNone(self.ds['kss'])
+        self.assertIsNotNone(self.ds['chis'])
+        self.assertIsNotNone(self.ds['distance'])
+        self.assertIsNotNone(self.ds['correlations'])
 
-    # class 
+    # def test_scaled_chi(self):
+
+        
