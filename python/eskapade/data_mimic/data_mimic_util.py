@@ -84,7 +84,7 @@ def generate_continuous_random_data(n_obs, means_stds):
     return data
 
 
-def generate_data(n_obs, p_unordered, p_ordered, means_stds, dtype_unordered_categorical_data=np.str):
+def generate_data(n_obs = None, p_unordered = None, p_ordered = None, means_stds = None, dtype_unordered_categorical_data=np.str):
     """
     Generates unordered categorical, ordered categorical and continuous random data.
     See the docs of the functions generate_unordered_categorical_random_data, generate_ordered_categorical_random_data
@@ -101,11 +101,33 @@ def generate_data(n_obs, p_unordered, p_ordered, means_stds, dtype_unordered_cat
     :return: The generated data
     :rtype: pd.DataFrame
     """
-    unordered_categorical_data = generate_unordered_categorical_random_data(n_obs,
+    # Input checking
+    assert n_obs is not None and n_obs != 0, 'n_obs is 0 or None'
+
+    assert p_unordered is not None or p_ordered is not None or means_stds is not None, \
+        'p_unordered is None, p_ordered is None and means_stds is None. Please set one of these values'
+
+    if p_unordered is not None:
+        unordered_categorical_data = generate_unordered_categorical_random_data(n_obs,
                                                                             p_unordered,
                                                                             dtype=dtype_unordered_categorical_data)
-    ordered_categorical_data = generate_ordered_categorical_random_data(n_obs, p_ordered)
-    continuous_data = generate_continuous_random_data(n_obs, means_stds)
+    else:
+        unordered_categorical_data = np.array([[]])
+
+
+
+    if p_ordered is not None:
+        ordered_categorical_data = generate_ordered_categorical_random_data(n_obs, p_ordered)
+    else:
+        ordered_categorical_data = np.array([[]])
+
+
+
+    if means_stds is not None:
+        continuous_data = generate_continuous_random_data(n_obs, means_stds)
+    else:
+        continuous_data = np.array([[]])
+
 
     alphabet = np.array(list(string.ascii_lowercase))
     columns1 = list(alphabet[0:continuous_data.shape[1]])
@@ -262,7 +284,6 @@ def insert_back_nans(data_normalized, data, unordered_categorical_i, ordered_cat
     data_continuous_nans = data[:, continuous_i].copy()
     data_to_resample = []
     l = len(data)
-    print(data_normalized)
     if not data_normalized.size:
         data_to_resample = np.concatenate((data[:, unordered_categorical_i],
                                            data[:, ordered_categorical_i]), axis=1)

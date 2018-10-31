@@ -15,7 +15,7 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-from eskapade import process_manager, ConfigObject, DataStore, Link, StatusCode, resources
+from eskapade import process_manager, DataStore, Link, StatusCode, resources
 from eskapade.core import persistence
 from eskapade.visualization import vis_utils as plt
 from eskapade.data_mimic import dm_vis_util
@@ -58,10 +58,14 @@ class MimicReport(Link):
                              resample_read_key=None,
                              store_key=None,
                              new_column_order_read_key=None,
+                             unordered_categorical_columns=[],
+                             ordered_categorical_columns=[],
+                             continuous_columns=[],
+                             business_rules_columns=[],
+                             string_columns=[],
                              results_path='',
                              chi2_read_key=None,
                              p_value_read_key=None,
-                             maps_read_key=None,
                              key_data_normalized=None,
                              distance_read_key=None,
                              corr_read_key=None
@@ -106,38 +110,18 @@ class MimicReport(Link):
         :returns: status code of execution
         :rtype: StatusCode
         """
-        settings = process_manager.service(ConfigObject)
         ds = process_manager.service(DataStore)
 
         # --- your algorithm code goes here
         self.logger.debug('Now executing link: {link}.', link=self.name)
 
-        maps = ds[self.maps_read_key]
-
-        # Make sure we're dealing with an array not a dataframe
-        try:
-            assert type(ds[self.read_key]) == np.ndarray
-            orig_data = ds[self.read_key]
-            resa_data = ds[self.resample_read_key]
-        except AssertionError:
-            orig_df = ds[self.read_key].copy()
-            resa_df = ds[self.resample_read_key].copy()
-
-            orig_df = orig_df.dropna()
-            resa_df = resa_df.dropna()
-            # -- make sure the order is the same
-            orig_df = orig_df[ds[self.new_column_order_read_key]]
-            resa_df = resa_df[ds[self.new_column_order_read_key]]
-
-            orig_data = orig_df.values
-            resa_data = resa_df.values
+        orig_df= ds[self.read_key]
+        resa_df = ds[self.resample_read_key]
 
         # -- plot the histograms
-
-        for thing in range(orig_data.shape[1]):
-
-            data = orig_data[:, thing]
-            data_r = resa_data[:, thing]
+        for column in orig_df.columns:
+            data = orig_df[column]
+            data_r = resa_df[column]
 
             # -- remove nans
             try:
@@ -146,20 +130,23 @@ class MimicReport(Link):
             except TypeError:
                 pass
 
-            # --- save plot
-            if thing in ds['continuous_i']:
-                str_title = 'Continuous variable'
-            elif thing in ds['unordered_categorical_i']:
+            if column in self.unordered_categorical_columns:
                 str_title = 'Unordered Categorical variable'
-            elif thing in ds['ordered_categorical_i']:
+            elif column in self.ordered_categorical_columns:
                 str_title = 'Ordered Categorical variable'
+            elif column in self.continuous_columns:
+                str_title = 'Continuous variable'
+            elif column in self.business_rules_columns:
+                str_title = 'Business rule variable'
+            else:
+                raise ValueError('Column {} not in one of given columns'.format(column))
 
-            title = f'Histogram for {str_title} {ds[self.new_column_order_read_key][thing]}.'
-            fname = f'{ds[self.new_column_order_read_key][thing]}_histogram.pdf'
+            title = f'Histogram for {str_title} {column}.'
+            fname = f'{column}_histogram.pdf'
             fpath = os.path.join(self.results_path, fname)
 
-            if thing in ds['continuous_i']:
-
+            # if thing in ds['continuous_i']:
+            if column in self.continuous_columns:
                 hrange = (np.percentile(data, 1), np.percentile(data, 99))
 
                 hist_original = np.histogram(data, range=hrange, bins='auto')
@@ -168,11 +155,10 @@ class MimicReport(Link):
                 xlim = None
                 is_num = True
             else:
-
                 bin_edges, bin_counts = np.unique(data, return_counts=True)
                 bin_edges_r, bin_counts_r = np.unique(data_r, return_counts=True)
 
-                if ds[self.new_column_order_read_key][thing] in maps.keys():
+                if column in self.string_columns:
                     is_num = False
                     xlim = None
                 else:
@@ -183,7 +169,6 @@ class MimicReport(Link):
 
                 hist_original = (bin_counts, bin_edges)
                 hist_resampled = (bin_counts_r, bin_edges_r)
-
                 width = 0.9
 
             try:
@@ -201,17 +186,21 @@ class MimicReport(Link):
                          ('min', f'{bin_edges[np.argmin(bin_counts)]}: {np.max(bin_counts)}',
                           f'{bin_edges_r[np.argmin(bin_counts_r)]}: {np.min(bin_counts_r)}'), ]
 
-            col_name = ds[self.new_column_order_read_key][thing]
-            stats2 = [(k, v['chi'], v['p-value'], v['bins']) for k, v in ds['chis'][col_name].items()]
+            if column not in self.business_rules_columns:
+                # business rules columns do not have a chi2 because a business rule column can be of any type,
+                # e.g. string.
+                stats2 = [(k, v['chi'], v['p-value'], v['bins']) for k, v in ds['chis'][column].items()]
 
-            stats_table = tabulate.tabulate(stats2, ['Chi2', 'p-value', 'dof'], tablefmt='latex') + 'MARKER' + \
-                tabulate.tabulate(stats, ['Original', 'Resampled'], tablefmt='latex')
-            M = re.findall(r'\\end\S+MARKER\S+\}', stats_table)
-            for m in M:
-                stats_table = stats_table.replace(m, '')
+                stats_table = tabulate.tabulate(stats2, ['Chi2', 'p-value', 'dof'], tablefmt='latex') + 'MARKER' + \
+                    tabulate.tabulate(stats, ['Original', 'Resampled'], tablefmt='latex')
+                M = re.findall(r'\\end\S+MARKER\S+\}', stats_table)
+                for m in M:
+                    stats_table = stats_table.replace(m, '')
+            else:
+                stats_table = ''
 
             plt.plot_overlay_histogram([hist_original, hist_resampled], hist_names=['Original', 'Resampled'],
-                                       x_label=ds[self.new_column_order_read_key][thing], pdf_file_name=fpath,
+                                       x_label=column, pdf_file_name=fpath,
                                        width_in=width, xlim=xlim, is_num=is_num)
 
             # -- add plot to page and page to pages
@@ -221,9 +210,7 @@ class MimicReport(Link):
                                   .replace('VAR_HISTOGRAM_PATH', fpath))
 
         # -- plot the normal distr for the numerical data
-
         for i, key in enumerate(ds['continuous_i']):
-
             title = "Normalized data for variable '{}'".format(ds[self.new_column_order_read_key][key])
             fname = f'Normalized_{ds[self.new_column_order_read_key][key]}_hist.pdf'
             fpath = os.path.join(self.results_path, fname)
@@ -265,7 +252,6 @@ class MimicReport(Link):
         dm_vis_util.plot_heatmaps(correlations, x_labels=xlabels, pdf_file_name=fpath)
 
         stats_table = ''
-
         self.pages.append(
             self.page_template.replace("VAR_LABEL", title)
                               .replace('VAR_STATS_TABLE', stats_table)

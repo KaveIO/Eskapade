@@ -139,9 +139,7 @@ class KDEPreparation(Link):
                                 'columns in the resampling step and construct it afterwards from the resampled data.'
                 .format(self.correlation_method, row.x, row.y, row.cor))
 
-        # TODO: optional maps
         # map the string columns
-
         if not self.input_maps:
             maps = {}
             for c in self.string_columns:

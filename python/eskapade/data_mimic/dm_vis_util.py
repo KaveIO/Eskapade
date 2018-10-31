@@ -1,6 +1,5 @@
-# import numpy as np
-import pandas as pd
 import numpy as np
+
 
 def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
                             title='correlation', vmin=-1, vmax=1, color_map='RdYlGn', x_label='', y_label='', top=20,
