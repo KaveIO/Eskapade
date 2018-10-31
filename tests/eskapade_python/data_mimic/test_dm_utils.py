@@ -1,19 +1,10 @@
-import sys
 import numpy as np
 import pandas as pd
 import unittest
 import unittest.mock as mock
 
-
 from eskapade import data_mimic
 
-# class fake_class(self):
-
-#     def fake_func(self, x):
-#         return x
-
-# @mock.patch("")
-# class TestFakeClass(unittest.TestCase):
 
 class TestMimicReport(unittest.TestCase):
 
@@ -47,7 +38,6 @@ class TestMimicReport(unittest.TestCase):
         self.ds['continuous_i'] = [0, 1, 2]
         self.ds['ordered_categorical_i'] = [3]
         self.ds['unordered_categorical_i'] = []
-
 
         self.ds['chis'] = {'a': {'a': {'chi': 0, 'p-value': 1, 'bins': 100}},
                            'b': {'a': {'chi': 0, 'p-value': 1, 'bins': 100}},
@@ -87,7 +77,7 @@ class TestMimicReport(unittest.TestCase):
         # should be called once
         assert mock_heatmaps.call_count == 1
         # should be called as many times as there are columns
-        assert mock_overlay_hist.call_count == 2*len(self.ds['continuous_i']) + \
+        assert mock_overlay_hist.call_count == 2 * len(self.ds['continuous_i']) + \
             len(self.ds['ordered_categorical_i']) + \
             len(self.ds['unordered_categorical_i'])
 
@@ -144,7 +134,7 @@ class TestResampleEvaluation(unittest.TestCase):
 
         assert mock_correlation.call_count == 2, f"Called {mock_correlation.call_count} times not 2"
         assert mock_ks.call_count == len(self.ds['new_column_order']), f"Called {mock_ks.call_count} times not 4"
-        assert mock_chi.call_count == len(self.ds['new_column_order'])*(len(self.ds['new_column_order']) -1) + \
+        assert mock_chi.call_count == len(self.ds['new_column_order']) * (len(self.ds['new_column_order']) - 1) + \
             len(self.ds['new_column_order']) + 1
 
         self.assertEqual(self.ds['kss'], {'a': {'ks': 5, 'p-value': 500},
@@ -172,3 +162,18 @@ class TestResampleEvaluation(unittest.TestCase):
         out = scaled_chi(A, B)
 
         self.assertEqual(out, (94.25618041980256, 0.0))
+
+    def test_wr_kernel(self):
+
+        from eskapade.data_mimic.data_mimic_util import wr_kernel
+
+        out = wr_kernel(0.4, 2, np.arange(0.5))
+        self.assertEqual(out.sum(), 1)
+
+    def test_kde_resample(self):
+
+        from eskapade.data_mimic.data_mimic_util import kde_resample
+
+        out = kde_resample(10, np.random.normal(0, 1, 100), [0.2], 'c', [])
+        self.assertTrue(len(out), 2)
+        self.assertTrue(len(out[0]), 10)
