@@ -20,8 +20,9 @@ import pandas as pd
 
 from eskapade import process_manager, DataStore, Link, StatusCode
 from eskapade.analysis.correlation import calculate_correlations
-from eskapade.data_mimic.data_mimic_util import find_peaks, smooth_peaks, remove_nans, append_extremes, \
-                                                transform_to_normal
+# from eskapade.data_mimic.data_mimic_util import find_peaks, smooth_peaks, remove_nans, append_extremes, \
+#                                                 transform_to_normal
+from eskapade.data_mimic import data_mimic_util as ut
 
 
 class KDEPreparation(Link):
@@ -175,16 +176,16 @@ class KDEPreparation(Link):
 
         # if continious data is not present, we do not need smoothing:
         if self.continuous_columns:
-            peaks = find_peaks(data, continuous_i, count=self.count)
-            data_smoothed = smooth_peaks(data, peaks, smoothing_fraction=self.smoothing_fraction)
+            peaks = ut.find_peaks(data, continuous_i, count=self.count)
+            data_smoothed = ut.smooth_peaks(data, peaks, smoothing_fraction=self.smoothing_fraction)
             # remove nans
-            data_no_nans = remove_nans(data_smoothed)
+            data_no_nans = ut.remove_nans(data_smoothed)
             # select continuous columns
             data_continuous = data_no_nans[:, continuous_i].copy()
             # append extremes
-            data_extremes, imin, imax = append_extremes(data_continuous, self.extremes_fraction)
+            data_extremes, imin, imax = ut.append_extremes(data_continuous, self.extremes_fraction)
             # transform to normal distribution
-            data_normalized, qts = transform_to_normal(data_extremes, imin, imax)
+            data_normalized, qts = ut.transform_to_normal(data_extremes, imin, imax)
 
             ds[self.data_smoothed_store_key] = data_smoothed
             ds[self.data_no_nans_store_key] = data_no_nans
@@ -192,7 +193,7 @@ class KDEPreparation(Link):
             ds[self.qts_store_key] = qts
         else:
             ds[self.data_smoothed_store_key] = data
-            data_no_nans = remove_nans(data)
+            data_no_nans = ut.remove_nans(data)
             ds[self.data_no_nans_store_key] = np.array(data_no_nans)
             ds[self.data_normalized_store_key] = np.array([])
             ds[self.qts_store_key] = []
