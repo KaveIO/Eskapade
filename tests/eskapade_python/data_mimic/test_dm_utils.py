@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import unittest
 
 
@@ -30,3 +31,15 @@ class TestDmUtils(unittest.TestCase):
         out = kde_resample(10, np.random.normal(0, 1, 100), [0.2], 'c', [])
         self.assertTrue(len(out), 2)
         self.assertTrue(len(out[0]), 10)
+
+    def test_remove_nans(self):
+
+        from eskapade.data_mimic.data_mimic_util import remove_nans
+
+        input_data = pd.DataFrame(np.random.randint(0, 10, 100))
+        ids = np.random.randint(0, 100, 10)
+        input_data.loc[ids, :] = np.nan
+
+        out = remove_nans(input_data)
+
+        self.assertFalse(out.isnull().any().values[0])
