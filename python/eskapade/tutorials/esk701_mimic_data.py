@@ -73,6 +73,7 @@ logger.debug('Now parsing configuration file esk701_mimic_data')
 settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk701_mimic_data'
 settings['version'] = 0
+settings['pca'] = True
 
 np.random.seed(42)
 
@@ -106,13 +107,16 @@ pre_data = data_mimic.KDEPreparation(read_key='df',
                                      data_smoothed_store_key='data_smoothed',
                                      data_no_nans_store_key='data_no_nans',
                                      data_normalized_store_key='data_normalized',
+                                     data_normalized_pca_store_key='data_normalized_pca',
                                      maps_store_key='maps',
                                      qts_store_key='qts',
+                                     pca_store_key='pca_model',
                                      new_column_order_store_key='new_column_order',
                                      ids_store_key='ids',
                                      unordered_categorical_columns=['d', 'e'],
                                      ordered_categorical_columns=['f', 'g'],
                                      continuous_columns=['a', 'b', 'c'],
+                                     do_pca=settings['pca'],
                                      string_columns=['d', 'e'],
                                      count=1,
                                      extremes_fraction=0.15,
@@ -124,17 +128,22 @@ ch = Chain('KDE')
 
 kde = data_mimic.KernelDensityEstimation(data_no_nans_read_key='data_no_nans',
                                          data_normalized_read_key='data_normalized',
+                                         data_normalized_pca_read_key='data_normalized_pca',
+                                         do_pca=settings['pca'],
                                          store_key='bw')
 kde.logger.log_level = LogLevel.DEBUG
 ch.add(kde)
 
 resampler = data_mimic.Resampler(data_normalized_read_key='data_normalized',
+                                 data_normalized_pca_read_key='data_normalized_pca',
                                  data_read_key='data',
                                  bws_read_key='bw',
                                  qts_read_key='qts',
                                  new_column_order_read_key='new_column_order',
                                  maps_read_key='maps',
                                  ids_read_key='ids',
+                                 pca_read_key='pca_model',
+                                 do_pca=settings['pca'],
                                  df_resample_store_key='df_resample',
                                  resample_store_key='data_resample')
 resampler.logger.log_level = LogLevel.DEBUG
@@ -174,7 +183,9 @@ report = data_mimic.MimicReport(read_key='df',
                                 business_rules_columns=['h'],
                                 chi2_read_key='chi2',
                                 p_value_read_key='p_value',
+                                do_pca=settings['pca'],
                                 key_data_normalized='data_normalized',
+                                key_data_normalized_pca='data_normalized_pca',
                                 distance_read_key='distance',
                                 corr_read_key='correlations'
                                 )

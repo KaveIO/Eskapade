@@ -53,7 +53,8 @@ class KernelDensityEstimation(Link):
 
         # Process and register keyword arguments. If the arguments are not given, all arguments are popped from
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
-        self._process_kwargs(kwargs, data_no_nans_read_key=None, data_normalized_read_key=None, store_key=None)
+        self._process_kwargs(kwargs, data_no_nans_read_key=None, data_normalized_read_key=None,
+                             data_normalized_pca_read_key=None, do_pca=False, store_key=None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -82,34 +83,36 @@ class KernelDensityEstimation(Link):
         unordered_categorical_i = ds['unordered_categorical_i']
         ordered_categorical_i = ds['ordered_categorical_i']
         continuous_i = ds['continuous_i']
-
         data_no_nans = ds[self.data_no_nans_read_key]
-        data_normalized = ds[self.data_normalized_read_key]
 
         # Concatenate normalized data with original categorical data
         # if one of unordered_categorical_i, ordered_categorical_i, data_normalized is empty, then concatenating will
-        # not work (see next line). We thus make them of the correct lenght
+        # not work (see next line). We thus make them of the correct length
         data_unordered_categorical = data_no_nans[:, unordered_categorical_i]
         data_ordered_categorical = data_no_nans[:, ordered_categorical_i]
 
         n_obs = len(data_no_nans)
-
         if data_unordered_categorical.size == 0:
             data_unordered_categorical = np.empty(shape=(n_obs,0))
         if data_ordered_categorical.size == 0:
             data_ordered_categorical = np.empty(shape=(n_obs,0))
-        if data_normalized.size == 0:
-            data_normalized = np.empty(shape=(n_obs,0))
 
-        d = np.concatenate((data_unordered_categorical,
-                            data_ordered_categorical, data_normalized), axis=1)
+        if self.do_pca:
+            data_normalized_pca = ds[self.data_normalized_pca_read_key]
+            d = np.concatenate((data_unordered_categorical,
+                                data_ordered_categorical, data_normalized_pca), axis=1)
+        else:
+            data_normalized = ds[self.data_normalized_read_key]
+            if data_normalized.size == 0:
+                data_normalized = np.empty(shape=(n_obs, 0))
+            d = np.concatenate((data_unordered_categorical,
+                                data_ordered_categorical, data_normalized), axis=1)
 
         var_type = 'u' * len(unordered_categorical_i) + 'o' * len(ordered_categorical_i) + \
                    'c' * len(continuous_i)
 
         # NB: statsmodels uses normal reference for unordered categorical variables as well!
         # NB: the bandwiths are determined on the normalized continuous data and on the original categorical data
-
         if (len(continuous_i) == 0) & (len(ordered_categorical_i)==0):
             kde_weights = kde_only_unordered_categorical(d)
             ds[self.store_key] = kde_weights
