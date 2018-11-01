@@ -309,6 +309,7 @@ In `All available examples`_ we give some tips to find the right Links your anal
 
 .. include:: tutorial_jupyter.rst
 .. include:: tutorial_bootstrap.rst
+.. include:: tutorial_data_mimic.rst
 
 All available examples
 ----------------------
