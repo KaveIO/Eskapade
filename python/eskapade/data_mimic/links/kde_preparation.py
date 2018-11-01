@@ -18,10 +18,14 @@ LICENSE.
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
+import hashlib
+import binascii
+import os
 
 from eskapade import process_manager, DataStore, Link, StatusCode
 from eskapade.analysis.correlation import calculate_correlations
 from eskapade.data_mimic import data_mimic_util as ut
+
 
 
 class KDEPreparation(Link):
@@ -100,7 +104,10 @@ class KDEPreparation(Link):
                              count=1,
                              extremes_fraction=0.15,
                              smoothing_fraction=0.0002,
-                             input_maps=None)
+                             input_maps=None,
+                             columns_to_hash = None,
+                             column_names_to_hash = None,
+                             random_salt = None)
 
         # check residual kwargs; exit if any present
         self.check_extra_kwargs(kwargs)
@@ -125,8 +132,22 @@ class KDEPreparation(Link):
 
         ds = process_manager.service(DataStore)
 
+        df_to_resample = ds[self.read_key]
+
+        #has columns that must be hashed
+        if self.column_names_to_hash:
+            for column_name in df_to_resample.columns.values:
+                if column_name in self.column_names_to_hash:
+                    rename_dict = {column_name: str(binascii.hexlify(hashlib.pbkdf2_hmac('sha1',
+                                                                                         column_name.encode('utf-8'),
+                                                                                         self.random_salt, 1000,
+                                                                                         dklen=8)))}
+                    df_to_resample.rename(columns = rename_dict, inplace=True)
+
+
         # -- sg: added copy, or it would replace original data in datastore
         df_to_resample = ds[self.read_key].copy()
+
         ds[self.ids_store_key] = df_to_resample.index.values  # save for later use
 
         # check for high (>.95) correlations
@@ -157,7 +178,6 @@ class KDEPreparation(Link):
                 df_to_resample[c] = df_to_resample[c].map(m)
 
         assert len(maps.keys()) == len(self.string_columns), "Wrong number of maps!"
-
 
         # unused columns are now None, this is not going to work when adding lists. We make them lists instead of
         # extensive if/else usage.
@@ -209,6 +229,11 @@ class KDEPreparation(Link):
         ds['unordered_categorical_i'] = unordered_categorical_i
         ds['ordered_categorical_i'] = ordered_categorical_i
         ds['continuous_i'] = continuous_i
+
+
+        if self.columns_to_hash:
+            randomness = int(binascii.hexlify(os.urandom(4)),16) # get 10 numbers numbers to make an int
+            ds[self.data_store_key] = ut.column_hashing(data, self.columns_to_hash, randomness, new_column_order)
 
         return StatusCode.Success
 

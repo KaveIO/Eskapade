@@ -352,11 +352,14 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
                 if np.random.rand() < bw[j]:
                     categories = c_array[j]
                     other_categories = categories[categories != resample[i, j]]
-                    resample[i, j] = np.random.choice(other_categories)
+                    # [YW] this does not work if there are no other categories
+                    # because they were not sampled or simply not present in the original dataset
+                    if other_categories.size != 0:
+                        resample[i, j] = np.random.choice(other_categories)
             elif variable_types_array[j] == 'o':
                 # --  points at which the pdf should be evaluated
                 z = c_array[j]
-                p = wr_kernel(s=bw[j], z=z, Zi=resample[i, j])
+                p = wr_kernel(s=bw[j], z=z, zi=resample[i, j])
                 try:
                     assert p.sum().round(3) == 1.0
                 except AssertionError:
@@ -391,7 +394,7 @@ def scale_and_invert_normal_transformation(resample_normalized_unscaled, continu
     return resample
 
 
-def wr_kernel(s, z, Zi):
+def wr_kernel(s, z, zi):
     r"""Implementation of the wang-ryzin kernel as implemented by statsmodels.
     Adapted so it is defined for finite intervals ex. {1...c}.
 
@@ -427,12 +430,12 @@ def wr_kernel(s, z, Zi):
     .. [*] M.-C. Wang and J. van Ryzin, "A class of smooth estimators for
            discrete distributions", Biometrika, vol. 68, pp. 301-309, 1981.
     """
-    Zi = Zi.reshape(Zi.size)  # seems needed in case Zi is scalar
+    zi = zi.reshape(zi.size)  # seems needed in case Zi is scalar
 
-    kernel_value = 0.5 * (1 - s) * (s ** abs(Zi - z))
+    kernel_value = 0.5 * (1 - s) * (s ** abs(zi - z))
 
     # --  if Zi == z
-    idx = Zi == z
+    idx = zi == z
     kernel_value[idx] = (idx * (1 - s))[idx]
 
     corr_factor = kernel_value.sum()
@@ -521,12 +524,12 @@ def unordered_mesh_eval(l, c, n_obs, n_dim, delta_frequencies, cv_delta_frequenc
     """
     Calculates the cross validation score for categorical optimization
 
-    :param l: lambda, the bandwith to be evaluated against
-    :param c: integer, the category
-    :param n_dim: integer, number of features
-    :param n_obs: integer, number of observations
-    :param delta_frequencies: frequency of the occurence of each unique (feature) vector
-    :param cv_delta_frequencies: frequency of the occurence of each unique (feature) vector
+    :param float l: lambda, the bandwith to be evaluated against
+    :param int c: the category
+    :param integer n_dim: number of features
+    :param int n_obs: number of observations
+    :param np.array delta_frequencies: frequency of the occurence of each unique (feature) vector
+    :param np.array cv_delta_frequencies: frequency of the occurence of each unique (feature) vector
     :return: the cv score
     :rtype: np.ndarray
     """
@@ -666,3 +669,48 @@ def scaled_chi(o, e, k=None):
     chi = np.sum(((ko * o - ke * e)**2) / (e + o))
     p = 1 - scipy.stats.chi2.cdf(chi, dof)
     return chi, p
+
+def map_random(a):
+    """
+    Hashes a column
+    :param np.array data: the column to be hashed
+    :return: The hashed column
+    :rtype: np.array
+    """
+
+    if type(a[0]) == np.float64:
+        temp = np.zeros(shape=len(a))
+        key = np.unique(a)
+        value = np.array(list(range(len(key)))).astype(np.float64)
+        np.random.shuffle(value)
+
+    if type(a[0]) == np.str:
+        temp = np.zeros(shape=len(a))
+        key = np.unique(a)
+        value = np.array(list(string.ascii_lowercase[0:len(key)])).astype(np.str)
+        np.random.shuffle(value)
+
+    mapper = dict(zip(key, value))
+    for k, v in mapper.items():
+        temp[a == k] = v
+
+    return temp
+
+def column_hashing(data, columns_to_hash, randomness, column_names):
+    """
+    Hashes the columns in the data to a random other value.
+    :param np.2darray data: The data
+    :param list columns_to_hash: The names of the columns which are to be hashed
+    :param int randomness: A cryptographically random int
+    :return: The hashed data
+    :rtype: np.2dndarray
+    """
+
+    np.random.seed(randomness)
+
+    for column in columns_to_hash:
+        column_number = column_names.index(column)
+        data[:, column_number] = map_random(data[:, column_number])
+
+    return data
+

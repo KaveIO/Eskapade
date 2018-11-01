@@ -57,6 +57,9 @@ LICENSE.
 # - save (sparse binned) PDF to resample (not direct resampling)
 
 import numpy as np
+import hashlib
+import binascii
+import os
 
 from eskapade import ConfigObject, Chain
 from eskapade import analysis
@@ -74,6 +77,17 @@ settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk701_mimic_data'
 settings['version'] = 0
 settings['pca'] = True
+settings['hash_columns'] = 1
+settings['hash_column_names'] = 1
+
+settings['columns_to_hash'] = settings.get('columns_to_hash', ['d', 'g'])
+settings['column_names_to_hash'] = settings.get('column_names_to_hash', ['a', 'b'])
+settings['unordered_categorical_columns'] = settings.get('unordered_categorical_columns', ['d', 'e'])
+settings['ordered_categorical_columns'] = settings.get('ordered_categorical_columns', ['f', 'g'])
+settings['continuous_columns'] = settings.get('continuous_columns', ['a', 'b', 'c'])
+settings['string_columns'] = settings.get('string_columns', ['d', 'e'])
+settings['random_salt'] = settings.get('random_salt', os.urandom(256))
+settings['business_rules_columns'] = settings.get('business_rules_columns', ['h'])
 
 np.random.seed(42)
 
@@ -81,7 +95,7 @@ ch = Chain('DataPrep')
 ch.logger.log_level = LogLevel.DEBUG
 
 sim_data = data_mimic.MixedVariablesSimulation(store_key='df',
-                                               n_obs=100000,
+                                               n_obs=10000,
                                                p_unordered=np.array([[0.2, 0.2, 0.3, 0.3], [0.3, 0.7]]),
                                                p_ordered=np.array([[0.1, 0.2, 0.7], [0.15, 0.4, 0.05, 0.3, 0.1]]),
                                                means_stds=np.array([[8, 8, 3], [2, 5, 2]]),
@@ -102,6 +116,20 @@ add_business_rule = analysis.ApplyFuncToDf(read_key='df',
 add_business_rule.logger.log_level = LogLevel.DEBUG
 ch.add(add_business_rule)
 
+#all data has been loaded, time to change column names
+
+for column_name in settings['column_names_to_hash']:
+    for setting in [settings['columns_to_hash'],
+                    settings['unordered_categorical_columns'],
+                    settings['ordered_categorical_columns'],
+                    settings['continuous_columns'],
+                    settings['string_columns']]:
+        if column_name in setting:
+            print(column_name)
+            setting.remove(column_name)
+            setting.append(str(binascii.hexlify(hashlib.pbkdf2_hmac('sha1', column_name.encode('utf-8'), settings['random_salt'], 1000, dklen=8))))
+
+
 pre_data = data_mimic.KDEPreparation(read_key='df',
                                      data_store_key='data',
                                      data_smoothed_store_key='data_smoothed',
@@ -113,14 +141,18 @@ pre_data = data_mimic.KDEPreparation(read_key='df',
                                      pca_store_key='pca_model',
                                      new_column_order_store_key='new_column_order',
                                      ids_store_key='ids',
-                                     unordered_categorical_columns=['d', 'e'],
-                                     ordered_categorical_columns=['f', 'g'],
-                                     continuous_columns=['a', 'b', 'c'],
                                      do_pca=settings['pca'],
-                                     string_columns=['d', 'e'],
+                                     unordered_categorical_columns = settings['unordered_categorical_columns'],
+                                     ordered_categorical_columns = settings['ordered_categorical_columns'],
+                                     continuous_columns = settings['continuous_columns'],
+                                     string_columns = settings['string_columns'],
                                      count=1,
                                      extremes_fraction=0.15,
-                                     smoothing_fraction=0.0002)
+                                     smoothing_fraction=0.0002,
+                                     columns_to_hash = settings['columns_to_hash'],
+                                     column_names_to_hash = settings['column_names_to_hash'],
+                                     random_salt = settings['random_salt'])
+
 pre_data.logger.log_level = LogLevel.DEBUG
 ch.add(pre_data)
 
@@ -176,19 +208,18 @@ ch = Chain('report')
 report = data_mimic.MimicReport(read_key='df',
                                 resample_read_key='df_resample',
                                 new_column_order_read_key='new_column_order',
-                                unordered_categorical_columns=['d', 'e'],
-                                ordered_categorical_columns=['f', 'g'],
-                                continuous_columns=['a', 'b', 'c'],
-                                string_columns=['d', 'e'],
-                                business_rules_columns=['h'],
+                                unordered_categorical_columns=settings['unordered_categorical_columns'],
+                                ordered_categorical_columns=settings['ordered_categorical_columns'],
+                                continuous_columns=settings['continuous_columns'],
+                                string_columns=settings['string_columns'],
+                                business_rules_columns=settings['business_rules_columns'],
                                 chi2_read_key='chi2',
                                 p_value_read_key='p_value',
                                 do_pca=settings['pca'],
                                 key_data_normalized='data_normalized',
                                 key_data_normalized_pca='data_normalized_pca',
                                 distance_read_key='distance',
-                                corr_read_key='correlations'
-                                )
+                                corr_read_key='correlations')
 report.logger.log_level = LogLevel.DEBUG
 ch.add(report)
 
