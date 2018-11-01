@@ -18,7 +18,7 @@ LICENSE.
 from eskapade import process_manager, DataStore, Link, StatusCode, resources
 from eskapade.core import persistence
 from eskapade.visualization import vis_utils as plt
-from eskapade.data_mimic.dm_vis_util import plot_heatmaps
+from eskapade.data_mimic import dm_vis_util
 
 import numpy as np
 import pandas as pd
@@ -115,7 +115,7 @@ class MimicReport(Link):
         # --- your algorithm code goes here
         self.logger.debug('Now executing link: {link}.', link=self.name)
 
-        orig_df= ds[self.read_key]
+        orig_df = ds[self.read_key]
         resa_df = ds[self.resample_read_key]
 
         # -- plot the histograms
@@ -250,7 +250,7 @@ class MimicReport(Link):
         labels = ds[self.corr_read_key][0][1]
         xlabels = np.array(ds[self.new_column_order_read_key])[labels]
 
-        plot_heatmaps(correlations, x_labels=xlabels, pdf_file_name=fpath)
+        dm_vis_util.plot_heatmaps(correlations, x_labels=xlabels, pdf_file_name=fpath)
 
         stats_table = ''
         self.pages.append(
