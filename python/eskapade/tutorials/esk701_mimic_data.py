@@ -78,13 +78,12 @@ settings['version'] = 0
 settings['hash_columns'] = 1
 settings['hash_column_names'] = 1
 
-settings['columns_to_hash'] = settings.get('columns_to_hash', ['a', 'd'])
+settings['columns_to_hash'] = settings.get('columns_to_hash', ['d', 'g'])
 settings['column_names_to_hash'] = settings.get('column_names_to_hash', ['a', 'b'])
 settings['unordered_categorical_columns'] = settings.get('unordered_categorical_columns', ['d', 'e'])
 settings['ordered_categorical_columns'] = settings.get('ordered_categorical_columns', ['f', 'g'])
 settings['continuous_columns'] = settings.get('continuous_columns', ['a', 'b', 'c'])
 settings['string_columns'] = settings.get('string_columns', ['d', 'e'])
-settings['hash_type'] = settings.get('hash_type', "crypto") #/"random"
 settings['random_salt'] = settings.get('random_salt', os.urandom(256))
 settings['business_rules_columns'] = settings.get('business_rules_columns', ['h'])
 
@@ -94,7 +93,7 @@ ch = Chain('DataPrep')
 ch.logger.log_level = LogLevel.DEBUG
 
 sim_data = data_mimic.MixedVariablesSimulation(store_key='df',
-                                               n_obs=1000,
+                                               n_obs=10000,
                                                p_unordered=np.array([[0.2, 0.2, 0.3, 0.3], [0.3, 0.7]]),
                                                p_ordered=np.array([[0.1, 0.2, 0.7], [0.15, 0.4, 0.05, 0.3, 0.1]]),
                                                means_stds=np.array([[8, 8, 3], [2, 5, 2]]),
@@ -208,8 +207,7 @@ report = data_mimic.MimicReport(read_key='df',
                                 p_value_read_key='p_value',
                                 key_data_normalized='data_normalized',
                                 distance_read_key='distance',
-                                corr_read_key='correlations'
-                                )
+                                corr_read_key='correlations')
 report.logger.log_level = LogLevel.DEBUG
 ch.add(report)
 

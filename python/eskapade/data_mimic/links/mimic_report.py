@@ -119,7 +119,6 @@ class MimicReport(Link):
         resa_df = ds[self.resample_read_key]
 
         # -- plot the histograms
-        print(orig_df.columns)
         for column in orig_df.columns:
             data = orig_df[column]
             data_r = resa_df[column]

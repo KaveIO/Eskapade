@@ -19,6 +19,7 @@ import numpy as np
 import pandas as pd
 import hashlib
 import binascii
+import os
 from eskapade import process_manager, DataStore, Link, StatusCode
 from eskapade.analysis.correlation import calculate_correlations
 from eskapade.data_mimic.data_mimic_util import find_peaks, smooth_peaks, remove_nans, append_extremes, \
@@ -99,8 +100,8 @@ class KDEPreparation(Link):
                              extremes_fraction=0.15,
                              smoothing_fraction=0.0002,
                              input_maps=None,
-                             columns_to_hash = ['a', 'd'],
-                             column_names_to_hash = ['a', 'b'],
+                             columns_to_hash = None,
+                             column_names_to_hash = None,
                              random_salt = None)
 
         # check residual kwargs; exit if any present
@@ -173,7 +174,6 @@ class KDEPreparation(Link):
 
         assert len(maps.keys()) == len(self.string_columns), "Wrong number of maps!"
 
-
         # unused columns are now None, this is not going to work when adding lists. We make them lists instead of
         # extensive if/else usage.
         # re order columns and save new column order for later use
@@ -191,7 +191,7 @@ class KDEPreparation(Link):
         ordered_categorical_i = [new_column_order.index(c) for c in self.ordered_categorical_columns]
         continuous_i = [new_column_order.index(c) for c in self.continuous_columns]
 
-        # if continious data is not present, we do not need smoothing:
+        # if continuous data is not present, we do not need smoothing:
         if self.continuous_columns:
             peaks = find_peaks(data, continuous_i, count=self.count)
             data_smoothed = smooth_peaks(data, peaks, smoothing_fraction=self.smoothing_fraction)
@@ -224,8 +224,19 @@ class KDEPreparation(Link):
         ds['unordered_categorical_i'] = unordered_categorical_i
         ds['ordered_categorical_i'] = ordered_categorical_i
         ds['continuous_i'] = continuous_i
+        print("******************")
+        print(ds[self.data_store_key])
 
-        column_hashing(data, self.columns_to_hash)
+        if self.columns_to_hash:
+            randomness = int(binascii.hexlify(os.urandom(4)),16) # get 10 numbers numbers to make an int
+
+            ds[self.data_store_key] = column_hashing(data, self.columns_to_hash, randomness, new_column_order)
+            #we must hash the original columns to, otherwise this is not going to work in the report section
+            #print("****************")
+            #ds[self.read_key] = column_hashing(ds[self.read_key], self.columns_to_hash, randomness)
+
+        print(ds[self.data_store_key])
+        print("******************")
 
         return StatusCode.Success
 
