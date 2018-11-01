@@ -3,6 +3,8 @@ from sklearn import preprocessing
 import string
 import pandas as pd
 import scipy
+import hashlib
+import os
 
 
 def generate_unordered_categorical_random_data(n_obs, p, dtype=np.str):
@@ -354,7 +356,10 @@ def kde_resample(n_resample, data, bw, variable_types, c_array):
                 if np.random.rand() < bw[j]:
                     categories = c_array[j]
                     other_categories = categories[categories != resample[i, j]]
-                    resample[i, j] = np.random.choice(other_categories)
+                    # [YW] this does not work if there are no other categories
+                    # because they were not sampled or simply not present in the original dataset
+                    if other_categories.size != 0:
+                        resample[i, j] = np.random.choice(other_categories)
             elif variable_types_array[j] == 'o':
                 # --  points at which the pdf should be evaluated
                 z = c_array[j]
@@ -665,3 +670,30 @@ def scaled_chi(o, e, k=None):
     chi = np.sum(((ko * o - ke * e)**2) / (e + o))
     p = 1 - scipy.stats.chi2.cdf(chi, dof)
     return chi, p
+
+def column_hashing(data, columns_to_hash):
+
+    m = hashlib.sha1()
+
+    def make_digest(a, m, salt):
+        #print(a)
+        temp = np.zeros(shape=(len(a)))
+        for i in range(len(a)):
+            #print(a[i])
+            #m = m.copy()
+            #m.update(str(a[i]).encode('utf-8'))
+            #print(hashlib.pbkdf2_hmac('sha1', str(a[i]).encode('utf-8'), salt, 1000))
+            #print(m.hexdigest())
+            1+1
+
+        return temp
+
+    for column in columns_to_hash:
+        column_number = columns_to_hash.index(column)
+
+        # this salt is important and makes dictionary attacks against small finite sets infeasable (hopefully)
+        salt = os.urandom(256)
+
+        data[:,column_number] = make_digest(data[:,column_number], m, salt)
+
+    return None
