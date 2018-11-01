@@ -22,8 +22,8 @@ import binascii
 import os
 from eskapade import process_manager, DataStore, Link, StatusCode
 from eskapade.analysis.correlation import calculate_correlations
-from eskapade.data_mimic.data_mimic_util import find_peaks, smooth_peaks, remove_nans, append_extremes, \
-                                                transform_to_normal, column_hashing
+from eskapade.data_mimic import data_mimic_util as ut
+
 
 
 class KDEPreparation(Link):
@@ -191,31 +191,22 @@ class KDEPreparation(Link):
         ordered_categorical_i = [new_column_order.index(c) for c in self.ordered_categorical_columns]
         continuous_i = [new_column_order.index(c) for c in self.continuous_columns]
 
-        # if continuous data is not present, we do not need smoothing:
-        if self.continuous_columns:
-            peaks = find_peaks(data, continuous_i, count=self.count)
-            data_smoothed = smooth_peaks(data, peaks, smoothing_fraction=self.smoothing_fraction)
-            # remove nans
-            data_no_nans = remove_nans(data_smoothed)
-            # select continuous columns
-            data_continuous = data_no_nans[:, continuous_i].copy()
-            # append extremes
-            data_extremes, imin, imax = append_extremes(data_continuous, self.extremes_fraction)
-            # transform to normal distribution
-            data_normalized, qts = transform_to_normal(data_extremes, imin, imax)
+        # find peaks and smooth continuous variables
+        peaks = ut.find_peaks(data, continuous_i, count=self.count)
+        data_smoothed = ut.smooth_peaks(data, peaks, smoothing_fraction=self.smoothing_fraction)
+        # remove nans
+        data_no_nans = ut.remove_nans(data_smoothed)
+        # select continuous columns
+        data_continuous = data_no_nans[:, continuous_i].copy()
+        # append extremes
+        data_extremes, imin, imax = ut.append_extremes(data_continuous, self.extremes_fraction)
+        # transform to normal distribution
+        data_normalized, qts = ut.transform_to_normal(data_extremes, imin, imax)
 
-            ds[self.data_smoothed_store_key] = data_smoothed
-            ds[self.data_no_nans_store_key] = data_no_nans
-            ds[self.data_normalized_store_key] = data_normalized
-            ds[self.qts_store_key] = qts
-        else:
-            ds[self.data_smoothed_store_key] = data
-            data_no_nans = remove_nans(data)
-            ds[self.data_no_nans_store_key] = np.array(data_no_nans)
-            ds[self.data_normalized_store_key] = np.array([])
-            ds[self.qts_store_key] = []
-
-
+        ds[self.data_smoothed_store_key] = data_smoothed
+        ds[self.data_no_nans_store_key] = data_no_nans
+        ds[self.data_normalized_store_key] = data_normalized
+        ds[self.qts_store_key] = qts
         ds[self.maps_store_key] = maps
         ds[self.new_column_order_store_key] = new_column_order
         ds[self.data_store_key] = data
@@ -224,19 +215,12 @@ class KDEPreparation(Link):
         ds['unordered_categorical_i'] = unordered_categorical_i
         ds['ordered_categorical_i'] = ordered_categorical_i
         ds['continuous_i'] = continuous_i
-        print("******************")
-        print(ds[self.data_store_key])
+
 
         if self.columns_to_hash:
             randomness = int(binascii.hexlify(os.urandom(4)),16) # get 10 numbers numbers to make an int
 
             ds[self.data_store_key] = column_hashing(data, self.columns_to_hash, randomness, new_column_order)
-            #we must hash the original columns to, otherwise this is not going to work in the report section
-            #print("****************")
-            #ds[self.read_key] = column_hashing(ds[self.read_key], self.columns_to_hash, randomness)
-
-        print(ds[self.data_store_key])
-        print("******************")
 
         return StatusCode.Success
 

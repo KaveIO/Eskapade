@@ -258,7 +258,10 @@ def transform_to_normal(data_extremes, imin, imax):
         data_normalized_.append(a)
         qts.append(qt)
 
-    data_normalized = np.stack(data_normalized_, axis=-1)
+    if data_normalized_:
+        data_normalized = np.stack(data_normalized_, axis=-1)
+    else:
+        data_normalized = np.empty((0,0))
     return data_normalized, qts
 
 
