@@ -84,7 +84,8 @@ def generate_continuous_random_data(n_obs, means_stds):
     return data
 
 
-def generate_data(n_obs = None, p_unordered = None, p_ordered = None, means_stds = None, dtype_unordered_categorical_data=np.str):
+def generate_data(n_obs=None, p_unordered=None, p_ordered=None, means_stds=None,
+                  dtype_unordered_categorical_data=np.str):
     """
     Generates unordered categorical, ordered categorical and continuous random data.
     See the docs of the functions generate_unordered_categorical_random_data, generate_ordered_categorical_random_data
@@ -109,26 +110,20 @@ def generate_data(n_obs = None, p_unordered = None, p_ordered = None, means_stds
 
     if p_unordered is not None:
         unordered_categorical_data = generate_unordered_categorical_random_data(n_obs,
-                                                                            p_unordered,
-                                                                            dtype=dtype_unordered_categorical_data)
+                                                                                p_unordered,
+                                                                                dtype=dtype_unordered_categorical_data)
     else:
         unordered_categorical_data = np.array([[]])
-
-
 
     if p_ordered is not None:
         ordered_categorical_data = generate_ordered_categorical_random_data(n_obs, p_ordered)
     else:
         ordered_categorical_data = np.array([[]])
 
-
-
     if means_stds is not None:
         continuous_data = generate_continuous_random_data(n_obs, means_stds)
     else:
         continuous_data = np.array([[]])
-
-
     alphabet = np.array(list(string.ascii_lowercase))
     columns1 = list(alphabet[0:continuous_data.shape[1]])
     columns2 = list(alphabet[continuous_data.shape[1]:
@@ -180,7 +175,7 @@ def smooth_peaks(data, peaks, smoothing_fraction=0.0002):
     for d, vs in peaks.items():
         for v in vs:
             i = np.where(data[:, d] == v)[0]
-            s = (data[:, d].max() - data[:, d].min())*smoothing_fraction
+            s = (data[:, d].max() - data[:, d].min()) * smoothing_fraction
             data_smoothed[i, d] = np.random.normal(v, s, size=len(i))
     return data_smoothed
 
@@ -542,6 +537,7 @@ def unordered_mesh_eval(l, c, n_obs, n_dim, delta_frequencies, cv_delta_frequenc
 
     return cv
 
+
 def hash_combinations(hash_function, combinations):
     """
     Hash function
@@ -551,6 +547,7 @@ def hash_combinations(hash_function, combinations):
     :rtype: np.ndarray
     """
     return np.inner(combinations, hash_function)
+
 
 def construct_meshgrid(array):
     """
@@ -567,6 +564,7 @@ def construct_meshgrid(array):
     meshgrid = eval('np.array(np.meshgrid(' + meshgrid_parameter_str + 'indexing=\'ij\')).reshape(dimensions,-1).T')
 
     return meshgrid
+
 
 def calculate_delta_frequencies(data, n_obs, n_dim):
     """
