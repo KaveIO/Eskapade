@@ -654,12 +654,11 @@ def scaled_chi(o, e, k=None):
     binned distributions, o (observerd) and e (expected).
     Based on https://www.itl.nist.gov/div898/software/dataplot/refman1/auxillar/chi2samp.htm
 
-    o : array
-        Observed frequencies
-    e : array
-        Expected frequencies
-    k : int
-        bins == dof
+    :param array o: Observed frequencies
+    :param array e: Expected frequencies
+    :param array k: bins == dof
+    :return: Chi, p-value
+    :rtype: float, float
         """
     assert len(o) == len(e), f"Both samples need to have the same amount of bins! {len(o), len(e)}"
     if k is None:
@@ -676,6 +675,7 @@ def scaled_chi(o, e, k=None):
     chi = np.sum(((ko * o - ke * e)**2) / (e + o))
     p = 1 - scipy.stats.chi2.cdf(chi, dof)
     return chi, p
+
 
 def map_random(a):
     """
@@ -704,6 +704,7 @@ def map_random(a):
 
     return temp
 
+
 def column_hashing(data, columns_to_hash, randomness, column_names):
     """
     Hashes the columns in the data to a random other value.
@@ -724,4 +725,3 @@ def column_hashing(data, columns_to_hash, randomness, column_names):
         data[:, column_number] = map_random(data[:, column_number])
 
     return data
-
