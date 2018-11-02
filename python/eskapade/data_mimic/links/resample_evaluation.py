@@ -114,8 +114,12 @@ class ResampleEvaluation(Link):
         chis = {}
         kss = {}
         for i, param in enumerate(ds[self.new_column_order_read_key]):
-            orig = np.histogram(ds[self.data_read_key][:, i], bins=dofs[i])
-            resa = np.histogram(ds[self.resample_read_key][:, i], bins=dofs[i])
+            print(dofs[i])
+            data_o = data[:, i][~np.isnan(data[:, i])]
+            data_r = resample[:, i][~np.isnan(resample[:, i])]
+
+            orig = np.histogram(data_o, bins=dofs[i])
+            resa = np.histogram(data_r, bins=dofs[i])
 
             chi2, p_value = util.scaled_chi(resa[0][orig[0] > 0],
                                             orig[0][orig[0] > 0])
