@@ -73,13 +73,8 @@ class DataMimicTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual([pd.api.types.infer_dtype(ds['df_resample'][x]) for x in ds['df_resample'].columns],
                          ['string', 'string', 'floating', 'floating',
                           'floating', 'floating', 'floating', 'integer', 'floating'])
-        print("_______________________________________________________")
-        print([np.unique(ds['df'].dropna()[x]) for x in ['d', 'e', 'f', 'g', 'h']])
         self.assertEqual([len(np.unique(ds['df'].dropna()[x])) for x in ['d', 'e', 'f', 'g', 'h']],
                          [4, 2, 3, 5, 5])
-        print("_______________________________________________________")
-        print([np.unique(ds['df_resample'].dropna()[x]) for x in ['d', 'e', 'f', 'g', 'h']])
-
         self.assertEqual([len(np.unique(ds['df_resample'].dropna()[x])) for x in ['d', 'e', 'f', 'g', 'h']],
                          [4, 2, 3, 5, 5])
 
