@@ -220,7 +220,7 @@ class KDEPreparation(Link):
         if self.columns_to_hash:
             randomness = int(binascii.hexlify(os.urandom(4)),16) # get 10 numbers numbers to make an int
 
-            ds[self.data_store_key] = column_hashing(data, self.columns_to_hash, randomness, new_column_order)
+            ds[self.data_store_key] = ut.column_hashing(data, self.columns_to_hash, randomness, new_column_order)
 
         return StatusCode.Success
 
