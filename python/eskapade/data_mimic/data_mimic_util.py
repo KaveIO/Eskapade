@@ -446,6 +446,7 @@ def wr_kernel(s, z, zi):
 def aitchison_aitken_kernel(l, c):
     """
     Calculates the values of the Aitchison-Aitken kernel
+
     :param np.array l: lambda, the bandwith to be evaluated against
     :param np.array c: the category
     :return: the value of the kernel evaluated at
@@ -459,6 +460,7 @@ def aitchison_aitken_kernel(l, c):
 def aitchison_aitken_convolution(l, c):
     """
     Calculates the values of the Aitchison-Aitken convolutions
+
     :param np.array l: lambda, the bandwith to be evaluated against
     :param np.array c: integer, the category
     :return: the value of the kernel convolution at c for bandwith l
@@ -479,6 +481,7 @@ def aitchison_aitken_convolution(l, c):
 def unorderd_mesh_kernel_values(l, c, n_dim):
     """
     Calculates all values of Aitchison-Aitken kernel for all possible delta vector combinations
+
     :param np.array l: lambda, the bandwith to be evaluated against
     :param np.array c: the category
     :param n_dim: integer, number of rows
@@ -501,6 +504,7 @@ def unorderd_mesh_kernel_values(l, c, n_dim):
 def unorderd_mesh_convolution_values(l, c, n_dim):
     """
     Calculates all values of Aitchison-Aitken convolution for all possible delta vector combinations
+
     :param np.array l: lambda, the bandwith to be evaluated against
     :param np.array c: the category
     :param int n_dim: number of rows
@@ -547,6 +551,7 @@ def unordered_mesh_eval(l, c, n_obs, n_dim, delta_frequencies, cv_delta_frequenc
 def hash_combinations(hash_function, combinations):
     """
     Hash function
+
     :param np.array combinations: combinations on which to apply the hash function
     :param np.array hash_function: the result of the hash function
     :return: the inner product of the hash_function and the combinations
@@ -558,6 +563,7 @@ def hash_combinations(hash_function, combinations):
 def construct_meshgrid(array):
     """
     Gives the total enumeration of all possible values, where the values per dimension j are given in array[j]
+
     :param np.array array: combinations on which to apply the hash function
     :return: meshgrid, on which to evaluate the cv
     :rtype: np.ndarray
@@ -576,6 +582,7 @@ def calculate_delta_frequencies(data, n_obs, n_dim):
     """
     Calculates how often each difference delta=1 : X_{i_1} == X_{i_2} delta=0 : X_{i_1} != X_{i_2}
     appears in the comparison of all observations with each other {X_{i_1}}_{i_1=1}^n, {X_{i_2}}_{i_2=1}^n,
+
     :param np.array data: the data
     :param int n_obs: number of observations
     :param int n_dim: number of dimensions
@@ -673,6 +680,7 @@ def scaled_chi(o, e, k=None):
 def map_random(a):
     """
     Hashes a column
+
     :param np.array data: the column to be hashed
     :return: The hashed column
     :rtype: np.array
@@ -699,6 +707,7 @@ def map_random(a):
 def column_hashing(data, columns_to_hash, randomness, column_names):
     """
     Hashes the columns in the data to a random other value.
+
     :param np.2darray data: The data
     :param list columns_to_hash: The names of the columns which are to be hashed
     :param int randomness: A cryptographically random int
