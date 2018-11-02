@@ -28,6 +28,7 @@ class TestResampleEvaluation(unittest.TestCase):
         self.ds['df_resample'] = pd.DataFrame(self.ds['data_resample'],
                                               columns=self.ds['new_column_order'])
         self.ds['df_resample']['ID'] = np.random.randint(0, 100, 100)
+        self.ds['continuous_i'] = [0, 1, 2]
 
     def tearDown(self):
         from eskapade.core import execution

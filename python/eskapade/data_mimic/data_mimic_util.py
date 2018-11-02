@@ -576,7 +576,7 @@ def calculate_delta_frequencies(data, n_obs, n_dim):
     """
     Calculates how often each difference delta=1 : X_{i_1} == X_{i_2} delta=0 : X_{i_1} != X_{i_2}
     appears in the comparison of all observations with each other {X_{i_1}}_{i_1=1}^n, {X_{i_2}}_{i_2=1}^n,
-    :param data: np.array, data
+    :param np.array data: data
     :param n_obs: int number of observations
     :param n_dim: int, number of dimensions
     :return: the frequency of each delta vector
