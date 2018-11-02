@@ -25,7 +25,7 @@ class TestResampler(unittest.TestCase):
         self.ds['maps'] = {}
         self.ds['qts'] = 1
         self.ds['bw'] = np.random.randint(0, 1, 4).tolist()
-        self.ds['ids'] = np.random.randint(0, 100, 10)
+        self.ds['ids'] = np.random.randint(0, 100, 100)
 
     def tearDown(self):
         from eskapade.core import execution
@@ -37,9 +37,8 @@ class TestResampler(unittest.TestCase):
     def test_kde_all_types(self, mock_insert_back_nans, mock_resample, mock_scale_and_invert):
 
         mock_insert_back_nans.resturn_value = self.ds['data']
-        # mock_resample.resturn_value = (self.ds['data'], np.random.randint(0, 100, 100))
+        mock_scale_and_invert.return_value = self.ds['data']
         mock_resample.return_value = (self.ds['data'].copy, np.random.randint(0, 100, 100))
-        mock_scale_and_invert.resturn_value = np.random.normal(0, 1, 100)
 
         resampler = data_mimic.Resampler(data_normalized_read_key='data_normalized',
                                          data_normalized_pca_read_key='data_normalized_pca',
