@@ -17,9 +17,11 @@ LICENSE.
 
 import numpy as np
 import pandas as pd
+from sklearn.decomposition import PCA
 import hashlib
 import binascii
 import os
+
 from eskapade import process_manager, DataStore, Link, StatusCode
 from eskapade.analysis.correlation import calculate_correlations
 from eskapade.data_mimic import data_mimic_util as ut
@@ -92,10 +94,13 @@ class KDEPreparation(Link):
                              qts_store_key=None,
                              new_column_order_store_key=None,
                              ids_store_key=None,
+                             pca_store_key=None,
+                             data_normalized_pca_store_key=None,
                              unordered_categorical_columns=[],
                              ordered_categorical_columns=[],
                              continuous_columns=[],
                              string_columns=None,
+                             do_pca=False,
                              count=1,
                              extremes_fraction=0.15,
                              smoothing_fraction=0.0002,
@@ -202,6 +207,15 @@ class KDEPreparation(Link):
         data_extremes, imin, imax = ut.append_extremes(data_continuous, self.extremes_fraction)
         # transform to normal distribution
         data_normalized, qts = ut.transform_to_normal(data_extremes, imin, imax)
+        # do PCA
+        if self.do_pca:
+            if self.continuous_columns:
+                pca = PCA(n_components=data_normalized.shape[1])
+                data_normalized_pca = pca.fit_transform(data_normalized)
+                ds[self.data_normalized_pca_store_key] = data_normalized_pca
+                ds[self.pca_store_key] = pca
+            else:
+                self.logger.warning('The PCA option is set to true but there are no continuous columns assigned.')
 
         ds[self.data_smoothed_store_key] = data_smoothed
         ds[self.data_no_nans_store_key] = data_no_nans
@@ -219,10 +233,10 @@ class KDEPreparation(Link):
 
         if self.columns_to_hash:
             randomness = int(binascii.hexlify(os.urandom(4)),16) # get 10 numbers numbers to make an int
-
             ds[self.data_store_key] = ut.column_hashing(data, self.columns_to_hash, randomness, new_column_order)
 
         return StatusCode.Success
+
 
     def finalize(self):
         """Finalize the link.

@@ -66,7 +66,9 @@ class MimicReport(Link):
                              results_path='',
                              chi2_read_key=None,
                              p_value_read_key=None,
+                             do_pca=False,
                              key_data_normalized=None,
+                             key_data_normalized_pca=None,
                              distance_read_key=None,
                              corr_read_key=None
                              )
@@ -214,31 +216,19 @@ class MimicReport(Link):
             title = "Normalized data for variable '{}'".format(ds[self.new_column_order_read_key][key])
             fname = f'Normalized_{ds[self.new_column_order_read_key][key]}_hist.pdf'
             fpath = os.path.join(self.results_path, fname)
-
             data = ds[self.key_data_normalized][:, i].copy()
-            normal = np.random.normal(size=data.shape)
+            x_label = str(ds[self.new_column_order_read_key][key])
+            hist_names = ['Normalized data', 'Standard Normal distribution']
+            plot_normal(data, self.pages, self.page_template, title, fpath, x_label, hist_names)
 
-            hrange = (np.round(np.min(data) + np.min(data) * .2), np.round(np.max(data) + np.max(data) * .2))
-
-            hist = np.histogram(data, range=hrange, bins='auto')
-            hist_normal = np.histogram(normal, range=hrange, bins=len(hist[0]))
-
-            plt.plot_overlay_histogram(hists=[hist, hist_normal],
-                                       hist_names=['Normalized data', 'Standard Normal distribution'],
-                                       x_label=str(ds[self.new_column_order_read_key][key]),
-                                       pdf_file_name=fpath,
-                                       is_num=True)
-            stats = [('Entries', len(data)),
-                     ('bins', len(hist[0])),
-                     ('avg', np.mean(data)),
-                     ('max', np.max(data)),
-                     ('min', np.min(data)), ]
-            stats_table = tabulate.tabulate(stats, tablefmt='latex')
-
-            self.pages.append(
-                self.page_template.replace("VAR_LABEL", title)
-                                  .replace('VAR_STATS_TABLE', stats_table)
-                                  .replace('VAR_HISTOGRAM_PATH', fpath))
+            if self.do_pca:
+                data = ds[self.key_data_normalized_pca][:, i].copy()
+                title = "Normalized PCA data for variable '{}'".format(ds[self.new_column_order_read_key][key])
+                fname = f'Normalized_PCA_{ds[self.new_column_order_read_key][key]}_hist.pdf'
+                fpath = os.path.join(self.results_path, fname)
+                x_label = 'PCA ' + str(ds[self.new_column_order_read_key][key])
+                hist_names = ['Normalized PCA data', 'Standard Normal distribution']
+                plot_normal(data, self.pages, self.page_template, title, fpath, x_label, hist_names)
 
         # -- plot the correlation heatmaps
         title = "Correlation heatmaps"
@@ -293,3 +283,28 @@ class MimicReport(Link):
                         self.pages)))
 
         return StatusCode.Success
+
+
+def plot_normal(data, pages, page_template, title, fpath, x_label, hist_names):
+    normal = np.random.normal(size=data.shape)
+    hrange = (np.round(np.min(data) + np.min(data) * .2), np.round(np.max(data) + np.max(data) * .2))
+
+    hist = np.histogram(data, range=hrange, bins='auto')
+    hist_normal = np.histogram(normal, range=hrange, bins=len(hist[0]))
+
+    plt.plot_overlay_histogram(hists=[hist, hist_normal],
+                               hist_names=hist_names,
+                               x_label=x_label,
+                               pdf_file_name=fpath,
+                               is_num=True)
+    stats = [('Entries', len(data)),
+             ('bins', len(hist[0])),
+             ('avg', np.mean(data)),
+             ('max', np.max(data)),
+             ('min', np.min(data)), ]
+    stats_table = tabulate.tabulate(stats, tablefmt='latex')
+
+    pages.append(
+        page_template.replace("VAR_LABEL", title)
+            .replace('VAR_STATS_TABLE', stats_table)
+            .replace('VAR_HISTOGRAM_PATH', fpath))

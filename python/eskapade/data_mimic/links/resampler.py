@@ -65,12 +65,15 @@ class Resampler(Link):
         # kwargs and added as attributes of the link. Otherwise, only the provided arguments are processed.
         self._process_kwargs(kwargs,
                              data_normalized_read_key=None,
+                             data_normalized_pca_read_key=None,
                              data_read_key=None,
                              bws_read_key=None,
                              qts_read_key=None,
                              new_column_order_read_key=None,
                              maps_read_key=None,
                              ids_read_key=None,
+                             do_pca=False,
+                             pca_read_key=None,
                              df_resample_store_key=None,
                              resample_store_key=None)
 
@@ -102,7 +105,6 @@ class Resampler(Link):
         ordered_categorical_i = ds['ordered_categorical_i']
         continuous_i = ds['continuous_i']
 
-        data_normalized = ds[self.data_normalized_read_key]
         data = ds[self.data_read_key]
         band_widths = ds[self.bws_read_key]
         qts = ds[self.qts_read_key]
@@ -112,8 +114,14 @@ class Resampler(Link):
 
         # Because the bandwiths are determined on the normalized continuous data and on the original categorical data,
         # resampling is done with the input data in the same state.
-        data_to_resample = insert_back_nans(data_normalized, data, unordered_categorical_i,
-                                            ordered_categorical_i, continuous_i)
+        if self.do_pca:
+            data_normalized_pca = ds[self.data_normalized_pca_read_key]
+            data_to_resample = insert_back_nans(data_normalized_pca, data, unordered_categorical_i,
+                                                ordered_categorical_i, continuous_i)
+        else:
+            data_normalized = ds[self.data_normalized_read_key]
+            data_to_resample = insert_back_nans(data_normalized, data, unordered_categorical_i,
+                                                ordered_categorical_i, continuous_i)
 
         c_array = []  # list containg all possible categories per u dimension
         categories = unordered_categorical_i.copy()
@@ -128,6 +136,11 @@ class Resampler(Link):
 
         resample_normalized_unscaled, indices = kde_resample(n_resample, data_to_resample, band_widths, var_type,
                                                              c_array)
+
+        if self.do_pca:
+            pca = ds[self.pca_read_key]
+            resample_normalized_unscaled[:, continuous_i] = pca.inverse_transform(resample_normalized_unscaled[:,
+                                                                                  continuous_i])
 
         resample = scale_and_invert_normal_transformation(resample_normalized_unscaled, continuous_i, qts)
 

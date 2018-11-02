@@ -144,7 +144,10 @@ class ResampleEvaluation(Link):
         r = pd.DataFrame(ds[self.resample_read_key])
         r = r.values / r.fillna(0).max(0)[None, :]
         for n in range(ds[self.data_read_key].shape[0]):
-            distance.append(cosine(o[n, ~np.isnan(o[n, :])], r[n, ~np.isnan(r[n, :])]))
+            # when using pca, number of nans in continuous columns in resample can be different then number of nans
+            # in continuous columns in original data set
+            if len(o[n, ~np.isnan(o[n, :])]) == len(r[n, ~np.isnan(r[n, :])]):
+                distance.append(cosine(o[n, ~np.isnan(o[n, :])], r[n, ~np.isnan(r[n, :])]))
         distance = np.array(distance)
         dis = pd.Series(distance).describe()
         dis = dis.append(pd.Series(distance.sum(), index=['sum']))
