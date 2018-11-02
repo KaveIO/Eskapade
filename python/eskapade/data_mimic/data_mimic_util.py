@@ -620,7 +620,7 @@ def kde_only_unordered_categorical(data):
 
     :param data: np.array, data
     :return: the optimal bandwiths
-    :rtype: np.ndarray
+    :rtype: list
 
     References
     ----------
@@ -702,6 +702,8 @@ def column_hashing(data, columns_to_hash, randomness, column_names):
     :param np.2darray data: The data
     :param list columns_to_hash: The names of the columns which are to be hashed
     :param int randomness: A cryptographically random int
+    :param np.array column_names, array with the column
+    names of the data, used for indexing so order must be correct
     :return: The hashed data
     :rtype: np.2dndarray
     """

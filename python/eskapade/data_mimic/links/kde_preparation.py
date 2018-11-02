@@ -237,6 +237,7 @@ class KDEPreparation(Link):
 
         return StatusCode.Success
 
+
     def finalize(self):
         """Finalize the link.
 
