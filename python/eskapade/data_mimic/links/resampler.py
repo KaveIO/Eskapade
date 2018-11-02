@@ -20,7 +20,7 @@ import numpy as np
 import pandas as pd
 
 from eskapade import process_manager, DataStore, Link, StatusCode
-from eskapade.data_mimic.data_mimic_util import insert_back_nans, kde_resample, scale_and_invert_normal_transformation
+from eskapade.data_mimic import data_mimic_util as ut
 
 
 class Resampler(Link):
@@ -116,12 +116,12 @@ class Resampler(Link):
         # resampling is done with the input data in the same state.
         if self.do_pca:
             data_normalized_pca = ds[self.data_normalized_pca_read_key]
-            data_to_resample = insert_back_nans(data_normalized_pca, data, unordered_categorical_i,
-                                                ordered_categorical_i, continuous_i)
+            data_to_resample = ut.insert_back_nans(data_normalized_pca, data, unordered_categorical_i,
+                                                   ordered_categorical_i, continuous_i)
         else:
             data_normalized = ds[self.data_normalized_read_key]
-            data_to_resample = insert_back_nans(data_normalized, data, unordered_categorical_i,
-                                                ordered_categorical_i, continuous_i)
+            data_to_resample = ut.insert_back_nans(data_normalized, data, unordered_categorical_i,
+                                                   ordered_categorical_i, continuous_i)
 
         c_array = []  # list containg all possible categories per u dimension
         categories = unordered_categorical_i.copy()
@@ -134,15 +134,15 @@ class Resampler(Link):
         n_resample = len(data_to_resample)
         ds['c_array'] = c_array
 
-        resample_normalized_unscaled, indices = kde_resample(n_resample, data_to_resample, band_widths, var_type,
-                                                             c_array)
+        resample_normalized_unscaled, indices = ut.kde_resample(n_resample, data_to_resample, band_widths, var_type,
+                                                                c_array)
 
         if self.do_pca:
             pca = ds[self.pca_read_key]
             resample_normalized_unscaled[:, continuous_i] = pca.inverse_transform(resample_normalized_unscaled[:,
                                                                                   continuous_i])
 
-        resample = scale_and_invert_normal_transformation(resample_normalized_unscaled, continuous_i, qts)
+        resample = ut.scale_and_invert_normal_transformation(resample_normalized_unscaled, continuous_i, qts)
 
         df_resample = pd.DataFrame(resample, columns=new_column_order).copy()
         df_resample['ID'] = ids[indices]
