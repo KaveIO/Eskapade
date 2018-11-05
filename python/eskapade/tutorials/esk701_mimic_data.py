@@ -147,16 +147,16 @@ pre_data = data_mimic.KDEPreparation(read_key='df',
                                      new_column_order_store_key='new_column_order',
                                      ids_store_key='ids',
                                      do_pca=settings['pca'],
-                                     unordered_categorical_columns = settings['unordered_categorical_columns'],
-                                     ordered_categorical_columns = settings['ordered_categorical_columns'],
-                                     continuous_columns = settings['continuous_columns'],
-                                     string_columns = settings['string_columns'],
+                                     unordered_categorical_columns=settings['unordered_categorical_columns'],
+                                     ordered_categorical_columns=settings['ordered_categorical_columns'],
+                                     continuous_columns=settings['continuous_columns'],
+                                     string_columns=settings['string_columns'],
                                      count=1,
                                      extremes_fraction=0.15,
                                      smoothing_fraction=0.0002,
-                                     columns_to_hash = settings['columns_to_hash'],
-                                     column_names_to_hash = settings['column_names_to_hash'],
-                                     random_salt = settings['random_salt'])
+                                     columns_to_hash=settings['columns_to_hash'],
+                                     column_names_to_hash=settings['column_names_to_hash'],
+                                     random_salt=settings['random_salt'])
 
 pre_data.logger.log_level = LogLevel.DEBUG
 ch.add(pre_data)

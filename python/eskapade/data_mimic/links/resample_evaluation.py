@@ -103,17 +103,28 @@ class ResampleEvaluation(Link):
         # -- with higher dimensions, binning will most likely result in empty bins, so we need to exclude them.
         # -- This happens especially when we have correlated data. See docs.
 
+        # define the dof for each variable = bins for the 1d hist and 2d hists
+        # will be nr. of catagories if catagorical, otherwise length of the bins that were defined for the
+        # dd histogram
+
+        dofs = [len(np.unique(data[:, x])) if x not in ds['continuous_i'] else
+                len(self.bins[x]) for x in range(data.shape[1])]
+
         # --  Chi2 per param:
         chis = {}
         kss = {}
         for i, param in enumerate(ds[self.new_column_order_read_key]):
-            orig = np.histogram(ds[self.data_read_key][:, i], bins=self.bins[i])
-            resa = np.histogram(ds[self.resample_read_key][:, i], bins=self.bins[i])
+            print(dofs[i])
+            data_o = data[:, i][~np.isnan(data[:, i])]
+            data_r = resample[:, i][~np.isnan(resample[:, i])]
+
+            orig = np.histogram(data_o, bins=dofs[i])
+            resa = np.histogram(data_r, bins=dofs[i])
 
             chi2, p_value = util.scaled_chi(resa[0][orig[0] > 0],
                                             orig[0][orig[0] > 0])
-
-            chis[param] = {param: {'chi': chi2, 'p-value': p_value, 'bins': len(self.bins[i])}}
+            # -- savind bins as len histogram, in case 0's are removed and we're left with less bins
+            chis[param] = {param: {'chi': chi2, 'p-value': p_value, 'bins': len(resa[0][orig[0] > 0])}}
             ks, p_value = scipy.stats.ks_2samp(ds[self.data_read_key][:, i],
                                                ds[self.resample_read_key][:, i])
             kss[param] = {'ks': ks, 'p-value': p_value}

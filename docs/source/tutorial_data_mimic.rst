@@ -78,6 +78,7 @@ In order to do Kernel Density Estimation we need to prepare the data. This means
  - Remove any ``NaN`` values present
  - Find peaks in distributions
  - Transforms continuous variables to copula space (transform to a uniform distribution)
+ - Hash column names and variables if required
 
 Each of these transformations are saved to the datastore including their properties needed to transform the data back.
 
@@ -86,9 +87,9 @@ Kernel Density Estimation
 This link performs the actual KDE. The link takes the normalized data in case of the continuous variables, and the data without ``NaN`` values for catagorical variables. It then applies the ``KDEMultivariate`` implementation from statsmodels, using the 'normal-rule-of-thumb' for quick calculation.
 
 .. note::
-  Currently we're working on a faster implementation of KDE for catagorical variables.
+  There is a faster method available if only unordered variables are present. This method is selected automatically.
 
-The result is a bandwidth *bw* for each varibale, which are saved in a list in the datastore.
+The result is a bandwidth *bw* for each variable, which are saved in a list in the datastore.
 
 Resampler
 ^^^^^^^^^
@@ -137,7 +138,7 @@ Kolmogorov-Smirnov
 The Kolmogorov–Smirnov test may also be used to test whether two underlying one-dimensional probability distributions differ. In this case, we apply the KS test to each variable and save the results.
 
 .. note::
-  The KS test assumes the distribution is continious. Although the test is run for all variables, we should keep this in mind when looking at the results for the catagorical variables. 
+  The KS test assumes the distribution is continuous. Although the test is run for all variables, we should keep this in mind when looking at the results for the catagorical variables.
 
 If the K-S statistic is small or the p-value is high, then we cannot reject the null-hypothesis that the distributions of the two samples are the same. Aka: They are sufficiently similar to say they are from the same distrubution.
 
