@@ -681,7 +681,7 @@ def map_random(a):
     """
     Hashes a column
 
-    :param np.array data: the column to be hashed
+    :param np.array a: the column to be hashed
     :return: The hashed column
     :rtype: np.array
     """
