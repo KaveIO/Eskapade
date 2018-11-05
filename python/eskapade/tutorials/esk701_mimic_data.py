@@ -76,7 +76,7 @@ logger.debug('Now parsing configuration file esk701_mimic_data')
 settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk701_mimic_data'
 settings['version'] = 0
-settings['pca'] = True
+
 settings['hash_columns'] = 1
 settings['hash_column_names'] = 1
 
@@ -88,6 +88,8 @@ settings['continuous_columns'] = settings.get('continuous_columns', ['a', 'b', '
 settings['string_columns'] = settings.get('string_columns', ['d', 'e'])
 settings['random_salt'] = settings.get('random_salt', os.urandom(256))
 settings['business_rules_columns'] = settings.get('business_rules_columns', ['h'])
+settings['business_rules_base_columns'] = settings.get('business_rules_base_columns', ['g'])
+settings['pca'] = settings.get('pca', True)
 
 np.random.seed(42)
 
@@ -112,7 +114,9 @@ ch.add(sim_data)
 def business_rule(x):
     return x + 1
 add_business_rule = analysis.ApplyFuncToDf(read_key='df',
-                                           apply_funcs=[{'colin': 'g', 'colout': 'h', 'func': business_rule}])
+                                           apply_funcs=[{'colin': settings['business_rules_base_columns'][0],
+                                                         'colout': settings['business_rules_columns'][0],
+                                                         'func': business_rule}])
 add_business_rule.logger.log_level = LogLevel.DEBUG
 ch.add(add_business_rule)
 
@@ -127,7 +131,8 @@ for column_name in settings['column_names_to_hash']:
         if column_name in setting:
             print(column_name)
             setting.remove(column_name)
-            setting.append(str(binascii.hexlify(hashlib.pbkdf2_hmac('sha1', column_name.encode('utf-8'), settings['random_salt'], 1000, dklen=8))))
+            setting.append(str(binascii.hexlify(hashlib.pbkdf2_hmac('sha1', column_name.encode('utf-8'),
+                                                                    settings['random_salt'], 1000, dklen=8))))
 
 
 pre_data = data_mimic.KDEPreparation(read_key='df',
@@ -183,7 +188,9 @@ ch.add(resampler)
 
 # The 'business rule' column is added to the resampled data.
 add_business_rule = analysis.ApplyFuncToDf(read_key='df_resample',
-                                           apply_funcs=[{'colin': 'g', 'colout': 'h', 'func': business_rule}])
+                                           apply_funcs=[{'colin': settings['business_rules_base_columns'][0],
+                                                         'colout': settings['business_rules_columns'][0],
+                                                         'func': business_rule}])
 add_business_rule.logger.log_level = LogLevel.DEBUG
 ch.add(add_business_rule)
 
