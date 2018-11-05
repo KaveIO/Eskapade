@@ -26,6 +26,7 @@ Description:
       bandwith estimation. This PCA transformation preserves the original number of dimensions. Therefore,
       it only reduces the (linear) correlations between the continuous columns. This can be done to better meet the
       assumption for the normal rule of thumb (dimensions should be normally distribution and uncorrelated).
+      WARNING: if one of the columns contains a NaN, the inverse pca transformation results in NaN's for all columns.
 
     Data flow description:
     1. change column order (unordered categorical, ordered categorical, continuous) on df_to_resample -> data
@@ -34,16 +35,19 @@ Description:
     4. select only continuous columns from data_no_nans -> data_continuous
         + 4b append_extremes() on data_continuous -> data_extremes (contains two data points extra, the extremes)
         + 4c transform_to_normal() on data_extremes -> data_normalized. Extremes are deleted from data_normalized.
+        + 4d pca (OPTIONAL) on data_normalized -> data_normalized_pca
     5. concatenation of data_no_nans (unordered categorical and ordered categorical) and data_normalized (only
        continuous) -> d
         + 5b KDEMultivariate() on d -> bw (bandwiths)
-    6. insert_back_nans() on data_smoothed, data_normalized and data -> data_to_resample. Data_smoothed is used to
-       determine the original index of the nans for the continuous columns. Data_normalized is used to insert the
-       non-nans for the continuous columns. We want to use data_normalized because we want to resample in the
-       transformed space because the bandwiths are determined in the transformed space. Data is used to insert to
-       the nans and non-nans for the categorical column.
+    6. insert_back_nans() on data_smoothed, data_normalized(_pca) and data -> data_to_resample.
+       Data_smoothed is used to determine the original index of the nans for the continuous columns. Data_normalized
+       is used to insert the non-nans for the continuous columns. We want to use data_normalized(_pca) because we
+       want to resample in the transformed space because the bandwiths are determined in the transformed space. Data
+       is used to insert to the nans and non-nans for the categorical column.
     7. kde_resample() on data_to_resample -> resample_normalized_unscaled
-    8. scale_and_invert_normal_transformation() on resample_normalized_unscaled -> resample
+    8. Inverse transformations:
+        + 8a inverse PCA transformation (OPTIONAL)
+        + 8b scale_and_invert_normal_transformation() on resample_normalized_unscaled -> resample
 
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands

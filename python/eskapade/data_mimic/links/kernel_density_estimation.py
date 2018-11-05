@@ -29,11 +29,6 @@ class KernelDensityEstimation(Link):
     Executes kernel density estimation (kernel bandwith fitting) on a data set with mixed data types (unordered
     categorical, ordered categorical and continuous).
 
-    For now, only the normal rule of thumb is implemented using the statsmodels implementation because the
-    implementation of statsmodels using least squares or maximum likelihood cross validation is too slow for a data
-    set of practical size. We are working on an implementation for least squares cross validation that is significant
-    faster then the current implementation in statsmodels for categorical observables.
-
     Data flow:
     5. concatenation of data_no_nans (unordered categorical and ordered categorical) and data_normalized (only
        continuous) -> d
@@ -46,6 +41,8 @@ class KernelDensityEstimation(Link):
         :param str name: name of link
         :param str data_no_nans_read_key: key of data_no_nans to read from data store
         :param str data_normalized_read_key: key of data_normalized to read from data store
+        :param str data_normalized_pca_read_key:
+        :param bool do_pca: flag indicting whether to apply a pca transformation
         :param str store_key: key of output data to store in data store
         """
         # initialize Link, pass name from kwargs

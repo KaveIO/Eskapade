@@ -36,13 +36,15 @@ class Resampler(Link):
     distribution sparsely.
 
     Data flow:
-    6. insert_back_nans() on data_smoothed, data_normalized and data -> data_to_resample. Data_smoothed is used to
+    6. insert_back_nans() on data_smoothed, data_normalized(_pca) and data -> data_to_resample. Data_smoothed is used to
        determine the original index of the nans for the continuous columns. Data_normalized is used to insert the
        non-nans for the continuous columns. We want to use data_normalized because we want to resample in the
        transformed space because the bandwiths are determined in the transformed space. Data is used to insert to
        the nans and non-nans for the categorical column.
     7. kde_resample() on data_to_resample -> resample_normalized_unscaled
-    8. scale_and_invert_normal_transformation() on resample_normalized_unscaled -> resample
+    8. Inverse transformations:
+        + 8a inverse PCA transformation (OPTIONAL)
+        + 8b scale_and_invert_normal_transformation() on resample_normalized_unscaled -> resample
     """
 
     def __init__(self, **kwargs):
@@ -50,11 +52,13 @@ class Resampler(Link):
 
         :param str name: name of link
         :param str data_normalized_read_key: key of data_normalized to read from data store
+        :param str data_normalized_pca_read_key:
         :param str data_read_key: key of input data to read from data store
         :param str bws_read_key: key of bandwiths to read from data store
         :param str new_column_order_read_key: key of new column order to read from data store
         :param str maps_read_key: key of strings-to-integer maps (dicts) per string column to read from data store
         :param str ids_read_key: key of the original indices to read from the data store
+        :param bool do_pca: flag indicating whether to apply a pca transformation
         :param str df_resample_store_key: key of the dataframe resample to store in data store
         :param str resample_store_key: key of the resample to store in data store
         """

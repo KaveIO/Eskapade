@@ -51,6 +51,7 @@ class KDEPreparation(Link):
     4. select only continuous columns from data_no_nans -> data_continuous
         + 4b append_extremes() on data_continuous -> data_extremes (contains two data points extra, the extremes)
         + 4c transform_to_normal() on data_extremes -> data_normalized. Extremes are deleted from data_normalized.
+        + 4d pca (OPTIONAL) on data_normalized -> data_normalized_pca
     """
 
     def __init__(self, **kwargs):
@@ -61,22 +62,28 @@ class KDEPreparation(Link):
         :param str data_store_key: key of output data to store in data store
         :param str data_smoothed_store_key: key of data_smoothed to store in data store
         :param str data_no_nans_store_key: key of data_no_nans to store in data store
+        :param str data_normalized_store_key:
         :param str maps_store_key: key of strings-to-integer maps (dicts) per string column to store in data store
         :param str qts_store_key: key of a list of trained sklearn.preprocessing.QuantileTransformation instances per
                                   continuous columns to store in data store
         :param str new_column_order_store_key: key of the new column order to store in data store
         :param str ids_store_key: key of the original indices to store in data store
+        :param str pca_store_key: key of fitted pca transformation to store in data store
+        :param str data_normalized_pca_store_key:
         :param list unordered_categorical_columns: the column names of the unordered categorical columns of the input
                                                    dataframe
         :param list ordered_categorical_columns: the column names of the ordered categorical columns of the input
                                                  dataframe
         :param list continuous_columns: the column names of the continuous columns of the input dataframe
+        :param bool do_pca:
         :param list string_columns: the column names of the string columns of the input dataframe
         :param int count: parameter used for finding peaks. See eskapade.data_mimic.data_mimic_util.find_peaks
         :param float extremes_fraction: parameter to calculate the extremes. See
                                         eskapade.data_mimic.data_mimic_util.make_extremes
         :param float smoothing_fraction: parameter to calculate the standard deviation used for peak smoothing. See
                                          eskapade.data_mimic.data_mimic_util.smooth_peaks
+        :param dict input_maps: strings-to-integer maps per string column
+        :param list columns_to_hash: list of columns to hash
         """
         # initialize Link, pass name from kwargs
         Link.__init__(self, kwargs.pop('name', 'KDEPreparation'))

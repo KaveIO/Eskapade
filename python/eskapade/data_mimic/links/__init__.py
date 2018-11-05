@@ -3,8 +3,7 @@ from eskapade.data_mimic.links.kernel_density_estimation import KernelDensityEst
 from eskapade.data_mimic.links.mixed_variables_simulation import MixedVariablesSimulation
 from eskapade.data_mimic.links.resampler import Resampler
 from eskapade.data_mimic.links.resample_evaluation import ResampleEvaluation
-from eskapade.data_mimic.links.dof_fitter import DoFFitter
 from eskapade.data_mimic.links.mimic_report import MimicReport
 
 __all__ = ['KDEPreparation', 'KernelDensityEstimation', 'MixedVariablesSimulation', 'Resampler',
-           'ResampleEvaluation', 'DoFFitter', 'MimicReport']
+           'ResampleEvaluation', 'MimicReport']
