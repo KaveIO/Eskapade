@@ -674,14 +674,14 @@ The macro is build up in the following way:
   
   $ eskapade_run $TUTDIR/esk701_mimic_data.py
 
-Example esk702: DoF fitter
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Example esk702: Mimic data only unordered
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Macro to run a DoF fitter
+This macro illustrates how to resample an existing data set, containing only unordered catagorical data, using kernel density estimation (KDE) and a direct resampling technique.
 
 .. code-block:: bash
 
-  $eskapade_run $TUTDIR/esk702_dof_fitter.py
+  $eskapade_run $TUTDIR/esk702_mimic_data_only_unordered.py
 
 
 .. include:: coding.rst
