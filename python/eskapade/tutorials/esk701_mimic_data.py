@@ -1,29 +1,31 @@
 """Project: Eskapade - A python-based package for data analysis.
 
-Macro: esk201_readdata
+Macro: esk701_mimic_data
 
 Created: 2018/09/04
 
 Description:
     This macro illustrates how to resample an existing data set, containing mixed data types, using kernel density
     estimation (KDE) and a direct resampling technique. First, a data set is simulated containing mixed data types.
-    This data sets represents a general input data set. Then the dataframe KDE is applied on a processed dataframe
+    This data sets represents a general input data set. The continuous columns are transformed to normal
+    distribution using scikit learns quantile transformer. Then KDE is applied on a processed dataframe
     resulting in kernel bandwiths per dimension. These bandwiths are used to resample a new data set using the
     existing input data set.
 
     For now, only the normal rule of thumb is implemented using the statsmodels implementation because the
     implementation of statsmodels using least squares or maximum likelihood cross validation is too slow for a data
-    set of practical size. We are working on an implementation for least squares cross validation that is significant
-    faster then the current implementation in statsmodels for categorical observables.
+    set of practical size.
 
     In the resampling step it is chosen to use direct resampling, i.e., using an existing data point to define a kernel
     around it and sample a new data point from that kernel. Direct resampling is chosen because it is a
     straightforward technique.
-    Another technique would be to define or describe (binned) the entire multidimensional distribution (the sum of
-    the kernels of all original data points) and sample from that distribution. This is, however, not straightforward
-    to do because such a distribution could take up a lot of memory. Maybe it is possible to define such a
-    distribution sparsely. [YW] and if done correctly would be equivelent to the the first technique. In high dimensional
-    spaces the problem is usually actually drawing a (non-rejected) sample. So I do not really understand this.
+
+    configuration settings:
+    - Column names and data values can be (one way) hashed.
+    - PCA can be applied on the continuous columns (after the transformation to a normal distribution) before the
+      bandwith estimation. This PCA transformation preserves the original number of dimensions. Therefore,
+      it only reduces the (linear) correlations between the continuous columns. This can be done to better meet the
+      assumption for the normal rule of thumb (dimensions should be normally distribution and uncorrelated).
 
     Data flow description:
     1. change column order (unordered categorical, ordered categorical, continuous) on df_to_resample -> data
@@ -52,9 +54,7 @@ LICENSE.
 """
 
 # todo:
-# - use faster implementation of least squares cross validation
 # - add binning and/or taylor expansion option for continuous columns
-# - save (sparse binned) PDF to resample (not direct resampling)
 
 import numpy as np
 import hashlib
@@ -121,7 +121,6 @@ add_business_rule.logger.log_level = LogLevel.DEBUG
 ch.add(add_business_rule)
 
 #all data has been loaded, time to change column names
-
 for column_name in settings['column_names_to_hash']:
     for setting in [settings['columns_to_hash'],
                     settings['unordered_categorical_columns'],
@@ -129,7 +128,6 @@ for column_name in settings['column_names_to_hash']:
                     settings['continuous_columns'],
                     settings['string_columns']]:
         if column_name in setting:
-            print(column_name)
             setting.remove(column_name)
             setting.append(str(binascii.hexlify(hashlib.pbkdf2_hmac('sha1', column_name.encode('utf-8'),
                                                                     settings['random_salt'], 1000, dklen=8))))

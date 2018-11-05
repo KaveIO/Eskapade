@@ -78,11 +78,11 @@ class DataMimicTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual([len(np.unique(ds['df_resample'].dropna()[x])) for x in ['d', 'e', 'f', 'g', 'h']],
                          [4, 2, 3, 5, 5])
 
-    def test_esk703_only_ordered(self):
+    def test_esk702_only_ordered(self):
 
         # run Eskapade
 
-        self.eskapade_run(resources.tutorial('esk703_mimic_data_only_unordered.py'))
+        self.eskapade_run(resources.tutorial('esk702_mimic_data_only_unordered.py'))
         ds = process_manager.service(DataStore)
 
         # -- make sure all was saved to the data store

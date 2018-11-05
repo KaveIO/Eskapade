@@ -25,8 +25,6 @@ from eskapade.analysis import correlation
 from scipy.spatial.distance import cosine
 
 
-# todo for 1 dimensional chi2s: bin per category
-# todo use dof from macro
 class ResampleEvaluation(Link):
     """
     Evaluates the statistical simularity between 2 (multi-dimensional) data sets using a chiˆ2 test. The 2 data sets
@@ -106,7 +104,6 @@ class ResampleEvaluation(Link):
         # define the dof for each variable = bins for the 1d hist and 2d hists
         # will be nr. of catagories if catagorical, otherwise length of the bins that were defined for the
         # dd histogram
-
         dofs = [len(np.unique(data[:, x])) if x not in ds['continuous_i'] else
                 len(self.bins[x]) for x in range(data.shape[1])]
 
@@ -114,7 +111,6 @@ class ResampleEvaluation(Link):
         chis = {}
         kss = {}
         for i, param in enumerate(ds[self.new_column_order_read_key]):
-            print(dofs[i])
             data_o = data[:, i][~np.isnan(data[:, i])]
             data_r = resample[:, i][~np.isnan(resample[:, i])]
 
