@@ -1,6 +1,6 @@
 """Project: Eskapade - A python-based package for data analysis.
 
-Macro: esk201_readdata
+Macro: esk702_mimic_data_only_unordered
 
 Created: 2018/09/04
 
@@ -26,9 +26,6 @@ modification, are permitted according to the terms listed in the file
 LICENSE.
 """
 
-# todo:
-# - add business rules
-# - save (sparse binned) PDF to resample (not direct resampling)
 
 import numpy as np
 
@@ -97,9 +94,6 @@ resampler = data_mimic.Resampler(data_normalized_read_key='data_normalized',
 resampler.logger.log_level = LogLevel.DEBUG
 ch.add(resampler)
 
-# Usually, DoF = number of bins - number of model parameters. However, in this case, DoF is equal to 2 * the
-# number of bins - number of model parameters. Two times the number of bins the reference (data_to_resample) has a
-# DoF per bin as well.
 ch=Chain('temp')
 
 bins = [np.array([-10, 1.5, 10]), np.array([-10, 0.5, 10])]

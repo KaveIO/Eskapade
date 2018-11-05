@@ -1,29 +1,32 @@
 """Project: Eskapade - A python-based package for data analysis.
 
-Macro: esk201_readdata
+Macro: esk701_mimic_data
 
 Created: 2018/09/04
 
 Description:
     This macro illustrates how to resample an existing data set, containing mixed data types, using kernel density
     estimation (KDE) and a direct resampling technique. First, a data set is simulated containing mixed data types.
-    This data sets represents a general input data set. Then the dataframe KDE is applied on a processed dataframe
+    This data sets represents a general input data set. The continuous columns are transformed to normal
+    distribution using scikit learns quantile transformer. Then KDE is applied on a processed dataframe
     resulting in kernel bandwiths per dimension. These bandwiths are used to resample a new data set using the
     existing input data set.
 
     For now, only the normal rule of thumb is implemented using the statsmodels implementation because the
     implementation of statsmodels using least squares or maximum likelihood cross validation is too slow for a data
-    set of practical size. We are working on an implementation for least squares cross validation that is significant
-    faster then the current implementation in statsmodels for categorical observables.
+    set of practical size.
 
     In the resampling step it is chosen to use direct resampling, i.e., using an existing data point to define a kernel
     around it and sample a new data point from that kernel. Direct resampling is chosen because it is a
     straightforward technique.
-    Another technique would be to define or describe (binned) the entire multidimensional distribution (the sum of
-    the kernels of all original data points) and sample from that distribution. This is, however, not straightforward
-    to do because such a distribution could take up a lot of memory. Maybe it is possible to define such a
-    distribution sparsely. [YW] and if done correctly would be equivelent to the the first technique. In high dimensional
-    spaces the problem is usually actually drawing a (non-rejected) sample. So I do not really understand this.
+
+    configuration settings:
+    - Column names and data values can be (one way) hashed.
+    - PCA can be applied on the continuous columns (after the transformation to a normal distribution) before the
+      bandwith estimation. This PCA transformation preserves the original number of dimensions. Therefore,
+      it only reduces the (linear) correlations between the continuous columns. This can be done to better meet the
+      assumption for the normal rule of thumb (dimensions should be normally distribution and uncorrelated).
+      WARNING: if one of the columns contains a NaN, the inverse pca transformation results in NaN's for all columns.
 
     Data flow description:
     1. change column order (unordered categorical, ordered categorical, continuous) on df_to_resample -> data
@@ -32,16 +35,19 @@ Description:
     4. select only continuous columns from data_no_nans -> data_continuous
         + 4b append_extremes() on data_continuous -> data_extremes (contains two data points extra, the extremes)
         + 4c transform_to_normal() on data_extremes -> data_normalized. Extremes are deleted from data_normalized.
+        + 4d pca (OPTIONAL) on data_normalized -> data_normalized_pca
     5. concatenation of data_no_nans (unordered categorical and ordered categorical) and data_normalized (only
        continuous) -> d
         + 5b KDEMultivariate() on d -> bw (bandwiths)
-    6. insert_back_nans() on data_smoothed, data_normalized and data -> data_to_resample. Data_smoothed is used to
-       determine the original index of the nans for the continuous columns. Data_normalized is used to insert the
-       non-nans for the continuous columns. We want to use data_normalized because we want to resample in the
-       transformed space because the bandwiths are determined in the transformed space. Data is used to insert to
-       the nans and non-nans for the categorical column.
+    6. insert_back_nans() on data_smoothed, data_normalized(_pca) and data -> data_to_resample.
+       Data_smoothed is used to determine the original index of the nans for the continuous columns. Data_normalized
+       is used to insert the non-nans for the continuous columns. We want to use data_normalized(_pca) because we
+       want to resample in the transformed space because the bandwiths are determined in the transformed space. Data
+       is used to insert to the nans and non-nans for the categorical column.
     7. kde_resample() on data_to_resample -> resample_normalized_unscaled
-    8. scale_and_invert_normal_transformation() on resample_normalized_unscaled -> resample
+    8. Inverse transformations:
+        + 8a inverse PCA transformation (OPTIONAL)
+        + 8b scale_and_invert_normal_transformation() on resample_normalized_unscaled -> resample
 
 Authors:
     KPMG Advanced Analytics & Big Data team, Amstelveen, The Netherlands
@@ -52,9 +58,7 @@ LICENSE.
 """
 
 # todo:
-# - use faster implementation of least squares cross validation
 # - add binning and/or taylor expansion option for continuous columns
-# - save (sparse binned) PDF to resample (not direct resampling)
 
 import numpy as np
 import hashlib
@@ -76,7 +80,7 @@ logger.debug('Now parsing configuration file esk701_mimic_data')
 settings = process_manager.service(ConfigObject)
 settings['analysisName'] = 'esk701_mimic_data'
 settings['version'] = 0
-settings['pca'] = True
+
 settings['hash_columns'] = 1
 settings['hash_column_names'] = 1
 
@@ -88,6 +92,8 @@ settings['continuous_columns'] = settings.get('continuous_columns', ['a', 'b', '
 settings['string_columns'] = settings.get('string_columns', ['d', 'e'])
 settings['random_salt'] = settings.get('random_salt', os.urandom(256))
 settings['business_rules_columns'] = settings.get('business_rules_columns', ['h'])
+settings['business_rules_base_columns'] = settings.get('business_rules_base_columns', ['g'])
+settings['pca'] = settings.get('pca', True)
 
 np.random.seed(42)
 
@@ -112,12 +118,13 @@ ch.add(sim_data)
 def business_rule(x):
     return x + 1
 add_business_rule = analysis.ApplyFuncToDf(read_key='df',
-                                           apply_funcs=[{'colin': 'g', 'colout': 'h', 'func': business_rule}])
+                                           apply_funcs=[{'colin': settings['business_rules_base_columns'][0],
+                                                         'colout': settings['business_rules_columns'][0],
+                                                         'func': business_rule}])
 add_business_rule.logger.log_level = LogLevel.DEBUG
 ch.add(add_business_rule)
 
 #all data has been loaded, time to change column names
-
 for column_name in settings['column_names_to_hash']:
     for setting in [settings['columns_to_hash'],
                     settings['unordered_categorical_columns'],
@@ -125,7 +132,6 @@ for column_name in settings['column_names_to_hash']:
                     settings['continuous_columns'],
                     settings['string_columns']]:
         if column_name in setting:
-            print(column_name)
             setting.remove(column_name)
             setting.append(str(binascii.hexlify(hashlib.pbkdf2_hmac('sha1', column_name.encode('utf-8'),
                                                                     settings['random_salt'], 1000, dklen=8))))
@@ -184,7 +190,9 @@ ch.add(resampler)
 
 # The 'business rule' column is added to the resampled data.
 add_business_rule = analysis.ApplyFuncToDf(read_key='df_resample',
-                                           apply_funcs=[{'colin': 'g', 'colout': 'h', 'func': business_rule}])
+                                           apply_funcs=[{'colin': settings['business_rules_base_columns'][0],
+                                                         'colout': settings['business_rules_columns'][0],
+                                                         'func': business_rule}])
 add_business_rule.logger.log_level = LogLevel.DEBUG
 ch.add(add_business_rule)
 

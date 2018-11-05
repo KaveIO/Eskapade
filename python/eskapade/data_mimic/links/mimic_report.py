@@ -39,11 +39,19 @@ class MimicReport(Link):
         :param str resample_read_key: key of the resampled data to read from the data store
         :param str store_key: key of output data to store in data store
         :param str new_column_order_read_key: key of the column order to read from the data store
+        :param list unordered_categorical_columns: the column names of the unordered categorical columns of the input
+                                                   dataframe
+        :param list ordered_categorical_columns: the column names of the ordered categorical columns of the input
+                                                 dataframe
+        :param list continuous_columns: the column names of the continuous columns of the input dataframe
+        :param list business_rules_columns: list of business rules columns
+        :param list string_columns: list of string columns
         :param str results_path: where to save the report
         :param str chi2_read_key: key of the saved chi-square value to read from the data store
         :param str p_value_read_key: key of the saved p-value to read from the data store
-        :param str maps_read_key: key of the saved maps to read from the data store
+        :param bool do_pca: flag indicating whether to apply a pca transformation
         :param str key_data_normalized: key of the saved normalized data in the data store
+        :param str key_data_normalized_pca: key of the saved normalized data after pca transformation in data store
         :param str distance_read_key: key of the saved cosine distance calculations in the data store
         :param str corr_read_key: key of the saved correlations in the data store
 

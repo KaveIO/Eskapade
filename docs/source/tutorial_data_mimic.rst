@@ -77,7 +77,8 @@ In order to do Kernel Density Estimation we need to prepare the data. This means
  - Converting strings to dummy integer variables and saving the mapping
  - Remove any ``NaN`` values present
  - Find peaks in distributions
- - Transforms continuous variables to copula space (transform to a uniform distribution)
+ - Transforms continuous variables to copula space (transform to a normal distribution)
+ - Performs a PCA transformation (optional)
  - Hash column names and variables if required
 
 Each of these transformations are saved to the datastore including their properties needed to transform the data back.
