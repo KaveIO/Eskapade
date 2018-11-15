@@ -84,36 +84,20 @@ For all available Eskapade example macros, please see our `tutorials section <ht
 Release notes
 =============
 
-In version 0.8 of Eskapade (August 2018) the modules ``root-analysis`` and ``spark-analysis`` have been split off
-into separate packages called `Eskapade-ROOT <http://eskapade-root.readthedocs.io>`_ and `Eskapade-Spark <http://eskapade-spark.readthedocs.io>`_ .
+The Eskapade patch release v0.8.2 and corresponding docker containers fix two issues:
 
-So the (core) Eskapade package no longer depends on ROOT and Spark, just on plain python packages.
-This make it much easier for people to try out the core functionality of Eskapade.
+* The ``matplotlib`` backend is no longer set to batchmode when running Eskapade in a jupyter notebook.
+  By default, batch mode is only turned on when no DISPLAY environment variable is set, and when not running in a notebook;
+  the batch-mode flag can also be controlled with the command line option ``–batch-mode``.
 
-To install Eskapade-ROOT and Eskapade-Spark, do:
+* The Eskapade docker containers contain working version of ``Eskapade``, ``Eskapade-ROOT``, and ``Eskapade-Spark``. Type:
 
-.. code-block:: bash
+  .. code-block:: bash
 
-  $ pip install Eskapade-ROOT
-  $ pip install Eskapade-Spark
+    $ docker pull kave/eskapade-usr:0.8.2
 
-or check out the code from out github repository:
+  to pull it in.
 
-.. code-block:: bash
-
-  $ git clone https://github.com/KaveIO/Eskapade-ROOT.git eskapade-root
-  $ pip install -e eskapade-root/
-  $ git clone https://github.com/KaveIO/Eskapade-Spark.git eskapade-spark
-  $ pip install -e eskapade-spark/
-
-where in this example the code is installed in edit mode (option -e).
-
-You can now use these in Python with:
-
-.. code-block:: python
-
-  import eskapadespark
-  import esroofit
 
 See `release notes <http://eskapade.readthedocs.io/en/latest/releasenotes.html>`_ for previous versions of Eskapade.
 
