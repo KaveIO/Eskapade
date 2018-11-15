@@ -26,6 +26,7 @@ from eskapade.core.definitions import CONFIG_VARS
 from eskapade.core.definitions import USER_OPTS
 from eskapade.core.exceptions import UnknownSetting
 from eskapade.logger import Logger
+from eskapade.utils import check_interactive_backend
 
 
 class ProcessServiceMeta(type):
@@ -195,7 +196,7 @@ class ConfigObject(ProcessService):
 
         # initialize batch-mode setting with display variable from environment
         display = eskapade.utils.get_env_var('display')
-        self.__settings['batchMode'] = display is None or not re.search(':\d', display)
+        self.__settings['batchMode'] = not check_interactive_backend()
 
     def __repr__(self):
         return repr(self.__settings)

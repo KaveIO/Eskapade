@@ -36,7 +36,6 @@ def set_matplotlib_backend(backend=None, batch=None, silent=True):
     :param bool silent: do not raise exception if backend cannot be set
     :raises: RuntimeError
     """
-
     # determine if batch mode is required
     run_interactive = check_interactive_backend()
     run_batch = bool(batch) or not run_interactive
@@ -118,12 +117,19 @@ def in_ipynb():
         import IPython.core.getipython as gip
         cfg = gip.get_ipython().config
         if 'IPKernelApp' in cfg.keys():
-            logger.info('Ipython-kernel was found, batch-mode (non-interactive) will be set to false.')
+            #logger.info('Ipython-kernel was found, batch-mode (non-interactive) will be set to false.')
             return True
         else:
             return False
     except (ModuleNotFoundError, AttributeError):
         return False
+
+
+def in_tty():
+    """Detect whether running in a terminal
+    """
+    import sys
+    return sys.stdout.isatty()
 
 
 def collect_python_modules():

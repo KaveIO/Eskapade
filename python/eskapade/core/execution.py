@@ -69,7 +69,7 @@ def eskapade_run(settings=None):
 
     message('Welcome to Eskapade!')
 
-    # check for batch mode
+    # check for batch mode, default is false if display is set or when in jupyter
     if settings.get('batchMode'):
         # set non-interactive Matplotlib backend before plotting tools are imported
         eskapade.utils.set_matplotlib_backend(batch=True, silent=False)
