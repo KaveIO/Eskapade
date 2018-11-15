@@ -13,7 +13,7 @@ First clone Eskapade.
 
 .. code-block:: bash
 
-  git clone git@github.com:KaveIO/Eskapade.git eskapade
+  git clone https://github.com/KaveIO/Eskapade.git eskapade
 
 then
 

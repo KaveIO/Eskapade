@@ -107,7 +107,7 @@ The Eskapade source code can be obtained from git:
 
 .. code-block:: bash
 
-  $ git clone git@github.com:KaveIO/Eskapade.git eskapade
+  $ git clone https://github.com/KaveIO/Eskapade.git eskapade
 
 
 To set up the Eskapade environment (Python, Spark, ROOT) each time a new terminal is started, source a shell script (e.g. ``setup_eskapade.fish``) that contains set the environment variables as described above:

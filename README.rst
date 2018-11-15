@@ -5,7 +5,7 @@ Eskapade: Modular Analytics
 * Version: 0.8
 * Released: Aug 2018
 * Web page: http://eskapade.kave.io
-* Repository: http://github.com/kaveio/eskapade
+* Repository: https://github.com/kaveio/eskapade
 
 
 Eskapade is a light-weight, python-based data analysis framework, meant for developing and modularizing all sorts of
@@ -48,7 +48,7 @@ or check out the code from out github repository:
 
 .. code-block:: bash
 
-  $ git clone git@github.com:KaveIO/Eskapade.git
+  $ git clone https://github.com/KaveIO/Eskapade.git
   $ pip install -e Eskapade/
 
 where in this example the code is installed in edit mode (option -e).
@@ -101,9 +101,9 @@ or check out the code from out github repository:
 
 .. code-block:: bash
 
-  $ git clone git@github.com:KaveIO/Eskapade-ROOT.git eskapade-root
+  $ git clone https://github.com/KaveIO/Eskapade-ROOT.git eskapade-root
   $ pip install -e eskapade-root/
-  $ git clone git@github.com:KaveIO/Eskapade-Spark.git eskapade-spark
+  $ git clone https://github.com/KaveIO/Eskapade-Spark.git eskapade-spark
   $ pip install -e eskapade-spark/
 
 where in this example the code is installed in edit mode (option -e).

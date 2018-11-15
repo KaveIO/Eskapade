@@ -22,9 +22,9 @@ This make it much easier for people to try out the core functionality of Eskapad
 
   .. code-block:: bash
 
-    $ git clone git@github.com:KaveIO/Eskapade-ROOT.git eskapade-root
+    $ git clone https://github.com/KaveIO/Eskapade-ROOT.git eskapade-root
     $ pip install -e eskapade-root/
-    $ git clone git@github.com:KaveIO/Eskapade-Spark.git eskapade-spark
+    $ git clone https://github.com/KaveIO/Eskapade-Spark.git eskapade-spark
     $ pip install -e eskapade-spark/
 
   where in this example the code is installed in edit mode (option -e).
@@ -52,7 +52,7 @@ Version 0.7 of Eskapade (February 2018) contains several major updates:
 
   .. code-block:: bash
 
-    $ git clone git@github.com:KaveIO/Eskapade.git
+    $ git clone https://github.com/KaveIO/Eskapade.git
     $ pip install -e Eskapade/
 
   where in this example the code is installed in edit mode (option -e).

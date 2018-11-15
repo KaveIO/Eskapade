@@ -28,7 +28,7 @@ Or check out the code from out github repository:
 
 .. code-block:: bash
 
-  $ git clone git@github.com:KaveIO/Eskapade.git
+  $ git clone https://github.com/KaveIO/Eskapade.git
   $ pip install -e Eskapade/
 
 where the code is installed in editable mode (option -e).
