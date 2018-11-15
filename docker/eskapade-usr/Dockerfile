@@ -1,5 +1,5 @@
 # --- base image: latest known Eskapade environment
-FROM kave/eskapade-env:0.8
+FROM kave/eskapade-env:0.8.2
 
 # --- me
 MAINTAINER Max Baak <baak.max@kpmg.nl>
@@ -24,6 +24,19 @@ RUN groupadd --gid "${USER_GID}" "${USER}" && \
       --shell /bin/bash \
       ${USER}
 
+# --- cleanup, prevent double installation of Eskapade in venv below.
+RUN . /opt/KaveToolbox/pro/scripts/KaveEnv.sh \
+    && pip uninstall -y sphinx_rtd_theme==0.4.1 \
+    && pip uninstall -y Eskapade==0.8.2 \
+    && pip uninstall -y Eskapade-ROOT==0.8.3 \
+    && pip uninstall -y Eskapade-Spark==0.8.2
+
+# --- conda fix for making python envs visible in jupyter
+#     see: https://stackoverflow.com/questions/39604271/conda-environments-not-showing-up-in-jupyter-notebook
+#     for miniconda use the conda-forge channel
+RUN . /opt/KaveToolbox/pro/scripts/KaveEnv.sh \
+    && conda install nb_conda_kernels -y
+
 # --- switch to Eskapade user
 USER esdev
 WORKDIR /home/esdev
@@ -33,12 +46,16 @@ COPY bashrc_appendum /tmp/
 RUN cat /tmp/bashrc_appendum >> "${HOME}"/.bashrc 
 
 # --- setup user's own python Eskapade environment
+COPY eskapade_env.yml /tmp/
 RUN . /opt/KaveToolbox/pro/scripts/KaveEnv.sh \
-    && conda create -y -n eskapade_env python=3.6 \
+    && conda env create -f /tmp/eskapade_env.yml -q --force
+
+# --- install Eskapade packages
+RUN . /opt/KaveToolbox/pro/scripts/KaveEnv.sh \
     && . activate eskapade_env \
-    && pip install Eskapade==0.8.0 \
-    && pip install Eskapade-ROOT==0.8.0 \
-    && pip install Eskapade-Spark==0.8.0 \
+    && pip install Eskapade==0.8.2 \
+    && pip install Eskapade-ROOT==0.8.3 \
+    && pip install Eskapade-Spark==0.8.2 \
     && pip install rootpy==1.0.1 \
     && pip install sphinx_rtd_theme==0.4.1 \
     && pip install pymongo==3.4.0 \

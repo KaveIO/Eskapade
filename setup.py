@@ -22,7 +22,7 @@ NAME = 'Eskapade'
 
 MAJOR = 0
 REVISION = 8
-PATCH = 1
+PATCH = 2
 DEV = False
 
 VERSION = '{major}.{revision}.{patch}'.format(major=MAJOR, revision=REVISION, patch=PATCH)
@@ -37,7 +37,7 @@ TEST_REQUIREMENTS = ['pytest>=3.5.0',
 REQUIREMENTS = [
     'pendulum==1.2.5',
     'matplotlib>=2.0.2',
-    'numpy>=1.14.2',
+    'numpy>=1.15.0',
     'scipy>=0.19.0',
     'scikit-learn>=0.18.1',
     'statsmodels>=0.8.0',

@@ -17,18 +17,21 @@ ENV ESKAPADE "/opt/eskapade"
 ENV KAVE_ENV_SCRIPT "/opt/KaveToolbox/pro/scripts/KaveEnv.sh"
 
 # --- Eskapade directories
-RUN mkdir /opt/eskapade \
+RUN mkdir ${ESKAPADE} \
     && mkdir /opt/esroofit \
     && mkdir /opt/esspark
 
 # --- useful Ubuntu packages, e.g. pdflatex. 
 RUN apt-get update
-RUN apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-extra texlive-fonts-recommended pandoc
+RUN apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-extra texlive-fonts-recommended pandoc aspell
 
 # --- useful Python package(s); for ROOT packages need Kave env first.
 ENV KAVE_ENV_SCRIPT "/opt/KaveToolbox/pro/scripts/KaveEnv.sh"
 RUN source "${KAVE_ENV_SCRIPT}" \
-    && /opt/anaconda/pro/bin/pip install sphinx_rtd_theme==0.4.1
+    && /opt/anaconda/pro/bin/pip install sphinx_rtd_theme==0.4.1 \
+    && /opt/anaconda/pro/bin/pip install Eskapade==0.8.2 \
+    && /opt/anaconda/pro/bin/pip install Eskapade-ROOT==0.8.3 \
+    && /opt/anaconda/pro/bin/pip install Eskapade-Spark==0.8.2 
 
 # --- trigger automatic installation of required Spark dependencies. Requires Spark setup.
 RUN echo "print('Hello world!')" > /tmp/test.py \
@@ -39,3 +42,4 @@ RUN echo "print('Hello world!')" > /tmp/test.py \
 # --- append sourcing of Kave env to bashrc
 COPY bashrc_appendum /tmp/
 RUN cat /tmp/bashrc_appendum >> "${HOME}"/.bashrc && rm /tmp/bashrc_appendum
+
