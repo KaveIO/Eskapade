@@ -1,5 +1,5 @@
 # --- base image: latest known Eskapade environment
-FROM kave/eskapade-env:0.8.2
+FROM kave/eskapade-base:0.8.3
 
 # --- me
 MAINTAINER Max Baak <baak.max@kpmg.nl>
@@ -24,13 +24,6 @@ RUN groupadd --gid "${USER_GID}" "${USER}" && \
       --shell /bin/bash \
       ${USER}
 
-# --- cleanup, prevent double installation of Eskapade in venv below.
-RUN . /opt/KaveToolbox/pro/scripts/KaveEnv.sh \
-    && pip uninstall -y sphinx_rtd_theme==0.4.1 \
-    && pip uninstall -y Eskapade==0.8.2 \
-    && pip uninstall -y Eskapade-ROOT==0.8.3 \
-    && pip uninstall -y Eskapade-Spark==0.8.2
-
 # --- conda fix for making python envs visible in jupyter
 #     see: https://stackoverflow.com/questions/39604271/conda-environments-not-showing-up-in-jupyter-notebook
 #     for miniconda use the conda-forge channel
@@ -54,13 +47,18 @@ RUN . /opt/KaveToolbox/pro/scripts/KaveEnv.sh \
 RUN . /opt/KaveToolbox/pro/scripts/KaveEnv.sh \
     && . activate eskapade_env \
     && pip install Eskapade==0.8.2 \
-    && pip install Eskapade-ROOT==0.8.3 \
+    && pip install -e git+https://github.com/KaveIO/Eskapade-ROOT.git@v0.8.3#egg=eskapade-root \
     && pip install Eskapade-Spark==0.8.2 \
     && pip install rootpy==1.0.1 \
     && pip install sphinx_rtd_theme==0.4.1 \
     && pip install pymongo==3.4.0 \
     && pip install jaydebeapi==1.1.1 \
-    && pip install django==2.0.5
+    && pip install django==2.0.5 \ 
+    && pip install nbformat==4.3.0
+
+# --- Eskapade-ROOT: pip does not pick up custom installation from pypi repo, 
+#     but does so from git when installing in editable mode.
+#     See: https://stackoverflow.com/questions/19569557/pip-not-picking-up-a-custom-install-cmdclass
 
 # --- apply user mapping
 USER root

@@ -1,45 +1,18 @@
-# --- base image: latest known kavetoolbox
-FROM kave/kavetoolbox:3.6-Beta.u16.node
+# --- base image: latest known Eskapade environment
+FROM kave/eskapade-base:0.8.3
 
 # --- me
 MAINTAINER Max Baak <baak.max@kpmg.nl>
 
-# --- fix http://stackoverflow.com/questions/22466255/is-it-possibe-to-answer-dialog-questions-when-installing-under-docker
-ARG DEBIAN_FRONTEND=noninteractive
-
-# --- link sh to bash
-SHELL ["/bin/bash", "-c"]
-
-# --- Eskapade location
-ENV ESKAPADE "/opt/eskapade"
-
-# --- KAVE setup script
-ENV KAVE_ENV_SCRIPT "/opt/KaveToolbox/pro/scripts/KaveEnv.sh"
-
-# --- Eskapade directories
-RUN mkdir ${ESKAPADE} \
-    && mkdir /opt/esroofit \
-    && mkdir /opt/esspark
-
-# --- useful Ubuntu packages, e.g. pdflatex. 
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-extra texlive-fonts-recommended pandoc aspell
-
 # --- useful Python package(s); for ROOT packages need Kave env first.
+# --- Eskapade-ROOT: pip does not pick up custom installation from pypi repo, 
+#     but does so from git when installing in editable mode.
+#     See: https://stackoverflow.com/questions/19569557/pip-not-picking-up-a-custom-install-cmdclass
+
 ENV KAVE_ENV_SCRIPT "/opt/KaveToolbox/pro/scripts/KaveEnv.sh"
+
 RUN source "${KAVE_ENV_SCRIPT}" \
     && /opt/anaconda/pro/bin/pip install sphinx_rtd_theme==0.4.1 \
     && /opt/anaconda/pro/bin/pip install Eskapade==0.8.2 \
-    && /opt/anaconda/pro/bin/pip install Eskapade-ROOT==0.8.3 \
-    && /opt/anaconda/pro/bin/pip install Eskapade-Spark==0.8.2 
-
-# --- trigger automatic installation of required Spark dependencies. Requires Spark setup.
-RUN echo "print('Hello world!')" > /tmp/test.py \
-    && source "${KAVE_ENV_SCRIPT}" \
-    && /opt/spark/pro/bin/spark-submit --packages org.diana-hep:histogrammar-sparksql_2.11:1.0.4 /tmp/test.py \
-    && rm /tmp/test.py
-
-# --- append sourcing of Kave env to bashrc
-COPY bashrc_appendum /tmp/
-RUN cat /tmp/bashrc_appendum >> "${HOME}"/.bashrc && rm /tmp/bashrc_appendum
-
+    && /opt/anaconda/pro/bin/pip install -e git+https://github.com/KaveIO/Eskapade-ROOT.git@v0.8.3#egg=eskapade-root \
+    && /opt/anaconda/pro/bin/pip install Eskapade-Spark==0.8.2
