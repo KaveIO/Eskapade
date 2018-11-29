@@ -1,5 +1,5 @@
 # --- base image: latest known Eskapade environment
-FROM kave/eskapade-base:0.8.3
+FROM kave/eskapade-base:0.8.4
 
 # --- me
 MAINTAINER Max Baak <baak.max@kpmg.nl>

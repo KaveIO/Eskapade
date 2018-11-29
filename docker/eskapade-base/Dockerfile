@@ -23,7 +23,7 @@ RUN mkdir ${ESKAPADE} \
 
 # --- useful Ubuntu packages, e.g. pdflatex. 
 RUN apt-get update
-RUN apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-extra texlive-fonts-recommended pandoc aspell
+RUN apt-get install -y --no-install-recommends texlive-latex-base texlive-latex-extra texlive-fonts-recommended pandoc aspell dvipng
 
 # --- trigger automatic installation of required Spark dependencies. Requires Spark setup.
 RUN echo "print('Hello world!')" > /tmp/test.py \

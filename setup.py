@@ -22,7 +22,7 @@ NAME = 'Eskapade'
 
 MAJOR = 0
 REVISION = 8
-PATCH = 2
+PATCH = 4
 DEV = False
 
 VERSION = '{major}.{revision}.{patch}'.format(major=MAJOR, revision=REVISION, patch=PATCH)

@@ -9,7 +9,7 @@ fi
 if [ -z "${HOST_USER_ID}" -a -z "${HOST_USER_GID}" ]; then
     echo ""
     echo "To apply uid/gid mapping HOST_USER_ID and HOST_USER_GID environment variables must be set. E.g.:"
-    echo "$ docker run -e HOST_USER_ID=$(id -u) -e HOST_USER_GID=$(id -g) -it kave/eskapade-usr:latest"
+    echo "$ docker run -e HOST_USER_ID=\$(id -u) -e HOST_USER_GID=\$(id -g) -it kave/eskapade-usr:latest"
     echo ""
 fi
 

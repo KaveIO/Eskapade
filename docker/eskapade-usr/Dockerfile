@@ -1,5 +1,5 @@
 # --- base image: latest known Eskapade environment
-FROM kave/eskapade-base:0.8.3
+FROM kave/eskapade-base:0.8.4
 
 # --- me
 MAINTAINER Max Baak <baak.max@kpmg.nl>
@@ -53,7 +53,8 @@ RUN . /opt/KaveToolbox/pro/scripts/KaveEnv.sh \
     && pip install sphinx_rtd_theme==0.4.1 \
     && pip install pymongo==3.4.0 \
     && pip install jaydebeapi==1.1.1 \
-    && pip install django==2.0.5 \ 
+    && pip install django==2.0.5 \
+    && pip install nbconvert==5.1.1 \
     && pip install nbformat==4.3.0
 
 # --- Eskapade-ROOT: pip does not pick up custom installation from pypi repo, 

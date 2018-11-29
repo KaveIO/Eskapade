@@ -2,7 +2,7 @@
 Eskapade: Modular Analytics
 ===========================
 
-* Version: 0.8.2
+* Version: 0.8.4
 * Released: Nov 2018
 * Web page: http://eskapade.kave.io
 * Repository: https://github.com/kaveio/eskapade
@@ -84,7 +84,7 @@ For all available Eskapade example macros, please see our `tutorials section <ht
 Release notes
 =============
 
-The Eskapade patch release v0.8.2 and corresponding docker containers fix two issues:
+The Eskapade patch release v0.8.4 and corresponding docker containers fix two issues:
 
 * The ``matplotlib`` backend is no longer set to batchmode when running Eskapade in a jupyter notebook.
   By default, batch mode is only turned on when no DISPLAY environment variable is set, and when not running in a notebook;
@@ -94,7 +94,7 @@ The Eskapade patch release v0.8.2 and corresponding docker containers fix two is
 
   .. code-block:: bash
 
-    $ docker pull kave/eskapade-usr:0.8.2
+    $ docker pull kave/eskapade-usr:0.8.4
 
   to pull it in.
 
