@@ -79,10 +79,6 @@ def eskapade_run(settings=None):
         raise RuntimeError('macro is not set')
     process_manager.execute_macro(settings['macro'])
 
-    # check analysis name
-    if not settings['analysisName']:
-        raise RuntimeError('analysis name is not set')
-
     # standard execution from now on
     status = process_manager.run()
 

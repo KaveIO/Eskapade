@@ -212,7 +212,8 @@ CONFIG_TYPES = dict(version=int,
                     doNotStoreResults=bool,
                     all_mongo_collections=list, )
 
-CONFIG_DEFAULTS = dict(version=0,
+CONFIG_DEFAULTS = dict(analysisName='MyAnalysis',
+                       version=0,
                        batchMode=True,
                        interactive=False,
                        logLevel=LogLevel.INFO,
