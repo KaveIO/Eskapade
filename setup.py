@@ -47,7 +47,7 @@ REQUIREMENTS = [
     'histogrammar>=1.0.9',
     'names>=0.3.0',
     'fastnumbers>=2.0.2',
-    'phik>=0.9.1'
+    'phik>=0.9.2'
     ]
 
 REQUIREMENTS = REQUIREMENTS + TEST_REQUIREMENTS
