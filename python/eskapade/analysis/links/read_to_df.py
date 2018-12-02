@@ -105,23 +105,22 @@ class ReadToDf(Link):
                               cls=self.__class__.__name__, name=self.name)
             raise RuntimeError('No file path specified to read dataframe from file.')
         if not all(isinstance(p, str) for p in read_paths):
-            self.logger.fatal('Not all paths for {cls} instance "{name}" are strings.',
-                              cls=self.__class__.__name__, name=self.name)
-            raise TypeError('File paths specified to read dataframe from file must be strings.')
+            self.logger.fatal('Not all paths for {cls} instance "{name}" are strings: {paths}',
+                              cls=self.__class__.__name__, name=self.name, paths=str(read_paths))
+            raise TypeError('File paths specified to read dataframe from file must be strings: {0:s}'.format(str(read_paths)))
 
-        # construct actual paths
-        read_paths = [pe for p in read_paths for pe in glob.glob(p)]
-        if not read_paths:
-            self.logger.fatal('Specified files not found for {cls} instance "{name}".',
-                              cls=self.__class__.__name__, name=self.name)
-            raise RuntimeError('specified files not found')
-        if not all(os.path.isfile(p) for p in read_paths):
-            self.logger.fatal('Not all paths for {cls} instance "{name}" are files.',
-                              cls=self.__class__.__name__, name=self.name)
-            raise RuntimeError('Paths specified to read dataframe from file must be regular files.')
+        # construct and check actual paths
+        abs_paths = []
+        for p in read_paths:
+            gp = glob.glob(p) # convert wildcards
+            if not gp:
+                self.logger.fatal('File(s) not found (wildcards possible): {0:s}'.format(p))
+                raise RuntimeError('File(s) not found (wildcards possible): {0:s}'.format(p))
+            for pe in gp:
+                abs_paths.append(os.path.abspath(pe))
 
         # set paths to read
-        self._paths = np.array(read_paths)
+        self._paths = np.array(abs_paths)
         self._path_itr = np.nditer(self._paths)
 
         # now determine if file iterator will be used. Will iterate if:
