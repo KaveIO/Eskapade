@@ -21,12 +21,13 @@ import numpy as np
 import pandas as pd
 import tabulate
 from sklearn.feature_selection import mutual_info_regression
+import phik
 
 from eskapade import process_manager, resources, Link, DataStore, StatusCode
 from eskapade import visualization
 from eskapade.core import persistence
 
-ALL_CORRS = ['pearson', 'kendall', 'spearman', 'correlation_ratio']
+ALL_CORRS = ['pearson', 'kendall', 'spearman', 'correlation_ratio', 'phik', 'significance']
 LINEAR_CORRS = ['pearson', 'kendall', 'spearman']
 
 
@@ -131,8 +132,9 @@ class CorrelationSummary(Link):
                 bins = {c: len(np.histogram(df[c])[1]) for c in cols}
 
                 # sort rows into bins
+                df_ = df.select_dtypes(include=[np.number]).copy()
                 for c in cols:
-                    df[str(c) + '_bin'] = pd.cut(df[c], bins[c])
+                    df_[str(c) + '_bin'] = pd.cut(df_[c], bins[c])
 
                 # initialize correlation matrix
                 n = len(cols)
@@ -141,12 +143,20 @@ class CorrelationSummary(Link):
                 for i, x in enumerate(cols):
                     # definition from Wikipedia "correlation ratio"
                     xbin = str(x) + '_bin'
-                    y_given_x = (df.groupby(xbin))[cols]
-                    weighted_var_y_bar = (y_given_x.count() * (y_given_x.mean() - df.mean()) ** 2).sum()
-                    weighted_var_y = df[cols].count() * df[cols].var()
+                    y_given_x = (df_.groupby(xbin))[cols]
+                    weighted_var_y_bar = (y_given_x.count() * (y_given_x.mean() - df_.mean()) ** 2).sum()
+                    weighted_var_y = df_[cols].count() * df_[cols].var()
                     cors[i, :] = weighted_var_y_bar / weighted_var_y
-
                 cors = pd.DataFrame(cors, columns=cols, index=cols)
+                del df_
+
+            elif method == 'phik':
+                cors = df.phik_matrix()
+                cols = df.columns.tolist()
+
+            elif method == 'significance':
+                cors = df.significance_matrix()
+                cols = df.columns.tolist()
 
             else:
                 cors = df.corr(method=method)
@@ -162,7 +172,7 @@ class CorrelationSummary(Link):
             # plot settings
             title = '{0:s} correlation matrix'.format(method.capitalize())
             vmin = -1 if method in LINEAR_CORRS else 0
-            vmax = 1
+            vmax = 10 if method == 'significance' else 1
             color_map = 'RdYlGn' if method in LINEAR_CORRS else 'YlGn'
             fname = '_'.join(['correlations', self.read_key.replace(' ', ''), method]) + '.pdf'
             fpath = os.path.join(self.results_path, fname)

@@ -132,7 +132,7 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
         self.assertIn('correlations', ds)
         self.assertIsInstance(ds['correlations'], list)
         corr_list = ds['correlations']
-        self.assertEqual(4, len(corr_list))
+        self.assertEqual(5, len(corr_list))
 
         # correlation matrix checks
         col_names = ['x1', 'x2', 'x3', 'x4', 'x5']
@@ -145,7 +145,7 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
         # heatmap pdf checks
         results_path = persistence.io_path('results_data', 'report')
 
-        correlations = ['pearson', 'kendall', 'spearman', 'correlation_ratio']
+        correlations = ['pearson', 'kendall', 'spearman', 'correlation_ratio', 'phik']
         for corr in correlations:
             path = '{0:s}/correlations_input_data_{1:s}.pdf'.format(results_path, corr)
             self.assertTrue(os.path.exists(path))
@@ -164,7 +164,7 @@ class VisualizationTutorialMacrosTest(TutorialMacrosTest):
         # report checks
         self.assertIn('report_pages', ds)
         self.assertIsInstance(ds['report_pages'], list)
-        self.assertEqual(19, len(ds['report_pages']))
+        self.assertEqual(21, len(ds['report_pages']))
 
         # data-summary checks
         file_names = ['report.tex']

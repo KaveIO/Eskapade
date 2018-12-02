@@ -38,7 +38,7 @@ settings['version'] = 0
 settings['input_path'] = resources.fixture('correlated_data.sv.gz')
 settings['reader'] = 'csv'
 settings['separator'] = ' '
-settings['correlations'] = ['pearson', 'kendall', 'spearman', 'correlation_ratio']
+settings['correlations'] = ['pearson', 'kendall', 'spearman', 'correlation_ratio', 'phik']
 
 #########################################################################################
 # --- now set up the chains and links based on configuration flags

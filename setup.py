@@ -46,7 +46,8 @@ REQUIREMENTS = [
     'sortedcontainers>=1.5.7',
     'histogrammar>=1.0.9',
     'names>=0.3.0',
-    'fastnumbers>=2.0.2'
+    'fastnumbers>=2.0.2',
+    'phik>=0.9.1'
     ]
 
 REQUIREMENTS = REQUIREMENTS + TEST_REQUIREMENTS
@@ -107,7 +108,7 @@ def setup_package() -> None:
           author='KPMG N.V. The Netherlands',
           author_email='kave@kpmg.com',
           description='Eskapade modular analytics',
-          python_requires='>=3.5',
+          python_requires='>=3.6',
           package_dir={'': 'python'},
           packages=find_packages(where='python', exclude=EXCLUDE_PACKAGES),
           # Setuptools requires that package data are located inside the package.
