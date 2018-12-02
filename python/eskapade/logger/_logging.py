@@ -78,7 +78,7 @@ class LogLevel(IntEnum):
 class LogPublisher(logging.getLoggerClass()):
     """Logging publisher that listens for log events."""
 
-    def __init__(self, name: str = '', level: Union[int, LogLevel] = LogLevel.INFO):
+    def __init__(self, name: str = '', level: Union[int, LogLevel] = LogLevel.NOTSET):
         """Initialize the publisher."""
         super().__init__(name, level)
 
@@ -385,3 +385,21 @@ class Logger(object):
         :type level: LogLevel
         """
         self.observer.log_level = level
+
+
+_LOG_LEVEL_MAP = {'NOTSET': LogLevel.NOTSET,
+                  'DEBUG': LogLevel.DEBUG,
+                  'INFO': LogLevel.INFO,
+                  'WARNING': LogLevel.WARNING,
+                  'ERROR': LogLevel.ERROR,
+                  'FATAL': LogLevel.FATAL
+}
+
+def log_level_mapper(log_level: Union[str, LogLevel]) -> LogLevel:
+    """Logging level conversion
+    """
+    if isinstance(log_level, LogLevel):
+        return log_level
+    elif log_level not in _LOG_LEVEL_MAP:
+        raise AssertionError('log level {0:s} unknown.'.format(log_level))
+    return _LOG_LEVEL_MAP[log_level]

@@ -16,7 +16,7 @@ LICENSE.
 import eskapade.utils
 from eskapade.core.process_manager import process_manager
 from eskapade.core.process_services import ConfigObject
-from eskapade.logger import Logger
+from eskapade.logger import Logger, global_log_publisher, log_level_mapper
 
 logger = Logger()
 
@@ -30,6 +30,42 @@ def reset_eskapade(skip_config=False):
     process_manager.reset()
     if skip_config:
         process_manager.service(settings)
+
+
+def eskapade_configure(settings=None):
+    """Configure Eskapade.
+
+    This function is called by the eskapade_run function (below), to configure
+    eskapade before running:
+
+    - set the configuration object
+    - set logging level
+    - set matplotlib backend
+    - process config file
+
+    :param ConfigObject settings: analysis settings
+    """
+    # get config object from process manager
+    if settings:
+        # use supplied settings as config service in process manager
+        process_manager.remove_service(ConfigObject, silent=True)
+        process_manager.service(settings)
+    settings = process_manager.service(ConfigObject)
+
+    # - initialize logging; any newly instanciated loggers are initialized to NOTSET,
+    #   and thereby revert to the global log_level (starting with 'eskapade')
+    # - when you set the log_level of a logger explicitly, that's the level then adopted
+    #   by the logger and its children.
+    global_log_publisher.log_level = log_level_mapper(settings['logLevel'])
+
+    # check for batch mode, default is false if display is set or when in jupyter
+    if settings.get('batchMode'):
+        # set non-interactive Matplotlib backend before plotting tools are imported
+        eskapade.utils.set_matplotlib_backend(batch=True, silent=False)
+
+    # execute configuration macro, this sets up the order of the chains and links.
+    if 'macro' in settings:
+        process_manager.execute_macro(settings['macro'])
 
 
 def eskapade_run(settings=None):
@@ -49,12 +85,8 @@ def eskapade_run(settings=None):
     :return: status of the execution
     :rtype: StatusCode
     """
-    # get config object from process manager
-    if settings:
-        # use supplied settings as config service in process manager
-        process_manager.remove_service(ConfigObject, silent=True)
-        process_manager.service(settings)
-    settings = process_manager.service(ConfigObject)
+    # configure eskapade. if macro is provided, this call sets up chains and links
+    eskapade_configure(settings)
 
     def message(msg):
         width = 80
@@ -68,16 +100,6 @@ def eskapade_run(settings=None):
         logger.info(fence * width)
 
     message('Welcome to Eskapade!')
-
-    # check for batch mode, default is false if display is set or when in jupyter
-    if settings.get('batchMode'):
-        # set non-interactive Matplotlib backend before plotting tools are imported
-        eskapade.utils.set_matplotlib_backend(batch=True, silent=False)
-
-    # execute configuration macro, this sets up the order of the chains and links.
-    if not settings['macro']:
-        raise RuntimeError('macro is not set')
-    process_manager.execute_macro(settings['macro'])
 
     # standard execution from now on
     status = process_manager.run()
