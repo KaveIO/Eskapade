@@ -224,6 +224,14 @@ class ConfigObject(ProcessService):
         """
         self.__settings[setting] = value
 
+    def __delitem__(self, key: str) -> None:
+        """Delete key,value of setting
+
+        :param key: the key of the key,value pair to delete.
+        :return: None
+        """
+        del self.__settings[key]
+
     def __contains__(self, setting):
         """Check if a setting is present.
 

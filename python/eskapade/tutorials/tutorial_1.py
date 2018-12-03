@@ -19,20 +19,7 @@ LICENSE.
 
 import pandas as pd
 
-from eskapade import analysis, process_manager, visualization, ConfigObject, Chain
-from eskapade.logger import Logger
-
-logger = Logger()
-
-#########################################################################################
-
-msg = r"""
-
-Be sure to download the input dataset:
-
-$ wget https://s3-eu-west-1.amazonaws.com/kpmg-eskapade-share/data/LAozone.data
-"""
-logger.info(msg)
+from eskapade import analysis, process_manager, visualization, ConfigObject, Chain, resources
 
 #########################################################################################
 # --- minimal analysis information
@@ -64,6 +51,9 @@ conv_funcs = [{'func': comp_date, 'colin': 'doy', 'colout': 'date'},
               # {'func': F_to_C, 'colin': , 'colout': 'temp_c'},
               ]
 
+# this data set is found under: python/eskapade/data/
+file_path = resources.fixture('LAozone.data.gz')
+
 #########################################################################################
 # --- now set up the chains and links based on configuration flags
 
@@ -71,7 +61,7 @@ conv_funcs = [{'func': comp_date, 'colin': 'doy', 'colout': 'date'},
 data = Chain('Data')
 
 # add data-frame reader to "Data" chain
-reader = analysis.ReadToDf(name='Read_LA_ozone', path='LAozone.data', reader=pd.read_csv, key='data')
+reader = analysis.ReadToDf(name='Read_LA_ozone', path=file_path, reader=pd.read_csv, key='data')
 data.add(reader)
 
 # add conversion functions to "Data" chain

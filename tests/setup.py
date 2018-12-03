@@ -13,7 +13,7 @@ def setup_package() -> None:
           author='KPMG',
           author_email='eskapade@eskapade',
           description='Eskapade test package',
-          python_requires='>=3.5',
+          python_requires='>=3.6',
           packages=['eskapade_python'],
           install_requires=[]
           )

@@ -41,13 +41,17 @@ _TEMPLATES = {_.name: _ for _ in pathlib.Path(resource_filename(eskapade.__name_
 # Configs that are shipped with eskapade.
 _CONFIGS = {_.name: _ for _ in pathlib.Path(resource_filename(eskapade.__name__, 'config')).glob('**/*')}
 
+# Notebooks that are shipped with eskapade.
+_NOTEBOOKS = {_.name: _ for _ in pathlib.Path(resource_filename(eskapade.__name__, 'notebooks')).glob('*.ipynb')}
+
 # Resource types
 _RESOURCES = {
     'fixture': _FIXTURE,
     'library': _LIBS,
     'tutorial': _TUTORIALS,
     'template': _TEMPLATES,
-    'config': _CONFIGS
+    'config': _CONFIGS,
+    'notebook': _NOTEBOOKS
 }
 
 
@@ -121,3 +125,13 @@ def config(name: str) -> str:
     :raises FileNotFoundError: If the config cannot be found.
     """
     return _resource('config', name)
+
+
+def notebook(name: str) -> str:
+    """Return the absolute path of a notebook.
+
+    :param str name: The name of the notebook.
+    :returns: The absolute path of the notebook.
+    :raises FileNotFoundError: If the notebook cannot be found.
+    """
+    return _resource('notebook', name)
