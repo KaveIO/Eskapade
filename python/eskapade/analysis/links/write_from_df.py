@@ -74,20 +74,22 @@ class WriteFromDf(Link):
         # perform basic checks of configured attributes
         # a key and path OR dictionary need to have been set.
         if self.path and self.key:
-            self.dictionary = {self.key: self.path}
-        elif not self.dictionary:
+            self.path_map = {self.key: self.path}
+        elif not self.path_map:
             raise Exception('Path and key OR dictionary not properly set.')
 
         # correct the output paths, if need be
-        paths = list(self.dictionary.values())
+        paths = list(self.path_map.values())
         assert '' not in paths, 'One or more of the paths in dict is empty.'
         assert all([isinstance(p, str) for p in paths]), 'One or more of the paths in dict is not string.'
         # update paths if needed
-        for k, p in self.dictionary.items():
+        for k, p in self.path_map.items():
             if not p.__contains__('/'):
-                self.dictionary[k] = persistence.io_path('results_data', p)
+                self.path_map[k] = persistence.io_path('results_data', p)
                 self.logger.debug('Output filename for key <{key}> has been reset to {new_key}.',
-                                  key=k, new_key=self.dictionary[k])
+                                  key=k, new_key=self.path_map[k])
+
+
         self.logger.info('kwargs passed on to pandas writer are: {kwargs}.', kwargs=self.kwargs)
 
         return StatusCode.Success
@@ -100,20 +102,21 @@ class WriteFromDf(Link):
         ds = process_manager.service(DataStore)
 
         # check that all dataframes are present
-        assert all(k in ds for k in self.dictionary), 'key(s) not in DataStore.'
+        assert all(k in ds for k in self.path_map), 'key(s) not in DataStore.'
 
         # check that all ds items are dataframes
-        assert all(isinstance(ds[k], pd.DataFrame) for k in self.dictionary), \
+        assert all(isinstance(ds[k], pd.DataFrame) for k in self.path_map), \
             'key(s) is not a pandas DataFrame.'
 
         # collect writer and store the dataframes
-        for k, path in self.dictionary.items():
+        for k, path in self.path_map.items():
             df = ds[k]
             if self.add_counter_to_name:
                 ps = os.path.splitext(path)
                 path = ps[0] + '_' + str(self._counter) + ps[1]
             writer = pandas_writer(path, self.writer)
             folder = os.path.dirname(path)
+            persistence.create_dir(folder)
             self.logger.debug('Checking for directory <{dir}>.', dir=folder)
             if not os.path.exists(folder):
                 self.logger.fatal('Path given is invalid.')
