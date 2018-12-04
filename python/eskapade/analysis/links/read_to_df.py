@@ -63,7 +63,7 @@ def numpy_reader(path, restore_index, file_type):
 
     npy_file = np.load(path)
     if f_ext == 'npz':
-        logger.debug('Reading npz file {}'.format(path))
+        logger.info('Reading npz file {}'.format(path))
         df = pd.DataFrame(data=npy_file['values'], columns=npy_file['columns'])
 
         # Restore dtypes
@@ -79,7 +79,7 @@ def numpy_reader(path, restore_index, file_type):
             pass
 
     else:
-        logger.debug('Reading npy file {}'.format(path))
+        logger.info('Reading npy file {}'.format(path))
         values, col_dtypes, _restore_index = npy_file
         df = pd.DataFrame(data=values, columns=col_dtypes[:, 0])
 
@@ -177,9 +177,9 @@ class ReadToDf(Link):
             To use the feather reader one of the following should be true:
                 * reader is {'feather', 'ft'}
                 * path contains extensions 'ft'
-            When to use feather or which numpy type see the FIXME <++>
+            When to use feather or which numpy type see the esk210_dataframe_restoration
             tutorial
-        :param bool store_index: whether to store the index in the
+        :param bool restore_index: whether to store the index in the
             metadata. Default is False when the index is numeric,
             True otherwise.
         :param str file_type: {'npy', 'npz'} when using the numpy reader
@@ -414,9 +414,9 @@ def set_reader(path, reader, *args, **kwargs):
     # kwargs for the numpy and feather readers
     f_type = kwargs.pop('file_type', None)
     restore_index = kwargs.pop('restore_index', True)
-    if isinstance(reader, numpy_reader):
+    if reader == numpy_reader:
         return reader(path, restore_index, f_type)
-    elif isinstance(reader, feather_reader):
+    elif reader == feather_reader:
         return reader(path, restore_index)
     else:
         return reader(path, *args, **kwargs)

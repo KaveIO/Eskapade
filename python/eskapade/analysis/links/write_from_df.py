@@ -36,6 +36,16 @@ def numpy_writer(df, path, store_index):
     # if the index is non-numeric we overwrite the default and store
     store_index = store_index or (df.index.dtype not in (np.int_, int))
 
+    dtypes = df.dtypes.values
+    # A column can have type object which can hold more than one
+    # fundamental data type, if object we determine the fundamental type
+    obj_cols = df.columns.values[dtypes == object]
+
+    fund_dtypes = np.array([
+        type(df.iloc[0, i]).__name__ if col in obj_cols else str(dtypes[i])
+        for i, col in enumerate(df.columns.values)
+    ])
+
     f_ext = os.path.splitext(path)[1].strip('.')
     if f_ext == 'npz':
         logger.debug('Saving using numpy as npz')
@@ -43,23 +53,26 @@ def numpy_writer(df, path, store_index):
             np.savez(path,
                      values=df.values,
                      columns=df.columns.values,
-                     dtypes=df.dtypes.values,
+                     dtypes=fund_dtypes,
                      index=df.index.values)
         else:
             np.savez(path,
                      values=df.values,
                      columns=df.columns.values,
-                     dtypes=df.dtypes.values)
+                     dtypes=fund_dtypes)
     else:
         logger.debug('Saving using numpy as npy')
+
         if store_index:
             df.index.name = 'restored_index'
             df.reset_index(inplace=True)
-        col_dtypes = np.hstack((df.columns.values[:, None], df.dtypes.values[:, None]))
+            fund_dtypes = np.insert(fund_dtypes, 0, type(df.iloc[0, 0]).__name__)
+
+        col_dtypes = np.hstack((df.columns.values[:, None], fund_dtypes[:, None]))
         np.save(path, np.array((df.values, col_dtypes, np.array([store_index]))))
 
         if store_index:
-            # The above reset_index can propogate back, this remedies that
+            # The above reset_index can propagate back, this remedies that
             df.set_index('restored_index', drop=True, inplace=True)
             df.index.name = 'index'
 
@@ -79,10 +92,19 @@ def feather_writer(df, path, store_index):
         df.index.name = 'restored_index'
         df.reset_index(inplace=True)
 
+    dtypes = df.dtypes.values
+    # A column can have type `object` which can hold more than one
+    # fundamental data type, if object we determine the fundamental type
+    obj_cols = df.columns[dtypes == object]
+    fund_dtypes = [
+        type(df.iloc[0, i]).__name__ if col in obj_cols else str(dtypes[i])
+        for i, col in enumerate(df.columns.values)
+    ]
+
     # The underlying Apache framework doesn't handle numpy dtypes
     # we convert to strings and create an array of the right shape
     dtypes_arr = np.zeros(shape=df.shape[0], dtype=np.dtype)
-    dtypes_arr[:df.shape[1]] = df.dtypes.values
+    dtypes_arr[:df.shape[1]] = fund_dtypes
     df['_dtypes'] = dtypes_arr.astype(str)
 
     logger.debug('Using Feather writer')
@@ -138,7 +160,7 @@ class WriteFromDf(Link):
             If writer is not passed the path must contain a known file
             extension. Valid numpy extensions {'npy', 'npz'} or feather {'ft'}
 
-            :note: the numpy and feather writers will perserve the
+            :note: the numpy and feather writers will preserve the
             metadata such as dtypes for each column and the index
             if non numeric.
         :param dict dictionary: keys (as in the arg above) and paths (as in the arg above)
@@ -218,6 +240,8 @@ class WriteFromDf(Link):
             if not os.path.exists(folder):
                 self.logger.fatal('Path given is invalid.')
             self.logger.debug('Writing file "{path}".', path=path)
+
+            self.logger.info('Writing file "{path}".', path=path)
 
             if isinstance(writer, (type(numpy_writer), type(feather_writer))):
                 writer(df, path, self.store_index)
