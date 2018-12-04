@@ -84,17 +84,17 @@ For all available Eskapade example macros, please see our `tutorials section <ht
 Release notes
 =============
 
-The Eskapade patch release v0.8.4 and corresponding docker containers fix two issues:
+The Eskapade patch release v0.9.0 and corresponding docker containers fix two issues:
 
 * The ``matplotlib`` backend is no longer set to batchmode when running Eskapade in a jupyter notebook.
   By default, batch mode is only turned on when no DISPLAY environment variable is set, and when not running in a notebook;
   the batch-mode flag can also be controlled with the command line option ``–batch-mode``.
 
-* The Eskapade docker containers contain working version of ``Eskapade``, ``Eskapade-ROOT``, and ``Eskapade-Spark``. Type:
+* The Eskapade docker containers contain the latest working versions of ``Eskapade``, ``Eskapade-ROOT``, and ``Eskapade-Spark``. Type:
 
   .. code-block:: bash
 
-    $ docker pull kave/eskapade-usr:0.8.4
+    $ docker pull kave/eskapade-usr:latest
 
   to pull it in.
 

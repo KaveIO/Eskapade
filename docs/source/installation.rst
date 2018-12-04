@@ -47,13 +47,21 @@ See the other parts of the documentation for specific usage.
 Eskapade with Docker
 --------------------
 
-.. include:: ../../docker/README.rst
+Type:
+
+  .. code-block:: bash
+
+    $ docker pull kave/eskapade-usr:latest
+
+to pull in the Eskapade image from dockerhub.
+
+For more details see `here <https://github.com/KaveIO/Eskapade-Environment/>`_.
 
 
 Eskapade on a virtual machine
 -----------------------------
 
-.. include:: ../../vagrant/README.rst
+For detailed instruction on how to set up a vagrant box with Eskapade, go `here <https://github.com/KaveIO/Eskapade-Environment/>`_.
 
 
 Requirements
@@ -66,17 +74,6 @@ Eskapade can be installed as any other Python package with ``easy_install`` or `
 .. code-block:: bash
 
   $ pip install /path/to/eskapade
-
-Alternatively, consider installing `KaveToolbox <http://github.com/kaveio/KaveToolbox>`_ version 3.6 or higher.
-To install the released version:
-
-.. code-block:: bash
-
-  $ yum -y install wget curl tar zip unzip gzip python
-  $ wget http://repos:kaverepos@repos.kave.io/noarch/KaveToolbox/3.6-Beta/kavetoolbox-installer-3.6-Beta.sh
-  $ sudo bash kavetoolbox-installer-3.6-Beta.sh [--quiet]
-
-(--quiet is for a quieter install, remove the brackets!)
 
 If anaconda is already installed in your machine, consider creating a conda virtual environment with Python 3.6 to install
 all the requirements and Eskapade itself to avoid collisions:
