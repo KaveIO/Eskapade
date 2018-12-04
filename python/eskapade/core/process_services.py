@@ -195,7 +195,6 @@ class ConfigObject(ProcessService):
                 self.__settings[config] = CONFIG_DEFAULTS.get(config)
 
         # initialize batch-mode setting with display variable from environment
-        display = eskapade.utils.get_env_var('display')
         self.__settings['batchMode'] = not check_interactive_backend()
 
     def __repr__(self):

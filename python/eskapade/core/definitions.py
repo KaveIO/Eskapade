@@ -337,8 +337,21 @@ def set_opt_var(opt_key, settings, args):
     if value is None:
         return
     conf_key = USER_OPTS_CONF_KEYS.get(opt_key, opt_key)
-    settings[conf_key] = CONFIG_TYPES.get(conf_key, str)(value)
-
+    value_type = CONFIG_TYPES.get(conf_key, str)
+    val = CONFIG_TYPES.get(conf_key, str)(value)
+    if value_type != bool:
+        settings[conf_key] = val
+        return
+    # default boolean user-opt arg is always False!
+    if val:
+        # user set it to true on cmd line, so adopt
+        settings[conf_key] = val
+    elif conf_key not in settings:
+        # missing anyhow, so let's adopt
+        settings[conf_key] = val
+    else:
+        # a default value is already present; ignoring this one
+        pass
 
 CONFIG_OPTS_SETTERS = collections.defaultdict(lambda: set_opt_var)
 
