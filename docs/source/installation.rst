@@ -44,26 +44,6 @@ You can now use Eskapade in Python with:
 See the other parts of the documentation for specific usage.
 
 
-Eskapade with Docker
---------------------
-
-Type:
-
-  .. code-block:: bash
-
-    $ docker pull kave/eskapade-usr:latest
-
-to pull in the Eskapade image from dockerhub.
-
-For more details see `here <https://github.com/KaveIO/Eskapade-Environment/>`_.
-
-
-Eskapade on a virtual machine
------------------------------
-
-For detailed instruction on how to set up a vagrant box with Eskapade, go `here <https://github.com/KaveIO/Eskapade-Environment/>`_.
-
-
 Requirements
 ____________
 
@@ -90,6 +70,28 @@ Then you can activate it as follows:
 
 More information about conda virtual environments can be found
 `here <https://conda.io/docs/user-guide/tasks/manage-environments.html>`_
+
+
+
+Eskapade with Docker
+--------------------
+
+Type:
+
+  .. code-block:: bash
+
+    $ docker pull kave/eskapade-usr:latest
+
+to pull in the Eskapade image from dockerhub.
+
+For more details see the Eskapade repo with the `docker configurations <https://github.com/KaveIO/Eskapade-Environment/>`_.
+
+
+Eskapade on a virtual machine
+-----------------------------
+
+For detailed instruction on how to set up a vagrant box with Eskapade, go to the Eskapade repo with the `vagrant box <https://github.com/KaveIO/Eskapade-Environment/>`_.
+
 
 
 Installing Eskapade on macOS
