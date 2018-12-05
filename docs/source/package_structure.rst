@@ -15,9 +15,9 @@ The architecture of Eskapade can be summarized in this picture:
 The example we just discussed generally shows how the framework works.
 The steps it takes are the following:
 
-  - eskapade_run runs the macro file,
-  - Macros (python file) contain Chains,
-  - Chains (python object) contains Links,
+  - eskapade_run configures Eskapade based on user settings and/or the macro file, and executes all chains and links;
+  - Macros (python file) contain Chains;
+  - Chains (python object) contains Links;
   - Links (python class) contain analysis code.
 
 The chains are run in the order of 'registering' them in the ``ProcessManager``.
@@ -25,8 +25,11 @@ The chains are run in the order of 'registering' them in the ``ProcessManager``.
 The ``ProcessManager`` is the ultimate object that executes all the code in your macro.
 It also keeps track of the configuration of Eskapade, and of the objects in the ``data store`` that are passable between links.
 
-The components of the architecture of Eskapade are explained in further detail in the `Tutorials section <tutorials.html>`_.
+The settings flow of Eskapade is shown in the following picture:
 
+.. image:: ../images/Eskapade_8_4_settings_flow.png
+
+The components of the architecture of Eskapade are explained in further detail in the `Tutorials section <tutorials.html>`_.
 
 
 Structure
