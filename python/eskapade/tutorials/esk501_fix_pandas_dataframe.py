@@ -110,10 +110,12 @@ pds.keys = ['vrh', 'vrh_fix1', 'vrh_fix2', 'vrh_fix3']
 ch.add(pds)
 
 # --- 5. write out fixed dataframe - turned off in this example
+# The dataframe will be saved with the numpy writer which will
+# restore the dtypes when reloading the dataframe
 writedata = analysis.WriteFromDf(name='writer',
                                  key='vrh_fix1',
-                                 path='tmp.csv',
-                                 writer='csv')
+                                 path='tmp.npz',
+                                 )
 # ch.add(writedata)
 
 #########################################################################################
