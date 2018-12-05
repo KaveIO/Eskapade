@@ -239,11 +239,8 @@ class WriteFromDf(Link):
             self.logger.debug('Checking for directory <{dir}>.', dir=folder)
             if not os.path.exists(folder):
                 self.logger.fatal('Path given is invalid.')
-            self.logger.debug('Writing file "{path}".', path=path)
-
             self.logger.info('Writing file "{path}".', path=path)
-
-            if isinstance(writer, (type(numpy_writer), type(feather_writer))):
+            if writer == numpy_writer or writer == feather_writer:
                 writer(df, path, self.store_index)
             else:
                 writer(df, path, **self.kwargs)
