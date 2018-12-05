@@ -9,56 +9,57 @@ Subpackages
     eskapade.analysis
     eskapade.core
     eskapade.core_ops
+    eskapade.data_mimic
     eskapade.data_quality
     eskapade.logger
+    eskapade.templates
     eskapade.visualization
-    eskapade.data_mimic
 
 Submodules
 ----------
 
-eskapade\.entry\_points module
-------------------------------
+eskapade.entry\_points module
+-----------------------------
 
 .. automodule:: eskapade.entry_points
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade\.exceptions module
----------------------------
+eskapade.exceptions module
+--------------------------
 
 .. automodule:: eskapade.exceptions
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade\.helpers module
-------------------------
+eskapade.helpers module
+-----------------------
 
 .. automodule:: eskapade.helpers
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade\.resources module
---------------------------
+eskapade.resources module
+-------------------------
 
 .. automodule:: eskapade.resources
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade\.utils module
-----------------------
+eskapade.utils module
+---------------------
 
 .. automodule:: eskapade.utils
     :members:
     :undoc-members:
     :show-inheritance:
 
-eskapade\.version module
-------------------------
+eskapade.version module
+-----------------------
 
 .. automodule:: eskapade.version
     :members:

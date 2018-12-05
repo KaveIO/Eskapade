@@ -1,5 +1,5 @@
-eskapade\.data\_quality package
-===============================
+eskapade.data\_quality package
+==============================
 
 Subpackages
 -----------
@@ -11,8 +11,8 @@ Subpackages
 Submodules
 ----------
 
-eskapade\.data\_quality\.dq\_helper module
-------------------------------------------
+eskapade.data\_quality.dq\_helper module
+----------------------------------------
 
 .. automodule:: eskapade.data_quality.dq_helper
     :members:

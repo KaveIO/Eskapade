@@ -1,5 +1,5 @@
-eskapade\.visualization package
-===============================
+eskapade.visualization package
+==============================
 
 Subpackages
 -----------
@@ -11,8 +11,8 @@ Subpackages
 Submodules
 ----------
 
-eskapade\.visualization\.vis\_utils module
-------------------------------------------
+eskapade.visualization.vis\_utils module
+----------------------------------------
 
 .. automodule:: eskapade.visualization.vis_utils
     :members:
