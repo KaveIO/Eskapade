@@ -147,28 +147,30 @@ class WriteFromDf(Link):
         :param str name: Name given to the link
         :param str key: the DataStore key
         :param str path: path where to save the DataFrame
-        :param writer: file extension that can be written by a pandas
-            writer function from pd.DataFrame, or the numpy- feather writers.
-            For example: 'csv' will trigger the DataFrame.to_csv.
-            To use numpy_writer specify one of the following:
-                {'numpy',
-                 'np',
-                 'npy',
-                 'npz',
-                }
-            To use feather specify: {'feather', 'ft'}
-            If writer is not passed the path must contain a known file
-            extension. Valid numpy extensions {'npy', 'npz'} or feather {'ft'}
+        :param writer: file extension that can be written by a pandas\
+        writer function from pd.DataFrame, or the numpy- feather writers.\
+        For example: 'csv' will trigger the DataFrame.to_csv.\
+        To use numpy_writer specify one of the following:
 
-            :note: the numpy and feather writers will preserve the
-            metadata such as dtypes for each column and the index
-            if non numeric.
-        :param dict dictionary: keys (as in the arg above) and paths (as in the arg above)
-            it will write out all the keys to the associated paths.
-        :param bool add_counter_to_name: if true, add an index to the output file name.
-            Useful when running in loops. Default is false.
-        :param bool store_index: whether the index should be stored as
-            metadata. Default is False unless the index is non-numeric
+        {'numpy', \
+        'np', \
+        'npy', \
+        'npz', \
+        }
+
+        To use feather specify: {'feather', 'ft'} \
+        If writer is not passed the path must contain a known file \
+        extension. Valid numpy extensions {'npy', 'npz'} or feather {'ft'}
+
+        :note: the numpy and feather writers will preserve the \
+        metadata such as dtypes for each column and the index \
+        if non numeric.
+        :param dict dictionary: keys (as in the arg above) and paths (as in the arg above) \
+        it will write out all the keys to the associated paths.
+        :param bool add_counter_to_name: if true, add an index to the output file name. \
+        Useful when running in loops. Default is false.
+        :param bool store_index: whether the index should be stored as \
+        metadata. Default is False unless the index is non-numeric
         :param kwargs: all other key word arguments are passed on to the pandas writers.
         """
         # initialize Link, pass name from kwargs

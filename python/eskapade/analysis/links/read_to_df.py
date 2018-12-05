@@ -168,26 +168,26 @@ class ReadToDf(Link):
         :param str name: Name given to the link
         :param str path: path of your file to read into pandas DataFrame .
         :param str key: storage key for the DataStore.
-        :param reader: reader is determined automatically.
-            But can be set by hand, e.g. csv, xlsx.
-            To use the numpy reader one of the following should be true:
-                * reader is {'numpy', 'np', 'npy', 'npz'}
-                * path contains extensions {'npy', 'npz'}
-                * param `file_type` is {'npy', 'npz'}
-            To use the feather reader one of the following should be true:
-                * reader is {'feather', 'ft'}
-                * path contains extensions 'ft'
-            When to use feather or which numpy type see the esk210_dataframe_restoration
-            tutorial
+        :param reader: reader is determined automatically. But can be set by hand, e.g. csv, xlsx. To use the numpy reader one of the following should be true:
+
+        * reader is {'numpy', 'np', 'npy', 'npz'}
+        * path contains extensions {'npy', 'npz'}
+        * param `file_type` is {'npy', 'npz'}
+
+        To use the feather reader one of the following should be true:
+
+        * reader is {'feather', 'ft'}
+        * path contains extensions 'ft'
+
+        When to use feather or which numpy type see the esk210_dataframe_restoration tutorial
         :param bool restore_index: whether to store the index in the
-            metadata. Default is False when the index is numeric,
-            True otherwise.
+        metadata. Default is False when the index is numeric, True otherwise.
         :param str file_type: {'npy', 'npz'} when using the numpy reader
-            Optional, see reader for details.
+        Optional, see reader for details.
         :param bool itr_over_files: Iterate over individual files, default is false.
-            If false, are files are collected in one dataframe. NB chunksize takes priority!
+        If false, are files are collected in one dataframe. NB chunksize takes priority!
         :param int chunksize: Default is none. If positive integer then will always iterate.
-            chunksize requires pd.read_csv or pd.read_table.
+        chunksize requires pd.read_csv or pd.read_table.
         :param kwargs: all other key word arguments are passed on to the pandas reader.
         """
         # initialize Link, pass name from kwargs

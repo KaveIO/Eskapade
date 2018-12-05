@@ -238,8 +238,10 @@ def append_extremes(data_continuous, fraction=0.15):
 def transform_to_normal(data_extremes, imin, imax):
     """
     Transforming a random distribution to a normal distribution can be done in the following way:
+
     1. Compute the values of the CDF. These values are the percentiles. These are (always) uniformly distributed.
-    2. Use the percent point function (inverse of cdf) of a normal distribution to transform the uniform
+
+    2. Use the percent point function (inverse of cdf) of a normal distribution to transform the uniform\
        distribution to a normal distribution.
 
     :param np.ndarray data_extremes: the continuous data columns with smoothed peaks and extremes appended
@@ -396,38 +398,39 @@ def scale_and_invert_normal_transformation(resample_normalized_unscaled, continu
 
 def wr_kernel(s, z, zi):
     r"""Implementation of the wang-ryzin kernel as implemented by statsmodels.
+
     Adapted so it is defined for finite intervals ex. {1...c}.
 
     The Wang-Ryzin kernel, used for ordered discrete random variables.
 
     Parameters
-    ----------
-    s : scalar or 1-D ndarray, shape (K,)
-        The bandwidth(s) used to estimate the value of the kernel function
-    zi : ndarray of ints, shape (nobs, K)
-        The value of observable(s)
-    z : scalar or 1-D ndarray of shape (K,)
-        The value at which the kernel density is being estimated. For finite
-        intervals, should be the possible values of the original dataset
+
+    s:   scalar or 1-D ndarray, shape (K,)
+         The bandwidth(s) used to estimate the value of the kernel function
+    zi:  ndarray of ints, shape (nobs, K)
+         The value of observable(s)
+    z:   scalar or 1-D ndarray of shape (K,)
+         The value at which the kernel density is being estimated. For finite
+         intervals, should be the possible values of the original dataset
 
     Returns
-    -------
+
     kernel_value : ndarray, shape (nobs, K)
         The value of the kernel function at each training point for each var.
 
     Notes
-    -----
-    See p. 19 in [1]_ for details.  The value of the kernel L if
-    :math:`X_{i}=x` is :math:`1-\lambda`, otherwise it is
-    :math:`\frac{1-\lambda}{2}\lambda^{|X_{i}-x|}`, where :math:`\lambda` is
+
+    See p. 19 in Ref.1 for details.  The value of the kernel L if \
+    :math:`X_{i}=x` is :math:`1-\lambda`, otherwise it is \
+    :math:`\frac{1-\lambda}{2}\lambda^{|X_{i}-x|}`, where :math:`\lambda` is \
     the bandwidth.
 
     References
-    ----------
-    .. [*] Racine, Jeff. "Nonparametric Econometrics: A Primer," Foundation
-           and Trends in Econometrics: Vol 3: No 1, pp1-88., 2008.
+
+    .. [*] Racine, Jeff. "Nonparametric Econometrics: A Primer," Foundation \
+           and Trends in Econometrics: Vol 3: No 1, pp1-88., 2008. \
            http://dx.doi.org/10.1561/0800000009
-    .. [*] M.-C. Wang and J. van Ryzin, "A class of smooth estimators for
+    .. [*] M.-C. Wang and J. van Ryzin, "A class of smooth estimators for \
            discrete distributions", Biometrika, vol. 68, pp. 301-309, 1981.
     """
     zi = zi.reshape(zi.size)  # seems needed in case Zi is scalar
@@ -621,17 +624,18 @@ def calculate_delta_frequencies(data, n_obs, n_dim):
 
 
 def kde_only_unordered_categorical(data):
-    """
-    Given the a dataset consisting of only categorical variables;
-    returns the optimal combinations of dimensional bandwidths.
+    """Return the optimal combinations of dimensional bandwidths
 
-    :param np.array data:  data
+    Given the a dataset consisting of only categorical variables,
+    return the optimal combinations of dimensional bandwidths.
+
+    :param np.array data: data
     :return: the optimal bandwiths
     :rtype: list
 
-    References
-    ----------
-    .. [*] van Bokhorst, P.S. "Data Set Resampling with Multivariate Mixed Variable Kernel Density Estimation"
+    References:
+
+    .. [*] van Bokhorst, P.S. \"Data Set Resampling with Multivariate Mixed Variable Kernel Density Estimation\"
     """
     # determine data settings
     n_obs = data.shape[0]
@@ -712,7 +716,7 @@ def column_hashing(data, columns_to_hash, randomness, column_names):
     :param np.2darray data: The data
     :param list columns_to_hash: The names of the columns which are to be hashed
     :param int randomness: A cryptographically random int
-    :param np.array column_names: array with the column
+    :param np.array column_names: array with the column\
     names of the data, used for indexing so order must be correct
     :return: The hashed data
     :rtype: np.2dndarray
