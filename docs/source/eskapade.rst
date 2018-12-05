@@ -12,6 +12,7 @@ Subpackages
     eskapade.data_quality
     eskapade.logger
     eskapade.visualization
+    eskapade.data_mimic
 
 Submodules
 ----------

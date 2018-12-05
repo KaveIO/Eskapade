@@ -309,6 +309,7 @@ In `All available examples`_ we give some tips to find the right Links your anal
 
 .. include:: tutorial_jupyter.rst
 .. include:: tutorial_bootstrap.rst
+.. include:: tutorial_data_mimic.rst
 
 All available examples
 ----------------------
@@ -657,7 +658,30 @@ input dataframe:
 
   $ eskapade_run $TUTDIR/esk501_fix_pandas_dataframe.py
 
+Example esk701: Mimic dataset
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Macro that illustrates how to resample a dataset using kernel density estimation (KDE). The macro can handle contiunous data, and both ordered and unordered catagorical data. 
+The macro is build up in the following way:
+
+* A dataset is simulated containing mixed data types, representing general input data.
+* Some cleaning steps are performed on the dataset
+* KDE is applied to the dataset
+* Using the estimated bandwidths of the KDE, the data is resampled
+* An evaluation is done on the resulting resimulated dataset
+
+.. code-block:: bash
+  
+  $ eskapade_run $TUTDIR/esk701_mimic_data.py
+
+Example esk702: Mimic data only unordered
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This macro illustrates how to resample an existing data set, containing only unordered catagorical data, using kernel density estimation (KDE) and a direct resampling technique.
+
+.. code-block:: bash
+
+  $eskapade_run $TUTDIR/esk702_mimic_data_only_unordered.py
 
 
 .. include:: coding.rst

@@ -48,6 +48,7 @@ python/eskapade/version.py
 !docs/source/tutorials.rst
 !docs/source/tutorial_bootstrap.rst
 !docs/source/tutorial_jupyter.rst
+!docs/source/tutorial_data_mimic.rst
 
 !README.rst
 !python/eskapade/README.rst

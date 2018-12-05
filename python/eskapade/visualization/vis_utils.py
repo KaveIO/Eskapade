@@ -390,3 +390,152 @@ def plot_correlation_matrix(matrix_colors, x_labels, y_labels, pdf_file_name='',
         plt.savefig(pdf_file, format='pdf', bbox_inches='tight', pad_inches=0)
         plt.close()
         pdf_file.close()
+    else:
+        plt.show()
+
+
+def plot_overlay_histogram(hists, x_label, y_label=None, hist_names=[],
+                           is_num=True, is_ts=False, pdf_file_name='',
+                           top=20, width_in=None, xlim=None):
+    """Create and plot overlapping histograms of column values.
+
+    :param hists: list of input numpy histogram = values, bin_edges
+    :param str x_label: Label for histogram x-axis
+    :param str y_label: Label for histogram y-axis
+    :param bool is_num: True if observable to plot is numeric
+    :param bool is_ts: True if observable to plot is a timestamp
+    :param str pdf_file_name: if set, will store the plot in a pdf file
+    :param int top: only print the top 20 characters of x-labels and y-labels. (default is 20)
+    :param float width_in: the width of the bars of the histogram in percentage (0-1). Optional.
+    :param tuple xlim: set the x limits of the current axes. Optional.
+    """
+    # import matplotlib here to prevent import before setting backend in
+    # core.execution.eskapade_run
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_pdf import PdfPages
+
+    plt.figure(figsize=(7, 5))
+    alpha = 1 / len(hists)
+    for i, hist in enumerate(hists):
+        try:
+            hist_values = hist[0]
+            hist_bins = hist[1]
+        except BaseException:
+            raise ValueError('Cannot extract binning and values from input histogram')
+
+        assert hist_values is not None and len(
+            hist_values), 'Histogram bin values have not been set.'
+        assert hist_bins is not None and len(
+            hist_bins), 'Histogram binning has not been set.'
+
+        # basic attribute check: time stamps treated as numeric.
+        if is_ts:
+            is_num = True
+
+        # plot numeric and time stamps
+        if is_num:
+            bin_edges = hist_bins
+            bin_values = hist_values
+            assert len(bin_edges) == len(bin_values) + 1, \
+                'bin edges (+ upper edge) and bin values have inconsistent lengths: {:d} vs {:d}. {}'\
+                .format(len(bin_edges), len(bin_values), x_label)
+
+            if is_ts:
+                # difference in seconds
+                be_tsv = [pd.Timestamp(ts).value for ts in bin_edges]
+                width = np.diff(be_tsv)
+                # pd.Timestamp(ts).value is in ns
+                # maplotlib dates have base of 1 day
+                width = width / NUM_NS_DAY
+            elif width_in:
+                width = width_in
+            else:
+                width = np.diff(bin_edges)
+
+            # plot histogram
+            plt.bar(bin_edges[:-1], bin_values, width=width,
+                    alpha=alpha, label=hist_names[i])
+
+            # set x-axis properties
+            if xlim:
+                plt.xlim(xlim)
+            else:
+                plt.xlim(min(bin_edges), max(bin_edges))
+            plt.xticks(fontsize=12, rotation=90 if is_ts else 0)
+        # plot categories
+        else:
+            labels = hist_bins
+            values = hist_values
+            assert len(labels) == len(values), \
+                'labels and values have different array lengths: {:d} vs {:d}. {}'.format(len(labels), len(values), x_label)
+
+            # plot histogram
+            tick_pos = np.arange(len(labels)) + 0.5
+            plt.bar(tick_pos, values, width=0.8,
+                    alpha=alpha, label=hist_names[i])
+
+            # set x-axis properties
+            def xtick(lab):
+                """Get x-tick."""
+                lab = str(lab)
+                if len(lab) > top:
+                    lab = lab[:17] + '...'
+                return lab
+
+            plt.xlim((0., float(len(labels))))
+            plt.xticks(tick_pos, [xtick(lab)
+                                  for lab in labels], fontsize=12, rotation=90)
+
+        # set common histogram properties
+    plt.xlabel(x_label, fontsize=14)
+    plt.ylabel(
+        str(y_label) if y_label is not None else 'Bin count',
+        fontsize=14)
+    plt.yticks(fontsize=12)
+    plt.grid()
+    plt.legend()
+
+    # store plot
+    if pdf_file_name:
+        pdf_file = PdfPages(pdf_file_name)
+        plt.savefig(pdf_file, format='pdf', bbox_inches='tight', pad_inches=0)
+        plt.close()
+        pdf_file.close()
+
+
+def plot_pair_grid(data, title, fpath, column_names=[], data2=None):
+
+    """Plot a pairgrid for one or two datasets
+    :param array data: Input data to plot
+    :param str title: Title of the plot
+    :param str fpath: if set, will store the plot in a pdf file
+    :param list column_names: list of column names to be give to the plot
+    :param array data2: second dataset to be plot in the pairgrid.
+    """
+
+    # import matplotlib here to prevent import before setting backend in
+    # core.execution.eskapade_run
+    import matplotlib.pyplot as plt
+    # from matplotlib.backends.backend_pdf import PdfPages
+    import seaborn as sns
+
+    if data2 is not None:
+        data = pd.DataFrame(data, columns=column_names)
+        data['label'] = "Original"
+        data_r = pd.DataFrame(data2, columns=column_names)
+        data_r['label'] = 'Resampled'
+
+        df = data.append(data_r)
+    else:
+        df = pd.DataFrame(data, columns=column_names)
+
+    g = sns.PairGrid(data=df, hue='label', height=2)
+    g.map_offdiag(plt.scatter, alpha=.1, s=3)
+    g.map_diag(plt.hist, alpha=.5, edgecolor='w')
+    g.add_legend()
+
+    if fpath:
+        # pdf_file = PdfPages(fpath)
+        g.savefig(fpath, format='png', bbox_inches='tight', pad_inches=0, dpi=400)
+        plt.close()
+        # plt.close()
