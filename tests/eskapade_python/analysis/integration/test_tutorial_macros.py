@@ -123,10 +123,11 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
 
         # Numpy RW
         self.assertTrue('reloaded_typed_data_np' in ds)
-        self.asserTrue((ds['reloaded_typed_data_np'] == ds['typed_data']).all())
-        self.asserTrue((ds['reloaded_typed_data_np'].dtypes.values == ds['typed_data'].dtypes.values).all())
+        self.assertListEqual(ds['reloaded_typed_data_np'].values.tolist(), ds['typed_data'].values.tolist())
+        self.assertListEqual(ds['reloaded_typed_data_np'].dtypes.values.tolist(), ds['typed_data'].dtypes.values.tolist())
 
         # Feather RW
         self.assertTrue('reloaded_typed_data_ft' in ds)
-        self.asserTrue((ds['reloaded_typed_data_ft'] == ds['typed_data']).all())
-        self.asserTrue((ds['reloaded_typed_data_ft'].dtypes.values == ds['typed_data'].dtypes.values).all())
+        self.assertListEqual(ds['reloaded_typed_data_ft'].values.tolist(), ds['typed_data'].values.tolist())
+        self.assertListEqual(ds['reloaded_typed_data_ft'].dtypes.values.tolist(), ds['typed_data'].dtypes.values.tolist())
+

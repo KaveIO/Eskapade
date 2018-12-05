@@ -120,7 +120,7 @@ def feather_reader(path, restore_index):
         for i, dtype in enumerate(dtypes):
             df.iloc[:, i] = df.iloc[:, i].astype(dtype, copy=False)
         # clean up the temporary datatype column
-        df.drop(columns='_dtypes', inplace=True)
+        df.drop(labels=['_dtypes'], axis=1, inplace=True)
 
     if restore_index:
         try:

@@ -114,7 +114,7 @@ def feather_writer(df, path, store_index):
     if store_index:
         df.set_index('restored_index', drop=True, inplace=True)
         df.index.name = 'index'
-    df.drop(columns='_dtypes', inplace=True)
+    df.drop(labels=['_dtypes'], axis=1, inplace=True)
 
 
 all_writers = {'csv': pd.DataFrame.to_csv,
