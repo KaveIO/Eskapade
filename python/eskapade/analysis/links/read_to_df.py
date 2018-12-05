@@ -28,21 +28,129 @@ from eskapade import Link
 from eskapade import StatusCode
 from eskapade import process_manager
 from eskapade.logger import Logger
+from eskapade import AmbiguousFileType
+from eskapade import UnhandledFileType
 
 logger = Logger()
 
-pd_readers = {'csv': pd.read_csv,
-              'tsv': pd.read_csv,
-              'xls': pd.read_excel,
-              'xlsx': pd.read_excel,
-              'json': pd.read_json,
-              'h5': pd.read_hdf,
-              'sql': pd.read_sql,
-              'htm': pd.read_html,
-              'html': pd.read_html,
-              'dta': pd.read_stata,
-              'pkl': pd.read_pickle,
-              'pickle': pd.read_pickle}
+
+def numpy_reader(path, restore_index, file_type):
+    """Read from numpy file from disk to DataFrame,
+    restoring the metadata
+
+    :param str path: target file location
+    :param bool restore_index: store index in DataFrame
+        Default is True
+    :param str file_type: the file type used {'npy', 'npz'}
+
+    :raises AmbiguousFileType: when we can't determine whether the
+        file type is npy or npz
+    :raises UnhandledFileType: generic catch for when the type logic
+        fails to exclude case
+
+    :returns df: the DF read from disk
+    :rtype: pd.DataFrame
+    """
+    f_ext = os.path.splitext(path)[1].strip('.')
+
+    # determine which numpy filetype
+    if (f_ext == '') and (file_type is None):
+        raise AmbiguousFileType(path)
+    elif f_ext in ('', 'npy', 'npz') and file_type in (None, 'npy', 'npz'):
+        f_ext = f_ext or file_type
+    else:
+        raise UnhandledFileType(path, f_ext, file_type)
+
+    npy_file = np.load(path)
+    if f_ext == 'npz':
+        logger.info('Reading npz file {}'.format(path))
+        df = pd.DataFrame(data=npy_file['values'], columns=npy_file['columns'])
+
+        # Restore dtypes
+        for i, col in enumerate(npy_file['columns']):
+            df.loc[:, col] = df.loc[:, col].astype(npy_file['dtypes'][i], copy=False)
+
+        if (restore_index is True) and ('index' in npy_file.files):
+            df.index = npy_file['index']
+            logger.debug('Restored index')
+        elif 'index' in npy_file.files:
+            df['restored_index'] = npy_file['index']
+        else:
+            pass
+
+    else:
+        logger.info('Reading npy file {}'.format(path))
+        values, col_dtypes, _restore_index = npy_file
+        df = pd.DataFrame(data=values, columns=col_dtypes[:, 0])
+
+        # Restore dtypes
+        for row in col_dtypes:
+            df.loc[:, row[0]] = df.loc[:, row[0]].astype(row[1], copy=False)
+
+        # This bool is needed as `np.bool_(1) is True` will evaluate to False
+        if (bool(_restore_index[0]) is True) and (restore_index is True):
+            df.set_index('restored_index', drop=True, inplace=True)
+            df.index.name = 'index'
+            logger.debug('Restored index')
+        elif (bool(_restore_index[0]) is False) and (restore_index is True):
+            logger.info('No index to restore')
+        else:
+            pass
+
+    return df
+
+
+def feather_reader(path, restore_index):
+    """Read from feather file from disk to DataFrame,
+    restoring the metadata
+
+    :param str path: target file location
+    :param bool restore_index: store index in DataFrame
+        Default is True
+
+    :returns df: the DF read from disk
+    :rtype: pd.DataFrame
+    """
+    import feather
+    logger.debug('Reading feather file {}'.format(path))
+    df = feather.read_dataframe(path)
+
+    if ('_dtypes' in df.columns.values):
+        dtypes = df.loc[df['_dtypes'] != '0', '_dtypes'].values
+        for i, dtype in enumerate(dtypes):
+            df.iloc[:, i] = df.iloc[:, i].astype(dtype, copy=False)
+        # clean up the temporary datatype column
+        df.drop(columns='_dtypes', inplace=True)
+
+    if restore_index:
+        try:
+            df.set_index('restored_index', drop=True, inplace=True)
+            df.index.name = 'index'
+            logger.debug('Restored index')
+        except KeyError:
+            logger.info('No index to restore')
+
+    return df
+
+
+all_readers = {'csv': pd.read_csv,
+               'tsv': pd.read_csv,
+               'xls': pd.read_excel,
+               'xlsx': pd.read_excel,
+               'json': pd.read_json,
+               'h5': pd.read_hdf,
+               'sql': pd.read_sql,
+               'htm': pd.read_html,
+               'html': pd.read_html,
+               'dta': pd.read_stata,
+               'pkl': pd.read_pickle,
+               'pickle': pd.read_pickle,
+               'numpy': numpy_reader,
+               'np': numpy_reader,
+               'npy': numpy_reader,
+               'npz': numpy_reader,
+               'feather': feather_reader,
+               'ft': feather_reader}
 
 
 class ReadToDf(Link):
@@ -60,7 +168,22 @@ class ReadToDf(Link):
         :param str name: Name given to the link
         :param str path: path of your file to read into pandas DataFrame .
         :param str key: storage key for the DataStore.
-        :param reader: pandas reader is determined automatically. But can be set by hand, e.g. csv, xlsx.
+        :param reader: reader is determined automatically.
+            But can be set by hand, e.g. csv, xlsx.
+            To use the numpy reader one of the following should be true:
+                * reader is {'numpy', 'np', 'npy', 'npz'}
+                * path contains extensions {'npy', 'npz'}
+                * param `file_type` is {'npy', 'npz'}
+            To use the feather reader one of the following should be true:
+                * reader is {'feather', 'ft'}
+                * path contains extensions 'ft'
+            When to use feather or which numpy type see the esk210_dataframe_restoration
+            tutorial
+        :param bool restore_index: whether to store the index in the
+            metadata. Default is False when the index is numeric,
+            True otherwise.
+        :param str file_type: {'npy', 'npz'} when using the numpy reader
+            Optional, see reader for details.
         :param bool itr_over_files: Iterate over individual files, default is false.
             If false, are files are collected in one dataframe. NB chunksize takes priority!
         :param int chunksize: Default is none. If positive integer then will always iterate.
@@ -153,7 +276,7 @@ class ReadToDf(Link):
         if not self._iterate:
             self.logger.debug('Reading datasets from files [{files}]',
                               files=', '.join('"{}"'.format(p) for p in self._paths))
-            df = pd.concat(pandasReader(p, self.reader, **self.kwargs) for p in self._paths)
+            df = pd.concat(set_reader(p, self.reader, **self.kwargs) for p in self._paths)
             numentries = len(df.index)
         # 2. handle case where iteration has been turned on
         else:
@@ -244,7 +367,7 @@ class ReadToDf(Link):
             path = str(self._path_itr[0])
             self._path_itr.iternext()
             try:
-                self._reader = pandasReader(path, self.reader, **self.kwargs)
+                self._reader = set_reader(path, self.reader, **self.kwargs)
             except Exception:
                 self.logger.fatal('Could not read from new path "{path}".', path=path)
                 raise
@@ -274,17 +397,26 @@ class ReadToDf(Link):
         return data
 
 
-def pandasReader(path, reader, *args, **kwargs):
-    """Pick the correct pandas reader.
+def set_reader(path, reader, *args, **kwargs):
+    """Pick the correct reader.
 
     Based on provided reader setting, or based on file extension.
     """
     if not reader:
-        reader = pd_readers.get(os.path.splitext(path)[1].strip('.'), None)
+        reader = all_readers.get(os.path.splitext(path)[1].strip('.'), None)
     if not reader:
         logger.fatal('No suitable reader found for file "{path}".', path=path)
-        raise RuntimeError('unable to find suitable Pandas reader.')
-    logger.debug('Using Pandas reader "{reader!s}"', reader=reader)
+        raise RuntimeError('unable to find suitable (Pandas) reader.')
+    logger.debug('Using reader "{reader!s}"', reader=reader)
     # If the reader is input as 'csv' by hand, use the lookup, else use the specified reader (as pd.read_X)
-    reader = pd_readers.get(reader) if isinstance(reader, str) else reader
-    return reader(path, *args, **kwargs)
+    reader = all_readers.get(reader) if isinstance(reader, str) else reader
+
+    # kwargs for the numpy and feather readers
+    f_type = kwargs.pop('file_type', None)
+    restore_index = kwargs.pop('restore_index', True)
+    if reader == numpy_reader:
+        return reader(path, restore_index, f_type)
+    elif reader == feather_reader:
+        return reader(path, restore_index)
+    else:
+        return reader(path, *args, **kwargs)

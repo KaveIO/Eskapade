@@ -116,3 +116,17 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertEqual(36, ds['n_sum_test1'])
         self.assertEqual(36, ds['n_sum_test2'])
         self.assertEqual(24, ds['n_merged'])
+
+    def test_esk210(self):
+        self.eskapade_run(resources.tutorial('esk210_dataframe_restoration.py'))
+        ds = process_manager.service(DataStore)
+
+        # Numpy RW
+        self.assertTrue('reloaded_typed_data_np' in ds)
+        self.asserTrue((ds['reloaded_typed_data_np'] == ds['typed_data']).all())
+        self.asserTrue((ds['reloaded_typed_data_np'].dtypes.values == ds['typed_data'].dtypes.values).all())
+
+        # Feather RW
+        self.assertTrue('reloaded_typed_data_ft' in ds)
+        self.asserTrue((ds['reloaded_typed_data_ft'] == ds['typed_data']).all())
+        self.asserTrue((ds['reloaded_typed_data_ft'].dtypes.values == ds['typed_data'].dtypes.values).all())
