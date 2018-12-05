@@ -25,6 +25,8 @@ REVISION = 8
 PATCH = 4
 DEV = False
 
+# NOTE: also update version at: README.rst
+
 VERSION = '{major}.{revision}.{patch}'.format(major=MAJOR, revision=REVISION, patch=PATCH)
 FULL_VERSION = VERSION
 if DEV:
