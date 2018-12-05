@@ -20,8 +20,6 @@ import os
 import numpy as np
 import pandas as pd
 import tabulate
-from sklearn.feature_selection import mutual_info_regression
-import phik
 
 from eskapade import process_manager, resources, Link, DataStore, StatusCode
 from eskapade import visualization
@@ -111,59 +109,7 @@ class CorrelationSummary(Link):
             self.logger.debug('Computing "{method}" correlations of dataframe "{key}".',
                               method=method, key=self.read_key)
 
-            # mutual info, from sklearn
-            if method == 'mutual_information':
-                # numerical columns only
-                cols = df.select_dtypes(include=[np.number]).columns
-
-                # initialize correlation matrix
-                n = len(cols)
-                cors = np.zeros((n, n))
-                for i, c in enumerate(cols):
-                    # compare each column to all of the columns
-                    cors[i, :] = mutual_info_regression(df[cols], df[c])
-
-                cors = pd.DataFrame(cors, columns=cols, index=cols)
-
-            elif method == 'correlation_ratio':
-                # numerical columns only
-                cols = df.select_dtypes(include=[np.number]).columns
-
-                # choose bins for each column
-                bins = {c: len(np.histogram(df[c])[1]) for c in cols}
-
-                # sort rows into bins
-                df_ = df.select_dtypes(include=[np.number]).copy()
-                for c in cols:
-                    df_[str(c) + '_bin'] = pd.cut(df_[c], bins[c])
-
-                # initialize correlation matrix
-                n = len(cols)
-                cors = np.zeros((n, n))
-
-                for i, x in enumerate(cols):
-                    # definition from Wikipedia "correlation ratio"
-                    xbin = str(x) + '_bin'
-                    y_given_x = (df_.groupby(xbin))[cols]
-                    weighted_var_y_bar = (y_given_x.count() * (y_given_x.mean() - df_.mean()) ** 2).sum()
-                    weighted_var_y = df_[cols].count() * df_[cols].var()
-                    cors[i, :] = weighted_var_y_bar / weighted_var_y
-                cors = pd.DataFrame(cors, columns=cols, index=cols)
-                del df_
-
-            elif method == 'phik':
-                cors = df.phik_matrix()
-                cols = df.columns.tolist()
-
-            elif method == 'significance':
-                cors = df.significance_matrix()
-                cols = df.columns.tolist()
-
-            else:
-                cors = df.corr(method=method)
-                cols = list(cors.columns)
-
-            #cors, cols = calculate_correlations(df, method)
+            cors, cols = calculate_correlations(df, method)
 
             # replace column names with indices, as with numpy matrix, for plotting function below
             n = len(cols)

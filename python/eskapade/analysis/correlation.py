@@ -24,6 +24,7 @@ import pandas as pd
 from scipy.stats import mvn
 from scipy import optimize
 from sklearn.feature_selection import mutual_info_regression
+import phik
 
 
 def _mvn_un(rho,lower,upper):
@@ -107,11 +108,10 @@ def calculate_correlations(df, method):
     """
     Calculates correlation coefficients between every column pair.
 
-    :param pd.DataFrame df: input data
-    :param str method: mutual_information, correlation_ratio, pearson, kendall or spearman
+    :param pd.DataFrame df: input data frame
+    :param str method: mutual_information, correlation_ratio, pearson, kendall or spearman, phik, significance
     :return: pd.DataFrame
     """
-
     # mutual info, from sklearn
     if method == 'mutual_information':
         # numerical columns only
@@ -134,8 +134,9 @@ def calculate_correlations(df, method):
         bins = {c: len(np.histogram(df[c])[1]) for c in cols}
 
         # sort rows into bins
+        df_ = df.select_dtypes(include=[np.number]).copy()
         for c in cols:
-            df[str(c) + '_bin'] = pd.cut(df[c], bins[c])
+            df_[str(c) + '_bin'] = pd.cut(df_[c], bins[c])
 
         # initialize correlation matrix
         n = len(cols)
@@ -144,12 +145,20 @@ def calculate_correlations(df, method):
         for i, x in enumerate(cols):
             # definition from Wikipedia "correlation ratio"
             xbin = str(x) + '_bin'
-            y_given_x = (df.groupby(xbin))[cols]
-            weighted_var_y_bar = (y_given_x.count() * (y_given_x.mean() - df.mean()) ** 2).sum()
-            weighted_var_y = df[cols].count() * df[cols].var()
+            y_given_x = (df_.groupby(xbin))[cols]
+            weighted_var_y_bar = (y_given_x.count() * (y_given_x.mean() - df_.mean()) ** 2).sum()
+            weighted_var_y = df_[cols].count() * df_[cols].var()
             cors[i, :] = weighted_var_y_bar / weighted_var_y
-
         cors = pd.DataFrame(cors, columns=cols, index=cols)
+        del df_
+
+    elif method == 'phik':
+        cors = df.phik_matrix()
+        cols = df.columns.tolist()
+
+    elif method == 'significance':
+        cors = df.significance_matrix()
+        cols = df.columns.tolist()
 
     else:
         cors = df.corr(method=method)
