@@ -103,13 +103,6 @@ To set up the Spark environment each time a new terminal is started set:
 Setting up Eskapade
 ___________________
 
-The Eskapade source code can be obtained from git:
-
-.. code-block:: bash
-
-  $ git clone https://github.com/KaveIO/Eskapade.git eskapade
-
-
 To set up the Eskapade environment (Python, Spark, ROOT) each time a new terminal is started, source a shell script (e.g. ``setup_eskapade.fish``) that contains set the environment variables as described above:
 
 .. code-block:: bash
@@ -138,4 +131,4 @@ Finally, install Eskapade (and it's dependencies) by simply running:
 
 .. code-block:: bash
 
-  $ pip install -e /path/to/eskapade
+  $ pip install Eskapade
