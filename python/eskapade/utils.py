@@ -17,8 +17,6 @@ LICENSE.
 import os
 import sys
 
-import matplotlib
-
 from eskapade.logger import Logger
 
 ENV_VARS = dict(spark_args='PYSPARK_SUBMIT_ARGS',
@@ -36,6 +34,8 @@ def set_matplotlib_backend(backend=None, batch=None, silent=True):
     :param bool silent: do not raise exception if backend cannot be set
     :raises: RuntimeError
     """
+    import matplotlib
+
     # determine if batch mode is required
     run_interactive = check_interactive_backend()
     run_batch = bool(batch) or not run_interactive
