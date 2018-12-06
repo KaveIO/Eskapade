@@ -20,7 +20,7 @@ import pandas as pd
 from eskapade import StatusCode, DataStore, Link, process_manager
 from eskapade import resources, visualization
 from eskapade.analysis import statistics
-from eskapade.core import persistence
+from escore.core import persistence
 
 NUMBER_OF_RECORDS = 1000
 

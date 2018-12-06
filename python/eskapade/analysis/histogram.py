@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 from sortedcontainers import SortedDict
 
-from eskapade.core.mixin import ArgumentsMixin
+from escore.core.mixin import ArgumentsMixin
 from eskapade.logger import Logger
 
 

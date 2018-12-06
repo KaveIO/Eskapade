@@ -22,7 +22,7 @@ import numpy as np
 import pandas as pd
 
 from eskapade.logger import Logger
-from eskapade.core import persistence
+from escore.core import persistence
 from eskapade import process_manager, DataStore, Link, StatusCode
 
 

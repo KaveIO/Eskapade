@@ -26,7 +26,7 @@ from eskapade import process_manager
 
 from eskapade.logger import Logger
 
-from eskapade.core import persistence
+from escore.core import persistence
 
 from eskapade.analysis import ReadToDf
 from eskapade.analysis import WriteFromDf
