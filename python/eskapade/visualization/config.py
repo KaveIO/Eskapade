@@ -70,8 +70,7 @@ def set_matplotlib_backend(backend=None, batch=None, silent=True):
         if not silent:
             raise RuntimeError('Non-interactive Matplotlib backend required, but "{!s}" requested.'.format(backend))
         logger.warning(
-            'Set Matplotlib backend to "{actual}"; non-interactive backend required, but "{requested}" requested.',
-            actual=ni_backends[0], requested=backend)
+            'Set Matplotlib backend to "{0:s}"; non-interactive backend required, but "{1:s}" requested.'.format(ni_backends[0], backend))
         backend = ni_backends[0]
 
     # check if backend has to change
