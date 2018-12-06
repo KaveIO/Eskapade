@@ -28,7 +28,7 @@ class TestResampler(unittest.TestCase):
         self.ds['ids'] = np.random.randint(0, 100, 100)
 
     def tearDown(self):
-        from eskapade.core import execution
+        from escore.core import execution
         execution.reset_eskapade()
 
     @mock.patch('eskapade.data_mimic.data_mimic_util.scale_and_invert_normal_transformation')

@@ -24,7 +24,7 @@ class TestKernelDensityEstimation(unittest.TestCase):
         self.ds['data_normalized_pca'] = self.ds['data_normalized'].copy()
 
     def tearDown(self):
-        from eskapade.core import execution
+        from escore.core import execution
         execution.reset_eskapade()
 
     @mock.patch('statsmodels.nonparametric.kernel_density.KDEMultivariate')

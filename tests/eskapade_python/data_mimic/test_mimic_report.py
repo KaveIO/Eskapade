@@ -47,7 +47,7 @@ class TestMimicReport(unittest.TestCase):
         self.ds['distance_read_key'] = [[0, 1], [1, 2], [3, 4]]
 
     def tearDown(self):
-        from eskapade.core import execution
+        from escore.core import execution
         execution.reset_eskapade()
 
     @mock.patch('eskapade.visualization.vis_utils.plot_overlay_histogram')
