@@ -571,6 +571,17 @@ Macro to that illustrates how to loop over multiple (possibly large!) datasets i
   $ eskapade_run $TUTDIR/esk209_read_big_data_itr.py
 
 
+Example esk210: dataframe restoration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macro to illustrate writing pandas dataframes to file and reading
+them back in whilst retaining the datatypes and index using numpy
+and feather file formats.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk210_dataframe_restoration.py 
+
 
 Example esk301: dfsummary plotter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
