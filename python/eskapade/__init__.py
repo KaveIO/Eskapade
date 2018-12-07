@@ -1,5 +1,4 @@
 # flake8: noqa
-from escore import helpers
 from escore import logger
 from escore import utils
 from escore.core.definitions import StatusCode
