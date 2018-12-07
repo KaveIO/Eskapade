@@ -2,16 +2,12 @@ From version 0.8 to 0.9
 _______________________
 
 In Eskapade v0.9 the core functionality has been migrated to the separate package Eskapade-Core.
-We have tried to make this transition as seamless as possible, and you will probably not run into any issues,
-but in case you do below we list the changes needed to migrate from Eskapade version 0.8 to version 0.9.
+We have tried to make this transition as seamless as possible, but you may well run into any migration issues.
+In case you do below we list the changes needed to migrate from Eskapade version 0.8 to version 0.9.
 
-* core module
+* Whenever a line with ``import eskapade`` fails, simply replace ``eskapade`` with ``escore``.
 
-  - ``from eskapade import core`` change to ``from escore import core``
-
-* core_ops module
-
-  - ``from eskapade import core_ops`` change to ``from escore import core_ops``
+* For example: ``from eskapade import core`` change to ``from escore import core``
 
 That's it.
 

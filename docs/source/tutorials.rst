@@ -572,7 +572,7 @@ Macro to that illustrates how to loop over multiple (possibly large!) datasets i
 
 
 Example esk210: dataframe restoration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Macro to illustrate writing pandas dataframes to file and reading
 them back in whilst retaining the datatypes and index using numpy
