@@ -45,5 +45,5 @@ class ApplyFuncToDfTest(unittest.TestCase, TestCaseObservable):
 
     def tearDown(self):
         super(ApplyFuncToDfTest, self).tear_down_observers()
-        from eskapade.core import execution
+        from escore.core import execution
         execution.reset_eskapade()

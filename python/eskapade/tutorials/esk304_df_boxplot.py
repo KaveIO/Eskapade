@@ -16,7 +16,7 @@ LICENSE.
 from eskapade import ConfigObject, Chain
 from eskapade import analysis, visualization
 from eskapade import process_manager
-from eskapade.core import persistence
+from escore.core import persistence
 from eskapade.logger import Logger
 
 logger = Logger()

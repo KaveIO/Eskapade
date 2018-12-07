@@ -16,8 +16,8 @@ LICENSE.
 import os
 import sys
 
+from escore.utils import check_interactive_backend
 from eskapade.logger import Logger
-from eskapade.utils import check_interactive_backend
 
 logger = Logger()
 

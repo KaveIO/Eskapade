@@ -16,12 +16,13 @@ Running your first macro
 After successfully `installing <installation.html>`_ Eskapade, it is now time to run your very first
 macro, the classic code example: Hello World!
 
-For ease of use, let's make a shortcut to the directory containing the Eskapade tutorials:
+For ease of use, let's make shortcuts to the directories containing the Eskapade tutorials:
 
 .. code-block:: bash
 
+  $ export TUTDIRC=`pip show Eskapade-Core | grep Location | awk '{ print $2"/escore/tutorials" }'`
   $ export TUTDIR=`pip show Eskapade | grep Location | awk '{ print $2"/eskapade/tutorials" }'`
-  $ ls -l $TUTDIR/
+  $ ls -l $TUTDIRC/ $TUTDIR/
 
 
 Hello World!
@@ -314,12 +315,13 @@ In `All available examples`_ we give some tips to find the right Links your anal
 All available examples
 ----------------------
 
-To see the available Eskapade example, do:
+To see the available Eskapade examples, do:
 
 .. code-block:: bash
 
+  $ export TUTDIRC=`pip show Eskapade-Core | grep Location | awk '{ print $2"/escore/tutorials" }'`
   $ export TUTDIR=`pip show Eskapade | grep Location | awk '{ print $2"/eskapade/tutorials" }'`
-  $ ls -l $TUTDIR/
+  $ ls -l $TUTDIRC/ $TUTDIR/
 
 Many Eskapade example macros exist in the tutorials directory.
 The numbering of the example macros follows the package structure:
@@ -328,6 +330,7 @@ The numbering of the example macros follows the package structure:
 * ``esk200+``: macros describing links to do basic processing of pandas dataframes.
 * ``esk300+``: visualization macros for making histograms, plots and reports of datasets.
 * ``esk500+``: macros for doing data quality assessment and cleaning.
+* ``esk700+``: macros for doing data simulation.
 
 The Eskapade macros are briefly described below.
 They explain the basic architecture of Eskapade,
@@ -345,7 +348,7 @@ Macro 101 runs the Hello World Link. It runs the Link twice using a repeat kwarg
 
 .. code-block:: bash
 
-  $ eskapade_run $TUTDIR/esk101_helloworld.py 
+  $ eskapade_run $TUTDIRC/esk101_helloworld.py 
 
 
 Example esk102: Multiple chains
@@ -356,7 +359,7 @@ times with different kwargs and names. There are if-statements in the macro to c
 
 .. code-block:: bash
 
-  $ eskapade_run $TUTDIR/esk102_multiple_chains.py
+  $ eskapade_run $TUTDIRC/esk102_multiple_chains.py
 
 
 Example esk103: Print the DataStore
@@ -366,7 +369,7 @@ Macro 103 has some objects in the DataStore. The contents of the DataStore are p
 
 .. code-block:: bash
 
-  $ eskapade_run $TUTDIR/esk103_printdatastore.py
+  $ eskapade_run $TUTDIRC/esk103_printdatastore.py
 
 
 Example esk104: Basic DataStore operations
@@ -377,7 +380,7 @@ adds more items and prints some of the objects.
 
 .. code-block:: bash
 
-  $ eskapade_run $TUTDIR/esk104_basic_datastore_operations.py
+  $ eskapade_run $TUTDIRC/esk104_basic_datastore_operations.py
 
 
 Example esk105: DataStore Pickling
@@ -394,9 +397,9 @@ Using these examples one can see how the way macro's are run can be controlled a
 
 .. code-block:: bash
 
-  $ eskapade_run $TUTDIR/esk105_A_dont_store_results.py
-  $ eskapade_run $TUTDIR/esk105_B_store_each_chain.py
-  $ eskapade_run $TUTDIR/esk105_C_begin_at_chain3.py
+  $ eskapade_run $TUTDIRC/esk105_A_dont_store_results.py
+  $ eskapade_run $TUTDIRC/esk105_B_store_each_chain.py
+  $ eskapade_run $TUTDIRC/esk105_C_begin_at_chain3.py
 
 
 Example esk106: Command line arguments
@@ -407,7 +410,7 @@ from the message inside of the macro we can see that the chains are not run.
 
 .. code-block:: bash
 
-  $ eskapade_run $TUTDIR/esk106_cmdline_options.py
+  $ eskapade_run $TUTDIRC/esk106_cmdline_options.py
 
 
 Example esk107: Chain loop
@@ -417,7 +420,7 @@ Example 107 adds a chain to the macro and using a repeater Link it repeats the c
 
 .. code-block:: bash
 
-  $ eskapade_run $TUTDIR/esk107_chain_looper.py
+  $ eskapade_run $TUTDIRC/esk107_chain_looper.py
 
 
 Example esk108: Event loop
@@ -428,7 +431,7 @@ Finally a line printer prints out the result.
 
 .. code-block:: bash
 
-  $ source $TUTDIR/esk108_eventlooper.sh
+  $ source $TUTDIRC/esk108_eventlooper.sh
 
 
 Example esk109: Debugging tips
@@ -440,7 +443,7 @@ running through the chains, and also how to break out of a chain.
 
 .. code-block:: bash
 
-  $ eskapade_run $TUTDIR/esk109_debugging_tips.py
+  $ eskapade_run $TUTDIRC/esk109_debugging_tips.py
 
 
 Example esk110: Code profiling
@@ -450,7 +453,7 @@ This macro demonstrates how to run Eskapade with code profiling turned on.
 
 .. code-block:: bash
 
-  $ eskapade_run $TUTDIR/esk110_code_profiling.py
+  $ eskapade_run $TUTDIRC/esk110_code_profiling.py
 
 
 Example esk201: Read data
@@ -568,6 +571,17 @@ Macro to that illustrates how to loop over multiple (possibly large!) datasets i
   $ eskapade_run $TUTDIR/esk209_read_big_data_itr.py
 
 
+Example esk210: dataframe restoration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macro to illustrate writing pandas dataframes to file and reading
+them back in whilst retaining the datatypes and index using numpy
+and feather file formats.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIR/esk210_dataframe_restoration.py 
+
 
 Example esk301: dfsummary plotter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -658,6 +672,7 @@ input dataframe:
 
   $ eskapade_run $TUTDIR/esk501_fix_pandas_dataframe.py
 
+
 Example esk701: Mimic dataset
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -674,6 +689,7 @@ The macro is build up in the following way:
   
   $ eskapade_run $TUTDIR/esk701_mimic_data.py
 
+
 Example esk702: Mimic data only unordered
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -681,7 +697,7 @@ This macro illustrates how to resample an existing data set, containing only uno
 
 .. code-block:: bash
 
-  $eskapade_run $TUTDIR/esk702_mimic_data_only_unordered.py
+  $ eskapade_run $TUTDIR/esk702_mimic_data_only_unordered.py
 
 
 .. include:: coding.rst

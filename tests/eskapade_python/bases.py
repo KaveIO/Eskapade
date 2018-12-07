@@ -6,7 +6,7 @@ import warnings
 from eskapade import ConfigObject
 from eskapade import process_manager
 from eskapade import resources
-from eskapade.core import execution, definitions, persistence
+from escore.core import execution, definitions, persistence
 from eskapade.logger import LogLevel
 
 class IntegrationTest(unittest.TestCase):

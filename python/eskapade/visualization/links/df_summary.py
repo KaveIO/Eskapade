@@ -23,7 +23,7 @@ import tabulate
 from eskapade import resources, visualization
 from eskapade import process_manager, Link, DataStore, StatusCode
 from eskapade.analysis import statistics
-from eskapade.core import persistence
+from escore.core import persistence
 
 NUMBER_OF_BINS = 30
 

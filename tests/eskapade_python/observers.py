@@ -1,7 +1,7 @@
 import copy
 from abc import ABCMeta, abstractmethod
 
-from eskapade import core
+from escore import core
 
 
 class TestCaseObservable(object):
@@ -53,13 +53,13 @@ class MockDataStoreObserver(TestCaseObserver):
 #
 #     def set_up(self):
 #         """ mock ConfigObject """
-#         self.old_store = copy.deepcopy(eskapade.ConfigObject)
-#         eskapade.ConfigObject =
+#         self.old_store = copy.deepcopy(escore.ConfigObject)
+#         escore.ConfigObject =
 #
 #
 #     def tear_down(self):
 #         """ unmock ConfigObject """
-#         eskapade.ConfigObject = copy.deepcopy(self.old_store)
+#         escore.ConfigObject = copy.deepcopy(self.old_store)
 #         del self.old_store
 
 

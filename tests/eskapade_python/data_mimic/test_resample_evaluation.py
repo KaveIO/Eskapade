@@ -31,7 +31,7 @@ class TestResampleEvaluation(unittest.TestCase):
         self.ds['continuous_i'] = [0, 1, 2]
 
     def tearDown(self):
-        from eskapade.core import execution
+        from escore.core import execution
         execution.reset_eskapade()
 
     @mock.patch('eskapade.data_mimic.data_mimic_util.scaled_chi')

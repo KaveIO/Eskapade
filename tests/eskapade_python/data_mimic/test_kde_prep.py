@@ -20,7 +20,7 @@ class TestKdePreperation(unittest.TestCase):
                                      np.random.randint(0, 4, (100, 1)))), columns=self.ds['new_column_order'])
 
     def tearDown(self):
-        from eskapade.core import execution
+        from escore.core import execution
         execution.reset_eskapade()
 
     @mock.patch('eskapade.data_mimic.data_mimic_util.transform_to_normal')

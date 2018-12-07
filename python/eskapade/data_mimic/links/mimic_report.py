@@ -16,7 +16,7 @@ LICENSE.
 """
 
 from eskapade import process_manager, DataStore, Link, StatusCode, resources
-from eskapade.core import persistence
+from escore.core import persistence
 from eskapade.visualization import vis_utils as plt
 from eskapade.data_mimic import dm_vis_util
 

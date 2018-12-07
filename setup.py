@@ -21,8 +21,8 @@ from setuptools import setup
 NAME = 'Eskapade'
 
 MAJOR = 0
-REVISION = 8
-PATCH = 5
+REVISION = 9
+PATCH = 0
 DEV = False
 
 # NOTE: also update version at: README.rst
@@ -37,7 +37,7 @@ TEST_REQUIREMENTS = ['pytest>=3.5.0',
                      ]
 
 REQUIREMENTS = [
-    'pendulum==1.2.5',
+    'Eskapade-Core>=0.9.0',
     'matplotlib>=2.0.2',
     'numpy>=1.15.0',
     'scipy>=0.19.0',
@@ -49,7 +49,7 @@ REQUIREMENTS = [
     'histogrammar>=1.0.9',
     'names>=0.3.0',
     'fastnumbers>=2.0.2',
-    'phik>=0.9.2',
+    'phik>=0.9.3',
     'feather-format>=0.4.0'
     ]
 
@@ -118,36 +118,14 @@ def setup_package() -> None:
           # This is a feature and not a bug, see
           # http://setuptools.readthedocs.io/en/latest/setuptools.html#non-package-data-files
           package_data={
-              NAME.lower(): ['config/*', 'templates/*', 'data/*', 'tutorials/*.sh']
+              NAME.lower(): ['config/*', 'templates/*', 'data/*', 'tutorials/*.sh', 'notebooks/*.ipynb']
           },
           install_requires=REQUIREMENTS,
           tests_require=TEST_REQUIREMENTS,
           ext_modules=EXTERNAL_MODULES,
           cmdclass=CMD_CLASS,
-          command_options=COMMAND_OPTIONS,
-          # The following 'creates' executable scripts for *nix and Windows.
-          # As an added bonus the Windows scripts will auto-magically
-          # get a .exe extension.
-          #
-          # eskapade_run: main application to let loose on macros.
-          # eskapade_trial: test application to let loose on tests. This is just a wrapper around pytest.
-          # eskapade_generate_link: utility to generate link boilerplate/template.
-          # eskapade_generate_macro: utility to generate macro boilerplate/template.
-          # eskapade_generate_notebook: utility to generate notebook boilerplate/template.
-          # eskapade_bootstrap: utility to bootstrap an Eskapade project.
-          entry_points={
-              'console_scripts': [
-                  'eskapade_ignite = eskapade.entry_points:eskapade_ignite',
-                  'eskapade_run = eskapade.entry_points:eskapade_run',
-                  'eskapade_trial = eskapade.entry_points:eskapade_trial',
-                  'eskapade_generate_link = eskapade.entry_points:eskapade_generate_link',
-                  'eskapade_generate_macro = eskapade.entry_points:eskapade_generate_macro',
-                  'eskapade_generate_notebook = eskapade.entry_points:eskapade_generate_notebook',
-                  'eskapade_bootstrap = eskapade.entry_points:eskapade_bootstrap'
-              ]
-          }
+          command_options=COMMAND_OPTIONS
           )
-
 
 if __name__ == '__main__':
     setup_package()

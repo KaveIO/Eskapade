@@ -23,7 +23,7 @@ import tabulate
 
 from eskapade import process_manager, resources, Link, DataStore, StatusCode
 from eskapade import visualization
-from eskapade.core import persistence
+from escore.core import persistence
 from eskapade.analysis.correlation import calculate_correlations
 
 ALL_CORRS = ['pearson', 'kendall', 'spearman', 'correlation_ratio', 'phik', 'significance']

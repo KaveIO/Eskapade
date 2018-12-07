@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 from eskapade import process_manager, resources, ConfigObject, DataStore
-from eskapade.core import persistence
+from escore.core import persistence
 from eskapade_python.bases import TutorialMacrosTest
 
 

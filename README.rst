@@ -2,11 +2,11 @@
 Eskapade: Modular Analytics
 ===========================
 
-* Version: 0.8.5
+* Version: 0.9.0
 * Released: Nov 2018
 * Web page: http://eskapade.kave.io
 * Repository: https://github.com/kaveio/eskapade
-
+* Docker: https://github.com/kaveio/eskapade-environment
 
 Eskapade is a light-weight, python-based data analysis framework, meant for developing and modularizing all sorts of
 data analysis problems into reusable analysis components.
@@ -69,14 +69,14 @@ To see the available Eskapade example, do:
 
 .. code-block:: bash
 
-  $ export TUTDIR=`pip show Eskapade | grep Location | awk '{ print $2"/eskapade/tutorials" }'`
+  $ export TUTDIR=`pip show Eskapade | grep Location | awk '{ print $2"/escore/tutorials" }'`
   $ ls -l $TUTDIR/
 
 E.g. you can now run:
 
 .. code-block:: bash
 
-  $ eskapade_run $TUTDIR/esk101_helloworld.py 
+  $ eskapade_run $TUTDIR/tutorial_1.py
 
 For all available Eskapade example macros, please see our `tutorials section <http://eskapade.readthedocs.io/en/latest/tutorials.html>`_.
 
@@ -84,20 +84,23 @@ For all available Eskapade example macros, please see our `tutorials section <ht
 Release notes
 =============
 
-The Eskapade patch release v0.9.0 and corresponding docker containers fix two issues:
+The Eskapade patch release v0.9.0 and corresponding docker images have the following features:
 
-* The ``matplotlib`` backend is no longer set to batchmode when running Eskapade in a jupyter notebook.
-  By default, batch mode is only turned on when no DISPLAY environment variable is set, and when not running in a notebook;
-  the batch-mode flag can also be controlled with the command line option ``–batch-mode``.
-
-* The Eskapade docker containers contain the latest working versions of ``Eskapade``, ``Eskapade-ROOT``, and ``Eskapade-Spark``. Type:
+* The core functionality of Eskapade, namely: the ``Link``, ``Chain``, ``process_manager``, ``DataStore``, ``ConfigObject`` and corresponding tutorials,
+  have been split off from the growing (analysis) Eskapade repository, into the new package ``Eskapade-Core``.
+  `Eskapade-Core <http://eskapade-core.readthedocs.io>`_ is a very light-weight Python3 package.
+* A new module ``data_mimic`` has been add to Eskapade, including tutorials, meant for resimulating existing datasets. 
+* We have added ``feather`` i/o functionality for reading and writeng dataframes.
+* The logger has been fixed, it is now possible to set the log-level of loggers again.
+* The Eskapade docker files have been taken out of the Eskapade repository to avoid version conflicts, into the new git repo ``Eskapade-Environment``.
+* The Eskapade docker image ``eskapade-usr`` contain the latest working versions of
+  ``Eskapade``, ``Eskapade-Core``, ``Eskapade-ROOT``, and ``Eskapade-Spark``. Type:
 
   .. code-block:: bash
 
     $ docker pull kave/eskapade-usr:latest
 
   to pull it in.
-
 
 See `release notes <http://eskapade.readthedocs.io/en/latest/releasenotes.html>`_ for previous versions of Eskapade.
 

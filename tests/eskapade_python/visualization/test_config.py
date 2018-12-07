@@ -3,7 +3,7 @@ import unittest
 import unittest.mock as mock
 
 from eskapade.visualization.config import set_matplotlib_backend
-from eskapade.utils import check_interactive_backend
+from escore.utils import check_interactive_backend
 
 class MatplotlibBackendTest(unittest.TestCase):
     """Test for setting Matplotlib backend"""
