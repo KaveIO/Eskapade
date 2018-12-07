@@ -5,7 +5,7 @@ Release notes
 Version 0.9.0
 -------------
 
-Eskapade release v0.9.0 has the following upgrades:
+Eskapade release v0.9.0 has the following useful upgrades:
 
 * The core functionality of Eskapade, namely: the ``Link``, ``Chain``, ``process_manager``, ``DataStore``, ``ConfigObject`` and corresponding tutorials,
   have been split off from the growing (ever more analysis related) Eskapade repository, into the new package ``Eskapade-Core``.
