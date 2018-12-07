@@ -2,6 +2,27 @@
 Release notes
 =============
 
+Version 0.9.0
+-------------
+
+Eskapade release v0.9.0 has the following upgrades:
+
+* The core functionality of Eskapade, namely: the ``Link``, ``Chain``, ``process_manager``, ``DataStore``, ``ConfigObject`` and corresponding tutorials,
+  have been split off from the growing (ever more analysis related) Eskapade repository, into the new package ``Eskapade-Core``.
+  ``Eskapade-Core`` is a very light-weight Python3 package.
+* A new module ``data_mimic`` has been add to Eskapade, including tutorials, meant for resimulating existing datasets. 
+* We have added ``feather`` i/o functionality for reading and writeng dataframes.
+* The logger has been fixed, it is now possible to set the log-level of loggers again.
+* The Eskapade docker files have been taken out of the Eskapade repository to avoid version conflicts, into the new git repo ``Eskapade-Environment``.
+* The Eskapade docker image ``eskapade-usr`` contain the latest working versions of
+  ``Eskapade``, ``Eskapade-Core``, ``Eskapade-ROOT``, and ``Eskapade-Spark``. Type:
+
+  .. code-block:: bash
+
+    $ docker pull kave/eskapade-usr:latest
+
+  to pull it in.
+
 
 Version 0.8.2
 -------------
