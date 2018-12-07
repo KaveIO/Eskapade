@@ -69,14 +69,14 @@ To see the available Eskapade example, do:
 
 .. code-block:: bash
 
-  $ export TUTDIR=`pip show Eskapade | grep Location | awk '{ print $2"/eskapade/tutorials" }'`
+  $ export TUTDIR=`pip show Eskapade | grep Location | awk '{ print $2"/escore/tutorials" }'`
   $ ls -l $TUTDIR/
 
 E.g. you can now run:
 
 .. code-block:: bash
 
-  $ eskapade_run $TUTDIR/esk101_helloworld.py 
+  $ eskapade_run $TUTDIR/tutorial_1.py
 
 For all available Eskapade example macros, please see our `tutorials section <http://eskapade.readthedocs.io/en/latest/tutorials.html>`_.
 
