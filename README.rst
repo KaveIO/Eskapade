@@ -69,7 +69,7 @@ To see the available Eskapade example, do:
 
 .. code-block:: bash
 
-  $ export TUTDIR=`pip show Eskapade | grep Location | awk '{ print $2"/escore/tutorials" }'`
+  $ export TUTDIR=`pip show Eskapade | grep Location | awk '{ print $2"/eskapade/tutorials" }'`
   $ ls -l $TUTDIR/
 
 E.g. you can now run:
