@@ -3,7 +3,7 @@ Eskapade: Modular Analytics
 ===========================
 
 * Version: 0.9.0
-* Released: Nov 2018
+* Released: December 2018
 * Web page: http://eskapade.kave.io
 * Repository: https://github.com/kaveio/eskapade
 * Docker: https://github.com/kaveio/eskapade-environment
