@@ -32,7 +32,7 @@ If you just want to run it plain and simple, go to the root of the repository an
 
 .. code-block:: bash
 
-  $ eskapade_run $TUTDIR/esk101_helloworld.py
+  $ eskapade_run $TUTDIRC/esk101_helloworld.py
 
 This will run the macro that prints out Hello World. There is a lot of output, but try to find back these
 lines (or similar):
@@ -454,6 +454,16 @@ This macro demonstrates how to run Eskapade with code profiling turned on.
 .. code-block:: bash
 
   $ eskapade_run $TUTDIRC/esk110_code_profiling.py
+
+
+Example esk111: Loading a datastore from file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Macro illustrates how to load an external datastore from file.
+
+.. code-block:: bash
+
+  $ eskapade_run $TUTDIRC/esk111_load_datastore_from_file.py
 
 
 Example esk201: Read data
