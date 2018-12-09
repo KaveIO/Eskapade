@@ -22,7 +22,7 @@ NAME = 'Eskapade'
 
 MAJOR = 0
 REVISION = 9
-PATCH = 1
+PATCH = 2
 DEV = False
 
 # NOTE: also update version at: README.rst
@@ -37,7 +37,7 @@ TEST_REQUIREMENTS = ['pytest>=3.5.0',
                      ]
 
 REQUIREMENTS = [
-    'Eskapade-Core>=0.9.1',
+    'Eskapade-Core>=0.9.2',
     'matplotlib>=2.0.2',
     'numpy>=1.15.0',
     'scipy>=0.19.0',
