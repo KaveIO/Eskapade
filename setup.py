@@ -22,7 +22,7 @@ NAME = 'Eskapade'
 
 MAJOR = 0
 REVISION = 9
-PATCH = 2
+PATCH = 3
 DEV = False
 
 # NOTE: also update version at: README.rst
