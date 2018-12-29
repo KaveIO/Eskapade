@@ -188,6 +188,7 @@ class ReadToDf(Link):
         If false, are files are collected in one dataframe. NB chunksize takes priority!
         :param int chunksize: Default is none. If positive integer then will always iterate.
         chunksize requires pd.read_csv or pd.read_table.
+        :param int n_files_in_fork: number of files to process if forked. Default is 1.
         :param kwargs: all other key word arguments are passed on to the pandas reader.
         """
         # initialize Link, pass name from kwargs
@@ -195,11 +196,14 @@ class ReadToDf(Link):
 
         # process and register all relevant kwargs. kwargs are added as attributes of the link.
         # second arg is default value for an attribute. key is popped from kwargs.
-        self._process_kwargs(kwargs, path='', key='', reader=None, itr_over_files=False, chunksize=None)
+        self._process_kwargs(kwargs, path='', key='', reader=None,
+                             itr_over_files=False, chunksize=None,
+                             n_files_in_fork=1)
 
         # pass on remaining kwargs to pandas reader
         self.kwargs = copy.deepcopy(kwargs)
 
+        self._abs_paths = []
         self._paths = None
         self._path_itr = None
         self._current_path = None
@@ -207,7 +211,6 @@ class ReadToDf(Link):
         self._sum_data_length = 0
         self._iterate = False
         self._reader = None
-        self._usecols = self.kwargs.get('usecols', [])
 
     def set_chunk_size(self, size):
         """Set chunksize setting.
@@ -219,7 +222,6 @@ class ReadToDf(Link):
     def initialize(self):
         """Initialize the link."""
         assert isinstance(self.key, str) and self.key, 'Output key not set.'
-        assert isinstance(self._usecols, list), 'Usecols not set correctly.'
 
         # construct and check list of file paths to read
         read_paths = [p for p in self.path] if not isinstance(self.path, str) else [self.path]
@@ -233,21 +235,17 @@ class ReadToDf(Link):
             raise TypeError('File paths specified to read dataframe from file must be strings: {0:s}'.format(str(read_paths)))
 
         # construct and check actual paths
-        abs_paths = []
         for p in read_paths:
             gp = glob.glob(p) # convert wildcards
             if not gp:
                 self.logger.fatal('File(s) not found (wildcards possible): {0:s}'.format(p))
                 raise RuntimeError('File(s) not found (wildcards possible): {0:s}'.format(p))
             for pe in gp:
-                abs_paths.append(os.path.abspath(pe))
-
-        # set paths to read
-        self._paths = np.array(abs_paths)
-        self._path_itr = np.nditer(self._paths)
+                self._abs_paths.append(os.path.abspath(pe))
 
         # now determine if file iterator will be used. Will iterate if:
         # 1. chunksize>0.
+        # 2. see: configure_paths() below
         if self.chunksize is not None:
             assert isinstance(self.chunksize,
                               int) and self.chunksize > 0, 'Chunksize needs to be set to positive integer.'
@@ -257,12 +255,54 @@ class ReadToDf(Link):
             # add back chunksize if it was a kwarg, so it's picked up by pandas.
             self.kwargs['chunksize'] = self.chunksize
             self.logger.info('kwargs passed on to pandas reader are: {kwargs}', kwargs=self.kwargs)
+
+        # configure paths to pick up at execute
+        self.configure_paths()
+
+        return StatusCode.Success
+
+    def configure_paths(self, lock:bool=False) -> None:
+        """Configure paths used during exectute
+
+        This is the final part of initialization, and needs to be redone in case of
+        forked processing. Hence this function is split off into a separate function. 
+        The function can be locked once the configuration is final.
+
+        :param bool lock: if True, lock this part of the configuration
+        """
+        if self.config_lock:
+            return
+        self.config_lock = lock
+
+        # set paths to read.
+        # this depends on whether execute() is forked
+        settings = process_manager.service(ConfigObject)
+        if settings.get('fork', False): # during fork
+            fidx = settings['fork_index']
+            begin = self.n_files_in_fork * fidx
+            end = self.n_files_in_fork * (fidx + 1)
+            self._paths = np.array(self._abs_paths[begin:end])
+            self.config_lock = True
+        else: # default (no fork)
+            self._paths = np.array(self._abs_paths)
+        # check: always have a working iterator, 
+        # also for empty array (possible in case of too many forks)
+        if len(self._paths) > 0:
+            self._path_itr = np.nditer(self._paths)
+        else:
+            # create dummy itr and move it to finished status
+            self._path_itr = np.nditer(np.array(['']))
+            self._path_itr.iternext()
+
+        # now determine if file iterator will be used. Will iterate if:
+        # 1. chunksize>0.
+        if self.chunksize is not None:
+            # already done at initialize()
+            pass
         # 2. more than one file path has been set, and self.itr_over_files==True.
         elif len(self._paths) > 1 and self.itr_over_files is True:
             self._iterate = True
-        self.logger.info('File and/or chunksize iterator is active: {is_iterate}.', is_iterate=self._iterate)
-
-        return StatusCode.Success
+        self.logger.debug('File and/or chunksize iterator is active: {is_iterate}.', is_iterate=self._iterate)
 
     def execute(self):
         """Execute the link.
@@ -271,6 +311,10 @@ class ReadToDf(Link):
         """
         ds = process_manager.service(DataStore)
         settings = process_manager.service(ConfigObject)
+
+        # 0. when in fork mode, need to reconfigure paths read out. lock ensures it's only done once.
+        if settings.get('fork', False):
+            self.configure_paths(lock=True)
 
         # 1. handle first the case of no iteration. Concatenate into one dataframe.
         if not self._iterate:
@@ -288,8 +332,8 @@ class ReadToDf(Link):
             # at end of loop
             if self.latest_data_length() == 0:
                 assert self.is_finished(), 'Got empty dataset but not at end of iterator.'
-                # at end of loop, df == None.
-                df = pd.DataFrame(columns=self._usecols)
+                # at end of loop; skip rest of chain execution (but do perform finalize)
+                return StatusCode.BreakChain
 
             # do we have more datasets to go?
             # pass this information to the (possible) repeater at the end of chain
@@ -395,6 +439,33 @@ class ReadToDf(Link):
                 raise Exception('Unexpected error: cannot process next dataset iteration.')
 
         return data
+
+    @property
+    def config_lock(self):
+        """Get lock status of configuration
+
+        Default lock status is False.
+
+        :returns: lock status of configuration
+        :rtype: bool
+        """
+        if not hasattr(self, '_config_lock'):
+            self._config_lock = False
+        return self._config_lock
+
+    @config_lock.setter
+    def config_lock(self, lock):
+        """Lock the configuration status
+
+        Once locked, configuration stays locked.
+
+        :param bool lock: to-be status of configuration lock
+        :raises RunTimeError: If already locked, it will not overwrite to False.
+        """
+        if hasattr(self, '_config_lock'):
+            if self._config_lock and not lock:
+                raise RuntimeError('Configuration lock already set. Will not unlock.')
+        self._config_lock = lock
 
 
 def set_reader(path, reader, *args, **kwargs):
