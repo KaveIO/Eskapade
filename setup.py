@@ -20,9 +20,9 @@ from setuptools import setup
 
 NAME = 'Eskapade'
 
-MAJOR = 0
-REVISION = 9
-PATCH = 3
+MAJOR = 1
+REVISION = 0
+PATCH = 0
 DEV = False
 
 # NOTE: also update version at: README.rst
@@ -37,7 +37,7 @@ TEST_REQUIREMENTS = ['pytest>=3.5.0',
                      ]
 
 REQUIREMENTS = [
-    'Eskapade-Core>=0.9.2',
+    'Eskapade-Core>=1.0.0',
     'matplotlib>=2.0.2',
     'numpy>=1.15.0',
     'scipy>=0.19.0',
