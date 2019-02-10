@@ -116,7 +116,8 @@ class HistogrammarFiller(HistogramFillerBase):
 
         # create a multi-dim histogram by iterating through the columns in reverse order
         # and passing a single-dim hist as input to the next column
-        for col in reversed(columns):
+        revcols = list(reversed(columns))
+        for idx,col in enumerate(revcols):
             # histogram type depends on the data type
             dt = np.dtype(self.var_dtype[col])
 
@@ -141,21 +142,118 @@ class HistogrammarFiller(HistogramFillerBase):
                 # string and boolians are treated as categories
                 hist = hg.Categorize(quantity=quant, value=hist)
 
+            # decorators; adding them here doesn't seem to work!
+            #hist.n_dim = get_n_dim(hist)
+            #selected_cols = revcols[:idx+1]
+            #dta = [self.var_dtype[col] for col in reversed(selected_cols)]
+            #hist.datatype = dta[0] if hist.n_dim==1 else dta
+
         # FIXME stick data types and number of dimension to histogram
         dta = [self.var_dtype[col] for col in columns]
         hist.datatype = dta[0] if len(columns) == 1 else dta
         hist.n_dim = len(columns)
 
-        @property
-        def n_bins(self):
-            """`Get number of bins."""
-            if hasattr(self, 'num'):
-                return self.num
-            elif hasattr(self, 'size'):
-                return self.size
-            else:
-                raise RuntimeError('Cannot retrieve number of bins from hgr hist')
-
-        hist.n_bins = n_bins
-
         return hist
+
+    def process_and_store(self):
+        """Process and store histogrammar objects."""
+        # fix histogrammar contentType bug for n-dim histograms
+        # convert boolean keys to string
+        for name, hist in self._hists.items():
+            hgr_fix_contentType(hist)
+            hgr_convert_bool_to_str(hist)
+            hist.n_bins = get_n_bins(hist)
+
+        # put hists in datastore as normal
+        HistogramFillerBase.process_and_store(self)
+
+
+def hgr_fix_contentType(hist):
+    """Fix missing contentType attribute of histogrammar histogram.
+
+    Patch up missing contentType where needed; needed for toJson() call
+
+    :param hist: input histogrammar histogram
+    """
+    # nothing left to fix?
+    if isinstance(hist, hg.Count):
+        return
+    # patch up missing contentType where needed; needed for toJson() call
+    if hist is not None:
+        if not hasattr(hist, 'contentType'):
+            hist.contentType = 'Count'
+    # 1. loop through bins
+    if hasattr(hist, 'bins'):
+        for h in hist.bins.values():
+            hgr_fix_contentType(h)
+    # 2. loop through values
+    elif hasattr(hist, 'values'):
+        for h in hist.values:
+            hgr_fix_contentType(h)
+    # 3. process attributes if present
+    if hasattr(hist, 'value'):
+        hgr_fix_contentType(hist.value)
+    if hasattr(hist, 'underflow'):
+        hgr_fix_contentType(hist.underflow)
+    if hasattr(hist, 'overflow'):
+        hgr_fix_contentType(hist.overflow)
+    if hasattr(hist, 'nanflow'):
+        hgr_fix_contentType(hist.nanflow)
+
+def hgr_convert_bool_to_str(hist):
+    """Convert boolean keys to string.
+
+    Convert boolean keys to string; needed for toJson() call
+
+    :param hist: input histogrammar histogram
+    """
+    # nothing left to fix?
+    if isinstance(hist, hg.Count):
+        return
+    # 1. loop through bins
+    if hasattr(hist, 'bins'):
+        kys = list(hist.bins.keys())
+        for k in kys:
+            if isinstance(k, (bool, np.bool_)):
+                hist.bins[str(k)] = hist.bins.pop(k)
+        for h in hist.bins.values():
+            hgr_convert_bool_to_str(h)
+    # 2. loop through values
+    elif hasattr(hist, 'values'):
+        for h in hist.values:
+            hgr_convert_bool_to_str(h)
+    # 3. process attributes if present
+    if hasattr(hist, 'value'):
+        hgr_convert_bool_to_str(hist.value)
+    if hasattr(hist, 'underflow'):
+        hgr_convert_bool_to_str(hist.underflow)
+    if hasattr(hist, 'overflow'):
+        hgr_convert_bool_to_str(hist.overflow)
+    if hasattr(hist, 'nanflow'):
+        hgr_convert_bool_to_str(hist.nanflow)
+
+def get_n_dim(cls):
+    """Histogram dimension
+
+    :returns: dimension of the histogram
+    :rtype: int
+    """
+    if isinstance(cls, hg.Count):
+        return 0
+    # histogram may have a subhistogram. Extract it and recurse
+    if hasattr(cls, 'values'):
+        hist = cls.values[0] if cls.values else hg.Count()
+    elif hasattr(cls, 'bins'):
+        hist = list(cls.bins.values())[0] if cls.bins else hg.Count()
+    else:
+        hist = hg.Count()
+    return 1 + get_n_dim(hist)
+
+def get_n_bins(cls):
+    """Get number of bins."""
+    if hasattr(cls, 'num'):
+        return cls.num
+    elif hasattr(cls, 'size'):
+        return cls.size
+    else:
+        raise RuntimeError('Cannot retrieve number of bins from hgr hist.')
