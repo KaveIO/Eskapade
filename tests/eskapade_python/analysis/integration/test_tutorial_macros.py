@@ -131,3 +131,10 @@ class AnalysisTutorialMacrosTest(TutorialMacrosTest):
         self.assertListEqual(ds['reloaded_typed_data_ft'].values.tolist(), ds['typed_data'].values.tolist())
         self.assertListEqual(ds['reloaded_typed_data_ft'].dtypes.values.tolist(), ds['typed_data'].dtypes.values.tolist())
 
+    def test_esk211(self):
+        self.eskapade_run(resources.tutorial('esk211_fork_read_data_itr.py'))
+
+        ds = process_manager.service(DataStore)
+
+        self.assertTrue('reduced_data' in ds)
+        self.assertEqual(24, len(ds['reduced_data'].index))

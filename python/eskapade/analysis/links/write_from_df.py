@@ -23,7 +23,7 @@ import pandas as pd
 
 from eskapade.logger import Logger
 from escore.core import persistence
-from eskapade import process_manager, DataStore, Link, StatusCode
+from eskapade import process_manager, DataStore, ConfigObject, Link, StatusCode
 
 
 def numpy_writer(df, path, store_index):
@@ -218,6 +218,7 @@ class WriteFromDf(Link):
         Pick up the dataframe and write to disk.
         """
         ds = process_manager.service(DataStore)
+        settings = process_manager.service(ConfigObject)
 
         # check that all dataframes are present
         assert all(k in ds for k in self.path_map), 'key(s) not in DataStore.'
@@ -233,8 +234,14 @@ class WriteFromDf(Link):
         for k, path in self.path_map.items():
             df = ds[k]
             if self.add_counter_to_name:
+                # execution index
+                ex_str = '_p' + str(self._counter)
+                # fork index
+                fidx = settings.get('fork_index', 0)
+                fi_str = '_f' + str(fidx) if settings.get('fork', False) else ''
+                # updated path
                 ps = os.path.splitext(path)
-                path = ps[0] + '_' + str(self._counter) + ps[1]
+                path = ps[0] + fi_str + ex_str + ps[1]
             writer = get_writer(path, self.writer)
             folder = os.path.dirname(path)
             persistence.create_dir(folder)

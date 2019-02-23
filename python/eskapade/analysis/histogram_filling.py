@@ -114,7 +114,7 @@ class HistogramFillerBase(Link):
         # check that columns are set correctly.
         for i, c in enumerate(self.columns):
             if isinstance(c, str):
-                self.columns[i] = [c]
+                self.columns[i] = c.split(':')
             elif not isinstance(self.columns[i], list):
                 raise TypeError('Columns "{}" needs to be a string or list of strings'.format(self.columns[i]))
 
@@ -122,7 +122,7 @@ class HistogramFillerBase(Link):
         for k in self.var_dtype:
             try:
                 self.var_dtype[k] = np.dtype(self.var_dtype[k]).type
-                if self.var_dtype[k] is np.string_ or self.var_dtype[k] is np.object_:
+                if (self.var_dtype[k] is np.str_) or (self.var_dtype[k] is np.string_) or (self.var_dtype[k] is np.object_):
                     self.var_dtype[k] = str
             except BaseException:
                 raise RuntimeError('unknown assigned datatype to variable "{}"'.format(k))
@@ -243,7 +243,7 @@ class HistogramFillerBase(Link):
                 dt = self.get_data_type(df, col)
                 if col not in self.var_dtype:
                     self.var_dtype[col] = dt.type
-                    if (self.var_dtype[col] is np.string_) or (self.var_dtype[col] is np.object_):
+                    if (self.var_dtype[col] is np.str_) or (self.var_dtype[col] is np.string_) or (self.var_dtype[col] is np.object_):
                         self.var_dtype[col] = str
                 if not any(dt in types for types in (STRING_SUBSTR, NUMERIC_SUBSTR, TIME_SUBSTR)):
                     raise TypeError('Cannot process column "{0:s}" of data type "{1!s}".'.format(col, dt))
@@ -298,6 +298,31 @@ class HistogramFillerBase(Link):
                                       key=key, value=counts[key])
                     del counts[key]
         return counts
+
+    def var_bin_specs(self, c, idx=0):
+        """Determine bin_specs to use for variable c.
+
+        :param list c: list of variables, or string variable
+        :param int idx: index of the variable in c, for which to return the bin specs. default is 0.
+        :return: selected bin_specs of variable
+        """
+        if isinstance(c, str):
+            c = [c]
+        n = ':'.join(c)
+
+        # determine default bin specs
+        dt = np.dtype(self.var_dtype[c[idx]])
+        is_timestamp = isinstance(dt.type(), np.datetime64)
+        default = self._unit_bin_specs if not is_timestamp else self._unit_timestamp_specs
+
+        # get bin specs
+        if n in self.bin_specs and len(c) > 1 and len(c) == len(self.bin_specs[n]):
+            result = self.bin_specs[n][idx]
+            if not result:
+                result = self.bin_specs.get(c[idx], default)
+        else:
+            result = self.bin_specs.get(c[idx], default)
+        return result
 
 
 def to_ns(x):
